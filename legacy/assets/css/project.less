@@ -1,0 +1,92 @@
+@import "components/overlay.less";
+@import "components/config.less";
+@import "components/menu.less";
+@import "components/status.less";
+@import "components/world.less";
+@import "components/battle.less";
+@import "components/shop.less";
+@import "components/system.less";
+
+//
+//@font-face {
+//  font-family: 'commodore_64_roundedregular';
+//      src: url('../fonts/commodore_rounded_v1.2-webfont.eot');
+//      src: url('../fonts/commodore_rounded_v1.2-webfont.eot?#iefix') format('embedded-opentype'),
+//           url('../fonts/commodore_rounded_v1.2-webfont.woff') format('woff'),
+//           url('../fonts/commodore_rounded_v1.2-webfont.ttf') format('truetype'),
+//           url('../fonts/commodore_rounded_v1.2-webfont.svg#commodore_64_roundedregular') format('svg');
+//      font-weight: normal;
+//      font-style: normal;
+//}
+
+h1,
+h2,
+h3,
+h4,
+#menu ul {
+  font-family: "Arial Rounded", Arial, Helvetica, Verdana, sans-serif;
+  font-weight: normal !important;
+}
+
+h2 {
+    font-size: 150%;
+}
+
+h3 {
+    font-size: 12px;
+    text-transform: uppercase;
+    font-weight: normal !important;
+}
+
+p {
+    font-family: sans-serif;
+}
+
+a
+{
+  color: #00e4ec;
+  text-decoration: underline;
+
+  &:hover {
+      text-decoration: none;
+  }
+}
+
+button {
+    font-family: sans-serif;
+    text-transform: uppercase;
+    font-size: 13px !important;
+}
+
+/* prevent unwanted selection of items */
+
+img, .wrapper label
+{
+    .noSelect();
+}
+
+button {
+    font-weight: bold;
+    font-size: 12px;
+}
+
+// main application wrapper
+
+.application-wrapper
+{
+  width: 100%;
+
+  &.centered {
+    padding: 0;
+    -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+       -moz-box-sizing: border-box; /* Firefox, other Gecko */
+            box-sizing: border-box;
+  }
+}
+
+#ui {
+  position: fixed;
+  bottom: 1em;
+  left: 1em;
+  width: 100%;
+}

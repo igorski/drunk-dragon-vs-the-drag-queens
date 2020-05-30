@@ -1,0 +1,11 @@
+Thumbs.db
+*.DS_Store
+*.log
+intelliJ project/
+*.idea
+*.iml
+*.project
+*.settings
+node_modules/
+dist/
+package-lock.json
