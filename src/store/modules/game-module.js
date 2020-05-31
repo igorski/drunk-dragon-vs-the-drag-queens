@@ -1,6 +1,9 @@
+import MD5 from 'MD5';
 import AudioTracks from '@/definitions/audio-tracks';
+import CharacterFactory from '@/model/character-factory';
 import WorldFactory from '@/model/world-factory';
 import ShopFactory from '@/model/shop-factory';
+import { renderEnvironment } from '@/services/environment-renderer';
 import WorldCache from '@/utils/world-cache';
 
 // internal timers
@@ -11,7 +14,7 @@ export default {
         hash: '',
         gameActive: false, // false == game over, TODO: make enum which also triggers AI updates
         aiActive: false,
-        world: WorldFactory.createWorld(),
+        world: null,
         player: null,
         activeEnvironment: null,
         cave: null,
@@ -30,8 +33,25 @@ export default {
         setGameActive( state, value ) {
            state.gameActive = !!value;
 
-            if ( !state.gameState )
-                this.setEnemyAI( false );
+            //if ( !state.gameState )
+            //    this.setEnemyAI( false );
+        },
+        setPlayer( state, value ) {
+            state.player = value;
+        },
+        setHash( state, value ) {
+            state.hash = value;
+        },
+        setGame( state, value ) {
+            state.created       = value.created;
+            state.modified      = value.modified;
+            state.sessionStart  = value.sessionStart;
+            state.lastSavedTime = value.lastSavedTime;
+            state.totalTime     = value.totalTime;
+            state.gameActive    = !!value.gameActive;
+            state.player        = value.player;
+            state.cave          = value.cave;
+            state.world         = value.world;
         },
         setShop( state, shop ) {
             state.shop = shop;
@@ -39,11 +59,36 @@ export default {
         setActiveEnvironment( state, environment ) {
             state.activeEnvironment = environment;
         },
+        setWorld( state, world ) {
+            state.world = world;
+        },
         setCave( state, cave ) {
             state.cave = cave;
         },
     },
     actions: {
+        async createGame({ state, commit }) {
+            const now = Date.now();
+            // generate unique hash for the world
+            commit( 'setHash', MD5( now + Math.random() ));
+            // create world
+            const world = WorldFactory.createWorld();
+            WorldFactory.populate( world, state.hash, true );
+            // set game data
+            commit( 'setGame', {
+                created: now,
+                modified: now,
+                sessionStart: now,
+                lastSavedTime: -1,
+                totalTime: 0,
+                gameActive: true,
+                player: CharacterFactory.createPlayer(),
+                cave: null,
+                world,
+            });
+            commit( 'setActiveEnvironment', world );
+            await renderEnvironment( state.activeEnvironment );
+        },
         // enter given shop
         enterShop({ state, commit }, shop ) {
             ShopFactory.generateShopItems( shop, state.player );

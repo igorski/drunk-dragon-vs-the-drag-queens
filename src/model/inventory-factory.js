@@ -7,7 +7,7 @@ export default
      * @param {number=} money
      * @param {Array<Object>=} items
      */
-    createInventory( money = 0, items = [] )
+    createInventory( money = 0, items = [] ) {
         return { money, items };
     },
 
@@ -19,7 +19,7 @@ export default
      */
     getWeapons( inventory ) {
         return inventory.items.filter(({ type }) => type === ItemTypes.WEAPON );
-    };
+    },
 
     /**
      * returns all medicine in the Inventory, if present

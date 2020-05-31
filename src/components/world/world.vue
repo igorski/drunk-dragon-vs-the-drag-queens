@@ -7,7 +7,9 @@ import { mapGetters } from 'vuex';
 import zCanvas from 'zcanvas';
 import CaveRenderer from '@/renderers/cave-renderer';
 import WorldRenderer from '@/renderers/world-renderer';
+import SpriteCache from '@/utils/sprite-cache';
 import WorldCache from '@/utils/world-cache';
+import ImageUtil from '@/utils/image-util';
 
 import { CAVE_TYPE } from '@/model/cave-factory';
 import { WORLD_TYPE } from '@/model/world-factory';
@@ -26,28 +28,8 @@ export default {
     },
     watch: {
         activeEnvironment: {
-            immediate: true,
             handler( value ) {
-                this.renderer && this.renderer.dispose();
-
-                if ( !value ) return;
-
-                switch ( value.type ) {
-                    default:
-                        throw new Error(`No renderer for type '${value.type}'`);
-                        break;
-                    case CAVE_TYPE:
-                        this.renderer = new CaveRenderer( 100, 100 );
-                        break;
-                    case WORLD_TYPE:
-                        this.renderer = new WorldRenderer( 100, 100 );
-                        break;
-                }
-                // TODO ImageUtil must wait for spritecache for environment to be ready
-                // prior to adding it to the canvas and trigger rendering
-
-                this.zcanvas.addChild( this.renderer );
-                this.renderer.render( value, this.player );
+                this.handleEnvironment();
             },
         },
     },
@@ -66,6 +48,7 @@ export default {
         this.handlers.forEach(({ event, callback }) => {
             window.addEventListener( event, callback );
         });
+        this.handleEnvironment();
     },
     mounted() {
         this.zcanvas.insertInPage( this.$refs.canvasContainer );
@@ -103,6 +86,31 @@ export default {
             this._canvas.setDimensions( windowWidth, windowHeight );
             this.renderer.updateImage ( null, windowWidth, windowHeight );
             */
+        },
+        handleEnvironment() {
+            this.renderer && this.renderer.dispose();
+            const environment = this.activeEnvironment;
+
+            if ( !environment ) return;
+            let sprite;
+
+            switch ( environment.type ) {
+                default:
+                    throw new Error(`No renderer for type '${environment.type}'`);
+                    break;
+                case CAVE_TYPE:
+                    this.renderer = new CaveRenderer( 100, 100 );
+                    sprite = SpriteCache.CAVE;
+                    break;
+                case WORLD_TYPE:
+                    this.renderer = new WorldRenderer( 100, 100 );
+                    sprite = SpriteCache.WORLD;
+                    break;
+            }
+            ImageUtil.onReady( sprite, () => {
+                this.zcanvas.addChild( this.renderer );
+                this.renderer.render( environment, this.player );
+            });
         },
         handleKeyDown( aEvent ) {
             let preventDefault = false;

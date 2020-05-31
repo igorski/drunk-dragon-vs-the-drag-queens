@@ -2,7 +2,7 @@ import SpriteCache from '@/utils/sprite-cache';
 import { CAVE_TYPE, CAVE_TILES } from '@/model/cave-factory';
 import { WORLD_TYPE, WORLD_TILES } from '@/model/world-factory';
 
-export const TerrainRenderer =
+export default
 {
     /**
      * draws a tile taking the surrounding tiles into account for an aesthetically
@@ -13,30 +13,30 @@ export const TerrainRenderer =
      * @param {number} ty y index of the tile in the terrain map
      * @param {number} x targetX to draw the tile at on the ctx
      * @param {number} y targetY to draw the tile at on the ctx
-     * @param {Object} env the environment we're rendering
+     * @param {Object} environment the environment we're rendering
      * @param {Array<number>} terrain the terrain we're drawing from
      */
-    drawTileForSurroundings( ctx, tx, ty, x, y, env, terrain )
+    drawTileForSurroundings( ctx, tx, ty, x, y, environment, terrain )
     {
-        const tile     = getTileDescription( tx, ty, terrain, env );
+        const tile     = getTileDescription( tx, ty, terrain, environment );
         const tileType = tile.type;
 
         // TODO : can we make this more generic ?
 
-        if ( env.type === WORLD_TYPE )
+        if ( environment.type === WORLD_TYPE )
         {
             switch ( tileType )
             {
                 default:
                 case WORLD_TILES.GRASS:
-                    drawTile( ctx, getSheet( env, tile ), 0, x, y ); // grass is the default World underground
+                    drawTile( ctx, getSheet( environment, tile ), 0, x, y ); // grass is the default World underground
                     break;
 
                 case WORLD_TILES.SAND:
                 case WORLD_TILES.WATER:
                 case WORLD_TILES.MOUNTAIN:
-                    drawTile( ctx, getSheet( env, tile ), 0, x, y ); // draw tile underground first
-                    drawAdjacentTiles( tile, tx, ty, x, y, env, terrain, ctx );
+                    drawTile( ctx, getSheet( environment, tile ), 0, x, y ); // draw tile underground first
+                    drawAdjacentTiles( tile, tx, ty, x, y, environment, terrain, ctx );
                     break;
 
                 case WORLD_TILES.TREE:
@@ -45,7 +45,7 @@ export const TerrainRenderer =
                     break;
             }
         }
-        else if ( env.type === CAVE_TYPE )
+        else if ( environment.type === CAVE_TYPE )
         {
             switch ( tileType )
             {
@@ -53,7 +53,7 @@ export const TerrainRenderer =
                     return drawTile( ctx, SpriteCache.CAVE, 0, x, y );
 
                 case CAVE_TILES.WALL: // wall
-                    drawAdjacentTiles( tile, tx, ty, x, y, env, terrain, ctx  );
+                    drawAdjacentTiles( tile, tx, ty, x, y, environment, terrain, ctx  );
                     break;
 
                 case CAVE_TILES.TUNNEL: // tunnel
@@ -65,7 +65,7 @@ export const TerrainRenderer =
             }
         }
         else {
-            throw new Error( `unknown Environment ${env.type}` );
+            throw new Error( `unknown Environment ${environment.type}` );
         }
     }
 };
@@ -99,15 +99,15 @@ function drawTile( aCanvasContext, aBitmap, tileSourceX, targetX, targetY )
  *
  * @param {number} tx x-coordinate of the tile
  * @param {number} ty y-coordinate of the tile
- * @param {Array.<number>} terrain the terrain the tile resides in
- * @param {Environment} env the environment the terrain belongs to
+ * @param {Array<Number>} terrain the terrain the tile resides in
+ * @param {Object} environment the environment the terrain belongs to
  * @param {boolean=} blockRecursion optionally block recursion, defaults to false
  *
  * @return {{ type: number, area: number }}
  */
-function getTileDescription( tx, ty, terrain, env, blockRecursion )
+function getTileDescription( tx, ty, terrain, environment, blockRecursion )
 {
-    const width = env.width, maxX = width - 1, maxY = env.height - 1;
+    const width = environment.width, maxX = width - 1, maxY = environment.height - 1;
     const tile  = terrain[ ty * width + tx ];
     const out   = { type : tile, area : FULL_SIZE };
 
@@ -121,9 +121,9 @@ function getTileDescription( tx, ty, terrain, env, blockRecursion )
     // inner corner types first
 
     if ( tileLeft === tile && tileAbove === tile &&
-         equalOrPassable( env, tile, tileRight ) && tileAboveRight !== tile )
+         equalOrPassable( environment, tile, tileRight ) && tileAboveRight !== tile )
     {
-        if ( getTileDescription( tx - 1, ty, terrain, env, true ).area === TOP_LEFT )
+        if ( getTileDescription( tx - 1, ty, terrain, environment, true ).area === TOP_LEFT )
             out.area = EMPTY_LEFT;
         else if ( tileBelow !== tile )
             out.area = EMPTY_TOP_LEFT;
@@ -133,7 +133,7 @@ function getTileDescription( tx, ty, terrain, env, blockRecursion )
         return out;
     }
 
-    if ( equalOrPassable( env, tile, tileLeft ) && tileAbove === tile &&
+    if ( equalOrPassable( environment, tile, tileLeft ) && tileAbove === tile &&
          tileRight === tile && tileAboveLeft !== tile )
     {
         if ( tileBelow === CAVE_TILES.NOTHING )
@@ -146,9 +146,9 @@ function getTileDescription( tx, ty, terrain, env, blockRecursion )
         return out;
     }
 
-    if ( tileLeft === tile && equalOrPassable( env, tile, tileAbove ) && tileRight === CAVE_TILES.GROUND )
+    if ( tileLeft === tile && equalOrPassable( environment, tile, tileAbove ) && tileRight === CAVE_TILES.GROUND )
     {
-        if ( getTileDescription( tx - 1, ty, terrain, env, true ).area === EMPTY_RIGHT )
+        if ( getTileDescription( tx - 1, ty, terrain, environment, true ).area === EMPTY_RIGHT )
             out.area = EMPTY_LEFT;
         else if ( tileBelow === tile )
             out.area = EMPTY_BOTTOM_LEFT;
@@ -158,13 +158,13 @@ function getTileDescription( tx, ty, terrain, env, blockRecursion )
         return out;
     }
 
-    if ( tileRight === tile && equalOrPassable( env, tile, tileBelow ) && tileAbove === tile ) {
+    if ( tileRight === tile && equalOrPassable( environment, tile, tileBelow ) && tileAbove === tile ) {
         out.area = EMPTY_TOP_RIGHT;
         return out;
     }
 
     if ( tileRight === tile && tileBelow === tile && tileLeft === CAVE_TILES.GROUND &&
-        equalOrPassable( env, tile, tileAbove ))
+        equalOrPassable( environment, tile, tileAbove ))
     {
         out.area = EMPTY_BOTTOM_RIGHT;
         return out;
@@ -198,13 +198,13 @@ function getTileDescription( tx, ty, terrain, env, blockRecursion )
 
     // vertical types
 
-    if ( tileLeft !== tile && tileBelow === tile && equalOrPassable( env, tile, tileRight ))
+    if ( tileLeft !== tile && tileBelow === tile && equalOrPassable( environment, tile, tileRight ))
     {
         out.area = EMPTY_LEFT;
         return out;
     }
 
-    if ( tileRight !== tile && tileBelow === tile && equalOrPassable( env, tile, tileLeft ))
+    if ( tileRight !== tile && tileBelow === tile && equalOrPassable( environment, tile, tileLeft ))
     {
         out.area = EMPTY_RIGHT;
         return out;
@@ -216,9 +216,9 @@ function getTileDescription( tx, ty, terrain, env, blockRecursion )
     {
         if ( tileAbove === CAVE_TILES.NOTHING || tileAbove === tile )
         {
-            if ( getTileDescription( tx - 1, ty, terrain, env, true ).area === EMPTY_RIGHT )
+            if ( getTileDescription( tx - 1, ty, terrain, environment, true ).area === EMPTY_RIGHT )
             {
-                if ( !blockRecursion && getTileDescription( tx + 2, ty, terrain, env, true ).area === FULL_SIZE )
+                if ( !blockRecursion && getTileDescription( tx + 2, ty, terrain, environment, true ).area === FULL_SIZE )
                     out.area = BOTTOM_RIGHT;
                 else
                     out.area = EMPTY_LEFT;
@@ -226,7 +226,7 @@ function getTileDescription( tx, ty, terrain, env, blockRecursion )
             else
                 out.area = EMPTY_TOP;
         }
-        else if ( equalOrPassable( env, tile, tileAbove ))
+        else if ( equalOrPassable( environment, tile, tileAbove ))
             out.area = EMPTY_BOTTOM;
 
         return out;
@@ -340,7 +340,7 @@ function drawAdjacentTiles( tile, tx, ty, x, y, env, terrain, ctx )
  */
 function getSheet( environment, tileDescription )
 {
-    if ( env.type === CAVE_TYPE ) {
+    if ( environment.type === CAVE_TYPE ) {
         return SpriteCache.CAVE;   // single sheet for a full cave
     }
     else if ( environment.type === WORLD_TYPE )

@@ -15,9 +15,8 @@ import SpriteCache   from '@/utils/sprite-cache';
  * @param {number} aWidth
  * @param {number} aHeight
  */
-function CaveRenderer( aWidth, aHeight )
-{
-    this.super( this, aWidth, aHeight );
+function CaveRenderer( aWidth, aHeight ) {
+    CaveRenderer.super( this, aWidth, aHeight );
 }
 
 WorldRenderer.extend( CaveRenderer );

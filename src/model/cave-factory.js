@@ -1,6 +1,7 @@
-import { Map }     from 'rot-js';
-import HashUtil    from '@/utils/hash-util';
-import TerrainUtil from '@/utils/terrain-util';
+import { Map }            from 'rot-js';
+import HashUtil           from '@/utils/hash-util';
+import TerrainUtil        from '@/utils/terrain-util';
+import EnvironmentFactory from './environment-factory';
 
 export const CAVE_TYPE = 'Cave';
 
@@ -24,7 +25,7 @@ const CaveFactory =
         cave.level  = NaN; // the current level within the cave where the player is at
         cave.levels = [];  // the terrains for all levels
 
-        return out;
+        return cave;
     },
 
     /**

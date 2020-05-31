@@ -185,8 +185,6 @@ export default
  * will search for the next free position as close as possible to
  * the the requested coordinate
  *
- * @private
- *
  * @param {number} x preferred x-position of obj
  * @param {number} y preferred y-position of obj
  * @param {*} obj Object with x and y properties so its

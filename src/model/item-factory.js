@@ -24,11 +24,11 @@ export default
         switch ( type )
         {
             case ItemTypes.WEAPON:
-                return Copy.ITEMS[ aItem.type ] + ' '' + Copy.WEAPONS[ aItem.value ] + ''';
+                return 'TODO';//Copy.ITEMS[ aItem.type ] + ' '' + Copy.WEAPONS[ aItem.value ] + ''';
                 break;
 
             case ItemTypes.MEDICINE:
-                return Copy.ITEMS[ aItem.type ] + ' '' + Copy.MEDICINE[ aItem.value ] + ''';
+                return 'TODO';//Copy.ITEMS[ aItem.type ] + ' '' + Copy.MEDICINE[ aItem.value ] + ''';
                 break;
         }
     },

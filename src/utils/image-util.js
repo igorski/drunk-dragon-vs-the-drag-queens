@@ -1,4 +1,4 @@
-export const ImageUtil =
+const ImageUtil =
 {
     /**
      * a quick query to check whether the Image is ready for rendering
@@ -39,3 +39,4 @@ export const ImageUtil =
         callback();
     }
 };
+export default ImageUtil;

@@ -30,6 +30,10 @@ export default {
         await preloadAssets();
         await this.prepareAudio();
 
+        // QQQ restore storage
+        // first run, create game
+        await this.createGame();
+
         /*
         if ( !Storage.get( "game" ))
         {
@@ -49,6 +53,7 @@ export default {
         ]),
         ...mapActions([
             'prepareAudio',
+            'createGame',
         ]),
     },
 };

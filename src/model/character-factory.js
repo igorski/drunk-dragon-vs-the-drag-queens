@@ -1,8 +1,9 @@
-import AttackTypes   from '@/definitions/AttackTypes';
-import AttackFactory from './attack-factory';
-import Random from 'random-seed';
+import Random           from 'random-seed';
+import AttackTypes      from '@/definitions/attack-types';
+import AttackFactory    from './attack-factory';
+import InventoryFactory from './inventory-factory';
 
-export default
+const CharacterFactory =
 {
     /**
      * Creates a new Character. A Character is the base definition for
@@ -17,18 +18,29 @@ export default
      * @param {number=} maxSP
      * @param {number=} SP
      */
-    createCharacter( name = 'Foo', level = 1, maxHP = 5, HP = 5, maxMP = 5, MP = 5, maxSP = 0, SP = 0 )
-    {
+    createCharacter( name = 'Foo', level = 1, maxHP = 5, HP = 5, maxMP = 5, MP = 5, maxSP = 0, SP = 0 ) {
         return {
             name, level,
             maxHP, HP,
             maxMP, MP,
             maxSP, SP,
-            isDefending: false,
             x: 0,
-            y: 0;
+            y: 0,
+            isDefending: false,
         };
-    }
+    },
+
+    /**
+     * Creates a new Player. A Player also has Experience Points and an inventory.
+     */
+    createPlayer( name = 'Hero', level = 1, maxHP = 10, HP = 10, maxMP = 0, MP = 0 ) {
+        const player = CharacterFactory.createCharacter( name, level, maxHP, HP, maxMP, MP );
+
+        player.XP        = 0;
+        player.inventory = InventoryFactory.createInventory();
+
+        return player;
+    },
 
     /**
      * returns an Attack describing the type of attack
@@ -49,7 +61,7 @@ export default
         // TODO : randomize attack type even further in case of item (confusion, dizzy, etc. to miss)
 
         return AttackFactory.getAttack( attackType || AttackTypes.PUNCH, character );
-    }
+    },
 
     /**
      * invoked whenever this Character is attacked by its Opponent
@@ -83,3 +95,4 @@ export default
         return character.HP > 0;
     }
 };
+export default CharacterFactory;

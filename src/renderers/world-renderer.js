@@ -15,7 +15,7 @@ import WorldCache  from '@/utils/world-cache';
  * @param {number} aHeight
  */
 function WorldRenderer( aWidth, aHeight ) {
-    this.super( this, 'constructor', 0, 0, aWidth, aHeight );
+    WorldRenderer.super( this, 'constructor', 0, 0, aWidth, aHeight );
 }
 
 zCanvas.sprite.extend( WorldRenderer );
@@ -43,7 +43,6 @@ WorldRenderer.prototype.render = function( aWorld, aPlayer ) {
 
 /**
  * @override
- * @public
  *
  * @param {Image|string=} aImage image, can be either HTMLImageElement or base64 encoded string
  * image is optional as we might be interested in just scaling the
@@ -52,7 +51,7 @@ WorldRenderer.prototype.render = function( aWorld, aPlayer ) {
  * @param {number=} aNewHeight optional new height of the image
  */
 WorldRenderer.prototype.updateImage = function( aImage, aNewWidth, aNewHeight ) {
-    this.super( this, 'updateImage', aImage, aNewWidth, aNewHeight );
+    WorldRenderer.super( this, 'updateImage', aImage, aNewWidth, aNewHeight );
 
     const isPortrait = aNewHeight > aNewWidth;
 
@@ -102,7 +101,7 @@ WorldRenderer.prototype.setTileDimensions = function( aWidth, aHeight )
 WorldRenderer.prototype.draw = function( aCanvasContext )
 {
     // update player movement
-    this._player.update();
+//    this._player.update(); // TODO
 
     var vx = this._player.x;
     var vy = this._player.y;

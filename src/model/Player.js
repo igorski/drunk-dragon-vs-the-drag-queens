@@ -3,29 +3,6 @@ import WorldCache from '../../utils/WorldCache';
 
 import InventoryFactory from '@/model/inventory-factory';
 
-export default class Player extends Character
-{
-    /**
-     * @param {string=} aName
-     * @param {number=} aLevel
-     * @param {number=} aMaxHP
-     * @param {number=} aHP
-     * @param {number=} aMaxMP
-     * @param {number=} aMP
-     * @param {number=} aMaxSP
-     * @param {number=} aSP
-     * @param {number=} aXP experience points
-     * @param {Inventory=} aInventory Players possessions
-     */
-    constructor( aName, aLevel, aMaxHP, aHP, aMaxMP, aMP, aMaxSP, aSP, aXP, aInventory )
-    {
-        super( aName, aLevel, aMaxHP, aHP, aMaxMP, aMP, aMaxSP, aSP );
-
-        this.XP        = aXP || 0;
-        this.inventory = aInventory || InventoryFactory.createInventory();
-    }
-};
-
 /* class constants */
 
 /** @public @const @type {string} */ Player.MOVE_START           = "P::0";
