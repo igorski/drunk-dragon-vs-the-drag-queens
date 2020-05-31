@@ -57,7 +57,7 @@ CreateGameCommand.prototype.execute = function( aMessageType, aMessageData )
 
     // create World
 
-    WorldFactory.create( gameModel, true );
+    WorldFactory.populate( gameModel.world, gameModel.hash, true );
 
     gameModel.invalidateWorld();
     gameModel.setGameState( true );

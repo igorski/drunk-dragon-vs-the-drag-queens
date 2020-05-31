@@ -79,7 +79,7 @@ ShopView.prototype.setData = function( aShop, aPlayer )
 
     // can we sell stuff ?
 
-    if ( aPlayer.inventory.hasItems() )
+    if ( aPlayer.inventory.items.length > 0 )
     {
         index = -1;
         this.sellContainer.show();

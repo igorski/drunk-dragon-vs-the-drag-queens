@@ -1,31 +1,24 @@
-/**
- * Created by izinken on 24/03/15.
- */
-var CaveLevel = require( "../vo/CaveLevel" );
+import CaveFactory from '@/model/cave-factory';
 
-var CaveLevelAssembler = module.exports =
+export default
 {
-    toJSON : function( aCaveLevel )
-    {
+    toJSON( aCaveLevel ) {
         return {
-            "x" : aCaveLevel.startX,
-            "y" : aCaveLevel.startY,
-            "w" : aCaveLevel.width,
-            "h" : aCaveLevel.height,
-            "t" : aCaveLevel.terrain.join( "" ) // (int values)
+            x: aCaveLevel.startX,
+            y: aCaveLevel.startY,
+            w: aCaveLevel.width,
+            h: aCaveLevel.height,
+            t: aCaveLevel.terrain.join( "" ) // (int values)
         };
     },
-
-    fromJSON : function( aJSON )
-    {
-        var terrain = aJSON.t.split( "" ); // split integer values to Array
-        var i       = terrain.length;
-        while ( i-- )
-        {
+    fromJSON( aJSON ) {
+        const terrain = aJSON.t.split( "" ); // split integer values to Array
+        let i       = terrain.length;
+        while ( i-- ) {
             terrain[ i ] = parseInt( terrain[ i ], 10 );    // String to numerical
         }
 
-        var out = new CaveLevel( aJSON.w, aJSON.h, terrain );
+        const out = CaveFactory.createCaveLevel( aJSON.w, aJSON.h, terrain );
 
         out.startX = aJSON.x;
         out.startY = aJSON.y;

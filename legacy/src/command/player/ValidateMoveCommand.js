@@ -6,14 +6,14 @@
  */
 module.exports = ValidateMoveCommand;
 
-var Inheritance   = require( "zjslib" ).Inheritance;
-var Command       = require( "zmvc" ).Command;
-var Notifications = require( "../../definitions/Notifications" );
-var BattleModel   = require( "../../model/BattleModel" );
-var GameModel     = require( "../../model/GameModel" );
-var ShopModel     = require( "../../model/ShopModel" );
-var Player        = require( "../../model/vo/Player" );
-var WorldCache    = require( "../../utils/worldCache" );
+var Inheritance   = require( 'zjslib' ).Inheritance;
+var Command       = require( 'zmvc' ).Command;
+var Notifications = require( '../../definitions/Notifications' );
+var BattleModel   = require( '../../model/BattleModel' );
+var GameModel     = require( '../../model/GameModel' );
+var ShopModel     = require( '../../model/ShopModel' );
+var Player        = require( '../../model/vo/Player' );
+var WorldCache    = require( '../../utils/worldCache' );
 
 /**
  * @constructor
@@ -37,7 +37,7 @@ Inheritance.extend( ValidateMoveCommand, Command );
  */
 ValidateMoveCommand.prototype.execute = function( aMessageType, aMessageData )
 {
-    //console.log( "VALIDATE MOVE COMMAND" );
+    //console.log( 'VALIDATE MOVE COMMAND' );
 
     // validate whether we can move to the target position
 
@@ -82,26 +82,26 @@ ValidateMoveCommand.prototype.validateMovement = function( aPlayer, aOptEnvironm
     // might lead to an invalidation as we can then simply block that axis' movement
     // while keeping the other axis movement (if existing) intact
 
-    var axisRequested = typeof aOptAxis === "string";
+    var axisRequested = typeof aOptAxis === 'string';
     /* // TODO : doesn't work yet...
     if ( checkGivenAxisOnly && axisRequested )
     {
         var env = this.getEnvironment();
 
-        x = aOptAxis === "x" ? x : env.x;
-        y = aOptAxis === "y" ? y : env.x;
+        x = aOptAxis === 'x' ? x : env.x;
+        y = aOptAxis === 'y' ? y : env.x;
     }
     */
     if ( !this.validate( aPlayer, x, y ))
     {
         if ( axisRequested )
         {
-            // TODO : a "proposed fix" for the above TODO, it has been noticed that
+            // TODO : a 'proposed fix' for the above TODO, it has been noticed that
             // when moving on two axes, the axis that was blocked is the other
-            // axis than the one specified in "aOptAxis", is this a coincidence
+            // axis than the one specified in 'aOptAxis', is this a coincidence
             // or the golden rule ?
 
-            var blockHorizontal = aOptAxis !== "x"; // basically "inverting" aOptAxis;
+            var blockHorizontal = aOptAxis !== 'x'; // basically 'inverting' aOptAxis;
 
             aPlayer.haltMovement( blockHorizontal, true );
         }
@@ -154,12 +154,12 @@ ValidateMoveCommand.prototype.validate = function( aPlayer, aOptX, aOptY )
             break;
     }
 
-    if ( typeof aOptX === "number" ) targetX = aOptX;
-    if ( typeof aOptY === "number" ) targetY = aOptY;
+    if ( typeof aOptX === 'number' ) targetX = aOptX;
+    if ( typeof aOptY === 'number' ) targetY = aOptY;
 
     // validate whether we can move to the target position
 
-    return WorldCache.positionFree( env, targetX, targetY, true );
+    return WorldCache.isPositionFree( env, targetX, targetY, true );
 };
 
 
@@ -210,7 +210,7 @@ ValidateMoveCommand.prototype.hitTest = function( aPlayer )
     }
     else if ( inCave )
     {
-        var caveLevel = env.getActiveLevel();
+        var caveLevel = env.levels[ env.level ];
 
         if ( hit = internalHitTest( env.x, env.y, caveLevel.exits ))
         {
@@ -227,15 +227,15 @@ ValidateMoveCommand.prototype.hitTest = function( aPlayer )
  * @protected
  *
  * @param {Player} aPlayer
- * @param {string} aAxis either "x" or "y"-axis
+ * @param {string} aAxis either 'x' or 'y'-axis
  * @return {boolean}
  */
 ValidateMoveCommand.prototype.hasAxisMoved = function( aPlayer, aAxis )
 {
-    if ( aAxis === "x" && aPlayer.x !== 0 )
+    if ( aAxis === 'x' && aPlayer.x !== 0 )
         return true;
 
-    else if ( aAxis === "y" && aPlayer.y !== 0 )
+    else if ( aAxis === 'y' && aPlayer.y !== 0 )
         return true;
 
     return false;
@@ -255,7 +255,7 @@ ValidateMoveCommand.prototype.sanitizePosition = function( aPlayer, aAxis )
     var env     = this.getEnvironment();
     var targetX = env.x, targetY = env.y;
 
-    if ( aAxis === "x" )
+    if ( aAxis === 'x' )
     {
         switch ( aPlayer.xDirection )
         {
@@ -270,7 +270,7 @@ ValidateMoveCommand.prototype.sanitizePosition = function( aPlayer, aAxis )
         env.x     = targetX;
         aPlayer.x = 0;
     }
-    else if ( aAxis === "y" )
+    else if ( aAxis === 'y' )
     {
         switch ( aPlayer.yDirection )
         {

@@ -51,8 +51,7 @@ BattleView.prototype.updateBattle = function( aOpponent, aPlayer )
 
     // only items we support for now is medicine
 
-    if ( aPlayer.inventory.hasItems() &&
-         aPlayer.inventory.getMedicine().length > 0 )
+    if ( aPlayer.inventory.getMedicine().length > 0 )
     {
         this._item.show();
     }

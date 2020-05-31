@@ -43,7 +43,7 @@ RenderCaveLevelCommand.prototype.execute = function( aMessageType, aMessageData 
 
     var gameModel  = this.getModel( GameModel.NAME );
     var cave       = gameModel.cave;
-    var caveLevel  = cave.getActiveLevel();
+    var caveLevel  = cave.levels[ cave.level ];
     var worldWidth = caveLevel.width, worldHeight = caveLevel.height;
     var tileWidth  = WorldCache.tileWidth;
     var tileHeight = WorldCache.tileHeight;
@@ -53,7 +53,7 @@ RenderCaveLevelCommand.prototype.execute = function( aMessageType, aMessageData 
     this.broadcast( Notifications.System.BUSY_STATE_START );
 
     // setup Canvas for rendering
-    
+
     var cvs = document.createElement( "canvas" );
     var ctx = cvs.getContext( "2d" );
 

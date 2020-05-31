@@ -1,14 +1,56 @@
 <template>
     <div class="rpg">
-        <h1>RPG</h1>
+        <template v-if="loading">
+            Loading...
+        </template>
+        <template v-else>
+            <h1>RPG</h1>
+            <world />
+        </template>
     </div>
 </template>
 
 <script>
+import { mapState, mapMutations, mapActions } from 'vuex';
+import { preloadAssets } from '@/services/asset-preloader';
+import World from '@/components/world/world';
+
 export default {
     components: {
+        World,
+    },
+    computed: {
+        ...mapState([
+            'loading',
+        ]),
+    },
+    async created() {
+        this.setLoading( true );
 
-    }
+        await preloadAssets();
+        await this.prepareAudio();
+
+        /*
+        if ( !Storage.get( "game" ))
+        {
+            // first run, create game
+            this.broadcast( Notifications.Storage.CREATE_NEW_GAME );
+        }
+        else {
+            // returning user, restore game
+            this.broadcast( Notifications.Storage.RESTORE_GAME );
+        }
+        */
+        this.setLoading( false );
+    },
+    methods: {
+        ...mapMutations([
+            'setLoading',
+        ]),
+        ...mapActions([
+            'prepareAudio',
+        ]),
+    },
 };
 </script>
 

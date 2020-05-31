@@ -102,7 +102,7 @@ HandleAICommand.prototype.execute = function( aMessageType, aMessageData )
 
             if ( moved )
             {
-                if ( !WorldCache.positionFree( environment, enemy.x, enemy.y )) {
+                if ( !WorldCache.isPositionFree( environment, enemy.x, enemy.y )) {
                     enemy.x = oldX;
                     enemy.y = oldY;
                     moved   = false;

@@ -1,9 +1,11 @@
 var Opponent    = require( "../vo/Opponent" );
-var Inventory   = require( "../vo/Inventory" );
 var Item        = require( "../vo/Item" );
 var World       = require( "../vo/World" );
 var ItemFactory = require( "./ItemFactory" );
 var Random      = require( "random-seed" );
+
+import EnvironmentFactory from '@/model/environment-factory';
+import InventoryFactory from '@/model/inventory-factory';
 
 /**
  * EnemyFactory generates a pseudo-random enemy
@@ -59,7 +61,7 @@ var EnemyFactory = module.exports =
 
             // TODO : should try again at different coordinates ;)
 
-            if ( aEnvironment.positionFree( x, y )) {
+            if ( EnvironmentFactory.isPositionFree( aEnvironment, x, y )) {
                 aEnvironment.enemies.push( enemy );
             }
 
@@ -113,7 +115,7 @@ var EnemyFactory = module.exports =
             {
                 items = [ ItemFactory.generateItem() ];
             }
-            aEnemy.inventory = new Inventory( money, items );
+            aEnemy.inventory = InventoryFactory.createInventory( money, items );
         }
     }
 };

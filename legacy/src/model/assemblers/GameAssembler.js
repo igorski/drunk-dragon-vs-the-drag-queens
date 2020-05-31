@@ -1,8 +1,9 @@
 var Player        = require( "../vo/Player" );
-var Inventory     = require( "../vo/Inventory" );
 var Item          = require( "../vo/Item" );
 var WorldFactory  = require( "../factories/WorldFactory" );
 var CaveAssembler = require( "./CaveAssembler" );
+
+import InventoryFactory from '@/model/inventory-factory';
 
 var GameAssembler = module.exports =
 {
@@ -106,7 +107,7 @@ var GameAssembler = module.exports =
         gameModel.modified  = data.modified;
         gameModel.totalTime = data.totalTime;
 
-        var inventory = new Inventory( data.inventory.money );
+        const inventory = InventoryFactory.createInventory( data.inventory.money );
 
         if ( data.inventory.items && data.inventory.items.length > 0 )
         {
@@ -137,7 +138,7 @@ var GameAssembler = module.exports =
 
         // recreate and restore world position
 
-        WorldFactory.create( gameModel, !hasTerrain );
+        WorldFactory.populate( gameModel.world, gameModel.hash, !hasTerrain );
 
         gameModel.world.x = data.world.x;
         gameModel.world.y = data.world.y;
@@ -160,7 +161,7 @@ var GameAssembler = module.exports =
         if ( data.cave )
         {
             var cave  = gameModel.cave = CaveAssembler.fromJSON( data.cave );
-            var level = cave.getActiveLevel();
+            var level = cave.levels[ cave.level ];
 
             // update the Caves properties to match the terrain dimensions of the current level
 

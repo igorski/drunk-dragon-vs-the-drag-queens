@@ -92,10 +92,6 @@ BuyItemCommand.prototype.handleHPup = function( aEvent )
         // yep, subtract money, add item to inventory and remove from Shop
 
         player.inventory.money -= this._item.price;
-
-        if ( !player.inventory.hasItems() )
-            player.inventory.items = [];
-
         player.inventory.items.push( this._item );
 
         var shop = this.getModel( ShopModel.NAME ).getShop();

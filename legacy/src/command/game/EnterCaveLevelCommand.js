@@ -62,7 +62,7 @@ EnterCaveLevelCommand.prototype.execute = function( aMessageType, aMessageData )
     {
         cave.level = requestedLevel;
 
-        var activeLevel = cave.getActiveLevel();
+        var activeLevel = cave.levels[ cave.level ];
 
         // update the Caves properties to match the terrain dimensions of the current level
 

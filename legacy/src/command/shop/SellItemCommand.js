@@ -48,7 +48,7 @@ SellItemCommand.prototype.execute = function( aMessageType, aMessageData )
     var playerModel = this.getModel( PlayerModel.NAME );
     var player      = playerModel.getPlayer();
 
-    if ( player.inventory.hasItems() && player.inventory.items.length > itemIndex )
+    if ( player.inventory.items.length > itemIndex )
     {
         this._item = player.inventory.items[ itemIndex ];
 

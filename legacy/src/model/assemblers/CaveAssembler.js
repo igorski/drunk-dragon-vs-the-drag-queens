@@ -3,6 +3,7 @@
  */
 var CaveLevelAssembler = require( "./CaveLevelAssembler" );
 var Cave               = require( "../vo/Cave" );
+import CaveFactory from '@/model/cave-factory';
 
 var CaveAssembler = module.exports =
 {
@@ -26,7 +27,7 @@ var CaveAssembler = module.exports =
 
     fromJSON : function( aJSON )
     {
-        var out = new Cave( aJSON.x, aJSON.y );
+        var out = CaveFactory.createCave( aJSON.x, aJSON.y );
 
         var levels = [];
 
