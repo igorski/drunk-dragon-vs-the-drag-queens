@@ -101,8 +101,8 @@ WorldRenderer.prototype.setTileDimensions = function( aWidth, aHeight ) {
 WorldRenderer.prototype.draw = function( aCanvasContext ) {
 //    dispatch( 'updatePlayer' ); // update Player movement
 
-    const vx = this._player.x;
-    const vy = this._player.y;
+    const vx = this._player.x || 0;
+    const vy = this._player.y || 0;
 
     const world      = this._world;
     const worldWidth = world.width, worldHeight = world.height;

@@ -4,15 +4,19 @@
             Loading...
         </template>
         <template v-else>
-            <h1>RPG</h1>
-            <world />
+            <div class="ui">
+                <h1>RPG</h1>
+                <span class="time">{{ time }}</span>
+            </div>
+            <world class="game-renderer" />
         </template>
     </div>
 </template>
 
 <script>
-import { mapState, mapMutations, mapActions } from 'vuex';
+import { mapState, mapGetters, mapMutations, mapActions } from 'vuex';
 import { preloadAssets } from '@/services/asset-preloader';
+import { timestampToTimeString } from '@/utils/time-util';
 import World from '@/components/world/world';
 
 export default {
@@ -23,6 +27,12 @@ export default {
         ...mapState([
             'loading',
         ]),
+        ...mapGetters([
+            'gameTime',
+        ]),
+        time() {
+            return timestampToTimeString( this.gameTime );
+        },
     },
     async created() {
         this.setLoading( true );
@@ -67,5 +77,18 @@ export default {
     text-align: center;
     color: #2c3e50;
     margin-top: 60px;
+}
+.time {
+    color: #fff;
+}
+.ui {
+    position: absolute;
+    z-index: 1;
+}
+.game-renderer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 0;
 }
 </style>

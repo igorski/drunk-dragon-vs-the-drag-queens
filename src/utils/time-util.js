@@ -1,32 +1,23 @@
-export default
-{
-    timestampToString( timeStamp ) {
-        const date = new Date( timeStamp );
+export const GAME_START_TIME = '1986-08-29 23:00:00';
+export const GAME_TIME_RATIO = 8; // the amount of real time vs game time
 
-        // hours part from the timestamp
-        const hours = date.getHours();
+export const dateToTimeString = date => {
+    // hours part from the timestamp
+    const hours = date.getHours();
 
-        // minutes part from the timestamp
-        const minutes = addZero( date.getMinutes() );
+    // minutes part from the timestamp
+    const minutes = addZero( date.getMinutes() );
 
-        // seconds part from the timestamp
-        const seconds = addZero( date.getSeconds() );
+    // seconds part from the timestamp
+    //const seconds = addZero( date.getSeconds() );
 
-        // will display time in 10:30:23 format
-        return hours + ':' + minutes.substr( minutes.length - 2 ) + ':' + seconds.substr( seconds.length - 2 );
-    },
-
-    msToString( s ) {
-      var ms = s % 1000;
-      s = (s - ms) / 1000;
-      var secs = s % 60;
-      s = (s - secs) / 60;
-      var mins = s % 60;
-      var hrs = (s - mins) / 60;
-
-      return addZero( hrs ) + ':' + addZero( mins ) + ':' + addZero( secs );// + '.' + ms;
-    }
+    // will display time in 10:30:23 format
+    return `${hours}:${minutes.substr( minutes.length - 2 )}`;//:${seconds.substr( seconds.length - 2 )}`;
 };
+
+export const timestampToTimeString = timestamp => dateToTimeString( new Date( timestamp ));
+
+/* internal methods */
 
 function addZero( input ) {
     input = input.toString();

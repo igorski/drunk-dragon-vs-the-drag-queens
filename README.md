@@ -1,5 +1,17 @@
 # rpg
 
+## Game concepts
+
+The game is time bound and takes place in the 1980's. Each new game starts at
+the same date (see _time-util.js_). The clock increments at a higher speed than
+in actual life (once more, see _time-util.js_). However, to make things easier
+think of time related operations (such as _Effects_) in _game time_, e.g. _how the
+Character would experience it_. The unit used is the _millisecond_.
+
+The game is also unique in that upon creation, the world is generated uniquely
+to the game's hash. As such, no two games are the same. The generation is however
+_deterministic_, as such loading a saved game restores the world how you left.
+
 ## Project setup
 ```
 npm install
@@ -25,6 +37,10 @@ Running unit tests:
 npm run test
 ```
 ## TODO
+
+Keep track of important dates (Christmas, New Year)
+
+World must become lighter when morning comes
 
 Rename World to Overground (see Factories and renderers)
 Serialize Effects into saved game (subtract elapsed and set current value as start)

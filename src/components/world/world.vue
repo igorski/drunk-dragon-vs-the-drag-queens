@@ -44,11 +44,11 @@ export default {
             height: window.innerHeight,
             animate: true,
             smoothing: false,
-            stretchToFit: false, // TODO
+            stretchToFit: true,
             fps: 60,
             onUpdate: this.updateGame.bind( this )
         });
-        this.setRenderStart( Date.now() );
+        this.setLastRender( Date.now() );
         this.zcanvas.setBackgroundColor( '#000000' );
 
         // attach event handlers
@@ -77,7 +77,7 @@ export default {
     },
     methods: {
         ...mapMutations([
-            'setRenderStart',
+            'setLastRender',
         ]),
         ...mapActions([
             'movePlayer',

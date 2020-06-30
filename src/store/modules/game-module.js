@@ -5,12 +5,12 @@ import WorldFactory          from '@/model/factories/world-factory';
 import ShopFactory           from '@/model/factories/shop-factory';
 import { renderEnvironment } from '@/services/environment-renderer';
 import WorldCache            from '@/utils/world-cache';
+import { GAME_START_TIME, GAME_TIME_RATIO } from '@/utils/time-util';
 
 export default {
     state: {
         hash: '',
         gameActive: false, // false == game over
-        aiActive: false,
         world: null,
         player: null,
         activeEnvironment: null,
@@ -18,13 +18,14 @@ export default {
         shop: null,
         created: 0,
         modified: 0,
-        totalTime: 0,
-        sessionStart: 0,
-        renderStart: 0, // game render start time, see zCanvas
+        gameStart: 0,   // timestamp at which the game was originally created
+        gameTime: 0,    // timestamp of in-game Date (games always start at GAME_START_TIME)
+        lastRender: 0,  // last render timestamp, see zCanvas
         effects: [],
     },
     getters: {
         gameActive: state => state.gameActive,
+        gameTime: state => state.gameTime,
         activeEnvironment: state => state.activeEnvironment,
         player: state => state.player,
     },
@@ -46,12 +47,15 @@ export default {
         setHash( state, value ) {
             state.hash = value;
         },
+        advanceGameTime( state, valueInMilliseconds ) {
+            state.gameTime += valueInMilliseconds;
+        },
         setGame( state, value ) {
             state.created       = value.created;
             state.modified      = value.modified;
-            state.sessionStart  = value.sessionStart;
+            state.gameStart     = value.gameStart;
             state.lastSavedTime = value.lastSavedTime;
-            state.totalTime     = value.totalTime;
+            state.gameTime      = value.gameTime;
             state.gameActive    = !!value.gameActive;
             state.player        = value.player;
             state.cave          = value.cave;
@@ -69,8 +73,8 @@ export default {
         setCave( state, cave ) {
             state.cave = cave;
         },
-        setRenderStart( state, value ) {
-            state.renderStart = value;
+        setLastRender( state, value ) {
+            state.lastRender = value;
         },
         addEffect( state, value ) {
             if ( !state.effects.includes( value )) {
@@ -94,16 +98,16 @@ export default {
             commit( 'setGame', {
                 created: now,
                 modified: now,
-                sessionStart: now,
+                gameStart: now,
                 lastSavedTime: -1,
-                totalTime: 0,
+                gameTime: new Date( GAME_START_TIME ).getTime(),
                 gameActive: true,
-                player: CharacterFactory.createPlayer(),
+                player: CharacterFactory.createCharacter(),
                 cave: null,
                 world,
             });
             commit( 'setActiveEnvironment', world );
-            commit( 'setRenderStart', Date.now() );
+            commit( 'setLastRender', Date.now() );
             await renderEnvironment( state.activeEnvironment );
         },
         // enter given shop
@@ -161,6 +165,11 @@ export default {
                     commit( 'removeEffect', effect );
                 }
             });
+            // advance game time (values in milliseconds)
+            const delta = ( timestamp - state.lastRender ) * GAME_TIME_RATIO;
+            commit( 'advanceGameTime', delta );
+
+            commit( 'setLastRender', timestamp );
         },
     },
 };
