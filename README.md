@@ -22,20 +22,24 @@ npm run build
 Running unit tests:
 
 ```
-npm run test:unit
+npm run test
 ```
 ## TODO
 
 Rename World to Overground (see Factories and renderers)
 
-Maps should only show visited tiles
+Time should be able to speed up (when sleeping for instance)
+
+When drunk shuffle letters in sentences randomly =D
+
+Characters should have renderers for their features (eyes, hair, lips, jewelry, body type, skin tone, sex) all
+superimposed over same position
+
+Movement should be pointer based with path finding, no diagonal movement
+
+Maps should only show visited tiles, map should move to own view
 
 ShopFactory > shop items are available by player level, lower levels don't get higher items
-
-Generate overworld containing :
-
- desert
- woods
 
 Add a timer to GameModel that runs periodic updates:
 
