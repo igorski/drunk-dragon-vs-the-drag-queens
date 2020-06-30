@@ -32,8 +32,8 @@ export const validateInventory = inventory => {
     if ( typeof inventory.cash !== 'number' ) {
         return fail( `Expected cash to be a numerical value, got ${typeof inventory.cash} instead` );
     }
-    if ( !Array.isArray( inventory.jewelry )) {
-        return fail( `Expected jewelry to be Array, got ${typeof inventory.jewelry} instead` );
+    if ( !Array.isArray( inventory.items )) {
+        return fail( `Expected items to be Array, got ${typeof inventory.items} instead` );
     }
     return true;
 };

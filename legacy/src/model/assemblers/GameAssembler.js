@@ -1,9 +1,9 @@
 var Player        = require( "../vo/Player" );
 var Item          = require( "../vo/Item" );
-var WorldFactory  = require( "../factories/WorldFactory" );
 var CaveAssembler = require( "./CaveAssembler" );
 
-import InventoryFactory from '@/model/inventory-factory';
+import InventoryFactory from '@/model/factories/inventory-factory';
+import WorldFactory from '@/model/factories/world-factory';
 
 var GameAssembler = module.exports =
 {

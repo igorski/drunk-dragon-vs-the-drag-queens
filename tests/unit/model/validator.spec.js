@@ -20,18 +20,18 @@ describe('Validator', () => {
         });
     });
 
-    describe('Character inventory', () => {
+    describe('Inventory', () => {
         it('should validate cash', () => {
-            const jewelry = []; // valid jewelry
-            expect(() => validateInventory({ cash: 'A', jewelry })).toThrow();
-            expect(() => validateInventory({ cash: 100, jewelry })).not.toThrow();
-            expect(() => validateInventory({ cash: -100, jewelry })).not.toThrow(); // debt is fine
+            const items = []; // valid items
+            expect(() => validateInventory({ cash: 'A', items })).toThrow();
+            expect(() => validateInventory({ cash: 100, items })).not.toThrow();
+            expect(() => validateInventory({ cash: -100, items })).not.toThrow(); // debt is fine
         });
 
-        it('should validate jewelry', () => {
+        it('should validate items', () => {
             const cash = 10; // valid money
-            expect(() => validateInventory({ cash, jewelry: 'A' })).toThrow();
-            expect(() => validateInventory({ cash, jewelry: [] })).not.toThrow();
+            expect(() => validateInventory({ cash, items: 'A' })).toThrow();
+            expect(() => validateInventory({ cash, items: [] })).not.toThrow();
         })
     });
 });

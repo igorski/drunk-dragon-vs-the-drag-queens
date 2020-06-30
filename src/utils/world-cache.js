@@ -1,4 +1,4 @@
-import EnvironmentFactory from '@/model/environment-factory';
+import EnvironmentFactory from '@/model/factories/environment-factory';
 
 const WorldCache =
 {

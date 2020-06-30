@@ -3,7 +3,7 @@
 </template>
 
 <script>
-import { mapGetters, mapActions } from 'vuex';
+import { mapGetters, mapMutations, mapActions } from 'vuex';
 import zCanvas       from 'zcanvas';
 import PlayerActions from '@/definitions/player-actions';
 import CaveRenderer  from '@/renderers/cave-renderer';
@@ -12,8 +12,8 @@ import SpriteCache   from '@/utils/sprite-cache';
 import WorldCache    from '@/utils/world-cache';
 import ImageUtil     from '@/utils/image-util';
 
-import { CAVE_TYPE }  from '@/model/cave-factory';
-import { WORLD_TYPE } from '@/model/world-factory';
+import { CAVE_TYPE }  from '@/model/factories/cave-factory';
+import { WORLD_TYPE } from '@/model/factories/world-factory';
 
 export default {
     data: () => ({
@@ -35,9 +35,21 @@ export default {
         },
     },
     created() {
-        this.zcanvas = new zCanvas.canvas( 100, 100, true, 60 );
+        /**
+         * Construct zCanvas instance to render the game world. The zCanvas
+         * also maintains the game loop that will update the world prior to each render cycle.
+         */
+        this.zcanvas = new zCanvas.canvas({
+            width: window.innerWidth,
+            height: window.innerHeight,
+            animate: true,
+            smoothing: false,
+            stretchToFit: false, // TODO
+            fps: 60,
+            onUpdate: this.updateGame.bind( this )
+        });
+        this.setRenderStart( Date.now() );
         this.zcanvas.setBackgroundColor( '#000000' );
-        this.zcanvas.setSmoothing( false );
 
         // attach event handlers
         const resizeEvent = 'onorientationchange' in window ? 'orientationchange' : 'resize';
@@ -64,8 +76,12 @@ export default {
         this.renderer && this.renderer.dispose();
     },
     methods: {
+        ...mapMutations([
+            'setRenderStart',
+        ]),
         ...mapActions([
             'movePlayer',
+            'updateGame',
         ]),
         handleResize() {
             const { clientWidth, clientHeight } = document.documentElement;
@@ -158,7 +174,7 @@ export default {
                     this.stopPlayerMovement( PlayerActions.MOVE_DOWN );
                     break;
             }
-        }
+        },
     }
 };
 </script>

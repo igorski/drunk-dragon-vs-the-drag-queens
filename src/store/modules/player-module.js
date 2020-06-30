@@ -1,5 +1,5 @@
 import PlayerActions    from '@/definitions/player-actions';
-import { validateMove } from '@/model/movement-factory';
+import { validateMove } from '@/model/factories/movement-factory';
 
 const MAX_X_SPEED     = 1.25;
 const MAX_Y_SPEED     = 1.25;

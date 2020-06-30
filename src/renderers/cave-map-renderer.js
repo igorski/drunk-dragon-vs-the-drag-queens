@@ -1,4 +1,4 @@
-import { CAVE_TILES } from '@/model/cave-factory';
+import { CAVE_TILES } from '@/model/factories/cave-factory';
 import { createPixelCanvas } from '@/utils/canvas-util';
 
 export default

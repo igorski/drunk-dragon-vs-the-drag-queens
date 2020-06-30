@@ -1,13 +1,10 @@
 import MD5                   from 'MD5';
 import AudioTracks           from '@/definitions/audio-tracks';
-import CharacterFactory      from '@/model/character-factory';
-import WorldFactory          from '@/model/world-factory';
-import ShopFactory           from '@/model/shop-factory';
+import CharacterFactory      from '@/model/factories/character-factory';
+import WorldFactory          from '@/model/factories/world-factory';
+import ShopFactory           from '@/model/factories/shop-factory';
 import { renderEnvironment } from '@/services/environment-renderer';
 import WorldCache            from '@/utils/world-cache';
-
-// internal timers
-let _aiTimer;
 
 export default {
     state: {
@@ -23,6 +20,8 @@ export default {
         modified: 0,
         totalTime: 0,
         sessionStart: 0,
+        renderStart: 0, // game render start time, see zCanvas
+        effects: [],
     },
     getters: {
         gameActive: state => state.gameActive,
@@ -70,6 +69,18 @@ export default {
         setCave( state, cave ) {
             state.cave = cave;
         },
+        setRenderStart( state, value ) {
+            state.renderStart = value;
+        },
+        addEffect( state, value ) {
+            if ( !state.effects.includes( value )) {
+                state.effects.push( value );
+            }
+        },
+        removeEffect( state, value ) {
+            const idx = state.effects.indexOf( value );
+            if ( idx >= 0 ) state.effects.splice( idx, 1 );
+        }
     },
     actions: {
         async createGame({ state, commit }) {
@@ -92,6 +103,7 @@ export default {
                 world,
             });
             commit( 'setActiveEnvironment', world );
+            commit( 'setRenderStart', Date.now() );
             await renderEnvironment( state.activeEnvironment );
         },
         // enter given shop
@@ -136,6 +148,19 @@ export default {
             commit('setActiveEnvironment', state.world );
             // change music to overground theme
             dispatch( 'playSound', AudioTracks.OVERGROUND_THEME );
-        }
+        },
+        /**
+         * Hooks into the game's render loop. This updates the world environment
+         * prior to each render cycle. Given timestamp is the renderers timestamp
+         * which relative to the renderStart timestamp defines the relative time.
+         */
+        updateGame({ state, commit }, timestamp ) {
+            // update the effects
+            state.effects.forEach( effect => {
+                if ( effect.update( timestamp )) {
+                    commit( 'removeEffect', effect );
+                }
+            });
+        },
     },
 };

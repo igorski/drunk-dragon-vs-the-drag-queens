@@ -1,4 +1,4 @@
-import { WORLD_TILES } from '@/model/world-factory';
+import { WORLD_TILES } from '@/model/factories/world-factory';
 import { createPixelCanvas } from '@/utils/canvas-util';
 
 export default

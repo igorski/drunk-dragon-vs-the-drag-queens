@@ -3,7 +3,7 @@
  */
 var CaveLevelAssembler = require( "./CaveLevelAssembler" );
 var Cave               = require( "../vo/Cave" );
-import CaveFactory from '@/model/cave-factory';
+import CaveFactory from '@/model/factories/cave-factory';
 
 var CaveAssembler = module.exports =
 {

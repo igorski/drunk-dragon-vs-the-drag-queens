@@ -1,6 +1,6 @@
 import SpriteCache from '@/utils/sprite-cache';
-import { CAVE_TYPE, CAVE_TILES } from '@/model/cave-factory';
-import { WORLD_TYPE, WORLD_TILES } from '@/model/world-factory';
+import { CAVE_TYPE, CAVE_TILES } from '@/model/factories/cave-factory';
+import { WORLD_TYPE, WORLD_TILES } from '@/model/factories/world-factory';
 
 export default
 {

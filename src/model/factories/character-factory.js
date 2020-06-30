@@ -1,7 +1,8 @@
 import Random           from 'random-seed';
 import AttackTypes      from '@/definitions/attack-types';
-import AttackFactory    from './attack-factory';
-import InventoryFactory from './inventory-factory';
+import Character        from '@/model/character';
+import AttackFactory    from '@/model/factories/attack-factory';
+import InventoryFactory from '@/model/factories/inventory-factory';
 
 const CharacterFactory =
 {
@@ -10,37 +11,13 @@ const CharacterFactory =
      * any actor (e.g. enemy, player) in the game.
      *
      * @param {string=} name
-     * @param {number=} level
-     * @param {number=} maxHP
-     * @param {number=} HP
-     * @param {number=} maxMP
-     * @param {number=} MP
-     * @param {number=} maxSP
-     * @param {number=} SP
+     * @param {Object=} inventory
      */
-    createCharacter( name = 'Foo', level = 1, maxHP = 5, HP = 5, maxMP = 5, MP = 5, maxSP = 0, SP = 0 ) {
-        return {
-            name, level,
-            maxHP, HP,
-            maxMP, MP,
-            maxSP, SP,
-            x: 0,
-            y: 0,
-            isDefending: false,
-        };
+    createCharacter( name = 'Foo', inventory = InventoryFactory.createInventory() ) {
+        return new Character({ name }, null, inventory );
     },
 
-    /**
-     * Creates a new Player. A Player also has Experience Points and an inventory.
-     */
-    createPlayer( name = 'Hero', level = 1, maxHP = 10, HP = 10, maxMP = 0, MP = 0 ) {
-        const player = CharacterFactory.createCharacter( name, level, maxHP, HP, maxMP, MP );
-
-        player.XP        = 0;
-        player.inventory = InventoryFactory.createInventory();
-
-        return player;
-    },
+    // TODO: the below should be Character methods
 
     /**
      * returns an Attack describing the type of attack

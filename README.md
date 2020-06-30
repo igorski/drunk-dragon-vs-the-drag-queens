@@ -27,6 +27,7 @@ npm run test
 ## TODO
 
 Rename World to Overground (see Factories and renderers)
+Serialize Effects into saved game (subtract elapsed and set current value as start)
 
 Time should be able to speed up (when sleeping for instance)
 

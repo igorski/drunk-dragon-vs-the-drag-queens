@@ -1,4 +1,4 @@
-import CaveFactory from '@/model/cave-factory';
+import CaveFactory from '@/model/factories/cave-factory';
 
 export default
 {

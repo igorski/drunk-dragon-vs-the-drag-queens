@@ -6,8 +6,8 @@ export default class Effect {
      * property this should be recalculated into a new duration and value range.
      *
      * @param {Character} character the effect applies to
-     * @param {number} startTime time offset in tics of the game
-     * @param {number} duration total effect duration in game tics
+     * @param {number} startTime time offset (e.g. current game time in milliseconds)
+     * @param {number} duration total effect duration in milliseconds
      * @param {String} property the name of the Character property to change
      * @param {number} startValue the value when the effect starts
      * @param {number} endValue the value when the effect ends
@@ -25,11 +25,11 @@ export default class Effect {
     /**
      * Invoked by the game loop whenever time passes in the simulation.
      *
-     * @param {number} tics current game time
+     * @param {number} currentTime current game time in milliseconds
      * @return {boolean} whether the Effect has completed its total duration
      */
-    update( tics ) {
-        const elapsed = tics - this.startTime;
+    update( currentTime ) {
+        const elapsed = currentTime - this.startTime;
 
         if ( elapsed >= this.duration ) {
             this.character.updateProperties({ [this.property]: this.endValue })

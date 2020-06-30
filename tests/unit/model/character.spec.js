@@ -1,4 +1,5 @@
 import Character from '@/model/character';
+import Inventory from '@/model/inventory';
 
 describe('Character', () => {
     describe('configuration', () => {
@@ -18,17 +19,15 @@ describe('Character', () => {
 
         it('should leave all construction arguments unchanged', () => {
             const appearance = {
-                sex: 'M'
+                sex: 'M',
+                name: 'Duul',
             };
             const properties = {
                 speed: 0.5,
                 intoxication: 0.4,
                 boost: 0.3
             };
-            const inventory = {
-                cash: 250,
-                jewelry: [{ foo: 'bar' }, { baz: 'qux' }],
-            };
+            const inventory = new Inventory();
             const char = new Character( appearance, properties, inventory );
             expect( char.appearance ).toEqual( appearance );
             expect( char.properties ).toEqual( properties );

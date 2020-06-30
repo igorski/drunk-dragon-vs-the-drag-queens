@@ -1,4 +1,5 @@
-import { validateAppearance, validateProperties, validateInventory } from './validator';
+import { validateAppearance, validateProperties } from './validator';
+import Inventory from './inventory';
 
 export default class Character
 {
@@ -8,9 +9,10 @@ export default class Character
      * their visual appearance, a series of properties that affects their
      * performance (e.g. speed, accuracy) and an inventory.
      */
-    constructor( appearance = {}, properties = {},  inventory = {} ) {
+    constructor( appearance = {}, properties = {},  inventory = new Inventory() ) {
         this.appearance = {
             sex: 'F', // it's the 80's, gender identity wasn't in vogue and sex is binary ;)
+            name: 'Derp',
             ...appearance
         };
         // all in percentile range (e.g. 0-1)
@@ -20,14 +22,10 @@ export default class Character
             boost: 0,
             ...properties
         };
-        this.inventory = {
-            cash: 50, // cash in hand, because 80's!
-            jewelry: [],
-            ...inventory
-        },
+        this.inventory = inventory;
+        
         validateAppearance( this.appearance );
         validateProperties( this.properties );
-        validateInventory( this.inventory );
     }
 
     /**

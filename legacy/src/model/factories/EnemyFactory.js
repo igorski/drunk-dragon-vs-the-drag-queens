@@ -4,8 +4,8 @@ var World       = require( "../vo/World" );
 var ItemFactory = require( "./ItemFactory" );
 var Random      = require( "random-seed" );
 
-import EnvironmentFactory from '@/model/environment-factory';
-import InventoryFactory from '@/model/inventory-factory';
+import EnvironmentFactory from '@/model/factories/environment-factory';
+import InventoryFactory from '@/model/factories/inventory-factory';
 
 /**
  * EnemyFactory generates a pseudo-random enemy
