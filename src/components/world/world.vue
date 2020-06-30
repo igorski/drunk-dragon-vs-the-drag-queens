@@ -3,15 +3,16 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex';
-import zCanvas from 'zcanvas';
-import CaveRenderer from '@/renderers/cave-renderer';
+import { mapGetters, mapActions } from 'vuex';
+import zCanvas       from 'zcanvas';
+import PlayerActions from '@/definitions/player-actions';
+import CaveRenderer  from '@/renderers/cave-renderer';
 import WorldRenderer from '@/renderers/world-renderer';
-import SpriteCache from '@/utils/sprite-cache';
-import WorldCache from '@/utils/world-cache';
-import ImageUtil from '@/utils/image-util';
+import SpriteCache   from '@/utils/sprite-cache';
+import WorldCache    from '@/utils/world-cache';
+import ImageUtil     from '@/utils/image-util';
 
-import { CAVE_TYPE } from '@/model/cave-factory';
+import { CAVE_TYPE }  from '@/model/cave-factory';
 import { WORLD_TYPE } from '@/model/world-factory';
 
 export default {
@@ -63,6 +64,9 @@ export default {
         this.renderer && this.renderer.dispose();
     },
     methods: {
+        ...mapActions([
+            'movePlayer',
+        ]),
         handleResize() {
             const { clientWidth, clientHeight } = document.documentElement;
 
@@ -99,11 +103,11 @@ export default {
                     throw new Error(`No renderer for type '${environment.type}'`);
                     break;
                 case CAVE_TYPE:
-                    this.renderer = new CaveRenderer( 100, 100 );
+                    this.renderer = new CaveRenderer( this.$store, 100, 100 );
                     sprite = SpriteCache.CAVE;
                     break;
                 case WORLD_TYPE:
-                    this.renderer = new WorldRenderer( 100, 100 );
+                    this.renderer = new WorldRenderer( this.$store, 100, 100 );
                     sprite = SpriteCache.WORLD;
                     break;
             }
@@ -116,19 +120,19 @@ export default {
             let preventDefault = false;
             switch ( aEvent.keyCode ) {
                 case 37:    // left
-                    this._player.move( Player.MOVE_LEFT );
+                    this.movePlayer( PlayerActions.MOVE_LEFT );
                     preventDefault = true;
                     break;
                 case 39:    // right
-                    this._player.move( Player.MOVE_RIGHT );
+                    this.movePlayer( PlayerActions.MOVE_RIGHT );
                     preventDefault = true;
                     break;
                 case 38:    // up
-                    this._player.move( Player.MOVE_UP );
+                    this.movePlayer( PlayerActions.MOVE_UP );
                     preventDefault = true;
                     break;
                 case 40:    // down
-                    this._player.move( Player.MOVE_DOWN );
+                    this.movePlayer( PlayerActions.MOVE_DOWN );
                     preventDefault = true;
                     break;
             }
@@ -136,21 +140,22 @@ export default {
                 aEvent.preventDefault();
         },
         handleKeyUp({ keyCode }) {
+            return; // nothing yet, this would imply animated movement
             switch ( keyCode ) {
                 case 37:    // left
-                    this._player.stop( Player.MOVE_LEFT );
+                    this.stopPlayerMovement( PlayerActions.MOVE_LEFT );
                     break;
 
                 case 39:    // right
-                    this._player.stop( Player.MOVE_RIGHT );
+                    this.stopPlayerMovement( PlayerActions.MOVE_RIGHT );
                     break;
 
                 case 38:    // up
-                    this._player.stop( Player.MOVE_UP );
+                    this.stopPlayerMovement( PlayerActions.MOVE_UP );
                     break;
 
                 case 40:    // down
-                    this._player.stop( Player.MOVE_DOWN );
+                    this.stopPlayerMovement( PlayerActions.MOVE_DOWN );
                     break;
             }
         }

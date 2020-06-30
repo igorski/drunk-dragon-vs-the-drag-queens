@@ -1,10 +1,10 @@
-import MD5 from 'MD5';
-import AudioTracks from '@/definitions/audio-tracks';
-import CharacterFactory from '@/model/character-factory';
-import WorldFactory from '@/model/world-factory';
-import ShopFactory from '@/model/shop-factory';
+import MD5                   from 'MD5';
+import AudioTracks           from '@/definitions/audio-tracks';
+import CharacterFactory      from '@/model/character-factory';
+import WorldFactory          from '@/model/world-factory';
+import ShopFactory           from '@/model/shop-factory';
 import { renderEnvironment } from '@/services/environment-renderer';
-import WorldCache from '@/utils/world-cache';
+import WorldCache            from '@/utils/world-cache';
 
 // internal timers
 let _aiTimer;
@@ -12,7 +12,7 @@ let _aiTimer;
 export default {
     state: {
         hash: '',
-        gameActive: false, // false == game over, TODO: make enum which also triggers AI updates
+        gameActive: false, // false == game over
         aiActive: false,
         world: null,
         player: null,
@@ -32,12 +32,17 @@ export default {
     mutations: {
         setGameActive( state, value ) {
            state.gameActive = !!value;
-
-            //if ( !state.gameState )
-            //    this.setEnemyAI( false );
         },
         setPlayer( state, value ) {
             state.player = value;
+        },
+        setPlayerPosition( state, { x, y }) {
+            state.player.x = x;
+            state.player.y = y;
+        },
+        setEnvironmentPosition( state, { x, y }) {
+            state.activeEnvironment.x = x;
+            state.activeEnvironment.y = y;
         },
         setHash( state, value ) {
             state.hash = value;

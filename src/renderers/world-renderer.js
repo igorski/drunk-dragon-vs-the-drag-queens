@@ -7,15 +7,20 @@ import zCanvas     from 'zcanvas';
 import SpriteCache from '@/utils/sprite-cache';
 import WorldCache  from '@/utils/world-cache';
 
+let commit, dispatch; // Vuex store hooks
+
 /**
  * @constructor
  * @extends {zSprite}
  *
- * @param {number} aWidth
- * @param {number} aHeight
+ * @param {Object} store Vuex store reference
+ * @param {number} width
+ * @param {number} height
  */
-function WorldRenderer( aWidth, aHeight ) {
-    WorldRenderer.super( this, 'constructor', 0, 0, aWidth, aHeight );
+function WorldRenderer( store, width, height ) {
+    WorldRenderer.super( this, 'constructor', 0, 0, width, height );
+    commit   = store.commit;
+    dispatch = store.dispatch;
 }
 
 zCanvas.sprite.extend( WorldRenderer );
@@ -81,54 +86,46 @@ WorldRenderer.prototype.updateImage = function( aImage, aNewWidth, aNewHeight ) 
 };
 
 /**
- * @public
- *
  * @param {number} aWidth
  * @param {number} aHeight
  */
-WorldRenderer.prototype.setTileDimensions = function( aWidth, aHeight )
-{
+WorldRenderer.prototype.setTileDimensions = function( aWidth, aHeight ) {
     this.maxTilesInWidth  = aWidth  / WorldCache.tileWidth;
     this.maxTilesInHeight = aHeight / WorldCache.tileHeight;
 };
 
 /**
  * @override
- * @public
- *
  * @param {CanvasRenderingContext2D} aCanvasContext to draw on
  */
-WorldRenderer.prototype.draw = function( aCanvasContext )
-{
-    // update player movement
-//    this._player.update(); // TODO
+WorldRenderer.prototype.draw = function( aCanvasContext ) {
+//    dispatch( 'updatePlayer' ); // update Player movement
 
-    var vx = this._player.x;
-    var vy = this._player.y;
+    const vx = this._player.x;
+    const vy = this._player.y;
 
-    var world      = this._world;
-    var worldWidth = world.width, worldHeight = world.height;
+    const world      = this._world;
+    const worldWidth = world.width, worldHeight = world.height;
 
-    var tileWidth  = WorldCache.tileWidth;
-    var tileHeight = WorldCache.tileHeight;
+    const { tileWidth, tileHeight } = WorldCache;
 
     // the amount of tiles on either side of the player
-    var widthTiles      = this.maxTilesInWidth;
-    var heightTiles     = this.maxTilesInHeight;
-    var halfWidthTiles  = Math.floor( widthTiles  / 2 );
-    var halfHeightTiles = Math.floor( heightTiles / 2 );
+    const widthTiles      = this.maxTilesInWidth;
+    const heightTiles     = this.maxTilesInHeight;
+    const halfWidthTiles  = Math.floor( widthTiles  / 2 );
+    const halfHeightTiles = Math.floor( heightTiles / 2 );
 
     // the rectangle to draw, all relative in world coordinates (tiles)
 
-    var left   = world.x - halfWidthTiles;
-    var right  = world.x + halfWidthTiles;
-    var top    = world.y - halfHeightTiles;
-    var bottom = world.y + halfHeightTiles;
+    const left   = world.x - halfWidthTiles;
+    const right  = world.x + halfWidthTiles;
+    const top    = world.y - halfHeightTiles;
+    const bottom = world.y + halfHeightTiles;
 
     // render terrain from cache
 
-    var sourceX     = ( left * tileWidth ) + vx, sourceY = ( top * tileHeight ) + vy;
-    var canvasWidth = this.canvas.getWidth(), canvasHeight = this.canvas.getHeight();
+    const sourceX     = ( left * tileWidth ) + vx, sourceY = ( top * tileHeight ) + vy;
+    const canvasWidth = this.canvas.getWidth(), canvasHeight = this.canvas.getHeight();
 
     // if player is at world edge, stop scrolling terrain
 
@@ -146,14 +143,14 @@ WorldRenderer.prototype.draw = function( aCanvasContext )
                               sourceX, sourceY, canvasWidth, canvasHeight,
                               0, 0, canvasWidth, canvasHeight );
 
-    var i, l, x, y;
+    const { caves, shops, enemies } = world;
+    let x, y;
 
     // draw caves
-    var cave;
 
-    for ( i = 0, l = world.caves.length; i < l; ++i )
+    for ( let i = 0, l = caves.length; i < l; ++i )
     {
-        cave = world.caves[ i ];
+        const cave = caves[ i ];
 
         if ( cave.x >= left && cave.x <= right &&
              cave.y >= top  && cave.y <= bottom )
@@ -167,11 +164,10 @@ WorldRenderer.prototype.draw = function( aCanvasContext )
     }
 
     // draw shops
-    var shop;
 
-    for ( i = 0, l = world.shops.length; i < l; ++i )
+    for ( let i = 0, l = shops.length; i < l; ++i )
     {
-        shop = world.shops[ i ];
+        const shop = shops[ i ];
 
         if ( shop.x >= left && shop.x <= right &&
              shop.y >= top  && shop.y <= bottom )
@@ -205,11 +201,10 @@ WorldRenderer.prototype.draw = function( aCanvasContext )
     aCanvasContext.fillRect( x, y, tileWidth, tileHeight );
 
     // draw enemies
-    var enemy;
 
-    for ( i = 0, l = world.enemies.length; i < l; ++i )
+    for ( let i = 0, l = enemies.length; i < l; ++i )
     {
-        enemy = world.enemies[ i ];
+        const enemy = enemies[ i ];
 
         if ( enemy.x >= left && enemy.x <= right &&
              enemy.y >= top  && enemy.y <= bottom )

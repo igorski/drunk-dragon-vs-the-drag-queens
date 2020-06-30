@@ -12,11 +12,12 @@ import SpriteCache   from '@/utils/sprite-cache';
  * @constructor
  * @extends {WorldRenderer}
  *
- * @param {number} aWidth
- * @param {number} aHeight
+ * @param {Object} store Vuex store reference
+ * @param {number} width
+ * @param {number} height
  */
-function CaveRenderer( aWidth, aHeight ) {
-    CaveRenderer.super( this, aWidth, aHeight );
+function CaveRenderer( store, width, height ) {
+    CaveRenderer.super( this, store, width, height );
 }
 
 WorldRenderer.extend( CaveRenderer );

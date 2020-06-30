@@ -14,7 +14,7 @@ export default
      * @param {number} x targetX to draw the tile at on the ctx
      * @param {number} y targetY to draw the tile at on the ctx
      * @param {Object} environment the environment we're rendering
-     * @param {Array<number>} terrain the terrain we're drawing from
+     * @param {Array<Number>} terrain the terrain we're drawing from
      */
     drawTileForSurroundings( ctx, tx, ty, x, y, environment, terrain )
     {

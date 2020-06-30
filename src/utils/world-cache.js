@@ -27,7 +27,7 @@ const WorldCache =
      */
     clearPositionsOfType( type ) {
         const positions = WorldCache.positions;
-throw new Error("TODO instanceof wont wrk");
+throw new Error('TODO instanceof wont wrk');
         Object.keys( positions ).forEach( function( key )
         {
             if ( positions[ key ] instanceof type ) {
@@ -50,10 +50,10 @@ throw new Error("TODO instanceof wont wrk");
      * @return {boolean} whether the position is free for allocation
      */
     isPositionFree( environment, positionX, positionY, terrainOnly ) {
-        if ( typeof terrainOnly !== "boolean" ) terrainOnly = false;
+        if ( typeof terrainOnly !== 'boolean' ) terrainOnly = false;
 
         if ( !terrainOnly &&
-             typeof WorldCache.positions[ `${positionX}-${positionY}` ] !== "undefined" ) {
+             typeof WorldCache.positions[ `${positionX}-${positionY}` ] !== 'undefined' ) {
             return false;
         }
         return EnvironmentFactory.isPositionFree( environment, positionX, positionY );
@@ -102,8 +102,8 @@ throw new Error("TODO instanceof wont wrk");
      * @return {boolean} whether position could be resolved
      */
     reserveAtNearestPosition( aWorld, aTargetX, aTargetY, aObject, aMargin, aTries ) {
-        aMargin = typeof aMargin === "number" ? aMargin : 1;
-        aTries  = typeof aTries  === "number" ? aTries  : 0;
+        aMargin = typeof aMargin === 'number' ? aMargin : 1;
+        aTries  = typeof aTries  === 'number' ? aTries  : 0;
 
         const positions = WorldCache.positions;
         let pos;
