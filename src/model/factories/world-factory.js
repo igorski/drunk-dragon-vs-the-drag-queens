@@ -19,14 +19,14 @@ export const WORLD_TILES = {
     TREE     : 4
 };
 
-export default
+const WorldFactory =
 {
     /**
      * Creates a new, empty World
      */
-    createWorld() {
+    create() {
         const size  = 8;
-        const world = EnvironmentFactory.createEnvironment( size / 2, size / 2, size, size );
+        const world = EnvironmentFactory.create( size / 2, size / 2, size, size );
 
         world.type  = WORLD_TYPE;
         world.level = 0;
@@ -73,12 +73,14 @@ export default
 
         world.shops = [];
 
-        var mpi = Math.PI / 180;
-        var shopsInCircle = 4, circleRadius = 10;
-        var incrementRadians = ( 360 / shopsInCircle ) * mpi;
-        var circle = 0, radians = mpi;
-        var maxDistanceFromEdge = 10;
-        var targetX, targetY;
+        const mpi = Math.PI / 180;
+        const shopsInCircle = 4;
+        const maxDistanceFromEdge = 10;
+        let incrementRadians = ( 360 / shopsInCircle ) * mpi;
+        let radians = mpi;
+        let circleRadius = 10;
+        let circle = 0;
+        let targetX, targetY;
 
         for ( i = 0; i < amountOfShops; ++i, ++circle )
         {
@@ -122,10 +124,10 @@ export default
 
         // generate some caves
 
-        var caves         = hash.substr( 6, 8 ), cave;
-        var amountOfCaves = HashUtil.charsToNum( caves );
+        const caves         = hash.substr( 6, 8 );
+        const amountOfCaves = HashUtil.charsToNum( caves );
 
-        var cavesInCircle = 2;
+        const cavesInCircle = 2;
         circleRadius = 20;
         incrementRadians = ( 360 / cavesInCircle ) * mpi;
         circle = 0;
@@ -161,7 +163,7 @@ export default
             targetX = Math.round( x );
             targetY = Math.round( y );
 
-            cave = CaveFactory.createCave( targetX, targetY );
+            const cave = CaveFactory.create( targetX, targetY );
 
             reserveObject( targetX, targetY, cave, world );
             world.caves.push( cave );
@@ -172,8 +174,58 @@ export default
                 incrementRadians = ( 90 / cavesInCircle ) * mpi;
             }
         }
+    },
+
+    /**
+     * disassemble the world into a serialized JSON structure
+     */
+    disassemble( world ) {
+        // we only assemble position and terrain (the game hash can
+        // regenerate the world properties deterministically)
+        return {
+            x: world.x,
+            y: world.y,
+            w: world.width,
+            h: world.height,
+            t: world.terrain.join( '' ) // int values
+        };
+    },
+
+    /**
+     * assemble a serialized JSON Object
+     * back into world structure
+     */
+    assemble( data, hash ) {
+        const world = WorldFactory.create();
+        const hasTerrain = typeof data.t === 'string';
+
+        // recreate and restore world
+
+        WorldFactory.populate( world, hash, !hasTerrain );
+
+        // restore position
+
+        world.x = data.x;
+        world.y = data.y;
+        world.width = data.w;
+        world.height = data.h;
+
+        // restore World terrain
+
+        if ( hasTerrain ) {
+            world.terrain = data.t.split( '' ); // split integer values to Array
+            const { terrain } = world;
+            let i = terrain.length;
+            while ( i-- ) {
+                terrain[ i ] = parseInt( terrain[ i ], 10 ); // String to numerical
+            }
+        }
+        return world;
     }
 };
+export default WorldFactory;
+
+/* internal methods */
 
 // convenience methods for world generation
 
@@ -191,10 +243,8 @@ export default
  *                position can be updated with the final result
  * @param {World} world the current world the object should fit in
  */
-function reserveObject( x, y, obj, world )
-{
-    if ( !checkIfFree( x, y ))
-    {
+function reserveObject( x, y, obj, world ) {
+    if ( !checkIfFree( x, y )) {
         let tries = 255;        // fail-safe, let's not recursive forever
         let found = false;
 
@@ -203,8 +253,7 @@ function reserveObject( x, y, obj, world )
         const left  = x > world.width  / 2;
         const up    = y > world.height / 2;
 
-        while ( !found )
-        {
+        while ( !found ) {
             if ( left )
                 --x;
             else
@@ -260,17 +309,15 @@ function generateTerrain( aHash, aWorld ) {
     const map       = []; // will hold the terrain
     const MAP_WIDTH = aWorld.width, MAP_HEIGHT = aWorld.height;
 
-    function genTerrain()
-    {
+    function genTerrain() {
         let x, y, i, index;
-        for ( x = 0, y = 0; y < MAP_HEIGHT; x = ( ++x === MAP_WIDTH ? ( x % MAP_WIDTH + ( ++y & 0 ) ) : x ) )
-        {
+        for ( x = 0, y = 0; y < MAP_HEIGHT; x = ( ++x === MAP_WIDTH ? ( x % MAP_WIDTH + ( ++y & 0 )) : x )) {
             map.push( WORLD_TILES.GRASS );
         }
 
         // Plant water seeds
 
-        const WS = Math.ceil( MAP_WIDTH * MAP_HEIGHT * 0.001 );
+        const WS = Math.ceil( MAP_WIDTH * MAP_HEIGHT / 1000 );
 
         for ( i = 0; i < WS; i++ ) {
             x = Math.floor( Math.random() * MAP_WIDTH );
@@ -284,7 +331,7 @@ function generateTerrain( aHash, aWorld ) {
 
         // Plant mountain seeds
 
-        const MS = Math.ceil( MAP_WIDTH * MAP_HEIGHT * 0.001 );
+        const MS = Math.ceil( MAP_WIDTH * MAP_HEIGHT / 1000 );
 
         for ( i = 0; i < MS; i++ ) {
             x = Math.floor( Math.random() * MAP_WIDTH );
@@ -298,8 +345,7 @@ function generateTerrain( aHash, aWorld ) {
 
         // sandify (creates "beaches" around water)
 
-        for ( x = 0, y = 0; y < MAP_HEIGHT; x = ( ++x === MAP_WIDTH ? ( x % MAP_WIDTH + ( ++y & 0 ) ) : x ) )
-        {
+        for ( x = 0, y = 0; y < MAP_HEIGHT; x = ( ++x === MAP_WIDTH ? ( x % MAP_WIDTH + ( ++y & 0 )) : x )) {
             index = y * MAP_WIDTH + x;
 
             if ( map[ index ] === WORLD_TILES.GRASS ) {
@@ -318,8 +364,7 @@ function generateTerrain( aHash, aWorld ) {
 
         const TS = Math.ceil( MAP_WIDTH * MAP_HEIGHT * 0.1 );
 
-        for ( i = 0; i < TS; i++ )
-        {
+        for ( i = 0; i < TS; i++ ) {
             x     = Math.floor( Math.random() * MAP_WIDTH );
             y     = Math.floor( Math.random() * MAP_HEIGHT );
             index = y * MAP_WIDTH + x;
@@ -329,8 +374,7 @@ function generateTerrain( aHash, aWorld ) {
             }
         }
     }
-
-    genTerrain();   // get crunching !
+    genTerrain(); // get crunching !
 
     aWorld.terrain = map;
 }
@@ -340,15 +384,13 @@ function generateTerrain( aHash, aWorld ) {
  * from given aHashOffset - aHashEndOffset range inside the hash. The Array will be
  * the length of given aResultLength
  *
- * @param {string} aHash
- * @param {number} aHashOffset
- * @param {number} aHashEndOffset
- * @param {number} aResultLength
- *
- * @return {Array.<number>}
+ * @param {String} aHash
+ * @param {Number} aHashOffset
+ * @param {Number} aHashEndOffset
+ * @param {Number} aResultLength
+ * @return {Array<Number>}
  */
-function generateNumArrayFromSeed( aHash, aHashOffset, aHashEndOffset, aResultLength )
-{
+function generateNumArrayFromSeed( aHash, aHashOffset, aHashEndOffset, aResultLength ) {
     const hashLength      = aHash.length;
     const requestedLength = aHashEndOffset - aHashOffset;
     let hashRangeLength = aHashEndOffset - aHashOffset;

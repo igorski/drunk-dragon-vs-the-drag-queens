@@ -19,10 +19,10 @@ describe('Vuex game module', () => {
     });
 
     describe('mutations', () => {
-        it('should be able to set the game render start time', () => {
-            const state = { renderStart: 0 };
-            mutations.setRenderStart( state, 100 );
-            expect( state.renderStart ).toEqual( 100 );
+        it('should be able to set the game last render time', () => {
+            const state = { lastRender: 0 };
+            mutations.setLastRender( state, 100 );
+            expect( state.lastRender ).toEqual( 100 );
         });
 
         it('should be able to add an effect to the game', () => {

@@ -115,7 +115,7 @@ var EnemyFactory = module.exports =
             {
                 items = [ ItemFactory.generateItem() ];
             }
-            aEnemy.inventory = InventoryFactory.createInventory( money, items );
+            aEnemy.inventory = InventoryFactory.create( money, items );
         }
     }
 };

@@ -38,6 +38,11 @@ npm run test
 ```
 ## TODO
 
+every factory should have a create() method and a test for this
+model classes to JSON structures, class methods should be function accepting structure as argument
+
+Rename Cave to Skyscraper (?)
+
 Keep track of important dates (Christmas, New Year)
 
 World must become lighter when morning comes

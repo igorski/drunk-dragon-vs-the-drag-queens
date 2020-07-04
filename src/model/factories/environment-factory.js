@@ -15,7 +15,7 @@ export default
      * @param {Array<Object>=} enemies optional enemies in this Environment
      * @param {Array<number>=} terrain describing the Environment tile types
      */
-    createEnvironment( x = 0, y = 0, width = 0, height = 0, enemies = [], terrain = [] ) {
+    create( x = 0, y = 0, width = 0, height = 0, enemies = [], terrain = [] ) {
         return { x, y, width, height, enemies, terrain };
     },
 

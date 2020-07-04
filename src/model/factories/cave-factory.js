@@ -17,9 +17,8 @@ export const CAVE_TILES = {
 
 const CaveFactory =
 {
-    createCave( x, y )
-    {
-        const cave = EnvironmentFactory.createEnvironment( x, y );
+    create( x = 0, y = 0 ) {
+        const cave = EnvironmentFactory.create( x, y );
 
         cave.type   = CAVE_TYPE;
         cave.level  = NaN; // the current level within the cave where the player is at
@@ -32,14 +31,11 @@ const CaveFactory =
      * generate the caves terrain for the given
      * Cave aCave and the given game hash
      *
-     * @public
-     *
      * @param {string} aHash
      * @param {Cave} aCave
      * @param {Player} aPlayer
      */
-    generateCaveLevels( aHash, aCave, aPlayer )
-    {
+    generateCaveLevels( aHash, aCave, aPlayer ) {
         const levelAmount = aPlayer.level % 30 + 1;
         const levels      = [];
 
@@ -135,7 +131,42 @@ const CaveFactory =
     //        this.startX = Math.round( this.width / 2 );
     //        this.startY = Math.round( this.height / 2 );
         return out;
-    }
+    },
+
+    /**
+     * assemble a serialized JSON structure
+     * back into a cave structure
+     */
+    assemble( data ) {
+        return {
+            x: data.x,
+            y: data.y,
+            width: data.w,
+            height: data.h,
+            enemies: data.e,
+            terrain: data.t,
+            type: data.ty,
+            level: data.l || NaN,
+            levels: data.ls
+        };
+    },
+
+    /**
+     * serializes a cave structure into a JSON structure
+     */
+     disassemble( cave ) {
+         return {
+             x: cave.x,
+             y: cave.y,
+             w: cave.width,
+             h: cave.height,
+             e: cave.enemies,
+             t: cave.terrain,
+             ty: cave.type,
+             l: cave.level,
+             ls: cave.levels,
+         };
+     }
 };
 export default CaveFactory;
 

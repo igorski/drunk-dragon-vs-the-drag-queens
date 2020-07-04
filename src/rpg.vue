@@ -4,6 +4,7 @@
             Loading...
         </template>
         <template v-else>
+            <header-menu class="menu" />
             <div class="ui">
                 <h1>RPG</h1>
                 <span class="time">{{ time }}</span>
@@ -17,10 +18,12 @@
 import { mapState, mapGetters, mapMutations, mapActions } from 'vuex';
 import { preloadAssets } from '@/services/asset-preloader';
 import { timestampToTimeString } from '@/utils/time-util';
+import HeaderMenu from '@/components/header-menu/header-menu';
 import World from '@/components/world/world';
 
 export default {
     components: {
+        HeaderMenu,
         World,
     },
     computed: {
@@ -29,6 +32,7 @@ export default {
         ]),
         ...mapGetters([
             'gameTime',
+            'hasSavedGame',
         ]),
         time() {
             return timestampToTimeString( this.gameTime );
@@ -40,21 +44,14 @@ export default {
         await preloadAssets();
         await this.prepareAudio();
 
-        // QQQ restore storage
-        // first run, create game
-        await this.createGame();
-
-        /*
-        if ( !Storage.get( "game" ))
-        {
-            // first run, create game
-            this.broadcast( Notifications.Storage.CREATE_NEW_GAME );
+        if ( this.hasSavedGame() ) {
+            console.warn('load');
+            await this.loadGame();
+        } else {
+            console.warn('create');
+            // TODO: character creation first, game creation second?
+            await this.createGame();
         }
-        else {
-            // returning user, restore game
-            this.broadcast( Notifications.Storage.RESTORE_GAME );
-        }
-        */
         this.setLoading( false );
     },
     methods: {
@@ -64,6 +61,7 @@ export default {
         ...mapActions([
             'prepareAudio',
             'createGame',
+            'loadGame',
         ]),
     },
 };
@@ -77,6 +75,11 @@ export default {
     text-align: center;
     color: #2c3e50;
     margin-top: 60px;
+}
+.menu {
+    position: fixed;
+    top: 0;
+    z-index: 2;
 }
 .time {
     color: #fff;

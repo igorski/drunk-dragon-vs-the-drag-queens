@@ -1,11 +1,15 @@
 import MD5                   from 'MD5';
+import storage               from 'store/dist/store.modern';
 import AudioTracks           from '@/definitions/audio-tracks';
 import CharacterFactory      from '@/model/factories/character-factory';
+import GameFactory           from '@/model/factories/game-factory';
 import WorldFactory          from '@/model/factories/world-factory';
 import ShopFactory           from '@/model/factories/shop-factory';
 import { renderEnvironment } from '@/services/environment-renderer';
 import WorldCache            from '@/utils/world-cache';
 import { GAME_START_TIME, GAME_TIME_RATIO } from '@/utils/time-util';
+
+const STORAGE_KEY = 'rpg';
 
 export default {
     state: {
@@ -28,6 +32,7 @@ export default {
         gameTime: state => state.gameTime,
         activeEnvironment: state => state.activeEnvironment,
         player: state => state.player,
+        hasSavedGame: state => () => !!storage.get( STORAGE_KEY ),
     },
     mutations: {
         setGameActive( state, value ) {
@@ -92,7 +97,7 @@ export default {
             // generate unique hash for the world
             commit( 'setHash', MD5( now + Math.random() ));
             // create world
-            const world = WorldFactory.createWorld();
+            const world = WorldFactory.create();
             WorldFactory.populate( world, state.hash, true );
             // set game data
             commit( 'setGame', {
@@ -102,7 +107,7 @@ export default {
                 lastSavedTime: -1,
                 gameTime: new Date( GAME_START_TIME ).getTime(),
                 gameActive: true,
-                player: CharacterFactory.createCharacter(),
+                player: CharacterFactory.create(),
                 cave: null,
                 world,
             });
@@ -171,5 +176,24 @@ export default {
 
             commit( 'setLastRender', timestamp );
         },
+        loadGame({ commit }) {
+            const data = storage.get( STORAGE_KEY );
+            try {
+                const game = GameFactory.assemble( data );
+                commit( 'setGame', game );
+                commit( 'setHash', game.hash );
+                commit( 'setActiveEnvironment', game.world );
+                commit( 'setLastRender', Date.now() );
+            } catch {
+                // TODO : show message of disappointment
+            }
+        },
+        saveGame({ state }) {
+            const data = GameFactory.disassemble( state );
+            storage.set( STORAGE_KEY, data );
+        },
+        resetGame() {
+            storage.remove( STORAGE_KEY );
+        }
     },
 };
