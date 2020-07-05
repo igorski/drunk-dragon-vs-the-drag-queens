@@ -1,5 +1,11 @@
 import store from '@/store/modules/game-module';
+import EffectFactory from '@/model/factories/effect-factory';
 const { getters, mutations, actions } = store;
+
+let mockUpdateFn;
+jest.mock('@/model/actions/effect-actions', () => ({
+    update: (...args) => mockUpdateFn(...args),
+}));
 
 describe('Vuex game module', () => {
     describe('getters', () => {
@@ -44,8 +50,14 @@ describe('Vuex game module', () => {
                 const timestamp = Date.now();
                 const commit = jest.fn();
 
-                const effect1 = { update: jest.fn(() => false) };
-                const effect2 = { update: jest.fn(() => true ) };
+                const effect1 = EffectFactory.create();
+                const effect2 = EffectFactory.create();
+
+                mockUpdateFn = jest.fn(effect => {
+                    // note that effect 2 we want to remove (by returning true)
+                    if ( effect === effect2 ) return true;
+                    return false;
+                });
 
                 actions.updateGame({
                     commit,
@@ -55,8 +67,8 @@ describe('Vuex game module', () => {
                 }, timestamp );
 
                 // assert Effects have been updated
-                expect( effect1.update ).toHaveBeenCalledWith( timestamp );
-                expect( effect2.update ).toHaveBeenCalledWith( timestamp );
+                expect( mockUpdateFn ).toHaveBeenNthCalledWith( 1, effect1, timestamp );
+                expect( mockUpdateFn ).toHaveBeenNthCalledWith( 2, effect2, timestamp );
 
                 // assert secondary effect has been requested to be removed (as its update returned true)
                 expect( commit ).toHaveBeenCalledWith( 'removeEffect', effect2 );

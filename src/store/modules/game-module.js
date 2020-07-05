@@ -7,6 +7,7 @@ import WorldFactory          from '@/model/factories/world-factory';
 import ShopFactory           from '@/model/factories/shop-factory';
 import { renderEnvironment } from '@/services/environment-renderer';
 import WorldCache            from '@/utils/world-cache';
+import EffectActions         from '@/model/actions/effect-actions';
 import { GAME_START_TIME, GAME_TIME_RATIO } from '@/utils/time-util';
 
 const STORAGE_KEY = 'rpg';
@@ -166,7 +167,7 @@ export default {
         updateGame({ state, commit }, timestamp ) {
             // update the effects
             state.effects.forEach( effect => {
-                if ( effect.update( timestamp )) {
+                if ( EffectActions.update( effect, timestamp )) {
                     commit( 'removeEffect', effect );
                 }
             });
