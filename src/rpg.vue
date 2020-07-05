@@ -4,8 +4,14 @@
             Loading...
         </template>
         <template v-else>
+            <!-- application menu -->
             <header-menu class="menu" />
+            <!-- game screens -->
             <div class="ui">
+                <component
+                    :is="activeScreen"
+                    @input="handleScreenInput( $event )"
+                />
                 <h1>RPG</h1>
                 <span class="time">{{ time }}</span>
             </div>
@@ -42,6 +48,10 @@ const i18n = new VueI18n({
     messages
 });
 
+// screens
+const SCREEN_GAME = 0;
+const SCREEN_CHARACTER_CREATE = 1;
+
 export default {
     i18n,
     components: {
@@ -50,6 +60,9 @@ export default {
         Notifications,
         World,
     },
+    data: () => ({
+        screen: SCREEN_GAME,
+    }),
     computed: {
         ...mapState([
             'loading',
@@ -59,6 +72,14 @@ export default {
             'gameTime',
             'hasSavedGame',
         ]),
+        activeScreen() {
+            switch ( this.screen ) {
+                default:
+                    return null;
+                case SCREEN_CHARACTER_CREATE:
+                    return () => import('./components/character-create/character-create');
+            }
+        },
         time() {
             return timestampToTimeString( this.gameTime );
         },
@@ -72,8 +93,7 @@ export default {
         if ( this.hasSavedGame() ) {
             await this.loadGame();
         } else {
-            // TODO: character creation first, game creation second?
-            await this.createGame();
+            this.screen = SCREEN_CHARACTER_CREATE;
         }
         this.setLoading( false );
     },
@@ -86,6 +106,16 @@ export default {
             'createGame',
             'loadGame',
         ]),
+        handleScreenInput( data ) {
+            switch ( this.screen ) {
+                default:
+                    break;
+                case SCREEN_CHARACTER_CREATE:
+                    this.createGame( data );
+                    this.screen = SCREEN_GAME;
+                    break;
+            }
+        }
     },
 };
 </script>

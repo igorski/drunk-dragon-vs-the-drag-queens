@@ -93,7 +93,7 @@ export default {
         }
     },
     actions: {
-        async createGame({ state, commit }) {
+        async createGame({ state, commit }, player = CharacterFactory.create() ) {
             const now = Date.now();
             // generate unique hash for the world
             commit( 'setHash', MD5( now + Math.random() ));
@@ -108,8 +108,8 @@ export default {
                 lastSavedTime: -1,
                 gameTime: new Date( GAME_START_TIME ).getTime(),
                 gameActive: true,
-                player: CharacterFactory.create(),
                 cave: null,
+                player,
                 world,
             });
             commit( 'setActiveEnvironment', world );
