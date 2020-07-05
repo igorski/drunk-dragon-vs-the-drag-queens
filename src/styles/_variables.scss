@@ -1,0 +1,17 @@
+/* layout variables */
+
+$app-width: 960px;
+$mobile-width: 685px; // the threshold below which we start to use the mobile view
+
+$menu-height: 46px;
+$toggle-width: 50px;
+
+$spacing-xsmall: 4px;
+$spacing-small: 7px;
+$spacing-medium: 14px;
+$spacing-large: 28px;
+$spacing-xlarge: 56px;
+
+@import '_mixins.scss';
+@import 'colors.scss';
+@import 'typography.scss';

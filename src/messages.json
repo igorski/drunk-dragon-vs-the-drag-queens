@@ -1,0 +1,11 @@
+{
+    "en-US": {
+        "error": {
+            "unknownError": "An unknown error has occurred."
+        },
+        "title": {
+            "error": "Error",
+            "success": "Operation completed"
+        }
+    }
+}

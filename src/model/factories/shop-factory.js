@@ -70,35 +70,3 @@ function generateMedicine( aLevel, aMedicineType )
 
     return { type: ItemTypes.MEDICINE, value: medicineValue, price };
 }
-
-/**
- * @param {number} aLevel the player level
- * @param {number=} aAttackType optional attack type, otherwise
- *                  is calculated from Player level
- *
- * @return {ShopItem}
- */
-function generateAttack( aLevel, aAttackType )
-{
-    const attackValue = typeof aAttackType === 'number' ? aAttackType : AttackTypes.KNIFE;
-    let multiplier  = 0;
-
-    if ( typeof aAttackType !== 'number' )
-    {
-        if ( aLevel >= 5 ) {
-            attackValue = AttackTypes.SWORD;
-            multiplier   = 1.05;
-        }
-        else if ( aLevel >= 10 ) {
-            attackValue = AttackTypes.AXE;
-            multiplier   = 1.1;
-        }
-    }
-    let price = 10;  // base price
-
-    // calculate price
-
-    price += ( aLevel - 1 ) * multiplier;
-
-    return { type: ItemTypes.WEAPON, value: attackValue, price };
-}

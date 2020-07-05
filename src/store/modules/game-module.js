@@ -176,7 +176,7 @@ export default {
 
             commit( 'setLastRender', timestamp );
         },
-        loadGame({ commit }) {
+        async loadGame({ state, commit }) {
             const data = storage.get( STORAGE_KEY );
             try {
                 const game = GameFactory.assemble( data );
@@ -184,11 +184,12 @@ export default {
                 commit( 'setHash', game.hash );
                 commit( 'setActiveEnvironment', game.world );
                 commit( 'setLastRender', Date.now() );
+                await renderEnvironment( state.activeEnvironment );
             } catch {
                 // TODO : show message of disappointment
             }
         },
-        saveGame({ state }) {
+        async saveGame({ state }) {
             const data = GameFactory.disassemble( state );
             storage.set( STORAGE_KEY, data );
         },

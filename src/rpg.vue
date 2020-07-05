@@ -10,6 +10,16 @@
                 <span class="time">{{ time }}</span>
             </div>
             <world class="game-renderer" />
+            <!-- dialog window used for information messages, alerts and confirmations -->
+            <dialog-window v-if="dialog"
+                :type="dialog.type"
+                :title="dialog.title"
+                :message="dialog.message"
+                :confirm-handler="dialog.confirm"
+                :cancel-handler="dialog.cancel"
+            />
+            <!-- notifications -->
+            <notifications />
         </template>
     </div>
 </template>
@@ -18,17 +28,22 @@
 import { mapState, mapGetters, mapMutations, mapActions } from 'vuex';
 import { preloadAssets } from '@/services/asset-preloader';
 import { timestampToTimeString } from '@/utils/time-util';
+import DialogWindow from '@/components/dialog-window/dialog-window';
 import HeaderMenu from '@/components/header-menu/header-menu';
+import Notifications from '@/components/notifications/notifications';
 import World from '@/components/world/world';
 
 export default {
     components: {
+        DialogWindow,
         HeaderMenu,
+        Notifications,
         World,
     },
     computed: {
         ...mapState([
             'loading',
+            'dialog',
         ]),
         ...mapGetters([
             'gameTime',
