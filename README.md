@@ -3,29 +3,29 @@
 ## Game concepts
 
 The game is time bound and takes place in the 1980's. Each new game starts at
-the same date (see _time-util.js_). The clock increments at a higher speed than
-in actual life (once more, see _time-util.js_). However, to make things easier
-think of time related operations (such as _Effects_) in _game time_, e.g. _how the
-Character would experience it_. The unit used is the _millisecond_.
+the same date (see _time-util.js_). While the clock increments at a higher speed than
+in actual life, to make things easier think of time related operations (such as _Effects_)
+in _game time_, e.g. _how the character would experience it_ (e.g. _"this should last for two hours"_).
+The unit used is the _millisecond_.
 
 The game is also unique in that upon creation, the world is generated uniquely
 to the game's hash. As such, no two games are the same. The generation is however
-_deterministic_, as such loading a saved game restores the world how you left.
+_deterministic_, as such loading a saved game restores the world as you left it.
 
 ## Game model
 
 The game is written using Vue with Vuex.
 
-All game's actors and properties are Object structures inside Vuex stores which
-are reactive.
+All game's actors and properties are Object structures inside Vuex store states making
+these reactive.
 
 In order to create a new structure, a factory pattern is provided and every
-game structure has its own factory (see _./src/model/factories/_).
+game structure has its own factory (see _./src/model/factories/_). You should never
+create your own Object structure but use a factory instead.
 
-Operations on structure are done using the action modules (see _./src/model/actions/_).
-A lot of structures specify their own getters (as several different factors can
-affect an outcome) as well as mutations (remember when changing values of a Vuex
-state object that these should be called from store mutations).
+Operations on structures are done using the action modules (see _./src/model/actions/_).
+A lot of structures specify their own getters as well as mutations (remember when changing values
+of a Vuex state object that these should be called from a Vuex store mutation-method).
 
 ## Project setup
 ```

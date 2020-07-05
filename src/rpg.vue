@@ -26,14 +26,24 @@
 
 <script>
 import { mapState, mapGetters, mapMutations, mapActions } from 'vuex';
+import Vue from 'vue';
+import VueI18n from 'vue-i18n';
 import { preloadAssets } from '@/services/asset-preloader';
 import { timestampToTimeString } from '@/utils/time-util';
 import DialogWindow from '@/components/dialog-window/dialog-window';
 import HeaderMenu from '@/components/header-menu/header-menu';
 import Notifications from '@/components/notifications/notifications';
 import World from '@/components/world/world';
+import messages from './messages.json';
+
+Vue.use( VueI18n );
+// Create VueI18n instance with options
+const i18n = new VueI18n({
+    messages
+});
 
 export default {
+    i18n,
     components: {
         DialogWindow,
         HeaderMenu,
@@ -60,10 +70,8 @@ export default {
         await this.prepareAudio();
 
         if ( this.hasSavedGame() ) {
-            console.warn('load');
             await this.loadGame();
         } else {
-            console.warn('create');
             // TODO: character creation first, game creation second?
             await this.createGame();
         }
