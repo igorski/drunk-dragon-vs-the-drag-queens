@@ -12,6 +12,21 @@ The game is also unique in that upon creation, the world is generated uniquely
 to the game's hash. As such, no two games are the same. The generation is however
 _deterministic_, as such loading a saved game restores the world how you left.
 
+## Game model
+
+The game is written using Vue with Vuex.
+
+All game's actors and properties are Object structures inside Vuex stores which
+are reactive.
+
+In order to create a new structure, a factory pattern is provided and every
+game structure has its own factory (see _./src/model/factories/_).
+
+Operations on structure are done using the action modules (see _./src/model/actions/_).
+A lot of structures specify their own getters (as several different factors can
+affect an outcome) as well as mutations (remember when changing values of a Vuex
+state object that these should be called from store mutations).
+
 ## Project setup
 ```
 npm install
@@ -37,9 +52,6 @@ Running unit tests:
 npm run test
 ```
 ## TODO
-
-every factory should have a create() method and a test for this
-model classes to JSON structures, class methods should be function accepting structure as argument
 
 Rename Cave to Skyscraper (?)
 

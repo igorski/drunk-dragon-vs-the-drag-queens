@@ -1,13 +1,18 @@
-import Inventory from '@/model/inventory';
+import { validateInventory } from '../validator';
 
-export default
+const InventoryFactory =
 {
     /**
      * @param {number=} cash
      * @param {Array<Object>=} items
      */
     create( cash = 0, items = [] ) {
-        return new Inventory( cash, items );
+        const inventory = {
+            cash, // cash in hand because 80's!
+            items
+        };
+        validateInventory( inventory );
+        return inventory;
     },
 
     /**
@@ -15,7 +20,7 @@ export default
      * back into a Inventory instance
      */
     assemble( data ) {
-        return new Inventory( data.c, data.i );
+        return InventoryFactory.create( data.c, data.i );
     },
 
     /**
@@ -28,3 +33,4 @@ export default
          };
      }
 };
+export default InventoryFactory;

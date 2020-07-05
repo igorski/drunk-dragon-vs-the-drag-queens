@@ -1,6 +1,6 @@
 import InventoryFactory from '@/model/factories/inventory-factory';
 
-describe('inventory factory', () => {
+describe('Inventory factory', () => {
     it('should be able to create an inventory structure', () => {
         const cash = 50;
         const items = [{ foo: 'bar' }];

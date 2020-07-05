@@ -3,7 +3,7 @@ import CharacterFactory from '@/model/factories/character-factory';
 import GameFactory from '@/model/factories/game-factory';
 import WorldFactory from '@/model/factories/world-factory';
 
-describe('game factory', () => {
+describe('Game factory', () => {
     it('should be able to assemble and disassemble a serialized game without loss of data', () => {
         const game = {
             hash: 'foobarbaz',

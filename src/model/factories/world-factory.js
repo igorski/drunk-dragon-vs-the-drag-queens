@@ -110,7 +110,7 @@ const WorldFactory =
             targetX = Math.round( x );
             targetY = Math.round( y );
 
-            shop = ShopFactory.generateShop( targetX, targetY );
+            shop = ShopFactory.create( targetX, targetY );
             reserveObject( targetX, targetY, shop, world );
 
             world.shops.push( shop );

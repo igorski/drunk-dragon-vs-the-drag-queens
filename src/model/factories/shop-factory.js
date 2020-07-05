@@ -1,4 +1,3 @@
-import AttackTypes   from '@/definitions/attack-types';
 import MedicineTypes from '@/definitions/medicine-types';
 import ItemTypes     from '@/definitions/item-types';
 
@@ -11,7 +10,7 @@ export default
      * @param {number} y position in the world
      * @param {Array<Object>=} items optional list of shop items
      */
-    generateShop( x, y, items = [] )
+    create( x, y, items = [] )
     {
         return {
             x, y, items
@@ -34,20 +33,6 @@ export default
 
         // additional medicine ?
 
-        if ( aPlayer.level >= 5 )
-            items.push( generateMedicine( aPlayer.level ));
-
-        // weapons ?
-
-        if ( aPlayer.XP >= 30 )
-        {
-            items.push( generateAttack( aPlayer.level, AttackTypes.KNIFE ));
-
-            // additional weapons ?
-
-            if ( aPlayer.level >= 5 )
-                items.push( generateAttack( aPlayer.level ));
-        }
         aShop.items = items;
     }
 };

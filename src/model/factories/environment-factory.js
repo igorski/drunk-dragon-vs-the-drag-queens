@@ -8,12 +8,12 @@ export default
      * navigate through (e.g. derived Environments are the overground
      * world or Caves) an environment can also contain enemies, yikes!
      *
-     * @param {number} x player x position
-     * @param {number} y player y position
-     * @param {number} width total tiles this Environment occupies in its width
-     * @param {number} height total tiles this Environment occopies in its height
+     * @param {Number} x player x position
+     * @param {Number} y player y position
+     * @param {Number} width total tiles this Environment occupies in its width
+     * @param {Number} height total tiles this Environment occopies in its height
      * @param {Array<Object>=} enemies optional enemies in this Environment
-     * @param {Array<number>=} terrain describing the Environment tile types
+     * @param {Array<Number>=} terrain describing the Environment tile types
      */
     create( x = 0, y = 0, width = 0, height = 0, enemies = [], terrain = [] ) {
         return { x, y, width, height, enemies, terrain };

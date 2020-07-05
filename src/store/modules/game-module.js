@@ -117,7 +117,7 @@ export default {
         },
         // enter given shop
         enterShop({ state, commit }, shop ) {
-            ShopFactory.generateShopItems( shop, state.player );
+            ShopFactory.create( shop, state.player );
             commit( 'setShop', shop );
             this.broadcast( Notifications.Navigation.OPEN_PAGE, ShopView );
         },

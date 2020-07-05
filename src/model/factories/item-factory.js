@@ -1,5 +1,4 @@
 import ItemTypes     from '@/definitions/item-types';
-import AttackTypes   from '@/definitions/attack-types';
 import MedicineTypes from '@/definitions/medicine-types';
 import Random        from 'random-seed';
 
@@ -37,13 +36,10 @@ export default
     {
         switch ( type )
         {
-            // weapon, value is AttackType
-
             case ItemTypes.WEAPON:
 
                 const types = [
-                    AttackTypes.KNIFE,
-                    AttackTypes.SWORD
+                    // TODO: create
                 ];
                 return types[ Random.create().intBetween( 0, types.length - 1 )];
                 break;
