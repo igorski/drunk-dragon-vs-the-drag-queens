@@ -2,6 +2,7 @@
     "en-US": {
         "sex": "Sex",
         "name": "Name",
+        "randomize": "Randomize",
         "done": "Done",
         "save": "Save"
     }

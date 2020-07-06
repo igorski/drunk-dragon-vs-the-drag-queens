@@ -8,8 +8,8 @@ module.exports = {
     configureWebpack: {
         plugins: [
             new CopyWebpackPlugin([
-                { from: `${dirAssets}/sprites`, to: 'assets/sprites', flatten: true },
+                { from: `${dirAssets}`, to: 'assets', flatten: false }
             ]),
         ]
     }
-}
+};

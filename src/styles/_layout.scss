@@ -38,6 +38,10 @@ html, body {
   overscroll-behavior-x: none; /* disable navigation back/forward swipe on Chrome */
 }
 
+body {
+    background-color: #000;
+}
+
 ul {
   list-style-type: none;
   margin: 0;

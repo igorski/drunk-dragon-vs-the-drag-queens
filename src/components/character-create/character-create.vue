@@ -10,21 +10,31 @@
             <input type="text" name="name" v-model="appearance.name" />
         </div>
         <template v-if="character">
+            <input type="range" min="0" max="2" v-model.number="appearance.eyes" />
+            <input type="range" min="0" max="3" v-model.number="appearance.mouth" />
+            <input type="range" min="0" max="6" v-model.number="appearance.hair" />
+            <input type="range" min="0" max="4" v-model.number="appearance.jewelry" />
+            <button v-t="'randomize'"
+                    type="button"
+                    title="$t('randomize')"
+                    @click="randomize"
+            ></button>
         </template>
         <button
             v-t="'done'"
             type="button"
-            title="'save'"
+            title="$t('save')"
             :disabled="!isValid"
             @click="saveCharacter"
         ></button>
-        {{ character }}
+        <character :character="character" />
     </div>
 </template>
 
 <script>
 import CharacterFactory from '@/model/factories/character-factory';
 import InventoryFactory from '@/model/factories/inventory-factory';
+import Character from '@/components/character/character-female';
 import messages from './messages.json';
 
 const DEFAULT_CASH = 50;
@@ -33,6 +43,9 @@ const createCharacter = (sex, name) => CharacterFactory.create({ sex, name }, nu
 
 export default {
     i18n: { messages },
+    components: {
+        Character,
+    },
     data: () => ({
         character: createCharacter('F', ''),
     }),
@@ -60,9 +73,22 @@ export default {
         }
     },
     methods: {
+        randomize() {
+            const randomized = CharacterFactory.generateAppearance( this.appearance.sex );
+
+            this.appearance.skin    = randomized.skin;
+            this.appearance.eyes    = randomized.eyes;
+            this.appearance.hair    = randomized.hair;
+            this.appearance.mouth   = randomized.mouth;
+            this.appearance.jewelry = randomized.jewelry;
+        },
         saveCharacter() {
             this.$emit( 'input', this.character );
         }
     }
 };
 </script>
+
+<style lang="scss" scoped>
+
+</style>

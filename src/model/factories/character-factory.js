@@ -2,6 +2,17 @@ import Random           from 'random-seed';
 import InventoryFactory from '@/model/factories/inventory-factory';
 import { validateAppearance, validateProperties } from '../validator';
 
+const SKIN_COLORS          = [ '#8D5524', '#C68642', '#E0AC69', '#F1C27D', '#FFDBAC'/*'#DDA553'*/ ];
+const FEMALE_HAIR_TOTAL    = 7;
+const FEMALE_JEWELRY_TOTAL = 5;
+const FEMALE_EYE_TOTAL     = 3;
+const FEMALE_MOUTH_TOTAL   = 4;
+
+const randomValue = total => {
+    const rand = Random.create();
+    return rand.intBetween( 0, total - 1 );
+};
+
 const CharacterFactory =
 {
      /**
@@ -15,6 +26,7 @@ const CharacterFactory =
              appearance: {
                  sex: 'F', // it's the 80's, gender identity wasn't in vogue and sex is binary ;)
                  name: 'Derp',
+                 ...CharacterFactory.generateAppearance( 'F' ),
                  ...appearance
              },
              // all in percentile range (e.g. 0-1)
@@ -30,6 +42,17 @@ const CharacterFactory =
          validateProperties( character.properties );
 
          return character;
+    },
+
+    generateAppearance( sex = 'F' ) {
+        // TODO: currently F only
+        return {
+            skin: SKIN_COLORS[ randomValue( SKIN_COLORS.length )],
+            hair: randomValue( FEMALE_HAIR_TOTAL ),
+            jewelry: randomValue( FEMALE_JEWELRY_TOTAL ),
+            eyes: randomValue( FEMALE_EYE_TOTAL ),
+            mouth: randomValue( FEMALE_MOUTH_TOTAL ),
+        };
     },
 
     /**
