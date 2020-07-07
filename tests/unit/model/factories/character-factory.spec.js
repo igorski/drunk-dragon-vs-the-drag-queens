@@ -21,6 +21,11 @@ describe('Character factory', () => {
             const appearance = {
                 sex: 'M',
                 name: 'Duul',
+                skin: '#00FF00',
+                eyes: 3,
+                hair: 2,
+                jewelry: 1,
+                mouth: 0,
             };
             const properties = {
                 speed: 0.5,

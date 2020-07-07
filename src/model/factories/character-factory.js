@@ -63,6 +63,11 @@ const CharacterFactory =
         return CharacterFactory.create({
             sex: data.s,
             name: data.n,
+            skin: data.sk,
+            hair: data.h,
+            jewelry: data.j,
+            eyes: data.e,
+            mouth: data.m,
         }, {
             speed: data.sp,
             intoxication: data.i,
@@ -78,6 +83,11 @@ const CharacterFactory =
         return {
             s: appearance.sex,
             n: appearance.name,
+            sk: appearance.skin,
+            h: appearance.hair,
+            j: appearance.jewelry,
+            e: appearance.eyes,
+            m: appearance.mouth,
             sp: properties.speed,
             i: properties.intoxication,
             b: properties.boost,
