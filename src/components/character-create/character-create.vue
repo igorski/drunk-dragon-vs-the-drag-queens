@@ -10,10 +10,11 @@
             <input type="text" name="name" v-model="appearance.name" />
         </div>
         <template v-if="character">
-            <input type="range" min="0" max="2" v-model.number="appearance.eyes" />
-            <input type="range" min="0" max="3" v-model.number="appearance.mouth" />
-            <input type="range" min="0" max="6" v-model.number="appearance.hair" />
-            <input type="range" min="0" max="4" v-model.number="appearance.jewelry" />
+            <input type="range" min="0" :max="maxValues.skin - 1"    v-model="skin" />
+            <input type="range" min="0" :max="maxValues.eyes - 1"    v-model.number="appearance.eyes" />
+            <input type="range" min="0" :max="maxValues.mouth - 1"   v-model.number="appearance.mouth" />
+            <input type="range" min="0" :max="maxValues.hair - 1"    v-model.number="appearance.hair" />
+            <input type="range" min="0" :max="maxValues.jewelry - 1" v-model.number="appearance.jewelry" />
             <button v-t="'randomize'"
                     type="button"
                     title="$t('randomize')"
@@ -32,7 +33,7 @@
 </template>
 
 <script>
-import CharacterFactory from '@/model/factories/character-factory';
+import CharacterFactory, { FEMALE_APPEARANCE, SKIN_COLORS } from '@/model/factories/character-factory';
 import InventoryFactory from '@/model/factories/inventory-factory';
 import Character from '@/components/character/character-female';
 import messages from './messages.json';
@@ -60,6 +61,18 @@ export default {
             set( sex ) {
                 this.character = createCharacter( sex, this.appearance.name );
             }
+        },
+        skin: {
+            get() {
+                return SKIN_COLORS.indexOf( this.appearance.skin );
+            },
+            set( index ) {
+                this.appearance.skin = SKIN_COLORS[ index ];
+            },
+        },
+        maxValues() {
+            // TODO: this is F sex only
+            return FEMALE_APPEARANCE;
         },
         isValid() {
             return this.character && this.appearance.name;

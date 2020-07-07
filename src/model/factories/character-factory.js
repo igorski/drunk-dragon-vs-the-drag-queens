@@ -2,11 +2,19 @@ import Random           from 'random-seed';
 import InventoryFactory from '@/model/factories/inventory-factory';
 import { validateAppearance, validateProperties } from '../validator';
 
-const SKIN_COLORS          = [ '#8D5524', '#C68642', '#E0AC69', '#F1C27D', '#FFDBAC'/*'#DDA553'*/ ];
 const FEMALE_HAIR_TOTAL    = 7;
 const FEMALE_JEWELRY_TOTAL = 5;
 const FEMALE_EYE_TOTAL     = 3;
-const FEMALE_MOUTH_TOTAL   = 4;
+const FEMALE_MOUTH_TOTAL   = 5;
+
+export const SKIN_COLORS = [ '#8D5524', '#C68642', '#E0AC69', '#F1C27D'/*, '#FFDBAC', '#DDA553'*/ ];
+export const FEMALE_APPEARANCE = {
+    skin: SKIN_COLORS.length,
+    hair: FEMALE_HAIR_TOTAL,
+    jewelry: FEMALE_JEWELRY_TOTAL,
+    eyes: FEMALE_EYE_TOTAL,
+    mouth: FEMALE_MOUTH_TOTAL
+};
 
 const randomValue = total => {
     const rand = Random.create();
