@@ -18,6 +18,7 @@
             </svg>
         </div>
         <img :src="shadows" class="female__shadows" />
+        <img :src="clothes" class="female__clothes" />
         <img :src="mouth" class="female__mouth" />
         <img :src="eyes" class="female__eyes" />
         <img :src="hair" class="female__hair" />
@@ -62,14 +63,17 @@ export default {
         hair() {
             return `${ASSET_PATH}hair_${fileSuffix(this.appearance.hair)}.png`;
         },
-        jewelry() {
-            return `${ASSET_PATH}jewelry_${fileSuffix(this.appearance.jewelry)}.png`;
-        },
         eyes() {
             return `${ASSET_PATH}eyes_${fileSuffix(this.appearance.eyes)}.png`;
         },
         mouth() {
             return `${ASSET_PATH}mouth_${fileSuffix(this.appearance.mouth)}.png`;
+        },
+        clothes() {
+            return `${ASSET_PATH}clothes_${fileSuffix(this.appearance.clothes)}.png`;
+        },
+        jewelry() {
+            return `${ASSET_PATH}jewelry_${fileSuffix(this.appearance.jewelry)}.png`;
         },
     },
 };
@@ -115,14 +119,6 @@ export default {
             top: 0;
         }
 
-        &__jewelry {
-            position: absolute;
-            width: 575px;
-            height: 369px;
-            left: 321px;
-            top: 660px;
-        }
-
         &__eyes {
             position: absolute;
             width: 341px;
@@ -137,6 +133,22 @@ export default {
             height: 100px;
             left: 447px;
             top: 716px;
+        }
+
+        &__clothes {
+            position: absolute;
+            width: 1280px;
+            height: 686px;
+            left: 0;
+            bottom: 0;
+        }
+
+        &__jewelry {
+            position: absolute;
+            width: 575px;
+            height: 369px;
+            left: 321px;
+            top: 660px;
         }
     }
 </style>

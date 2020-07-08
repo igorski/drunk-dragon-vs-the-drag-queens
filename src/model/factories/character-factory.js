@@ -6,6 +6,7 @@ const FEMALE_HAIR_TOTAL    = 7;
 const FEMALE_JEWELRY_TOTAL = 5;
 const FEMALE_EYE_TOTAL     = 3;
 const FEMALE_MOUTH_TOTAL   = 4;
+const FEMALE_CLOTHES_TOTAL = 1;
 
 export const SKIN_COLORS = [ /*'#FFDBAC',*/ '#F1C27D', '#E0AC69', '#C68642', '#8D5524' ];
 export const FEMALE_APPEARANCE = {
@@ -13,7 +14,8 @@ export const FEMALE_APPEARANCE = {
     hair: FEMALE_HAIR_TOTAL,
     jewelry: FEMALE_JEWELRY_TOTAL,
     eyes: FEMALE_EYE_TOTAL,
-    mouth: FEMALE_MOUTH_TOTAL
+    mouth: FEMALE_MOUTH_TOTAL,
+    clothes: FEMALE_CLOTHES_TOTAL,
 };
 
 const randomValue = total => {
@@ -60,6 +62,7 @@ const CharacterFactory =
             jewelry: randomValue( FEMALE_JEWELRY_TOTAL ),
             eyes: randomValue( FEMALE_EYE_TOTAL ),
             mouth: randomValue( FEMALE_MOUTH_TOTAL ),
+            clothes: randomValue( FEMALE_CLOTHES_TOTAL ),
         };
     },
 
@@ -76,6 +79,7 @@ const CharacterFactory =
             jewelry: data.j,
             eyes: data.e,
             mouth: data.m,
+            clothes: data.c
         }, {
             speed: data.sp,
             intoxication: data.i,
@@ -96,6 +100,7 @@ const CharacterFactory =
             j: appearance.jewelry,
             e: appearance.eyes,
             m: appearance.mouth,
+            c: appearance.clothes,
             sp: properties.speed,
             i: properties.intoxication,
             b: properties.boost,

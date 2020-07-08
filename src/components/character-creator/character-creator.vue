@@ -32,6 +32,10 @@
                         <input type="range" min="0" :max="maxValues.hair - 1" v-model.number="appearance.hair" />
                     </div>
                     <div>
+                        <label v-t="'clothes'" for="clothes"></label>
+                        <input type="range" min="0" :max="maxValues.clothes - 1" v-model.number="appearance.clothes" />
+                    </div>
+                    <div>
                         <label v-t="'jewelry'" for="jewelry"></label>
                         <input type="range" min="0" :max="maxValues.jewelry - 1" v-model.number="appearance.jewelry" />
                     </div>
@@ -126,6 +130,7 @@ export default {
             this.appearance.hair    = randomized.hair;
             this.appearance.mouth   = randomized.mouth;
             this.appearance.jewelry = randomized.jewelry;
+            this.appearance.clothes = randomized.clothes;
         },
         saveCharacter() {
             this.$emit( 'input', this.character );

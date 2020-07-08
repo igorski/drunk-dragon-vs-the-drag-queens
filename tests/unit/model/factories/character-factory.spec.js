@@ -25,7 +25,8 @@ describe('Character factory', () => {
                 eyes: 3,
                 hair: 2,
                 jewelry: 1,
-                mouth: 0,
+                clothes: 0,
+                mouth: 1,
             };
             const properties = {
                 speed: 0.5,
