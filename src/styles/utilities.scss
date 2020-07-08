@@ -1,5 +1,5 @@
 .flex {
-    display: flex;
+    @include flex();
 
     &--center {
         align-items: center;

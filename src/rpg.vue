@@ -5,15 +5,14 @@
         </template>
         <template v-else>
             <!-- application menu -->
-            <header-menu class="menu" />
+            <header-menu />
             <!-- game screens -->
             <div class="ui">
+                <!-- <span class="time">{{ time }}</span> -->
                 <component
                     :is="activeScreen"
                     @input="handleScreenInput( $event )"
                 />
-                <h1>RPG</h1>
-                <span class="time">{{ time }}</span>
             </div>
             <world class="game-renderer" />
             <!-- dialog window used for information messages, alerts and confirmations -->
@@ -131,31 +130,32 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.rpg {
-    font-family: Avenir, Helvetica, Arial, sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    text-align: center;
-    color: #2c3e50;
-    margin-top: 60px;
-}
-.menu {
-    position: fixed;
-    top: 0;
-    z-index: 2;
-}
-.time {
-    color: #fff;
-}
-.ui {
-    position: absolute;
-    width: 100%;
-    z-index: 1;
-}
-.game-renderer {
-    position: absolute;
-    top: 0;
-    left: 0;
-    z-index: 0;
-}
+    @import '@/styles/_variables.scss';
+
+    .rpg {
+        font-family: Avenir, Helvetica, Arial, sans-serif;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        text-align: center;
+        color: #2c3e50;
+        margin-top: $menu-height;
+
+        @include mobile() {
+            margin-top: $menu-height-mobile;
+        }
+    }
+    .time {
+        color: #fff;
+    }
+    .ui {
+        position: absolute;
+        width: 100%;
+        z-index: $z-index-ui;
+    }
+    .game-renderer {
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: $z-index-game;
+    }
 </style>

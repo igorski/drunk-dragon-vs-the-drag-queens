@@ -1,5 +1,7 @@
 {
     "en-US": {
+        "saveGame": "Save game",
+        "resetGame": "Reset game",
         "gameSavedSuccessfully": "Game was saved successfully.",
         "areYouSure": "Are you sure?",
         "resetGameDescr": "Resetting your game means you will start a new game from the beginning. This cannot be undone!"
