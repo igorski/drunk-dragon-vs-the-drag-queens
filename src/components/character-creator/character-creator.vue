@@ -3,7 +3,7 @@
         <h1 v-t="'createCharacter'"></h1>
         <div class="flex flex--columns">
             <form class="character-creator__form"
-                  @submit="saveCharacter"
+                  @submit.prevent="saveCharacter"
             >
                 <div>
                     <label v-t="'sex'" for="sex"></label>
@@ -61,7 +61,7 @@
 import { mapState } from 'vuex';
 import CharacterFactory, { FEMALE_APPEARANCE, SKIN_COLORS } from '@/model/factories/character-factory';
 import InventoryFactory from '@/model/factories/inventory-factory';
-import Character from '@/components/character/character-female';
+import Character from '@/renderers/character-female';
 import messages from './messages.json';
 
 const DEFAULT_CASH = 50;

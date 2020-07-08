@@ -5,7 +5,7 @@ import { validateAppearance, validateProperties } from '../validator';
 const FEMALE_HAIR_TOTAL    = 7;
 const FEMALE_JEWELRY_TOTAL = 5;
 const FEMALE_EYE_TOTAL     = 3;
-const FEMALE_MOUTH_TOTAL   = 5;
+const FEMALE_MOUTH_TOTAL   = 4;
 
 export const SKIN_COLORS = [ /*'#FFDBAC',*/ '#F1C27D', '#E0AC69', '#C68642', '#8D5524' ];
 export const FEMALE_APPEARANCE = {

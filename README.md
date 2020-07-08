@@ -27,6 +27,19 @@ Operations on structures are done using the action modules (see _./src/model/act
 A lot of structures specify their own getters as well as mutations (remember when changing values
 of a Vuex state object that these should be called from a Vuex store mutation-method).
 
+## Application source outline
+
+ * _./assets/_ resources referenced by the application e.g. images, fonts and spritesheets
+ * _./components/_ Vue components
+ * _./config/_ generic configuration
+ * _./definitions/_ enumerations for game specific actions
+ * _./model/_ game actor factories and actions (e.g. game logic)
+ * _./renderers/_ visualisers of game actors (either zcanvas "sprites" or Vue components)
+ * _./services/_ preloading routines, etc.
+ * _./store/_ Vuex store root and sub modules
+ * _./styles/_ SASS stylesheets
+ * _./utils/_ common helper methods
+
 ## Project setup
 ```
 npm install

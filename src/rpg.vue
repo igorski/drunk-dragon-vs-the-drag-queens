@@ -76,7 +76,7 @@ export default {
                 default:
                     return null;
                 case SCREEN_CHARACTER_CREATE:
-                    return () => import('./components/character-create/character-create');
+                    return () => import('./components/character-creator/character-creator');
             }
         },
         time() {

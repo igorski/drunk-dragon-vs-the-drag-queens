@@ -93,7 +93,6 @@ export default {
         top: 0;
         z-index: $z-index-header;
         background-color: $color-background;
-        max-width: $app-width;
         width: 100%;
         padding: 0;
 
