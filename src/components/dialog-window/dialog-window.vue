@@ -21,18 +21,22 @@
 * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 <template>
-    <div id="dialogWindow">
+    <div class="dialog-window">
         <h4>{{ title }}</h4>
         <p>{{ message }}</p>
-        <button v-t="'ok'"
-                type="button"
-                @click="handleConfirm"
-        ></button>
-        <button v-t="'cancel'"
-                v-if="type === 'confirm'"
-                type="button"
-                @click="handleCancel"
-        ></button>
+        <div class="button-container">
+            <button v-t="'ok'"
+                    type="button"
+                    class="rpg-button"
+                    @click="handleConfirm"
+            ></button>
+            <button v-t="'cancel'"
+                    v-if="type === 'confirm'"
+                    type="button"
+                    class="rpg-button"
+                    @click="handleCancel"
+            ></button>
+        </div>
     </div>
 </template>
 
@@ -92,10 +96,10 @@ export default {
     @import "@/styles/_variables.scss";
     @import "@/styles/_layout.scss";
 
-    #dialogWindow {
-      @include overlay;
-      @include noSelect;
-      @include boxSize;
+    .dialog-window {
+      @include overlay();
+      @include noSelect();
+      @include boxSize();
 
       width: auto;
       height: auto;
@@ -115,16 +119,20 @@ export default {
         color: $color-1;
         font-weight: bold;
       }
+    }
 
-      button {
-        display: inline;
-        width: 48%;
-        padding: $spacing-medium $spacing-large;
-      }
+    .button-container {
+        display: flex;
+
+        button {
+            display: inline;
+            width: 48%;
+            padding: $spacing-medium $spacing-large;
+        }
     }
 
     @media screen and ( max-width: $mobile-width ) {
-      #dialogWindow {
+      .dialog-window {
         border-radius: 0;
         width: 100%;
         height: 100%;

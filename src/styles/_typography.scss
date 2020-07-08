@@ -1,0 +1,47 @@
+@import '_colors';
+
+@mixin titleFont() {
+    font-family: "Dosis", sans-serif;
+    text-transform: uppercase;
+}
+
+@mixin bodyFont() {
+    color: $color-text;
+    font-size: $spacing-medium;
+    font-family: "Titillium Web", sans-serif;
+    font-size: 16px;
+    line-height: 1.5;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    @include titleFont();
+    font-size: 48px;
+    color: $color-text-header;
+}
+
+h2 {
+    font-size: 100%;
+    font-weight: bold;
+    color: $color-text-header;
+    padding: $spacing-small $spacing-large;
+    display: inline;
+}
+
+h3 {
+    font-size: 110%;
+    margin: $spacing-small 0;
+}
+
+p {
+    font-family: sans-serif;
+}
+
+a, a:visited {
+    color: $color-1;
+    text-decoration: underline;
+
+    &:hover {
+        color: $color-1;
+        text-decoration: none;
+    }
+}

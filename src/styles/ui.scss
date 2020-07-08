@@ -1,0 +1,53 @@
+@import 'typography';
+
+.rpg-button {
+    cursor: pointer;
+    padding: $spacing-small $spacing-medium;
+    border: 2px solid $color-4;
+    background-color: $color-5;
+    border-radius: 7px;
+    margin-right: $spacing-medium;
+    text-transform: uppercase;
+    font-size: 16px;
+    @include titleFont();
+
+    &:disabled {
+        cursor: default;
+        background-color: #666 !important;
+        border-color: #333 !important;
+    }
+
+    &:hover,
+    &:focus {
+        background-color: $color-4;
+        border-color: $color-5;
+    }
+}
+
+.rpg-tab-list {
+  display: inline-block;
+  margin: $spacing-medium 0 0;
+
+  li {
+    display: inline-block;
+    border: 1px solid #666;
+    border-bottom: 1px solid #393b40;
+    margin-bottom: -1px; /* makes it essentially appear "bottom-less" due to border-bottom colour over background */
+    padding: $spacing-small $spacing-medium;
+    cursor: pointer;
+    background-color: #666;
+    font-size: 90%;
+    font-weight: bold;
+    border-right: 2px solid #444;
+
+    &.active {
+      background-color: transparent;
+      color: #FFF;
+      position: relative;
+    }
+
+    &:first-child {
+      border-top-left-radius: $spacing-medium;
+    }
+  }
+}

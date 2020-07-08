@@ -17,7 +17,8 @@ $z-index-game: 0;
 $z-index-ui: 1;
 $z-index-header: 2;
 
-@import '_mixins.scss';
-@import 'colors.scss';
-@import 'typography.scss';
-@import 'utilities.scss';
+@import '_mixins';
+@import '_colors';
+@import '_typography';
+@import 'utilities';
+@import 'ui';

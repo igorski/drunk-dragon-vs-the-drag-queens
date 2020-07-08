@@ -158,10 +158,16 @@ export default {
             margin: 0 $spacing-medium;
 
             button {
+                @include titleFont();
+                cursor: pointer;
                 border: 0;
                 background: none;
                 color: $color-text-header;
-                font-size: 120%;
+                font-size: 100%;
+
+                &:hover {
+                    color: $color-5;
+                }
 
                 &:disabled {
                     color: #666;
