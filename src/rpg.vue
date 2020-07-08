@@ -87,6 +87,9 @@ export default {
     async created() {
         this.setLoading( true );
 
+        window.addEventListener( 'resize', this.handleResize);
+        this.handleResize();
+
         await preloadAssets();
         await this.prepareAudio();
 
@@ -100,12 +103,19 @@ export default {
     methods: {
         ...mapMutations([
             'setLoading',
+            'setDimensions',
         ]),
         ...mapActions([
             'prepareAudio',
             'createGame',
             'loadGame',
         ]),
+        handleResize() {
+            this.setDimensions({
+                width: window.innerWidth,
+                height: window.innerHeight,
+            });
+        },
         handleScreenInput( data ) {
             switch ( this.screen ) {
                 default:
@@ -139,6 +149,7 @@ export default {
 }
 .ui {
     position: absolute;
+    width: 100%;
     z-index: 1;
 }
 .game-renderer {

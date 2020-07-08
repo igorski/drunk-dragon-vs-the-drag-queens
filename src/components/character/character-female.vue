@@ -41,12 +41,15 @@ export default {
             type: Object,
             required: true,
         },
-        scale: {
+        width: {
             type: Number,
-            default: 0.5,
+            required: true,
         },
     },
     computed: {
+        scale() {
+            return this.width / 1280;
+        },
         appearance() {
             return this.character.appearance;
         },

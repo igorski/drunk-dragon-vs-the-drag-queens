@@ -1,7 +1,13 @@
 {
     "en-US": {
+        "createCharacter": "Create character",
         "sex": "Sex",
         "name": "Name",
+        "skin": "Skin color",
+        "eyes": "Eyes",
+        "mouth": "Mouth",
+        "jewelry": "Jewelry",
+        "hair": "Hairstyle",
         "randomize": "Randomize",
         "done": "Done",
         "save": "Save"

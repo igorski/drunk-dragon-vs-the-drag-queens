@@ -27,10 +27,19 @@ export default new Vuex.Store({
         autoSave: false,
         dialog: null,
         notifications: [],
+        // window size
+        dimensions: {
+            width: 0,
+            height: 0,
+        },
     },
     mutations: {
         setLoading( state, value ) {
             state.loading = !!value;
+        },
+        setDimensions( state, { width, height }) {
+            state.dimensions.width = width;
+            state.dimensions.height = height;
         },
         setAutoSave( state, value ) {
             window.clearInterval( _saveTimer );

@@ -2,6 +2,22 @@
 
 /* mixins */
 
+@mixin window {
+    @include boxSize;
+    border: 3px solid $color-2;
+    border-top-width: 4px;
+    background-color: $color-1;
+    padding: $spacing-medium;
+    vertical-align: top;
+    color: #000;
+
+    h1 {
+        color: $color-text-header;
+        font-weight: bold;
+        margin-top: 0;
+    }
+}
+
 @mixin overlay {
   // mobile first, override in custom inheriting classes
   // what the desktop / tablet views should look like
