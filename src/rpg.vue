@@ -33,6 +33,7 @@
 import { mapState, mapGetters, mapMutations, mapActions } from 'vuex';
 import Vue from 'vue';
 import VueI18n from 'vue-i18n';
+import { SCREEN_GAME, SCREEN_CHARACTER_CREATE, SCREEN_CREDITS } from '@/definitions/screens';
 import { preloadAssets } from '@/services/asset-preloader';
 import { timestampToTimeString } from '@/utils/time-util';
 import DialogWindow from '@/components/dialog-window/dialog-window';
@@ -47,10 +48,6 @@ const i18n = new VueI18n({
     messages
 });
 
-// screens
-const SCREEN_GAME = 0;
-const SCREEN_CHARACTER_CREATE = 1;
-
 export default {
     i18n,
     components: {
@@ -59,12 +56,10 @@ export default {
         Notifications,
         World,
     },
-    data: () => ({
-        screen: SCREEN_GAME,
-    }),
     computed: {
         ...mapState([
             'loading',
+            'screen',
             'dialog',
         ]),
         ...mapGetters([
@@ -77,6 +72,8 @@ export default {
                     return null;
                 case SCREEN_CHARACTER_CREATE:
                     return () => import('./components/character-creator/character-creator');
+                case SCREEN_CREDITS:
+                    return () => import('./components/credits/credits');
             }
         },
         time() {
@@ -86,7 +83,7 @@ export default {
     async created() {
         this.setLoading( true );
 
-        window.addEventListener( 'resize', this.handleResize);
+        window.addEventListener( 'resize', this.handleResize );
         this.handleResize();
 
         await preloadAssets();
@@ -95,7 +92,7 @@ export default {
         if ( this.hasSavedGame() ) {
             await this.loadGame();
         } else {
-            this.screen = SCREEN_CHARACTER_CREATE;
+            this.setScreen( SCREEN_CHARACTER_CREATE );
         }
         this.setLoading( false );
     },
@@ -103,6 +100,7 @@ export default {
         ...mapMutations([
             'setLoading',
             'setDimensions',
+            'setScreen',
         ]),
         ...mapActions([
             'prepareAudio',
@@ -121,7 +119,7 @@ export default {
                     break;
                 case SCREEN_CHARACTER_CREATE:
                     this.createGame( data );
-                    this.screen = SCREEN_GAME;
+                    this.setScreen( SCREEN_GAME );
                     break;
             }
         }

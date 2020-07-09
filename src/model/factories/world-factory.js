@@ -12,11 +12,12 @@ export const WORLD_TYPE = 'Overground';
  * the tile types for rendering the overground
  */
 export const WORLD_TILES = {
-    GRASS    : 0,
-    SAND     : 1,
-    WATER    : 2,
-    MOUNTAIN : 3,
-    TREE     : 4
+    GROUND   : 0,
+    GRASS    : 1,
+    SAND     : 2,
+    WATER    : 3,
+    MOUNTAIN : 4,
+    TREE     : 5
 };
 
 const WorldFactory =
@@ -312,43 +313,33 @@ function generateTerrain( aHash, aWorld ) {
     function genTerrain() {
         let x, y, i, index;
         for ( x = 0, y = 0; y < MAP_HEIGHT; x = ( ++x === MAP_WIDTH ? ( x % MAP_WIDTH + ( ++y & 0 )) : x )) {
-            map.push( WORLD_TILES.GRASS );
+            map.push( WORLD_TILES.GROUND );
         }
 
-        // Plant water seeds
+        function genSeed( type, size ) {
+            const WS = Math.ceil( MAP_WIDTH * MAP_HEIGHT / 1000 );
 
-        const WS = Math.ceil( MAP_WIDTH * MAP_HEIGHT / 1000 );
-
-        for ( i = 0; i < WS; i++ ) {
-            x = Math.floor( Math.random() * MAP_WIDTH );
-            y = Math.floor( Math.random() * MAP_HEIGHT );
-            index = y * MAP_WIDTH + x;
-            map[ index ] = WORLD_TILES.WATER;
+            for ( i = 0; i < WS; i++ ) {
+                x = Math.floor( Math.random() * MAP_WIDTH );
+                y = Math.floor( Math.random() * MAP_HEIGHT );
+                index = y * MAP_WIDTH + x;
+                map[ index ] = type;
+            }
+            for ( i = 0; i < size; i++ ) {
+                TerrainUtil.growTerr( map, MAP_WIDTH, MAP_HEIGHT, type );
+            }
         }
-        for ( i = 0; i < 4; i++ ) {
-            TerrainUtil.growTerr( map, MAP_WIDTH, MAP_HEIGHT, WORLD_TILES.WATER );
-        }
 
-        // Plant mountain seeds
-
-        const MS = Math.ceil( MAP_WIDTH * MAP_HEIGHT / 1000 );
-
-        for ( i = 0; i < MS; i++ ) {
-            x = Math.floor( Math.random() * MAP_WIDTH );
-            y = Math.floor( Math.random() * MAP_HEIGHT );
-            index = y * MAP_WIDTH + x;
-            map[ index ] = WORLD_TILES.MOUNTAIN;
-        }
-        for ( i = 0; i < 3; i++ ) {
-            TerrainUtil.growTerr( map, MAP_WIDTH, MAP_HEIGHT, WORLD_TILES.MOUNTAIN );
-        }
+        genSeed( WORLD_TILES.WATER,    4 ); // plant water seeds (lake)
+        genSeed( WORLD_TILES.GRASS,    3 ); // plant grass seeds (park)
+        genSeed( WORLD_TILES.MOUNTAIN, 3 ); // plant rock seeds (mountain)
 
         // sandify (creates "beaches" around water)
 
         for ( x = 0, y = 0; y < MAP_HEIGHT; x = ( ++x === MAP_WIDTH ? ( x % MAP_WIDTH + ( ++y & 0 )) : x )) {
             index = y * MAP_WIDTH + x;
 
-            if ( map[ index ] === WORLD_TILES.GRASS ) {
+            if ( map[ index ] === WORLD_TILES.GROUND ) {
                 const around = TerrainUtil.getSurroundingIndicesFor( x, y, MAP_WIDTH, MAP_HEIGHT, true );
                 for ( i = 0; i < around.length; i++ ) {
                     if ( map[ around[ i ]] === WORLD_TILES.WATER && Math.random() > .7 ) {
@@ -360,7 +351,7 @@ function generateTerrain( aHash, aWorld ) {
         }
         TerrainUtil.growTerr( map, MAP_WIDTH, MAP_HEIGHT, WORLD_TILES.SAND, 0.9 );
 
-        // Plant some trees
+        // Plant some trees in the parks
 
         const TS = Math.ceil( MAP_WIDTH * MAP_HEIGHT * 0.1 );
 

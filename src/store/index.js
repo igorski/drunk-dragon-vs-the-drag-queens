@@ -27,6 +27,7 @@ export default new Vuex.Store({
         autoSave: false,
         dialog: null,
         notifications: [],
+        screen: 0,
         // window size
         dimensions: {
             width: 0,
@@ -40,6 +41,9 @@ export default new Vuex.Store({
         setDimensions( state, { width, height }) {
             state.dimensions.width = width;
             state.dimensions.height = height;
+        },
+        setScreen( state, value ) {
+            state.screen = value;
         },
         setAutoSave( state, value ) {
             window.clearInterval( _saveTimer );

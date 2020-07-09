@@ -28,8 +28,9 @@ export default
             switch ( tileType )
             {
                 default:
+                case WORLD_TILES.GROUND:
                 case WORLD_TILES.GRASS:
-                    drawTile( ctx, getSheet( environment, tile ), 0, x, y ); // grass is the default World underground
+                    drawTile( ctx, getSheet( environment, tile ), 0, x, y ); // the lowest tiles in World underground
                     break;
 
                 case WORLD_TILES.SAND:
@@ -348,6 +349,9 @@ function getSheet( environment, tileDescription )
         switch ( tileDescription.type )
         {
             default:
+            case WORLD_TILES.GROUND:
+                return SpriteCache.GROUND;
+
             case WORLD_TILES.GRASS:
                 return SpriteCache.GRASS;
 
@@ -442,10 +446,10 @@ function getSheetOffset( tileDescription )
  */
 function equalOrPassable( environment, compareTile, tileToCompare ) {
     if ( environment.type === WORLD_TYPE ) {
-        return tileToCompare === compareTile || tileToCompare === WORLD_TILES.GRASS || tileToCompare === WORLD_TILES.SAND;
+        return tileToCompare === compareTile || [ WORLD_TILES.GROUND, WORLD_TILES.GRASS, WORLD_TILES.SAND ].includes( tileToCompare );
     }
     else if ( environment.type === CAVE_TYPE ) {
-        return tileToCompare === compareTile || tileToCompare === CAVE_TILES.GROUND || tileToCompare === CAVE_TILES.TUNNEL;
+        return tileToCompare === compareTile || [ CAVE_TILES.GROUND, CAVE_TILES.TUNNEL ].includes( tileToCompare );
     }
     throw new Error( `could not evaluate unknown Environment "${environment.type}"` );
 }

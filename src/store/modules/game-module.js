@@ -194,6 +194,21 @@ export default {
             const data = GameFactory.disassemble( state );
             storage.set( STORAGE_KEY, data );
         },
+        async importGame({ commit, dispatch }, data ) {
+            const game = GameFactory.assemble( data );
+            if ( game === null ) throw new Error(); // catch in calling component
+            commit( 'setGame', game );
+            commit( 'setHash', game.hash );
+            await dispatch( 'saveGame' );
+            await dispatch( 'loadGame' );
+        },
+        async exportGame({ state }) {
+            const data = GameFactory.disassemble( state );
+            const pom = document.createElement( 'a' );
+            pom.setAttribute( 'href', `data:text/plain;charset=utf-8,${encodeURIComponent( data )}`);
+            pom.setAttribute( 'download', 'savegame.rpg' );
+            pom.click();
+        },
         resetGame() {
             storage.remove( STORAGE_KEY );
         }

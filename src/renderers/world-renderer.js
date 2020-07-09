@@ -19,6 +19,8 @@ let commit, dispatch; // Vuex store hooks
  */
 function WorldRenderer( store, width, height ) {
     WorldRenderer.super( this, 'constructor', 0, 0, width, height );
+    this.setInteractive( true );
+
     commit   = store.commit;
     dispatch = store.dispatch;
 }
@@ -92,6 +94,15 @@ WorldRenderer.prototype.updateImage = function( aImage, aNewWidth, aNewHeight ) 
 WorldRenderer.prototype.setTileDimensions = function( aWidth, aHeight ) {
     this.maxTilesInWidth  = aWidth  / WorldCache.tileWidth;
     this.maxTilesInHeight = aHeight / WorldCache.tileHeight;
+};
+
+/**
+ * @param {number} x mouse pointer coordinate
+ * @param {number} y mouse pointer coordinate
+ */
+WorldRenderer.prototype.handleRelease = function( x, y ) {
+    console.warn('clicked at ' + x + ' x' + y);
+    // x and y represent a screen coordinate, translate to world image coordinate
 };
 
 /**

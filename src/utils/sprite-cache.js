@@ -7,6 +7,7 @@ export default
 
     // cached version of all sprite sheets
 
+    GROUND     : new Image(),
     GRASS      : new Image(),
     CAVE       : new Image(),
     ROCK       : new Image(),

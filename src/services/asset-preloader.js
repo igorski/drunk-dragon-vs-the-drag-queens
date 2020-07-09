@@ -26,14 +26,15 @@ export const preloadAssets = () =>
 
     const assetRoot = `${getBaseURL()}assets/sprites/`;
     _queue = [
-        { src : `${assetRoot}cave.png`,  target : SpriteCache.CAVE },
-        { src : `${assetRoot}rock.png`,  target : SpriteCache.ROCK },
-        { src : `${assetRoot}sand.png`,  target : SpriteCache.SAND },
-        { src : `${assetRoot}grass.png`, target : SpriteCache.GRASS },
-        { src : `${assetRoot}tree.png`,  target : SpriteCache.TREE },
-        { src : `${assetRoot}water.png`, target : SpriteCache.WATER },
-        { src : `${assetRoot}drone.png`, target : SpriteCache.DRONE },
-        { src : `${assetRoot}hero.png`,  target : SpriteCache.HERO }
+        { src : `${assetRoot}cave.png`,   target : SpriteCache.CAVE },
+        { src : `${assetRoot}ground.png`, target : SpriteCache.GROUND },
+        { src : `${assetRoot}rock.png`,   target : SpriteCache.ROCK },
+        { src : `${assetRoot}sand.png`,   target : SpriteCache.SAND },
+        { src : `${assetRoot}grass.png`,  target : SpriteCache.GRASS },
+        { src : `${assetRoot}tree.png`,   target : SpriteCache.TREE },
+        { src : `${assetRoot}water.png`,  target : SpriteCache.WATER },
+        { src : `${assetRoot}drone.png`,  target : SpriteCache.DRONE },
+        { src : `${assetRoot}hero.png`,   target : SpriteCache.HERO }
     ];
     return new Promise((resolve, reject) => {
         const processQueue = () => {

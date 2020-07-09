@@ -11,6 +11,7 @@ import WorldRenderer from '@/renderers/world-renderer';
 import SpriteCache   from '@/utils/sprite-cache';
 import WorldCache    from '@/utils/world-cache';
 import ImageUtil     from '@/utils/image-util';
+import { findPath }  from '@/utils/path-finder';
 
 import { CAVE_TYPE }  from '@/model/factories/cave-factory';
 import { WORLD_TYPE } from '@/model/factories/world-factory';
@@ -53,11 +54,7 @@ export default {
 
         // attach event handlers
         const resizeEvent = 'onorientationchange' in window ? 'orientationchange' : 'resize';
-
-        this.handlers.push({ event: 'keydown',   callback: this.handleKeyDown.bind( this ) });
-        this.handlers.push({ event: 'keyup',     callback: this.handleKeyUp.bind  ( this ) });
-        this.handlers.push({ event: resizeEvent, callback: this.handleResize.bind ( this ) });
-
+        this.handlers.push({ event: resizeEvent, callback: this.handleResize.bind( this ) });
         this.handlers.forEach(({ event, callback }) => {
             window.addEventListener( event, callback );
         });
@@ -92,7 +89,7 @@ export default {
 
             this.zcanvas.setDimensions( tilesInWidth, tilesInHeight );
 
-            // scale up using CSS
+            // scale up using CSS, TODO: move to zCanvas (interferes with click handlers)
 
             const scaleStyle = `scale(${clientWidth  / tilesInWidth}, ${clientHeight / tilesInHeight})`;
 
@@ -131,49 +128,6 @@ export default {
                 this.zcanvas.addChild( this.renderer );
                 this.renderer.render( environment, this.player );
             });
-        },
-        handleKeyDown( aEvent ) {
-            let preventDefault = false;
-            switch ( aEvent.keyCode ) {
-                case 37:    // left
-                    this.movePlayer( PlayerActions.MOVE_LEFT );
-                    preventDefault = true;
-                    break;
-                case 39:    // right
-                    this.movePlayer( PlayerActions.MOVE_RIGHT );
-                    preventDefault = true;
-                    break;
-                case 38:    // up
-                    this.movePlayer( PlayerActions.MOVE_UP );
-                    preventDefault = true;
-                    break;
-                case 40:    // down
-                    this.movePlayer( PlayerActions.MOVE_DOWN );
-                    preventDefault = true;
-                    break;
-            }
-            if ( preventDefault )
-                aEvent.preventDefault();
-        },
-        handleKeyUp({ keyCode }) {
-            return; // nothing yet, this would imply animated movement
-            switch ( keyCode ) {
-                case 37:    // left
-                    this.stopPlayerMovement( PlayerActions.MOVE_LEFT );
-                    break;
-
-                case 39:    // right
-                    this.stopPlayerMovement( PlayerActions.MOVE_RIGHT );
-                    break;
-
-                case 38:    // up
-                    this.stopPlayerMovement( PlayerActions.MOVE_UP );
-                    break;
-
-                case 40:    // down
-                    this.stopPlayerMovement( PlayerActions.MOVE_DOWN );
-                    break;
-            }
         },
     }
 };

@@ -6,6 +6,15 @@ let mockUpdateFn;
 jest.mock('@/model/actions/effect-actions', () => ({
     update: (...args) => mockUpdateFn(...args),
 }));
+jest.mock('@/model/factories/game-factory', () => ({
+    assemble: (...args) => mockUpdateFn('assemble', ...args),
+    disassemble: (...args) => mockUpdateFn('disassemble', ...args)
+}));
+jest.mock('store/dist/store.modern', () => ({
+    get: (...args) => mockUpdateFn('get', ...args),
+    set: (...args) => mockUpdateFn('set', ...args),
+    remove: (...args) => mockUpdateFn('remove', ...args),
+}));
 
 describe('Vuex game module', () => {
     describe('getters', () => {
@@ -72,6 +81,52 @@ describe('Vuex game module', () => {
 
                 // assert secondary effect has been requested to be removed (as its update returned true)
                 expect( commit ).toHaveBeenCalledWith( 'removeEffect', effect2 );
+            });
+        });
+
+        describe('when storing the game', () => {
+            it('should be able to save the game state into local storage', () => {
+                mockUpdateFn = jest.fn(() => 'mockReturn');
+                const state  = { foo: 'bar' };
+                actions.saveGame({ state });
+                expect( mockUpdateFn ).toHaveBeenNthCalledWith( 1, 'disassemble', state );
+                expect( mockUpdateFn ).toHaveBeenNthCalledWith( 2, 'set', 'rpg', 'mockReturn' );
+            });
+
+            it('should be able to restore a saved game from local storage', () => {
+                const game = { hash: 'foo', world: 'bar' };
+                mockUpdateFn = jest.fn(() => game);
+                const state = { activeEnvironment: null };
+                const commit = jest.fn();
+
+                actions.loadGame({ state, commit });
+
+                expect( mockUpdateFn ).toHaveBeenNthCalledWith( 1, 'get', 'rpg' );
+                expect( commit ).toHaveBeenNthCalledWith( 1, 'setGame', game );
+                expect( commit ).toHaveBeenNthCalledWith( 2, 'setHash', game.hash );
+                expect( commit ).toHaveBeenNthCalledWith( 3, 'setActiveEnvironment', game.world );
+                //expect( commit ).toHaveBeenNthCalledWith( 4, 'setLastRender', Date.now() );
+            });
+
+            it('should be able to import an exported save game', async () => {
+                const game = { hash: 'foo' };
+                mockUpdateFn = jest.fn(() => game);
+                const commit = jest.fn();
+                const dispatch = jest.fn();
+
+                await actions.importGame({ commit, dispatch }, 'foo' );
+
+                expect( mockUpdateFn ).toHaveBeenNthCalledWith( 1, 'assemble', 'foo' );
+                expect( commit ).toHaveBeenNthCalledWith( 1, 'setGame', game );
+                expect( commit ).toHaveBeenNthCalledWith( 2, 'setHash', game.hash );
+                expect( dispatch ).toHaveBeenNthCalledWith( 1, 'saveGame' );
+                expect( dispatch ).toHaveBeenNthCalledWith( 2, 'loadGame' );
+            });
+
+            it('should be able to remove a saved game state from local storage', () => {
+                mockUpdateFn = jest.fn();
+                actions.resetGame();
+                expect( mockUpdateFn ).toHaveBeenCalledWith( 'remove', 'rpg' );
             });
         });
     });

@@ -8,21 +8,49 @@
              >
                 <span>&#9776;</span>
             </div>
-            <ul>
+            <ul class="menu__items">
                 <li>
-                    <button v-t="'saveGame'"
-                            type="button"
-                            :disabled="!canSaveGame"
-                            :title="$t('saveGame')"
-                            @click="handleSave"
-                    ></button>
+                    <button v-t="'file'" type="button"
+                            class="submenu__toggle" :title="$t('file')">
+                    </button>
+                    <ul>
+                        <li>
+                            <button v-t="'saveGame'"
+                                    type="button"
+                                    :disabled="!hasActiveGame"
+                                    :title="$t('saveGame')"
+                                    @click="handleSave"
+                            ></button>
+                        </li>
+                        <li>
+                            <button v-t="'exportGame'"
+                                    type="button"
+                                    :disabled="!hasActiveGame"
+                                    :title="$t('exportGame')"
+                                    @click="handleExport"
+                            ></button>
+                        </li>
+                        <li>
+                            <button v-t="'importGame'"
+                                    type="button"
+                                    :title="$t('importGame')"
+                                    @click="handleImport"
+                            ></button>
+                        </li>
+                        <li>
+                            <button v-t="'resetGame'"
+                                    type="button"
+                                    :disabled="!hasActiveGame"
+                                    :title="$t('resetGame')"
+                                    @click="handleReset"
+                            ></button>
+                        </li>
+                    </ul>
                 </li>
                 <li>
-                    <button v-t="'resetGame'"
-                            type="button"
-                            :title="$t('resetGame')"
-                            @click="handleReset"
-                    ></button>
+                    <button v-t="'viewCredits'" type="button"
+                            :title="$t('viewCredits')" @click="viewCredits">
+                    </button>
                 </li>
             </ul>
         </nav>
@@ -31,6 +59,7 @@
 
 <script>
 import { mapGetters, mapMutations, mapActions } from 'vuex';
+import { SCREEN_GAME, SCREEN_CREDITS } from '@/definitions/screens';
 import messages from './messages.json';
 
 export default {
@@ -42,12 +71,13 @@ export default {
         ...mapGetters([
             'player',
         ]),
-        canSaveGame() {
+        hasActiveGame() {
             return !!this.player; // e.g. creating new character/restart
         },
     },
     methods: {
         ...mapMutations([
+            'setScreen',
             'openDialog',
             'showError',
             'showNotification',
@@ -55,11 +85,16 @@ export default {
         ...mapActions([
             'resetGame',
             'saveGame',
+            'importGame',
+            'exportGame',
         ]),
         toggleMenu() {
             this.menuOpened = !this.menuOpened;
             // prevent scrolling main body when scrolling menu list (TODO: are we expecting scrollable body?)
             document.body.style.overflow = this.menuOpened ? 'hidden' : 'auto';
+        },
+        viewCredits() {
+            this.setScreen( SCREEN_CREDITS );
         },
         async handleSave() {
             try {
@@ -68,6 +103,38 @@ export default {
             } catch {
                 this.showError( this.$t('error.unknownError'));
             }
+        },
+        async handleExport() {
+            try {
+                await this.exportGame();
+                this.showNotification({ message: this.$t('gameExportedSuccessfully') });
+            } catch {
+                this.showError( this.$t('error.unknownError'));
+            }
+        },
+        handleImport() {
+            this.openDialog({
+                type: 'confirm',
+                title: this.$t('areYouSure'),
+                message: this.$t('importGameDescr'),
+                confirm: () => {
+                    const input = document.createElement('input');
+                    input.type = 'file';
+                    input.onchange = ({ target }) => {
+                        const reader = new FileReader();
+                        reader.onload = async readerEvent => {
+                            try {
+                                await this.importGame( readerEvent.target.result );
+                                this.setScreen( SCREEN_GAME );
+                            } catch {
+                                this.showError( this.$t('errorImportingGame'));
+                            }
+                        };
+                        reader.readAsText( target.files[0], 'UTF-8' );
+                    }
+                    input.click();
+                }
+            });
         },
         handleReset() {
             this.openDialog({
@@ -79,7 +146,7 @@ export default {
                     window.location.reload(); // a little bruteforce
                 }
             });
-        }
+        },
     }
 };
 </script>
@@ -138,13 +205,16 @@ export default {
         }
 
         ul {
+            padding: 0;
+            box-sizing: border-box;
+            list-style-type: none;
+        }
+
+        .menu__items {
             width: 100%;
             line-height: $menu-height;
             vertical-align: middle;
             margin: 0 auto;
-            padding: 0;
-            box-sizing: border-box;
-            list-style-type: none;
             display: block;
 
             @include large() {
@@ -189,6 +259,25 @@ export default {
                     text-decoration: underline;
                 }
             }
+
+            /* submenu (collapsed on large screen) */
+
+            @include large() {
+                ul {
+                    background-color: $color-background;
+                    width: auto;
+                    display: none;
+                    position: absolute;
+                    top: 0;
+
+                    li {
+                        display: block;
+                    }
+                }
+                &:hover ul {
+                    display: block;
+                }
+            }
         }
 
         &--expanded {
@@ -205,7 +294,7 @@ export default {
             top: 0;
             left: 0;
 
-            ul {
+            .menu__items {
                 margin: $menu-height-mobile auto 0;
                 background-color: $color-background;
                 height: calc(100% - #{$menu-height-mobile});
@@ -217,12 +306,18 @@ export default {
                     margin: 0;
                     width: 100%;
                     line-height: $spacing-xlarge;
+                    padding: 0 $spacing-medium;
+                    @include boxSize();
                 }
             }
 
             &__toggle {
                 display: block; // only visible in mobile view
                 height: $menu-height-mobile;
+            }
+
+            .submenu__toggle {
+                display: none; // all are expanded in mobile view
             }
         }
     }
