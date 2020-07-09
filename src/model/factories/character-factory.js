@@ -5,6 +5,7 @@ import { validateAppearance, validateProperties } from '../validator';
 const FEMALE_HAIR_TOTAL    = 8;
 const FEMALE_JEWELRY_TOTAL = 5;
 const FEMALE_EYE_TOTAL     = 3;
+const FEMALE_NOSE_TOTAL    = 2;
 const FEMALE_MOUTH_TOTAL   = 4;
 const FEMALE_CLOTHES_TOTAL = 2;
 
@@ -15,6 +16,7 @@ export const FEMALE_APPEARANCE = {
     jewelry: FEMALE_JEWELRY_TOTAL,
     eyes: FEMALE_EYE_TOTAL,
     mouth: FEMALE_MOUTH_TOTAL,
+    nose: FEMALE_NOSE_TOTAL,
     clothes: FEMALE_CLOTHES_TOTAL,
 };
 
@@ -62,6 +64,7 @@ const CharacterFactory =
             jewelry: randomValue( FEMALE_JEWELRY_TOTAL ),
             eyes: randomValue( FEMALE_EYE_TOTAL ),
             mouth: randomValue( FEMALE_MOUTH_TOTAL ),
+            nose: randomValue( FEMALE_NOSE_TOTAL ),
             clothes: randomValue( FEMALE_CLOTHES_TOTAL ),
         };
     },
@@ -79,6 +82,7 @@ const CharacterFactory =
             jewelry: data.j,
             eyes: data.e,
             mouth: data.m,
+            nose: data.no,
             clothes: data.c
         }, {
             speed: data.sp,
@@ -100,6 +104,7 @@ const CharacterFactory =
             j: appearance.jewelry,
             e: appearance.eyes,
             m: appearance.mouth,
+            no: appearance.nose,
             c: appearance.clothes,
             sp: properties.speed,
             i: properties.intoxication,

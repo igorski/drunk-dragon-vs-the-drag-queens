@@ -29,6 +29,10 @@
                             <input type="range" min="0" :max="maxValues.mouth - 1" v-model.number="appearance.mouth" />
                         </div>
                         <div class="input range">
+                            <label v-t="'nose'" for="nose"></label>
+                            <input type="range" min="0" :max="maxValues.nose - 1" v-model.number="appearance.nose" />
+                        </div>
+                        <div class="input range">
                             <label v-t="'hair'" for="hair"></label>
                             <input type="range" min="0" :max="maxValues.hair - 1" v-model.number="appearance.hair" />
                         </div>
@@ -133,6 +137,7 @@ export default {
             this.appearance.eyes    = randomized.eyes;
             this.appearance.hair    = randomized.hair;
             this.appearance.mouth   = randomized.mouth;
+            this.appearance.nose    = randomized.nose;
             this.appearance.jewelry = randomized.jewelry;
             this.appearance.clothes = randomized.clothes;
         },

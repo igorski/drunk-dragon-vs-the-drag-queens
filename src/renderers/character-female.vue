@@ -18,6 +18,7 @@
             </svg>
         </div>
         <img :src="shadows" class="female__shadows" />
+        <img :src="nose" class="female__nose" />
         <img :src="clothes" class="female__clothes" />
         <img :src="mouth" class="female__mouth" />
         <img :src="eyes" class="female__eyes" />
@@ -59,6 +60,9 @@ export default {
         },
         shadows() {
             return `${ASSET_PATH}shadows.png`;
+        },
+        nose() {
+            return `${ASSET_PATH}nose_${fileSuffix(this.appearance.nose)}.png`;
         },
         hair() {
             return `${ASSET_PATH}hair_${fileSuffix(this.appearance.hair)}.png`;
@@ -133,6 +137,14 @@ export default {
             height: 100px;
             left: 447px;
             top: 716px;
+        }
+
+        &__nose {
+            position: absolute;
+            width: 235px;
+            height: 225px;
+            left: 416px;
+            top: 540px;
         }
 
         &__clothes {
