@@ -29,7 +29,7 @@ Inheritance.extend( ConfigController, Controller );
  * @override
  * @public
  *
- * @return {Array.<string>}
+ * @return {Array<string>}
  */
 ConfigController.prototype.subscribe = function()
 {

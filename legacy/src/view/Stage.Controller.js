@@ -43,7 +43,7 @@ StageController.prototype.init = function()
  * @override
  * @public
  *
- * @return {Array.<string>}
+ * @return {Array<string>}
  */
 StageController.prototype.subscribe = function()
 {

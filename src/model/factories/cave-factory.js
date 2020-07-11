@@ -1,6 +1,6 @@
 import { Map }            from 'rot-js';
 import HashUtil           from '@/utils/hash-util';
-import TerrainUtil        from '@/utils/terrain-util';
+import { positionAtRandomFreeTileType } from '@/utils/terrain-util';
 import EnvironmentFactory from './environment-factory';
 
 export const CAVE_TYPE = 'Cave';
@@ -75,12 +75,12 @@ const CaveFactory =
 
             if ( i !== maxLevel )
             {
-                terrain[ TerrainUtil.positionAtRandomFreeTileType( terrain, CAVE_TILES.GROUND ) ] = CAVE_TILES.TUNNEL;
+                terrain[ positionAtRandomFreeTileType( terrain, CAVE_TILES.GROUND ) ] = CAVE_TILES.TUNNEL;
             }
             else {
                 // or the treasure that leads to the outside
                 // TODO ... make treasure for now we just add another tunnel
-                terrain[ TerrainUtil.positionAtRandomFreeTileType( terrain, CAVE_TILES.GROUND ) ] = CAVE_TILES.TUNNEL;
+                terrain[ positionAtRandomFreeTileType( terrain, CAVE_TILES.GROUND ) ] = CAVE_TILES.TUNNEL;
                 // E.O .TODO
             }
             levels.push( CaveFactory.createCaveLevel( MAP_WIDTH, MAP_HEIGHT, terrain ));

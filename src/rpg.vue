@@ -127,8 +127,19 @@ export default {
 };
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
     @import '@/styles/_variables.scss';
+
+    html, body {
+      overscroll-behavior-x: none; /* disable navigation back/forward swipe on Chrome */
+    }
+
+    body {
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background-color: #000;
+    }
 
     .rpg {
         @include bodyFont();

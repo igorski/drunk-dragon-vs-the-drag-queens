@@ -23,14 +23,14 @@ export default
 
         // TODO : can we make this more generic ?
 
-        if ( environment.type === WORLD_TYPE )
-        {
-            switch ( tileType )
-            {
+        if ( environment.type === WORLD_TYPE ) {
+            switch ( tileType ) {
                 default:
                 case WORLD_TILES.GROUND:
                 case WORLD_TILES.GRASS:
                     drawTile( ctx, getSheet( environment, tile ), 0, x, y ); // the lowest tiles in World underground
+                    // ctx.font = "6px Verdana";
+                    //ctx.fillText( `${ty}`, x, y);
                     break;
 
                 case WORLD_TILES.SAND:

@@ -43,7 +43,7 @@ ShopController.prototype.init = function()
  * @override
  * @public
  *
- * @return {Array.<string>}
+ * @return {Array<string>}
  */
 ShopController.prototype.subscribe = function()
 {

@@ -1,6 +1,6 @@
 import MD5                from 'MD5';
 import HashUtil           from '@/utils/hash-util';
-import TerrainUtil        from '@/utils/terrain-util';
+import { growTerrain, getSurroundingIndices } from '@/utils/terrain-util';
 import WorldCache         from '@/utils/world-cache';
 import CaveFactory        from './cave-factory';
 import EnvironmentFactory from './environment-factory';
@@ -326,7 +326,7 @@ function generateTerrain( aHash, aWorld ) {
                 map[ index ] = type;
             }
             for ( i = 0; i < size; i++ ) {
-                TerrainUtil.growTerr( map, MAP_WIDTH, MAP_HEIGHT, type );
+                growTerrain( map, MAP_WIDTH, MAP_HEIGHT, type );
             }
         }
 
@@ -340,7 +340,7 @@ function generateTerrain( aHash, aWorld ) {
             index = y * MAP_WIDTH + x;
 
             if ( map[ index ] === WORLD_TILES.GROUND ) {
-                const around = TerrainUtil.getSurroundingIndicesFor( x, y, MAP_WIDTH, MAP_HEIGHT, true );
+                const around = getSurroundingIndices( x, y, MAP_WIDTH, MAP_HEIGHT, true );
                 for ( i = 0; i < around.length; i++ ) {
                     if ( map[ around[ i ]] === WORLD_TILES.WATER && Math.random() > .7 ) {
                         map[ index ] = WORLD_TILES.SAND;
@@ -349,7 +349,7 @@ function generateTerrain( aHash, aWorld ) {
                 }
             }
         }
-        TerrainUtil.growTerr( map, MAP_WIDTH, MAP_HEIGHT, WORLD_TILES.SAND, 0.9 );
+        growTerrain( map, MAP_WIDTH, MAP_HEIGHT, WORLD_TILES.SAND, 0.9 );
 
         // Plant some trees in the parks
 

@@ -18,7 +18,6 @@ import SpriteCache   from '@/utils/sprite-cache';
  */
 function CaveRenderer( store, width, height ) {
     CaveRenderer.super( this, store, width, height );
-    this.setInteractive( true );
 }
 
 WorldRenderer.extend( CaveRenderer );

@@ -3,9 +3,12 @@
  */
 export default WorldRenderer;
 
-import zCanvas     from 'zcanvas';
+import { sprite }  from 'zcanvas';
+import { WORLD_TILES } from '@/model/factories/world-factory';
 import SpriteCache from '@/utils/sprite-cache';
 import WorldCache  from '@/utils/world-cache';
+import { coordinateToIndex, indexToCoordinate } from '@/utils/terrain-util';
+import { findPath } from '@/utils/path-finder';
 
 let commit, dispatch; // Vuex store hooks
 
@@ -18,14 +21,13 @@ let commit, dispatch; // Vuex store hooks
  * @param {number} height
  */
 function WorldRenderer( store, width, height ) {
-    WorldRenderer.super( this, 'constructor', 0, 0, width, height );
-    this.setInteractive( true );
+    WorldRenderer.super( this, 'constructor', { width, height, interactive: true });
 
     commit   = store.commit;
     dispatch = store.dispatch;
 }
 
-zCanvas.sprite.extend( WorldRenderer );
+sprite.extend( WorldRenderer );
 
 /* class properties */
 
@@ -82,8 +84,9 @@ WorldRenderer.prototype.updateImage = function( aImage, aNewWidth, aNewHeight ) 
         this.maxTilesInWidth  = ( aNewWidth / WorldCache.tileWidth ) + 1;
 
         // odd numbers please...
-        if ( this.maxTilesInWidth % 2 === 0 )
+        if ( this.maxTilesInWidth % 2 === 0 ) {
             ++this.maxTilesInWidth;
+        }
     }
 };
 
@@ -94,32 +97,56 @@ WorldRenderer.prototype.updateImage = function( aImage, aNewWidth, aNewHeight ) 
 WorldRenderer.prototype.setTileDimensions = function( aWidth, aHeight ) {
     this.maxTilesInWidth  = aWidth  / WorldCache.tileWidth;
     this.maxTilesInHeight = aHeight / WorldCache.tileHeight;
+
+    // ensure the hit area matches the bounding box, make up for canvas scale factor
+    const { x, y } = this.canvas._scale;
+
+    this.setWidth( aWidth * x );
+    this.setHeight( aHeight * y );
 };
 
 /**
- * @param {number} x mouse pointer coordinate
- * @param {number} y mouse pointer coordinate
+ * @param {number} pointerX mouse pointer coordinate
+ * @param {number} pointerY mouse pointer coordinate
  */
-WorldRenderer.prototype.handleRelease = function( x, y ) {
-    console.warn('clicked at ' + x + ' x' + y);
+WorldRenderer.prototype.handleRelease = function( pointerX, pointerY ) {
+    const { x, y, terrain } = this._world;
+    const { left, top }     = this.getVisibleTiles();
+
+    // determine which tile has been clicked by translating the pointer coordinate
+    // local to the current canvas size against the amount of tiles we can display for this size
+
+    const tx = left + Math.floor(( pointerX / this.canvas.getWidth() )  * this.maxTilesInWidth );
+    const ty = top  + Math.floor(( pointerY / this.canvas.getHeight() ) * this.maxTilesInHeight );
+
+    const indexOfTile = coordinateToIndex( tx, ty, this._world ); // translate coordinate to 1D list index
+    const targetTile = terrain[ indexOfTile ];
+
+    console.warn( `Clicked tile at ${tx} x ${ty} (player is at ${x} x ${y}) (local click pointer coordinates ${pointerX} x ${pointerY}), underlying terrain type: ${targetTile}` );
+
+    if ( this.isValidTarget( targetTile )) {
+        this.target = findPath( this._world, x, y, tx, ty );
+    }
+
     // x and y represent a screen coordinate, translate to world image coordinate
 };
 
 /**
- * @override
- * @param {CanvasRenderingContext2D} aCanvasContext to draw on
+ * Determine whether given tileType is a valid type to travel to for the current environment
+ *
+ * @protected
+ * @param {number} tileType
+ * @return {boolean}
  */
-WorldRenderer.prototype.draw = function( aCanvasContext ) {
-//    dispatch( 'updatePlayer' ); // update Player movement
+WorldRenderer.prototype.isValidTarget = function( tileType ) {
+    return [ WORLD_TILES.GROUND, WORLD_TILES.GRASS, WORLD_TILES.SAND ].includes( tileType );
+};
 
-    const vx = this._player.x || 0;
-    const vy = this._player.y || 0;
-
-    const world      = this._world;
-    const worldWidth = world.width, worldHeight = world.height;
-
-    const { tileWidth, tileHeight } = WorldCache;
-
+/**
+ * Calculates which tiles are currently visible inside the viewport. This also
+ returns the dimensions of tiles for tile-to-pixel-bounding-box math.
+ */
+WorldRenderer.prototype.getVisibleTiles = function() {
     // the amount of tiles on either side of the player
     const widthTiles      = this.maxTilesInWidth;
     const heightTiles     = this.maxTilesInHeight;
@@ -128,27 +155,55 @@ WorldRenderer.prototype.draw = function( aCanvasContext ) {
 
     // the rectangle to draw, all relative in world coordinates (tiles)
 
-    const left   = world.x - halfWidthTiles;
-    const right  = world.x + halfWidthTiles;
-    const top    = world.y - halfHeightTiles;
-    const bottom = world.y + halfHeightTiles;
+    const { x, y } = this._world;
+
+    const left   = x - halfWidthTiles;
+    const right  = x + halfWidthTiles;
+    const top    = y - halfHeightTiles;
+    const bottom = y + halfHeightTiles;
+
+    return {
+        widthTiles, heightTiles, halfWidthTiles, halfHeightTiles,
+        left, right, top, bottom
+    };
+};
+
+/**
+ * @override
+ * @param {CanvasRenderingContext2D} aCanvasContext to draw on
+ */
+WorldRenderer.prototype.draw = function( aCanvasContext ) {
+    const vx = this._world.x || 0;
+    const vy = this._world.y || 0;
+
+    const world      = this._world;
+    const worldWidth = world.width, worldHeight = world.height;
+
+    const { tileWidth, tileHeight } = WorldCache;
+
+    const {
+        left, right, top, bottom,
+        widthTiles, heightTiles, halfWidthTiles, halfHeightTiles
+    } = this.getVisibleTiles();
 
     // render terrain from cache
 
-    const sourceX     = ( left * tileWidth ) + vx, sourceY = ( top * tileHeight ) + vy;
+    const sourceX     = ( left * tileWidth ), sourceY = ( top * tileHeight );
     const canvasWidth = this.canvas.getWidth(), canvasHeight = this.canvas.getHeight();
 
     // if player is at world edge, stop scrolling terrain
 
-    if ( world.x <= halfWidthTiles )
+    if ( world.x <= halfWidthTiles ) {
         sourceX = 0;
-    else if ( left > worldWidth - widthTiles - 1 )
+    } else if ( left > worldWidth - widthTiles - 1 ) {
         sourceX = ( worldWidth - widthTiles ) * tileWidth;
+    }
 
-    if ( world.y <= halfHeightTiles )
+    if ( world.y <= halfHeightTiles ) {
         sourceY = 0;
-    else if ( top > worldHeight - heightTiles - 1 )
+    } else if ( top > worldHeight - heightTiles - 1 ) {
         sourceY = ( worldHeight - heightTiles ) * tileHeight;
+    }
 
     aCanvasContext.drawImage( SpriteCache.WORLD,
                               sourceX, sourceY, canvasWidth, canvasHeight,
@@ -198,23 +253,24 @@ WorldRenderer.prototype.draw = function( aCanvasContext ) {
 
     // if player is at world edge draw player out of center
 
-    if ( world.x <= halfWidthTiles - 1 )
+    if ( world.x <= halfWidthTiles - 1 ) {
         x = ( world.x * tileWidth ) + vx;
-    else if ( world.x >= ( worldWidth - halfWidthTiles - 1 ))
+    } else if ( world.x >= ( worldWidth - halfWidthTiles - 1 )) {
         x = (( widthTiles - ( worldWidth - world.x )) * tileWidth ) + vx;
+    }
 
-    if ( world.y <= halfHeightTiles - 1 )
+    if ( world.y <= halfHeightTiles - 1 ) {
         y = ( world.y * tileHeight ) + vy;
-    else if ( world.y >= ( worldHeight - halfHeightTiles - 1 ))
+    } else if ( world.y >= ( worldHeight - halfHeightTiles - 1 )) {
         y = (( heightTiles - ( worldHeight - world.y )) * tileHeight ) + vy;
+    }
 
-    aCanvasContext.fillStyle = 'blue';
+    aCanvasContext.fillStyle = 'rgba(0,0,255,.5)';
     aCanvasContext.fillRect( x, y, tileWidth, tileHeight );
 
     // draw enemies
 
-    for ( let i = 0, l = enemies.length; i < l; ++i )
-    {
+    for ( let i = 0, l = enemies.length; i < l; ++i ) {
         const enemy = enemies[ i ];
 
         if ( enemy.x >= left && enemy.x <= right &&
@@ -227,6 +283,18 @@ WorldRenderer.prototype.draw = function( aCanvasContext ) {
 
             aCanvasContext.drawImage( SpriteCache.DRONE, x  - vx, y - vy, 30, 30 );
         }
+    }
+
+    // draw target QQQ
+
+    if ( Array.isArray( this.target )) {
+        this.target.forEach(({ x, y }) => {
+            const tLeft   = ((x - left ) * tileWidth ) + halfWidthTiles;
+            const tTop    = ((y - top )  * tileHeight ) +halfHeightTiles;
+
+            aCanvasContext.fillStyle = 'red';
+            aCanvasContext.fillRect( tLeft - 2, tTop - 2, 4, 4 );
+        });
     }
 
     // QQQ : map overlay

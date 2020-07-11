@@ -66,6 +66,8 @@ npm run test
 ```
 ## TODO
 
+Make menu collapsable
+
 Rename Cave to Skyscraper (?)
 
 Keep track of important dates (Christmas, New Year)

@@ -38,7 +38,7 @@ Inheritance.extend( ItemOverlay, Overlay );
 
 /** @protected @type {!Function} */      ItemOverlay.prototype._selectHandler;
 /** @protected @type {Inventory} */      ItemOverlay.prototype._inventory;
-/** @protected @type {Array.<Sprite>} */ ItemOverlay.prototype._items;
+/** @protected @type {Array<Sprite>} */ ItemOverlay.prototype._items;
 /** @protected @type {number} */         ItemOverlay.prototype._filter;
 
 /* public methods */

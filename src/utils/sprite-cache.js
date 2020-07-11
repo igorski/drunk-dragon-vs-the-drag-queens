@@ -14,6 +14,4 @@ export default
     SAND       : new Image(),
     WATER      : new Image(),
     TREE       : new Image(),
-    DRONE      : new Image(),
-    HERO       : new Image()
 };

@@ -28,8 +28,7 @@ const WorldCache =
     clearPositionsOfType( type ) {
         const positions = WorldCache.positions;
 throw new Error('TODO instanceof wont wrk');
-        Object.keys( positions ).forEach( function( key )
-        {
+        Object.keys( positions ).forEach( key => {
             if ( positions[ key ] instanceof type ) {
                 delete positions[ key ];
             }
@@ -111,10 +110,8 @@ throw new Error('TODO instanceof wont wrk');
         // internal check whether given position is free, and
         // if so, register it to given aObject
 
-        function isFree( positionX, positionY )
-        {
+        function isFree( positionX, positionY ) {
             let free = false;
-
             if ( free = WorldCache.isPositionFree( aWorld, positionX, positionY )) {
               throw new Error('TODO WHAT IS POS HERE?');
                 positions[ pos ] = aObject;

@@ -68,7 +68,7 @@ export const renderEnvironment = environment =>
         // render all columns of a single row, one by ony
 
         const MAX_ITERATIONS = rb;    // all rows
-        let iterations     = rt - 1;
+        let iterations       = rt - 1;
 
         thread._executeInternal = () => {
             // the amount of times we call the 'render'-function
