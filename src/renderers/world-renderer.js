@@ -12,6 +12,8 @@ import { findPath } from '@/utils/path-finder';
 
 let commit, dispatch; // Vuex store hooks
 
+const DEBUG = true;
+
 /**
  * @constructor
  * @extends {zSprite}
@@ -40,8 +42,6 @@ sprite.extend( WorldRenderer );
 /* public methods */
 
 /**
- * @public
- *
  * @param {World} aWorld
  * @param {Player} aPlayer
  */
@@ -122,10 +122,13 @@ WorldRenderer.prototype.handleRelease = function( pointerX, pointerY ) {
     const indexOfTile = coordinateToIndex( tx, ty, this._world ); // translate coordinate to 1D list index
     const targetTile = terrain[ indexOfTile ];
 
-    console.warn( `Clicked tile at ${tx} x ${ty} (player is at ${x} x ${y}) (local click pointer coordinates ${pointerX} x ${pointerY}), underlying terrain type: ${targetTile}` );
+    if ( DEBUG ) {
+        console.warn( `Clicked tile at ${tx} x ${ty} (player is at ${x} x ${y}) (local click pointer coordinates ${pointerX} x ${pointerY}), underlying terrain type: ${targetTile}` );
+    }
 
     if ( this.isValidTarget( targetTile )) {
         this.target = findPath( this._world, x, y, tx, ty );
+        dispatch( 'moveToDestination', this.target );
     }
 
     // x and y represent a screen coordinate, translate to world image coordinate
@@ -287,7 +290,7 @@ WorldRenderer.prototype.draw = function( aCanvasContext ) {
 
     // draw target QQQ
 
-    if ( Array.isArray( this.target )) {
+    if ( DEBUG && Array.isArray( this.target )) {
         this.target.forEach(({ x, y }) => {
             const tLeft   = ((x - left ) * tileWidth ) + halfWidthTiles;
             const tTop    = ((y - top )  * tileHeight ) +halfHeightTiles;

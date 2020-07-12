@@ -6,22 +6,26 @@ export default
      * on a single property. If more than one effect applies to the same
      * property this should be recalculated into a new duration and value range.
      *
-     * @param {Object} character the target the effect applies to
+     * @param {Function} commit Vuex store commit action
+     * @param {String} action the name of the mutation to invoke on change
      * @param {Number} startTime time offset (e.g. current game time in milliseconds)
      * @param {Number} duration total effect duration in milliseconds
-     * @param {String} property the name of the Character property to change
      * @param {Number} startValue the value when the effect starts
      * @param {Number} endValue the value when the effect ends
+     * @return {Object}
      */
-    create( character, startTime, duration, property, startValue, endValue ) {
+    create( commit, action, startTime, duration, startValue, endValue ) {
+        if ( typeof commit !== 'function' ) {
+            throw new Error ( 'Cannot create an Effect without a commit fn()' );
+        }
         return {
-            character,
+            commit,
+            action,
             startTime,
             duration,
-            property,
             startValue,
             endValue,
-            increment: ( endValue / startValue ) / duration
+            increment: ( endValue - startValue ) / duration
         };
     }
 };

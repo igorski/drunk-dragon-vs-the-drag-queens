@@ -40,6 +40,18 @@ describe('Vuex game module', () => {
             expect( state.lastRender ).toEqual( 100 );
         });
 
+        it('should be able to update the player x position in the current environment', () => {
+            const state = { activeEnvironment: { x: 0, y: 0 } };
+            mutations.setXPosition( state, 10 );
+            expect( state.activeEnvironment ).toEqual({ x: 10, y: 0 });
+        });
+
+        it('should be able to update the player y position in the current environment', () => {
+            const state = { activeEnvironment: { x: 0, y: 0 } };
+            mutations.setYPosition( state, 10 );
+            expect( state.activeEnvironment ).toEqual({ x: 0, y: 10 });
+        });
+
         it('should be able to add an effect to the game', () => {
             const state = { effects: [{ foo: 'bar' }] };
             mutations.addEffect( state, { baz: 'qux' });
@@ -59,8 +71,8 @@ describe('Vuex game module', () => {
                 const timestamp = Date.now();
                 const commit = jest.fn();
 
-                const effect1 = EffectFactory.create();
-                const effect2 = EffectFactory.create();
+                const effect1 = EffectFactory.create( jest.fn() );
+                const effect2 = EffectFactory.create( jest.fn() );
 
                 mockUpdateFn = jest.fn(effect => {
                     // note that effect 2 we want to remove (by returning true)

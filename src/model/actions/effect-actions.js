@@ -1,5 +1,3 @@
-import CharacterActions from './character-actions';
-
 export default
 {
     /**
@@ -10,14 +8,17 @@ export default
      */
     update( effect, currentTime ) {
         const elapsed = currentTime - effect.startTime;
-        const { character } = effect;
+        const { commit, action, increment } = effect;
+
+        if ( elapsed < 0 ) {
+            return false; // action is scheduled ahead
+        }
 
         if ( elapsed >= effect.duration ) {
-            CharacterActions.updateProperties( character, { [effect.property]: effect.endValue })
+            commit( action, effect.endValue );
             return true;
         }
-        const value = effect.startValue + ( increment * elapsed );
-        CharacterActions.updateProperties( character, { [effect.property]: value });
+        commit( action, effect.startValue + ( increment * elapsed ));
         return false;
     }
 };

@@ -1,4 +1,3 @@
-import PlayerActions from '@/definitions/player-actions';
 import WorldCache    from '@/utils/world-cache';
 
 import { CAVE_TYPE }  from './cave-factory';
@@ -221,8 +220,6 @@ function sanitizePosition( store, axis ) {
         targetX = player.x;
         y       = targetY;
     }
-    commit( 'setPlayerPosition', { x: targetX, y: targetY });
-    commit( 'setEnvironmentPosition', { x, y });
 }
 
 function internalHitTest( x, y, collection ) {

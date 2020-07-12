@@ -42,13 +42,11 @@ export default {
         setPlayer( state, value ) {
             state.player = value;
         },
-        setPlayerPosition( state, { x, y }) {
-            state.player.x = x;
-            state.player.y = y;
+        setXPosition( state, value ) {
+            state.activeEnvironment.x = value;
         },
-        setEnvironmentPosition( state, { x, y }) {
-            state.activeEnvironment.x = x;
-            state.activeEnvironment.y = y;
+        setYPosition( state, value ) {
+            state.activeEnvironment.y = value;
         },
         setHash( state, value ) {
             state.hash = value;
@@ -174,7 +172,6 @@ export default {
             // advance game time (values in milliseconds)
             const delta = ( timestamp - state.lastRender ) * GAME_TIME_RATIO;
             commit( 'advanceGameTime', delta );
-
             commit( 'setLastRender', timestamp );
         },
         async loadGame({ state, commit }) {

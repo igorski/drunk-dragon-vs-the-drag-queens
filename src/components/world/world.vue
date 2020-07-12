@@ -1,11 +1,10 @@
 <template>
-    <div ref='canvasContainer' />
+    <div ref="canvasContainer" />
 </template>
 
 <script>
 import { mapGetters, mapMutations, mapActions } from 'vuex';
 import { canvas }     from 'zcanvas';
-import PlayerActions  from '@/definitions/player-actions';
 import CaveRenderer   from '@/renderers/cave-renderer';
 import WorldRenderer  from '@/renderers/world-renderer';
 import SpriteCache    from '@/utils/sprite-cache';

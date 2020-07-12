@@ -64,13 +64,14 @@ const WorldFactory =
 
         // generate the terrain if it didn't exist yet
 
-        if ( optGenerateTerrain )
+        if ( optGenerateTerrain ) {
             generateTerrain( hash, world );
+        }
 
         // generate some shops
 
-        var shops         = hash.substr( 4, 2 ), shop;
-        var amountOfShops = HashUtil.charsToNum( shops );
+        const shops         = hash.substr( 4, 2 );
+        const amountOfShops = HashUtil.charsToNum( shops );
 
         world.shops = [];
 
@@ -111,7 +112,7 @@ const WorldFactory =
             targetX = Math.round( x );
             targetY = Math.round( y );
 
-            shop = ShopFactory.create( targetX, targetY );
+            const shop = ShopFactory.create( targetX, targetY );
             reserveObject( targetX, targetY, shop, world );
 
             world.shops.push( shop );
@@ -206,9 +207,9 @@ const WorldFactory =
 
         // restore position
 
-        world.x = data.x;
-        world.y = data.y;
-        world.width = data.w;
+        world.x      = data.x;
+        world.y      = data.y;
+        world.width  = data.w;
         world.height = data.h;
 
         // restore World terrain
@@ -255,28 +256,32 @@ function reserveObject( x, y, obj, world ) {
         const up    = y > world.height / 2;
 
         while ( !found ) {
-            if ( left )
+            if ( left ) {
                 --x;
-            else
+            } else {
                 ++x;
+            }
 
-            if ( up )
+            if ( up ) {
                 --y;
-            else
+            } else {
                 ++y;
+            }
 
             // keep within world bounds
 
             x = Math.max( 0, Math.min( x, world.width ));
             y = Math.max( 0, Math.min( y, world.height ));
 
-            if ( checkIfFree( x, y ))
+            if ( checkIfFree( x, y )) {
                 found = true;
+            }
 
             // fail-safe in case we'll never find a spot... :(
 
-            if ( --tries === 0 )
+            if ( --tries === 0 ) {
                 found = true;
+            }
         }
     }
     // reserve the Object inside the WorldCache
@@ -292,7 +297,6 @@ function reserveObject( x, y, obj, world ) {
  *
  * @param {number} x
  * @param {number} y
- *
  * @return {boolean} whether the position is free
  */
 function checkIfFree( x, y ) {
