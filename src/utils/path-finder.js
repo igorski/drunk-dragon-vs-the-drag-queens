@@ -28,27 +28,27 @@ export const findPath = ( world, startX, startY, targetX, targetY, maxWalkableTi
 
     // which heuristic should we use?
     // default: no diagonals (Manhattan)
-    var distanceFunction = ManhattanDistance;
-    var findNeighbours   = () => {}; // noop
+    const distanceFunction = ManhattanDistance;
+    const findNeighbours   = () => {}; // noop
 
     /*
-    // alternate heuristics, depending on your game:
+    // alternate heuristics, depending on purpose:
 
     // diagonals allowed but no sqeezing through cracks:
-    var distanceFunction = DiagonalDistance;
-    var findNeighbours = DiagonalNeighbours;
+    const distanceFunction = DiagonalDistance;
+    const findNeighbours = DiagonalNeighbours;
 
     // diagonals and squeezing through cracks allowed:
-    var distanceFunction = DiagonalDistance;
-    var findNeighbours = DiagonalNeighboursFree;
+    const distanceFunction = DiagonalDistance;
+    const findNeighbours = DiagonalNeighboursFree;
 
     // euclidean but no squeezing through cracks:
-    var distanceFunction = EuclideanDistance;
-    var findNeighbours = DiagonalNeighbours;
+    const distanceFunction = EuclideanDistance;
+    const findNeighbours = DiagonalNeighbours;
 
     // euclidean and squeezing through cracks allowed:
-    var distanceFunction = EuclideanDistance;
-    var findNeighbours = DiagonalNeighboursFree;
+    const distanceFunction = EuclideanDistance;
+    const findNeighbours = DiagonalNeighboursFree;
     */
 
     // Neighbours functions, used by findNeighbours function
@@ -58,7 +58,7 @@ export const findPath = ( world, startX, startY, targetX, targetY, maxWalkableTi
     // cell that is empty. No diagonals,
     // unless distanceFunction function is not Manhattan
     function Neighbours( x, y ) {
-        const	N      = y - 1,
+        const N      = y - 1,
               S      = y + 1,
               E      = x + 1,
               W      = x - 1,
@@ -109,27 +109,27 @@ export const findPath = ( world, startX, startY, targetX, targetY, maxWalkableTi
     // returns every available North East, South East,
     // South West or North West cell including the times that
     // you would be squeezing through a "crack"
-    function DiagonalNeighboursFree( myN, myS, myE, myW, N, S, E, W, result )
-    {
+    function DiagonalNeighboursFree( myN, myS, myE, myW, N, S, E, W, result ) {
         myN = N > -1;
         myS = S < worldHeight;
         myE = E < worldWidth;
         myW = W > -1;
-        if ( myE )
-        {
-            if ( myN && canWalkHere( E, N ))
-                result.push({x:E, y:N});
 
-            if ( myS && canWalkHere( E, S ))
-                result.push({x:E, y:S});
+        if ( myE ) {
+            if ( myN && canWalkHere( E, N )) {
+                result.push({ x: E, y: N });
+            }
+            if ( myS && canWalkHere( E, S )) {
+                result.push({ x: E, y: S });
+            }
         }
-        if ( myW )
-        {
-            if(myN && canWalkHere( W, N ))
-                result.push({x:W, y:N});
-
-            if(myS && canWalkHere( W, S ))
-                result.push({x:W, y:S});
+        if ( myW ) {
+            if ( myN && canWalkHere( W, N )) {
+                result.push({ x: W, y: N });
+            }
+            if ( myS && canWalkHere( W, S )) {
+                result.push({ x: W, y: S });
+            }
         }
     }
 
@@ -142,46 +142,43 @@ export const findPath = ( world, startX, startY, targetX, targetY, maxWalkableTi
     // Path function, executes AStar algorithm operations
     function calculatePath() {
         // create Nodes from the Start and End x,y coordinates
-        var	mypathStart = createPathNode( null, { x: pathStart[0], y: pathStart[1] }, worldWidth );
-        var mypathEnd   = createPathNode( null, { x: pathEnd[0],   y: pathEnd[1]   }, worldWidth );
+        const mypathStart = createPathNode( null, { x: pathStart[0], y: pathStart[1] }, worldWidth );
+        const mypathEnd   = createPathNode( null, { x: pathEnd[0],   y: pathEnd[1]   }, worldWidth );
         // create an array that will contain all world cells
-        var AStar = new Array(worldSize);
+        let AStar    = new Array( worldSize );
         // list of currently open Nodes
-        var Open = [mypathStart];
+        let Open     = [ mypathStart ];
         // list of closed Nodes
-        var Closed = [];
+        let Closed   = [];
         // list of the final output array
-        var result = [];
+        const result = [];
         // reference to a Node (that is nearby)
-        var myNeighbours;
+        let myNeighbours;
         // reference to a Node (that we are considering now)
-        var myNode;
+        let myNode;
         // reference to a Node (that starts a path in question)
-        var myPath;
+        let myPath;
         // temp integer variables used in the calculations
-        var length, max, min, i, j;
+        let length, max, min, i, j;
         // iterate through the open list until none are left
-        while(length = Open.length)
-        {
+        while ( length = Open.length ) {
             max = worldSize;
             min = -1;
-            for(i = 0; i < length; i++)
-            {
-                if(Open[i].f < max)
-                {
-                    max = Open[i].f;
+            for ( i = 0; i < length; i++ ) {
+                if ( Open[ i ].f < max ) {
+                    max = Open[ i ].f;
                     min = i;
                 }
             }
             // grab the next node and remove it from Open array
-            myNode = Open.splice(min, 1)[0];
+            myNode = Open.splice( min, 1 )[ 0 ];
             // is it the destination node?
-            if( myNode.value === mypathEnd.value ) {
-                myPath = Closed[Closed.push(myNode) - 1];
+            if ( myNode.value === mypathEnd.value ) {
+                myPath = Closed[ Closed.push( myNode ) - 1 ];
                 do {
                     result.push({ x: myPath.x, y: myPath.y });
                 }
-                while (myPath = myPath.Parent);
+                while ( myPath = myPath.Parent );
                 // clear the working arrays
                 AStar = Closed = Open = [];
                 // we want to return start to finish
@@ -190,29 +187,27 @@ export const findPath = ( world, startX, startY, targetX, targetY, maxWalkableTi
             else // not the destination
             {
                 // find which nearby nodes are walkable
-                myNeighbours = Neighbours(myNode.x, myNode.y);
+                myNeighbours = Neighbours( myNode.x, myNode.y );
                 // test each one that hasn't been tried already
-                for(i = 0, j = myNeighbours.length; i < j; i++)
-                {
-                    myPath = createPathNode( myNode, myNeighbours[i], worldWidth );
-                    if (!AStar[myPath.value]) {
+                for ( i = 0, j = myNeighbours.length; i < j; i++ ) {
+                    myPath = createPathNode( myNode, myNeighbours[ i ], worldWidth );
+                    if ( !AStar[ myPath.value ]) {
                         // estimated cost of this particular route so far
-                        myPath.g = myNode.g + distanceFunction(myNeighbours[i], myNode);
+                        myPath.g = myNode.g + distanceFunction( myNeighbours[ i ], myNode );
                         // estimated cost of entire guessed route to the destination
-                        myPath.f = myPath.g + distanceFunction(myNeighbours[i], mypathEnd);
+                        myPath.f = myPath.g + distanceFunction( myNeighbours[ i ], mypathEnd );
                         // remember this new path for testing above
-                        Open.push(myPath);
+                        Open.push( myPath );
                         // mark this node in the world graph as visited
-                        AStar[myPath.value] = true;
+                        AStar[ myPath.value ] = true;
                     }
                 }
                 // remember this route as having no more untested options
-                Closed.push(myNode);
+                Closed.push( myNode );
             }
         } // keep iterating until the Open list is empty
         return result;
     }
-
     // actually calculate the a-star path!
     // this returns an array of coordinates
     // that is empty if no path is possible

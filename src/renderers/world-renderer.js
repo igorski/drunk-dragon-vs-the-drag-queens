@@ -127,8 +127,6 @@ WorldRenderer.prototype.handleRelease = function( pointerX, pointerY ) {
         this.target = findPath( this._world, Math.round( x ), Math.round( y ), tx, ty, WORLD_TILES.SAND );
         dispatch( 'moveToDestination', this.target );
     }
-
-    // x and y represent a screen coordinate, translate to world image coordinate
 };
 
 /**
