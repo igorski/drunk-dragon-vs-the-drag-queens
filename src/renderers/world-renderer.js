@@ -1,6 +1,3 @@
-/**
- * Created by igorzinken on 01-03-15.
- */
 export default WorldRenderer;
 
 import { sprite }  from 'zcanvas';
@@ -116,8 +113,8 @@ WorldRenderer.prototype.handleRelease = function( pointerX, pointerY ) {
     // determine which tile has been clicked by translating the pointer coordinate
     // local to the current canvas size against the amount of tiles we can display for this size
 
-    const tx = left + Math.floor(( pointerX / this.canvas.getWidth() )  * this.maxTilesInWidth );
-    const ty = top  + Math.floor(( pointerY / this.canvas.getHeight() ) * this.maxTilesInHeight );
+    const tx = Math.floor( left + ( pointerX / this.canvas.getWidth() )  * this.maxTilesInWidth );
+    const ty = Math.floor( top  + ( pointerY / this.canvas.getHeight() ) * this.maxTilesInHeight );
 
     const indexOfTile = coordinateToIndex( tx, ty, this._world ); // translate coordinate to 1D list index
     const targetTile = terrain[ indexOfTile ];
@@ -127,7 +124,7 @@ WorldRenderer.prototype.handleRelease = function( pointerX, pointerY ) {
     }
 
     if ( this.isValidTarget( targetTile )) {
-        this.target = findPath( this._world, x, y, tx, ty );
+        this.target = findPath( this._world, Math.round( x ), Math.round( y ), tx, ty, WORLD_TILES.SAND );
         dispatch( 'moveToDestination', this.target );
     }
 

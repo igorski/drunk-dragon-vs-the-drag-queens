@@ -23,11 +23,12 @@ export default
 
     },
     actions: {
-        moveToDestination({ getters, commit }, waypoints = [] ) {
-            // TODO clear existing movement actions ?
+        moveToDestination({ state, getters, commit }, waypoints = [] ) {
+            commit( 'removeEffectsByAction', [ 'setXPosition', 'setYPosition' ]);
+
             const { activeEnvironment } = getters;
             let startTime  = getters.gameTime;
-            const duration = 1000 * GAME_TIME_RATIO;
+            const duration = 350 * GAME_TIME_RATIO;
             let lastX      = activeEnvironment.x;
             let lastY      = activeEnvironment.y;
 

@@ -1,14 +1,21 @@
 const { abs, max, pow, sqrt } = Math;
 
-export const findPath = ( world, startX, startY, targetX, targetY ) => {
+/**
+ * Calculate the path to take between given start and target coordinates.
+ * The path is an array of coordinates to walk.
+ *
+ * @param {Object} world the environment to walk in
+ * @param {number} startX the start x coordinate
+ * @param {number} startY the start y coordinate
+ * @param {number} targetX the target x coordinate
+ * @param {number} targetY the target y coordinate
+ * @param {number=} maxWalkableTileNum the terrain in an environment is represented
+ *                  by integers defining the terrain type. This number defines which
+ *                  types of terrain are deemed walkable (e.g. road, grass, mud, etc.)
+ */
+export const findPath = ( world, startX, startY, targetX, targetY, maxWalkableTileNum = 0 ) => {
     const pathStart = [ startX,  startY  ];
     const pathEnd   = [ targetX, targetY ];
-
-    // the world data are integers:
-    // anything higher than this number is considered blocked
-    // this is handy is you use numbered sprites, more than one
-    // of which is walkable road, grass, mud, etc
-    let maxWalkableTileNum = 0;
 
     // keep track of the world dimensions
     // Note that this A-star implementation expects the world array to be square:
@@ -50,52 +57,52 @@ export const findPath = ( world, startX, startY, targetX, targetY ) => {
     // Returns every available North, South, East or West
     // cell that is empty. No diagonals,
     // unless distanceFunction function is not Manhattan
-    function Neighbours( x, y )
-    {
-        var	N = y - 1,
-        S = y + 1,
-        E = x + 1,
-        W = x - 1,
-        myN = N > -1 && canWalkHere(x, N),
-        myS = S < worldHeight && canWalkHere(x, S),
-        myE = E < worldWidth && canWalkHere(E, y),
-        myW = W > -1 && canWalkHere(W, y),
-        result = [];
+    function Neighbours( x, y ) {
+        const	N      = y - 1,
+              S      = y + 1,
+              E      = x + 1,
+              W      = x - 1,
+              myN    = N > -1 && canWalkHere( x, N ),
+              myS    = S < worldHeight && canWalkHere( x, S ),
+              myE    = E < worldWidth && canWalkHere( E, y ),
+              myW    = W > -1 && canWalkHere( W, y ),
+              result = [];
 
-        if ( myN )
-            result.push({x:x, y:N});
-
-        if ( myE )
-            result.push({x:E, y:y});
-
-        if ( myS )
-            result.push({x:x, y:S});
-
-        if ( myW )
-            result.push({x:W, y:y});
-
-        findNeighbours(myN, myS, myE, myW, N, S, E, W, result);
+        if ( myN ) {
+            result.push({ x, y: N });
+        }
+        if ( myE ) {
+            result.push({ x: E, y });
+        }
+        if ( myS ) {
+            result.push({ x, y: S });
+        }
+        if ( myW ) {
+            result.push({ x: W, y });
+        }
+        findNeighbours( myN, myS, myE, myW, N, S, E, W, result );
         return result;
     }
 
     // returns every available North East, South East,
     // South West or North West cell - no squeezing through
     // "cracks" between two diagonals
-    function DiagonalNeighbours( myN, myS, myE, myW, N, S, E, W, result )
-    {
-        if ( myN )
-        {
-            if(myE && canWalkHere(E, N))
-            result.push({x:E, y:N});
-            if(myW && canWalkHere(W, N))
-            result.push({x:W, y:N});
+    function DiagonalNeighbours( myN, myS, myE, myW, N, S, E, W, result ) {
+        if ( myN ) {
+            if( myE && canWalkHere( E, N )) {
+                result.push({ x: E, y: N });
+            }
+            if ( myW && canWalkHere( W, N )) {
+                result.push({ x: W, y: N });
+            }
         }
-        if ( myS )
-        {
-            if(myE && canWalkHere(E, S))
-            result.push({x:E, y:S});
-            if(myW && canWalkHere(W, S))
-            result.push({x:W, y:S});
+        if ( myS ) {
+            if ( myE && canWalkHere( E, S )) {
+                result.push({ x: E, y: S });
+            }
+            if ( myW && canWalkHere( W, S )) {
+                result.push({ x: W, y: S });
+            }
         }
     }
 
