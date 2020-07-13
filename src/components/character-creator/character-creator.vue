@@ -156,9 +156,17 @@ export default {
         @include window();
         width: 100%;
 
-        &__form,
-        &__preview {
-            flex: 1;
+        @include large() {
+            &__form,
+            &__preview {
+                flex: 1;
+            }
+        }
+
+        @include mobile() {
+            &__form {
+                width: 100%;
+            }
         }
     }
 </style>
