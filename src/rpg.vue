@@ -12,6 +12,7 @@
                 <component
                     :is="activeScreen"
                     @input="handleScreenInput( $event )"
+                    @close="handleScreenClose()"
                 />
             </div>
             <world class="game-renderer" />
@@ -65,6 +66,7 @@ export default {
         ...mapGetters([
             'gameTime',
             'hasSavedGame',
+            'player',
         ]),
         activeScreen() {
             switch ( this.screen ) {
@@ -78,6 +80,9 @@ export default {
         },
         time() {
             return timestampToTimeString( this.gameTime );
+        },
+        hasActiveGame() {
+            return !!this.player;
         },
     },
     async created() {
@@ -122,7 +127,10 @@ export default {
                     this.setScreen( SCREEN_GAME );
                     break;
             }
-        }
+        },
+        handleScreenClose() {
+            this.setScreen( this.hasActiveGame ? SCREEN_GAME : SCREEN_CHARACTER_CREATE );
+        },
     },
 };
 </script>
