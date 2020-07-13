@@ -12,9 +12,10 @@ export default
      * @param {Number} duration total effect duration in milliseconds
      * @param {Number} startValue the value when the effect starts
      * @param {Number} endValue the value when the effect ends
+     * @param {Function=} callback optional callback to call when effect is completed
      * @return {Object}
      */
-    create( commit, action, startTime, duration, startValue, endValue ) {
+    create( commit, action, startTime, duration, startValue, endValue, callback = null ) {
         if ( typeof commit !== 'function' ) {
             throw new Error ( 'Cannot create an Effect without a commit fn()' );
         }
@@ -25,6 +26,7 @@ export default
             duration,
             startValue,
             endValue,
+            callback,
             increment: ( endValue - startValue ) / duration
         };
     }

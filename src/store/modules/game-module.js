@@ -1,5 +1,6 @@
 import MD5                   from 'MD5';
 import storage               from 'store/dist/store.modern';
+import Vue                   from 'vue';
 import AudioTracks           from '@/definitions/audio-tracks';
 import CharacterFactory      from '@/model/factories/character-factory';
 import GameFactory           from '@/model/factories/game-factory';
@@ -88,7 +89,10 @@ export default {
         removeEffect( state, value ) {
             const idx = state.effects.indexOf( value );
             if ( idx >= 0 ) state.effects.splice( idx, 1 );
-        }
+        },
+        removeEffectsByAction( state, types = [] ) {
+            Vue.set( state, 'effects', state.effects.filter(({ action }) => !types.includes( action )));
+        },
     },
     actions: {
         async createGame({ state, commit }, player = CharacterFactory.create() ) {
@@ -162,16 +166,20 @@ export default {
          * prior to each render cycle. Given timestamp is the renderers timestamp
          * which relative to the renderStart timestamp defines the relative time.
          */
-        updateGame({ state, commit }, timestamp ) {
-            // update the effects
-            state.effects.forEach( effect => {
-                if ( EffectActions.update( effect, timestamp )) {
-                    commit( 'removeEffect', effect );
-                }
-            });
+        updateGame({ state, getters, commit }, timestamp ) {
             // advance game time (values in milliseconds)
             const delta = ( timestamp - state.lastRender ) * GAME_TIME_RATIO;
             commit( 'advanceGameTime', delta );
+
+            const gameTimestamp = getters.gameTime;
+
+            // update the effects
+            state.effects.forEach( effect => {
+                if ( EffectActions.update( effect, gameTimestamp )) {
+                    commit( 'removeEffect', effect );
+                }
+            });
+
             commit( 'setLastRender', timestamp );
         },
         async loadGame({ state, commit }) {

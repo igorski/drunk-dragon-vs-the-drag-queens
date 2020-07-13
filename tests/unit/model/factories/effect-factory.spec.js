@@ -14,8 +14,11 @@ describe('Effect factory', () => {
         const duration   = 1000;
         const startValue = 2000;
         const endValue   = 5000;
-
-        const effect = EffectFactory.create( commit, action, startTime, duration, startValue, endValue );
+        const callback   = jest.fn();
+        
+        const effect = EffectFactory.create(
+            commit, action, startTime, duration, startValue, endValue, callback
+        );
 
         expect( effect ).toEqual({
             commit,
@@ -24,6 +27,7 @@ describe('Effect factory', () => {
             duration,
             startValue,
             endValue,
+            callback,
             increment: ( endValue - startValue ) / duration
         });
     });

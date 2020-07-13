@@ -70,6 +70,9 @@ describe('Vuex game module', () => {
             it('should be able to update the effects', () => {
                 const timestamp = Date.now();
                 const commit = jest.fn();
+                const mockedGetters = {
+                    gameTime: Date.now(),
+                };
 
                 const effect1 = EffectFactory.create( jest.fn() );
                 const effect2 = EffectFactory.create( jest.fn() );
@@ -82,6 +85,7 @@ describe('Vuex game module', () => {
 
                 actions.updateGame({
                     commit,
+                    getters: mockedGetters,
                     state: {
                         effects: [ effect1, effect2 ],
                     },

@@ -16,6 +16,9 @@ export default
 
         if ( elapsed >= effect.duration ) {
             commit( action, effect.endValue );
+            if ( typeof effect.callback === 'function' ) {
+                effect.callback();
+            }
             return true;
         }
         commit( action, effect.startValue + ( increment * elapsed ));
