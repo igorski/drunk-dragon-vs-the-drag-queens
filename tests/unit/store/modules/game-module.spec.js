@@ -71,9 +71,8 @@ describe('Vuex game module', () => {
                 const timestamp = Date.now();
                 const commit = jest.fn();
                 const mockedGetters = {
-                    gameTime: Date.now(),
+                    gameTime: timestamp,
                 };
-
                 const effect1 = EffectFactory.create( jest.fn() );
                 const effect2 = EffectFactory.create( jest.fn() );
 

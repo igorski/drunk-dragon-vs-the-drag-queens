@@ -5,6 +5,7 @@
         "importGame": "Import game",
         "exportGame": "Export game",
         "resetGame": "Reset game",
+        "status": "Status",
         "viewCredits": "View credits",
         "gameSavedSuccessfully": "Game was saved successfully.",
         "gameExportedSuccessfully": "Game was exported successfully.",

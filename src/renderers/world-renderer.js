@@ -296,38 +296,4 @@ WorldRenderer.prototype.draw = function( aCanvasContext ) {
             aCanvasContext.fillRect( tLeft - 2, tTop - 2, 4, 4 );
         });
     }
-
-    // QQQ : map overlay
-    if ( !TEMP_MAP ) {
-        TEMP_MAP = new Image();
-        TEMP_MAP.style.position = 'absolute';
-        TEMP_MAP.style.bottom = '1em';
-        TEMP_MAP.style.right = '1em';
-        document.body.appendChild( TEMP_MAP );
-    }
-    if ( !_pendingInterval ) {
-        setTimeout( function()
-        {
-            if ( !TEMP_MAP ) return;
-            TEMP_MAP.src = mapRenderer.render(world, 1.25).src;
-            _pendingInterval = false;
-        }, 1500 );
-        _pendingInterval = true;
-    }
-    // E.O. QQQ
 };
-
-// TODO QQQ : remove
-import mapRenderer from './world-map-renderer';
-var _pendingInterval = false;
-var TEMP_MAP;
-
-WorldRenderer.prototype.disposeInternal = function()
-{
-    if ( TEMP_MAP && TEMP_MAP.parentNode ) {
-        TEMP_MAP.parentNode.removeChild( TEMP_MAP );
-        TEMP_MAP = null;
-    }
-    Inheritance.super( this, 'disposeInternal' );
-};
-// E.O. QQQ

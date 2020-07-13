@@ -1,10 +1,5 @@
 <template>
-    <div class="credits">
-        <h3 v-t="'artwork'"></h3>
-        <button type="button"
-                class="close-button"
-                @click="$emit('close')"
-        >&times;</button>
+    <popup-window :title="$t('artwork')" @close="$emit('close')">
         <ul>
             <li>
                 World sprite tiles by Joost Huijbers.
@@ -15,17 +10,19 @@
                 <contributor :href="c.href" :title="c.title" :author="c.author" />
             </li>
         </ul>
-    </div>
+    </popup-window>
 </template>
 
 <script>
 import Contributor from './contributor';
+import PopupWindow from '@/components/popup-window/popup-window';
 import messages from './messages.json';
 
 export default {
     i18n: { messages },
     components: {
         Contributor,
+        PopupWindow,
     },
     data: () => ({
         artwork: [
@@ -48,22 +45,3 @@ export default {
     }),
 };
 </script>
-
-<style lang="scss" scoped>
-    @import '@/styles/_layout';
-
-    .credits {
-        @include overlay();
-
-        @include large() {
-            width: 640px;
-            height: 480px;
-            overflow-y: auto;
-            padding: $spacing-medium;
-            box-sizing: border-box;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
-        }
-    }
-</style>

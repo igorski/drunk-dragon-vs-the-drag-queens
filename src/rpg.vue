@@ -34,7 +34,7 @@
 import { mapState, mapGetters, mapMutations, mapActions } from 'vuex';
 import Vue from 'vue';
 import VueI18n from 'vue-i18n';
-import { SCREEN_GAME, SCREEN_CHARACTER_CREATE, SCREEN_CREDITS } from '@/definitions/screens';
+import { SCREEN_GAME, SCREEN_CHARACTER_CREATE, SCREEN_STATUS, SCREEN_CREDITS } from '@/definitions/screens';
 import { preloadAssets } from '@/services/asset-preloader';
 import { timestampToTimeString } from '@/utils/time-util';
 import DialogWindow from '@/components/dialog-window/dialog-window';
@@ -74,6 +74,8 @@ export default {
                     return null;
                 case SCREEN_CHARACTER_CREATE:
                     return () => import('./components/character-creator/character-creator');
+                case SCREEN_STATUS:
+                    return () => import('./components/status/status');
                 case SCREEN_CREDITS:
                     return () => import('./components/credits/credits');
             }

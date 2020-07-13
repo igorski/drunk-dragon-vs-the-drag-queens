@@ -48,6 +48,11 @@
                     </ul>
                 </li>
                 <li>
+                    <button v-t="'status'" type="button"
+                            :title="$t('status')" @click="viewStatus">
+                    </button>
+                </li>
+                <li>
                     <button v-t="'viewCredits'" type="button"
                             :title="$t('viewCredits')" @click="viewCredits">
                     </button>
@@ -59,7 +64,7 @@
 
 <script>
 import { mapGetters, mapMutations, mapActions } from 'vuex';
-import { SCREEN_GAME, SCREEN_CREDITS } from '@/definitions/screens';
+import { SCREEN_GAME, SCREEN_STATUS, SCREEN_CREDITS } from '@/definitions/screens';
 import messages from './messages.json';
 
 export default {
@@ -92,6 +97,9 @@ export default {
             this.menuOpened = !this.menuOpened;
             // prevent scrolling main body when scrolling menu list (TODO: are we expecting scrollable body?)
             document.body.style.overflow = this.menuOpened ? 'hidden' : 'auto';
+        },
+        viewStatus() {
+            this.setScreen( SCREEN_STATUS );
         },
         viewCredits() {
             this.setScreen( SCREEN_CREDITS );
