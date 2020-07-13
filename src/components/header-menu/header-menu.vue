@@ -49,6 +49,7 @@
                 </li>
                 <li>
                     <button v-t="'status'" type="button"
+                            :disabled="!hasActiveGame"
                             :title="$t('status')" @click="viewStatus">
                     </button>
                 </li>

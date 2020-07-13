@@ -120,13 +120,16 @@ export default {
                 height: window.innerHeight,
             });
         },
-        handleScreenInput( data ) {
+        async handleScreenInput( data ) {
             switch ( this.screen ) {
                 default:
                     break;
                 case SCREEN_CHARACTER_CREATE:
-                    this.createGame( data );
+                    // activate the loading state as we are about to render the map
+                    this.setLoading( true );
+                    await this.createGame( data );
                     this.setScreen( SCREEN_GAME );
+                    this.setLoading( false );
                     break;
             }
         },

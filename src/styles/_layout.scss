@@ -47,4 +47,10 @@
       background-color: $color-1;
     }
   }
+
+  @include mobile() {
+      height: 100%;
+      overflow-y: auto;
+      overflow-x: hidden;
+  }
 }
