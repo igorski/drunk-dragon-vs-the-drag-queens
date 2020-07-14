@@ -7,7 +7,7 @@
             <!-- application menu -->
             <header-menu />
             <!-- game screens -->
-            <div class="ui">
+            <div class="ui" v-if="hasScreen">
                 <!-- <span class="time">{{ time }}</span> -->
                 <component
                     :is="activeScreen"
@@ -83,6 +83,9 @@ export default {
         time() {
             return timestampToTimeString( this.gameTime );
         },
+        hasScreen() {
+            return this.screen !== SCREEN_GAME;
+        },
         hasActiveGame() {
             return !!this.player;
         },
@@ -151,7 +154,12 @@ export default {
         width: 100%;
         height: 100%;
         overflow: hidden;
-        background-color: #000;
+        background-color: $color-1;
+    }
+
+    ul {
+        list-style-type: none;
+        padding: 0;
     }
 
     .rpg {
@@ -169,6 +177,15 @@ export default {
         position: absolute;
         width: 100%;
         z-index: $z-index-ui;
+        @include scrollableWindow();
+
+        @include large() {
+            max-width: $ideal-width;
+            margin: 0 auto;
+            padding-top: $spacing-medium;
+            left: 50%;
+            transform: translateX(-50%);
+        }
     }
     .game-renderer {
         position: absolute;

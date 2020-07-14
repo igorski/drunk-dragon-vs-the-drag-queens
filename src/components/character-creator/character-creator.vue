@@ -1,7 +1,7 @@
 <template>
     <div class="character-creator">
         <h1 v-t="'createCharacter'"></h1>
-        <div class="flex flex--columns">
+        <div class="character-creator__wrapper">
             <form class="character-creator__form"
                   @submit.prevent="saveCharacter"
             >
@@ -116,7 +116,9 @@ export default {
             return FEMALE_APPEARANCE;
         },
         characterWidth() {
-            return 480; // TODO: calculate
+            const ideal = 685; /* see _variables@mobile-width */
+            const { width } = this.dimensions;
+            return Math.min( ideal, width * .9 );
         },
         isValid() {
             return this.character && this.appearance.name;
@@ -157,13 +159,20 @@ export default {
         width: 100%;
 
         @include large() {
-            &__form,
+            &__wrapper {
+                position: relative;
+            }
             &__preview {
-                flex: 1;
+                position: absolute;
+                left: 355px;
+                top: -110px;
             }
         }
 
         @include mobile() {
+            fieldset {
+                width: 100%;
+            }
             &__form {
                 width: 100%;
             }

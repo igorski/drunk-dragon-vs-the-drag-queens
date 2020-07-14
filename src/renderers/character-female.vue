@@ -1,6 +1,6 @@
 <template>
-    <div class="female" :style="`transform:scale(${scale})`">
-        <div class="female__body">
+    <div class="female" :style="scaledCharacterSize">
+        <div class="female__body" :style="scaledBodySize">
             <svg width="100%" height="100%" viewBox="-41 15 486.11499999999995 579.53">
                 <path class="female__body__skin" :fill="skin" d="M41.162,592.5h403.133c-17-91-44-119-44-119c-18-21-45-24-45-24c-6-0.074-31.5-14-31.5-14
                 	c-14.5-12-40.5-28-40.5-28c-15.575-8.342-38.909-20.928-48.092-25.884c-7.167-17.464-5.703-43.871-5.703-43.871
@@ -17,13 +17,12 @@
                 />
             </svg>
         </div>
-        <img :src="shadows" class="female__shadows" />
-        <img :src="nose" class="female__nose" />
-        <img :src="clothes" class="female__clothes" />
-        <img :src="mouth" class="female__mouth" />
-        <img :src="eyes" class="female__eyes" />
-        <img :src="hair" class="female__hair" />
-        <img :src="jewelry" class="female__jewelry" />
+        <img v-for="(part, index) in scaledBodyParts"
+             :key="index"
+             :src="part.src"
+             :style="part.style"
+             class="female__body-part"
+        />
     </div>
 </template>
 
@@ -35,6 +34,63 @@ const ASSET_PATH = `${getBaseURL()}assets/characters/female/`;
 const fileSuffix = idx => {
     const filenum = idx + 1;
     return filenum < 10 ? `0${filenum}` : filenum;
+};
+
+const CHARACTER_SIZE = {
+    width: 1280,
+    height: 1296
+};
+
+const BODY_SIZE = {
+    top: 322,
+    left: 277,
+    width: 817,
+    height: 974
+};
+
+const BODY_PARTS = {
+    shadows: {
+        top: 540,
+        left: 0,
+        width: 1280,
+        height: 756
+    },
+    mouth: {
+        top: 716,
+        left: 447,
+        width: 181,
+        height: 100
+    },
+    nose: {
+        top: 540,
+        left: 416,
+        width: 235,
+        height: 225
+    },
+    eyes: {
+        top: 491,
+        left: 409,
+        width: 341,
+        height: 140
+    },
+    clothes: {
+        top: 610,
+        left: 0,
+        width: 1280,
+        height: 686
+    },
+    hair: {
+        top: 0,
+        left: 0,
+        width: 1280,
+        height: 1084
+    },
+    jewelry: {
+        top: 660,
+        left: 321,
+        width: 575,
+        height: 369
+    },
 };
 
 export default {
@@ -79,6 +135,37 @@ export default {
         jewelry() {
             return `${ASSET_PATH}jewelry_${fileSuffix(this.appearance.jewelry)}.png`;
         },
+        scaledCharacterSize() {
+            const { width, height } = CHARACTER_SIZE;
+            return {
+                width: `${width * this.scale}px`,
+                height: `${height * this.scale}px`
+            };
+        },
+        scaledBodySize() {
+            const { top, left, width, height } = BODY_SIZE;
+            return {
+                top: `${top * this.scale}px`,
+                left: `${left * this.scale}px`,
+                width: `${width * this.scale}px`,
+                height: `${height * this.scale}px`,
+            };
+        },
+        scaledBodyParts() {
+            return Object.keys( BODY_PARTS ).reduce(( acc, key ) => {
+                const { top, left, width, height } = BODY_PARTS[ key ];
+                acc[ key ] = {
+                    src: this[key],
+                    style: {
+                        top: `${top * this.scale}px`,
+                        left: `${left * this.scale}px`,
+                        width: `${width * this.scale}px`,
+                        height: `${height * this.scale}px`
+                    }
+                };
+                return acc;
+            }, {});
+        },
     },
 };
 </script>
@@ -88,79 +175,22 @@ export default {
 
     .female {
         position: relative;
-        background-color: purple;
-        width: 1280px;
-        height: 1296px;
-        transform-origin: 0 0;
         @include noSelect();
         @include noEvents();
+        border-bottom-left-radius: 50%;
+        border-bottom-right-radius: 50%;
+        overflow: hidden;
 
         &__body {
             position: absolute;
-            width: 817px;
-            height: 974px;
-            left: 277px;
-            top: 322px;
 
             &__skin {
                 transition: fill .4s ease;
             }
-        }
 
-        &__shadows {
-            position: absolute;
-            width: 1280px;
-            height: 756px;
-            left: 0;
-            top: 540px;
-        }
-
-        &__hair {
-            position: absolute;
-            width: 1280px;
-            height: 1084px;
-            left: 0;
-            top: 0;
-        }
-
-        &__eyes {
-            position: absolute;
-            width: 341px;
-            height: 140px;
-            left: 409px;
-            top: 491px;
-        }
-
-        &__mouth {
-            position: absolute;
-            width: 181px;
-            height: 100px;
-            left: 447px;
-            top: 716px;
-        }
-
-        &__nose {
-            position: absolute;
-            width: 235px;
-            height: 225px;
-            left: 416px;
-            top: 540px;
-        }
-
-        &__clothes {
-            position: absolute;
-            width: 1280px;
-            height: 686px;
-            left: 0;
-            bottom: 0;
-        }
-
-        &__jewelry {
-            position: absolute;
-            width: 575px;
-            height: 369px;
-            left: 321px;
-            top: 660px;
+            &-part {
+                position: absolute;
+            }
         }
     }
 </style>
