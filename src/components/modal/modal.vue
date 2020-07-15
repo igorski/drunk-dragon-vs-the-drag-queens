@@ -38,11 +38,10 @@ export default {
         background-color: $color-3;
         overflow: hidden;
 
-        $header-height: 78px;
-
         &__content {
-            padding-bottom: $header-height;
-            height: calc(100% - $header-height);
+            // modal header is 78px in height
+            padding-bottom: 78px;
+            height: calc(100% - 78px);
         }
 
         @include large() {
