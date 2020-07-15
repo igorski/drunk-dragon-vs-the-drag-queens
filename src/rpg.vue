@@ -36,6 +36,8 @@
 import { mapState, mapGetters, mapMutations, mapActions } from 'vuex';
 import Vue from 'vue';
 import VueI18n from 'vue-i18n';
+import VueRadioToggleButtons from 'vue-radio-toggle-buttons';
+import 'vue-radio-toggle-buttons/dist/vue-radio-toggle-buttons.css';
 import { preloadAssets } from '@/services/asset-preloader';
 import { timestampToTimeString } from '@/utils/time-util';
 import DialogWindow from '@/components/dialog-window/dialog-window';
@@ -52,6 +54,11 @@ Vue.use( VueI18n );
 // Create VueI18n instance with options
 const i18n = new VueI18n({
     messages
+});
+Vue.use(VueRadioToggleButtons, {
+	color: '#333',
+	textColor: '#333',
+	selectedTextColor: '#eee'
 });
 
 export default {

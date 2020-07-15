@@ -33,6 +33,7 @@
     "sass-loader": "^8.0.2",
     "store": "^2.0.12",
     "vue-i18n": "^8.18.1",
+    "vue-radio-toggle-buttons": "^0.1.0",
     "vue-template-compiler": "^2.6.11",
     "zcanvas": "^4.0.0",
     "zthreader": "^1.0.2"

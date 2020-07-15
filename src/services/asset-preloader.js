@@ -1,6 +1,5 @@
-import { loader }     from 'zcanvas';
-import { getBaseURL } from '@/config';
-import SpriteCache    from '@/utils/sprite-cache';
+import { loader }  from 'zcanvas';
+import SpriteCache from '@/utils/sprite-cache';
 
 let _queue = [];
 let _loadContainer;

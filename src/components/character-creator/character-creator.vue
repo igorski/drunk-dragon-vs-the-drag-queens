@@ -3,6 +3,7 @@
         <h1 v-t="'createCharacter'"></h1>
         <div class="character-creator__wrapper">
             <transition-group name="slide">
+                <!-- form 1 : character name -->
                 <form v-if="form === 0"
                       key="form-1"
                       class="character-creator__form"
@@ -26,17 +27,38 @@
                         :disabled="!isValid"
                     ></button>
                 </form>
+                <!-- form 2 : character sex -->
                 <form v-if="form === 1"
+                      key="form-2"
+                      class="character-creator__form"
+                      @submit.prevent="goToForm(2)"
+                >
+                    <fieldset class="rpg-fieldset">
+                        <div class="input">
+                            <label v-t="'sex'" for="sex"></label>
+                            <RadioToggleButtons
+                                v-model="sex"
+                                :values="availableSexes"
+                                color="purple"
+                                textColor="#000"
+                                selectedTextColor="#FFF"
+                            />
+                        </div>
+                    </fieldset>
+                    <button
+                        v-t="'thatsMe'"
+                        type="submit"
+                        title="$t('save')"
+                        class="rpg-button rpg-button--submit"
+                        :disabled="!isValid"
+                    ></button>
+                </form>
+                <form v-if="form === 2"
                       key="form-2"
                       class="character-creator__form"
                       @submit.prevent="saveCharacter"
                 >
                     <fieldset class="rpg-fieldset">
-                        <div class="input radio">
-                            <label v-t="'sex'" for="sex"></label>
-                            <input type="radio" name="sex" value="M" v-model="sex">
-                            <input type="radio" name="sex" value="F" v-model="sex">
-                        </div>
                         <template v-if="character">
                             <div class="input range">
                                 <label v-t="'skin'" for="skin"></label>
@@ -118,6 +140,12 @@ export default {
         ]),
         appearance() {
             return this.character.appearance;
+        },
+        availableSexes() {
+            return [
+				{ label: this.$t('male'), value: 'M', disabled: true }, // currently F only
+				{ label: this.$t('female'), value: 'F' }
+			];
         },
         sex: {
             get() {
