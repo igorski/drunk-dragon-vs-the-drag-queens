@@ -10,6 +10,7 @@ import { renderEnvironment } from '@/services/environment-renderer';
 import WorldCache            from '@/utils/world-cache';
 import EffectActions         from '@/model/actions/effect-actions';
 import { GAME_START_TIME, GAME_TIME_RATIO } from '@/utils/time-util';
+import { SCREEN_SHOP } from '@/definitions/screens';
 
 const STORAGE_KEY = 'rpg';
 
@@ -33,6 +34,7 @@ export default {
         gameActive: state => state.gameActive,
         gameTime: state => state.gameTime,
         activeEnvironment: state => state.activeEnvironment,
+        shop: state => state.shop,
         player: state => state.player,
         hasSavedGame: state => () => !!storage.get( STORAGE_KEY ),
     },
@@ -122,7 +124,7 @@ export default {
         enterShop({ state, commit }, shop ) {
             ShopFactory.create( shop, state.player );
             commit( 'setShop', shop );
-            this.broadcast( Notifications.Navigation.OPEN_PAGE, ShopView );
+            commit( 'setScreen', SCREEN_SHOP );
         },
         // enter given cave
         enterCave({ state, commit }, cave ) {

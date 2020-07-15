@@ -1,10 +1,13 @@
 import EffectFactory       from '@/model/factories/effect-factory';
+import EnvironmentActions  from '@/model/actions/environment-actions';
+import CharacterActions    from '@/model/actions/character-actions';
 import { GAME_TIME_RATIO } from '@/utils/time-util';
-//import { validateMove } from '@/model/factories/movement-factory';
 
-const MAX_X_SPEED     = 1.25;
-const MAX_Y_SPEED     = 1.25;
-const SPEED_INCREMENT = 0.05;
+// cancel the pending movements TODO: this would also apply to non-player characters!
+const cancelPendingMovement = commit => {
+    commit( 'removeEffectsByAction', [ 'setXPosition', 'setYPosition' ]);
+};
+const WALK_SPEED = 400; // ms for a single step
 
 /**
  * Player module mediates all interactions the game's Player can take. As it is
@@ -23,15 +26,15 @@ export default
 
     },
     actions: {
-        moveToDestination({ state, getters, commit }, waypoints = [] ) {
-            commit( 'removeEffectsByAction', [ 'setXPosition', 'setYPosition' ]);
+        moveToDestination({ state, getters, commit, dispatch }, waypoints = [] ) {
+            cancelPendingMovement( commit );
 
-            const { activeEnvironment, gameTime } = getters;
+            const { activeEnvironment, gameTime, player } = getters;
             let startTime  = gameTime;
-            const duration = 400 * GAME_TIME_RATIO;
+            const duration = ( WALK_SPEED * CharacterActions.getSpeed( player )) * GAME_TIME_RATIO;
             let lastX      = activeEnvironment.x;
             let lastY      = activeEnvironment.y;
-            
+
             waypoints.forEach(({ x, y }) => {
                 // waypoints only move between one axis at a time
                 const isHorizontal = x !== lastX;
@@ -43,7 +46,13 @@ export default
                 commit( 'addEffect', EffectFactory.create(
                     commit,
                     isHorizontal ? 'setXPosition' : 'setYPosition',
-                    startTime, duration, startValue, endValue
+                    startTime, duration, startValue, endValue,
+                    () => {
+                        if ( EnvironmentActions.hitTest( activeEnvironment, dispatch )) {
+                            console.warn('raak');
+                            cancelPendingMovement( commit );
+                        }
+                    }
                 ));
                 startTime += duration;
                 lastX = x;

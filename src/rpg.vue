@@ -36,7 +36,6 @@
 import { mapState, mapGetters, mapMutations, mapActions } from 'vuex';
 import Vue from 'vue';
 import VueI18n from 'vue-i18n';
-import { SCREEN_GAME, SCREEN_CHARACTER_CREATE, SCREEN_STATUS, SCREEN_CREDITS } from '@/definitions/screens';
 import { preloadAssets } from '@/services/asset-preloader';
 import { timestampToTimeString } from '@/utils/time-util';
 import DialogWindow from '@/components/dialog-window/dialog-window';
@@ -44,6 +43,10 @@ import HeaderMenu from '@/components/header-menu/header-menu';
 import Notifications from '@/components/notifications/notifications';
 import World from '@/components/world/world';
 import messages from './messages.json';
+
+import {
+    SCREEN_GAME, SCREEN_CHARACTER_CREATE, SCREEN_STATUS, SCREEN_SHOP, SCREEN_CREDITS
+} from '@/definitions/screens';
 
 Vue.use( VueI18n );
 // Create VueI18n instance with options
@@ -78,6 +81,8 @@ export default {
                     return () => import('./components/character-creator/character-creator');
                 case SCREEN_STATUS:
                     return () => import('./components/status/status');
+                case SCREEN_SHOP:
+                    return () => import('./components/shop/shop');
                 case SCREEN_CREDITS:
                     return () => import('./components/credits/credits');
             }
