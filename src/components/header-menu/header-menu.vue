@@ -96,8 +96,8 @@ export default {
         ]),
         toggleMenu() {
             this.menuOpened = !this.menuOpened;
-            // prevent scrolling main body when scrolling menu list (TODO: are we expecting scrollable body?)
-            document.body.style.overflow = this.menuOpened ? 'hidden' : 'auto';
+            // prevent scrolling main body when scrolling menu list (are we expecting scrollable body?)
+            //document.body.style.overflow = this.menuOpened ? 'hidden' : 'auto';
         },
         openScreen( target ) {
             let screen;

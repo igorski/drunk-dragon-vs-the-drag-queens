@@ -1,17 +1,17 @@
 <template>
-    <popup-window :title="$t('status')" @close="$emit('close')">
+    <modal :title="$t('status')" @close="$emit('close')">
         <p>tja...</p>
         <img ref="map" class="map-image" />
         <component :is="characterComponent"
             :character="player"
             :width="300"
         />
-    </popup-window>
+    </modal>
 </template>
 
 <script>
 import { mapGetters } from 'vuex';
-import PopupWindow    from '@/components/popup-window/popup-window';
+import Modal          from '@/components/modal/modal';
 import { renderMap }  from '@/renderers/world-map-renderer';
 
 import messages from './messages.json';
@@ -19,7 +19,7 @@ import messages from './messages.json';
 export default {
     i18n: { messages },
     components: {
-        PopupWindow,
+        Modal,
     },
     computed: {
         ...mapGetters([

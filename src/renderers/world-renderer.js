@@ -9,7 +9,7 @@ import { findPath } from '@/utils/path-finder';
 
 let commit, dispatch; // Vuex store hooks
 
-const DEBUG = true;
+const DEBUG = process.env.NODE_ENV !== 'production';
 
 /**
  * @constructor

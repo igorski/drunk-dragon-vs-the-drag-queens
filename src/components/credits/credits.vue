@@ -1,5 +1,5 @@
 <template>
-    <popup-window :title="$t('artwork')" @close="$emit('close')">
+    <modal :title="$t('artwork')" @close="$emit('close')">
         <ul>
             <li>
                 World sprite tiles by Joost Huijbers.
@@ -10,19 +10,19 @@
                 <contributor :href="c.href" :title="c.title" :author="c.author" />
             </li>
         </ul>
-    </popup-window>
+    </modal>
 </template>
 
 <script>
 import Contributor from './contributor';
-import PopupWindow from '@/components/popup-window/popup-window';
-import messages from './messages.json';
+import Modal       from '@/components/modal/modal';
+import messages    from './messages.json';
 
 export default {
     i18n: { messages },
     components: {
         Contributor,
-        PopupWindow,
+        Modal,
     },
     data: () => ({
         artwork: [
