@@ -19,7 +19,14 @@
         }
 
         input[type=text] {
-            padding: $spacing-small;
+            padding: $spacing-medium;
+            font-size: 14px;
+            border-radius: 7px;
         }
     }
+}
+
+.rpg-button--submit {
+    display: block;
+    margin: $spacing-medium $spacing-large;
 }

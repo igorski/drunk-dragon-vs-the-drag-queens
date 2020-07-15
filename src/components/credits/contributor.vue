@@ -1,12 +1,14 @@
 <template functional>
-    <a
-        :href="props.href"
-        :title="props.title"
-        target="_blank"
-        rel="noopener noreferrer"
-    >
-        "{{ props.title }}" {{ parent.$t('by') }} {{ props.author }}
-    </a>
+    <span>
+        "<a
+            :href="props.href"
+            :title="props.title"
+            target="_blank"
+            rel="noopener noreferrer"
+        >
+            {{ props.title }}
+        </a>" {{ parent.$t('by') }} {{ props.author }}
+    </span>
 </template>
 
 <script>

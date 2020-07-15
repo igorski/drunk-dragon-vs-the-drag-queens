@@ -113,8 +113,12 @@ WorldRenderer.prototype.handleRelease = function( pointerX, pointerY ) {
     // determine which tile has been clicked by translating the pointer coordinate
     // local to the current canvas size against the amount of tiles we can display for this size
 
-    const tx = Math.floor( left + ( pointerX / this.canvas.getWidth() )  * this.maxTilesInWidth );
-    const ty = Math.floor( top  + ( pointerY / this.canvas.getHeight() ) * this.maxTilesInHeight );
+    let tx = Math.floor( left + ( pointerX / this.canvas.getWidth() )  * this.maxTilesInWidth );
+    let ty = Math.floor( top  + ( pointerY / this.canvas.getHeight() ) * this.maxTilesInHeight );
+
+    // keep within bounds (necessary when player is at environment edges)
+    tx = Math.max( 0, Math.min( tx, this.canvas.getWidth()  * this.maxTilesInWidth ));
+    ty = Math.max( 0, Math.min( ty, this.canvas.getHeight() * this.maxTilesInHeight ));
 
     const indexOfTile = coordinateToIndex( tx, ty, this._world ); // translate coordinate to 1D list index
     const targetTile  = terrain[ indexOfTile ];
@@ -186,7 +190,8 @@ WorldRenderer.prototype.draw = function( aCanvasContext ) {
 
     // render terrain from cache
 
-    const sourceX     = ( left * tileWidth ), sourceY = ( top * tileHeight );
+    let sourceX       = left * tileWidth;
+    let sourceY       = top * tileHeight;
     const canvasWidth = this.canvas.getWidth(), canvasHeight = this.canvas.getHeight();
 
     // if player is at world edge, stop scrolling terrain

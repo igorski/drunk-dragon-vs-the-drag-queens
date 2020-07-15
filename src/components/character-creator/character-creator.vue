@@ -2,64 +2,87 @@
     <div class="character-creator">
         <h1 v-t="'createCharacter'"></h1>
         <div class="character-creator__wrapper">
-            <form class="character-creator__form"
-                  @submit.prevent="saveCharacter"
-            >
-                <fieldset class="rpg-fieldset">
-                    <div class="input radio">
-                        <label v-t="'sex'" for="sex"></label>
-                        <input type="radio" name="sex" value="M" v-model="sex">
-                        <input type="radio" name="sex" value="F" v-model="sex">
-                    </div>
-                    <div class="input">
-                        <label v-t="'name'" for="name"></label>
-                        <input type="text" name="name" v-model="appearance.name" />
-                    </div>
-                    <template v-if="character">
-                        <div class="input range">
-                            <label v-t="'skin'" for="skin"></label>
-                            <input type="range" name="skin" min="0" :max="maxValues.skin - 1" v-model="skin" />
+            <transition-group name="slide">
+                <form v-if="form === 0"
+                      key="form-1"
+                      class="character-creator__form"
+                      @submit.prevent="goToForm(1)"
+                >
+                    <fieldset class="rpg-fieldset">
+                        <div class="input">
+                            <label v-t="'name'" for="name"></label>
+                            <input ref="nameInput"
+                                   type="text" name="name"
+                                   v-model="appearance.name"
+                                   autocomplete="false"
+                            />
                         </div>
-                        <div class="input range">
-                            <label v-t="'eyes'" for="eyes"></label>
-                            <input type="range" min="0" :max="maxValues.eyes - 1" v-model.number="appearance.eyes" />
-                        </div>
-                        <div class="input range">
-                            <label v-t="'mouth'" for="mouth"></label>
-                            <input type="range" min="0" :max="maxValues.mouth - 1" v-model.number="appearance.mouth" />
-                        </div>
-                        <div class="input range">
-                            <label v-t="'nose'" for="nose"></label>
-                            <input type="range" min="0" :max="maxValues.nose - 1" v-model.number="appearance.nose" />
-                        </div>
-                        <div class="input range">
-                            <label v-t="'hair'" for="hair"></label>
-                            <input type="range" min="0" :max="maxValues.hair - 1" v-model.number="appearance.hair" />
-                        </div>
-                        <div class="input range">
-                            <label v-t="'clothes'" for="clothes"></label>
-                            <input type="range" min="0" :max="maxValues.clothes - 1" v-model.number="appearance.clothes" />
-                        </div>
-                        <div class="input range">
-                            <label v-t="'jewelry'" for="jewelry"></label>
-                            <input type="range" min="0" :max="maxValues.jewelry - 1" v-model.number="appearance.jewelry" />
-                        </div>
-                    </template>
-                    <button v-t="'randomize'"
-                            type="button"
-                            title="$t('randomize')"
-                            class="rpg-button"
-                            @click="randomize"
-                    ></button>
+                    </fieldset>
                     <button
-                        v-t="'done'"
+                        v-t="'thatsMe'"
                         type="submit"
                         title="$t('save')"
-                        class="rpg-button"
+                        class="rpg-button rpg-button--submit"
                         :disabled="!isValid"
                     ></button>
-                </fieldset>
-            </form>
+                </form>
+                <form v-if="form === 1"
+                      key="form-2"
+                      class="character-creator__form"
+                      @submit.prevent="saveCharacter"
+                >
+                    <fieldset class="rpg-fieldset">
+                        <div class="input radio">
+                            <label v-t="'sex'" for="sex"></label>
+                            <input type="radio" name="sex" value="M" v-model="sex">
+                            <input type="radio" name="sex" value="F" v-model="sex">
+                        </div>
+                        <template v-if="character">
+                            <div class="input range">
+                                <label v-t="'skin'" for="skin"></label>
+                                <input type="range" name="skin" min="0" :max="maxValues.skin - 1" v-model="skin" />
+                            </div>
+                            <div class="input range">
+                                <label v-t="'eyes'" for="eyes"></label>
+                                <input type="range" min="0" :max="maxValues.eyes - 1" v-model.number="appearance.eyes" />
+                            </div>
+                            <div class="input range">
+                                <label v-t="'mouth'" for="mouth"></label>
+                                <input type="range" min="0" :max="maxValues.mouth - 1" v-model.number="appearance.mouth" />
+                            </div>
+                            <div class="input range">
+                                <label v-t="'nose'" for="nose"></label>
+                                <input type="range" min="0" :max="maxValues.nose - 1" v-model.number="appearance.nose" />
+                            </div>
+                            <div class="input range">
+                                <label v-t="'hair'" for="hair"></label>
+                                <input type="range" min="0" :max="maxValues.hair - 1" v-model.number="appearance.hair" />
+                            </div>
+                            <div class="input range">
+                                <label v-t="'clothes'" for="clothes"></label>
+                                <input type="range" min="0" :max="maxValues.clothes - 1" v-model.number="appearance.clothes" />
+                            </div>
+                            <div class="input range">
+                                <label v-t="'jewelry'" for="jewelry"></label>
+                                <input type="range" min="0" :max="maxValues.jewelry - 1" v-model.number="appearance.jewelry" />
+                            </div>
+                        </template>
+                        <button v-t="'randomize'"
+                                type="button"
+                                title="$t('randomize')"
+                                class="rpg-button"
+                                @click="randomize"
+                        ></button>
+                    </fieldset>
+                    <button
+                        v-t="'looksGood'"
+                        type="submit"
+                        title="$t('save')"
+                        class="rpg-button rpg-button--submit"
+                        :disabled="!isValid"
+                    ></button>
+                </form>
+            </transition-group>
             <character
                 class="character-creator__preview"
                 :character="character"
@@ -86,6 +109,7 @@ export default {
         Character,
     },
     data: () => ({
+        form: 0,
         character: createCharacter('F', ''),
     }),
     computed: {
@@ -131,6 +155,9 @@ export default {
             }
         }
     },
+    mounted() {
+        this.$refs.nameInput.focus();
+    },
     methods: {
         randomize() {
             const randomized = CharacterFactory.generateAppearance( this.appearance.sex );
@@ -143,9 +170,12 @@ export default {
             this.appearance.jewelry = randomized.jewelry;
             this.appearance.clothes = randomized.clothes;
         },
+        goToForm( index ) {
+            this.form = Math.max( 0, index );
+        },
         saveCharacter() {
             this.$emit( 'input', this.character );
-        }
+        },
     }
 };
 </script>
@@ -157,6 +187,7 @@ export default {
     .character-creator {
         @include window();
         width: 100%;
+        vertical-align: top;
 
         @include large() {
             &__wrapper {
@@ -177,5 +208,20 @@ export default {
                 width: 100%;
             }
         }
+    }
+
+    /* animations */
+
+    .slide-leave-active,
+    .slide-enter-active {
+        transition: 1s;
+    }
+    .slide-enter {
+        opacity: 0;
+        transform: translate(100%, 0);
+    }
+    .slide-leave-to {
+        opacity: 1;
+        transform: translate(-100%, 0);
     }
 </style>

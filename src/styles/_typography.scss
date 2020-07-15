@@ -41,11 +41,11 @@ p {
 }
 
 a, a:visited {
-    color: $color-1;
+    color: $color-5;
     text-decoration: underline;
 
     &:hover {
-        color: $color-1;
+        color: $color-4;
         text-decoration: none;
     }
 }

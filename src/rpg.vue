@@ -15,7 +15,9 @@
                     @close="handleScreenClose()"
                 />
             </div>
-            <world class="game-renderer" />
+            <world v-if="hasActiveGame"
+                   class="game-renderer"
+            />
             <!-- dialog window used for information messages, alerts and confirmations -->
             <dialog-window v-if="dialog"
                 :type="dialog.type"
