@@ -27,9 +27,7 @@
 </template>
 
 <script>
-import { getBaseURL } from '@/config';
-
-const ASSET_PATH = `${getBaseURL()}assets/characters/female/`;
+const ASSET_PATH = `./assets/characters/female/`;
 
 const fileSuffix = idx => {
     const filenum = idx + 1;

@@ -24,7 +24,7 @@ export const preloadAssets = () =>
 
     // all editor assets
 
-    const assetRoot = `${getBaseURL()}assets/sprites/`;
+    const assetRoot = `./assets/sprites/`;
     _queue = [
         { src : `${assetRoot}cave.png`,   target : SpriteCache.CAVE },
         { src : `${assetRoot}ground.png`, target : SpriteCache.GROUND },
