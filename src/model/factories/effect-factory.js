@@ -19,6 +19,7 @@ export default
         if ( typeof commit !== 'function' ) {
             throw new Error ( 'Cannot create an Effect without a commit fn()' );
         }
+        debugger;
         return {
             commit,
             action,

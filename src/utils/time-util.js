@@ -1,4 +1,4 @@
-export const GAME_START_TIME = '1986-08-29 23:00:00';
+export const GAME_START_TIME = '1986-08-29T23:00:00.000Z';
 export const GAME_TIME_RATIO = 8; // the amount of real time vs game time
 
 export const dateToTimeString = date => {

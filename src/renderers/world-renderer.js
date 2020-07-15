@@ -13,7 +13,7 @@ const DEBUG = true;
 
 /**
  * @constructor
- * @extends {zSprite}
+ * @extends {zCanvas.Sprite}
  *
  * @param {Object} store Vuex store reference
  * @param {number} width
@@ -117,7 +117,7 @@ WorldRenderer.prototype.handleRelease = function( pointerX, pointerY ) {
     const ty = Math.floor( top  + ( pointerY / this.canvas.getHeight() ) * this.maxTilesInHeight );
 
     const indexOfTile = coordinateToIndex( tx, ty, this._world ); // translate coordinate to 1D list index
-    const targetTile = terrain[ indexOfTile ];
+    const targetTile  = terrain[ indexOfTile ];
 
     if ( DEBUG ) {
         console.warn( `Clicked tile at ${tx} x ${ty} (player is at ${x} x ${y}) (local click pointer coordinates ${pointerX} x ${pointerY}), underlying terrain type: ${targetTile}` );
@@ -283,7 +283,7 @@ WorldRenderer.prototype.draw = function( aCanvasContext ) {
         }
     }
 
-    // draw target QQQ
+    // draw path when walking to waypoint
 
     if ( DEBUG && Array.isArray( this.target )) {
         this.target.forEach(({ x, y }) => {

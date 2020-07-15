@@ -26,17 +26,19 @@ export default
         moveToDestination({ state, getters, commit }, waypoints = [] ) {
             commit( 'removeEffectsByAction', [ 'setXPosition', 'setYPosition' ]);
 
-            const { activeEnvironment } = getters;
-            let startTime  = getters.gameTime;
-            const duration = 350 * GAME_TIME_RATIO;
+            const { activeEnvironment, gameTime } = getters;
+            let startTime  = gameTime;
+            const duration = 400 * GAME_TIME_RATIO;
             let lastX      = activeEnvironment.x;
             let lastY      = activeEnvironment.y;
-
+            
             waypoints.forEach(({ x, y }) => {
                 // waypoints only move between one axis at a time
                 const isHorizontal = x !== lastX;
                 const startValue = isHorizontal ? lastX : lastY;
                 const endValue   = isHorizontal ? x : y;
+
+                if ( startValue === endValue ) return;
 
                 commit( 'addEffect', EffectFactory.create(
                     commit,
