@@ -30,8 +30,8 @@ sprite.extend( WorldRenderer );
 
 /* class properties */
 
-/** @protected @type {number} */ WorldRenderer.prototype.maxTilesInWidth  = 10;
-/** @protected @type {number} */ WorldRenderer.prototype.maxTilesInHeight = 10;
+/** @protected @type {number} */ WorldRenderer.prototype.horizontalTileAmount = 10;
+/** @protected @type {number} */ WorldRenderer.prototype.verticalTileAmount   = 10;
 
 /** @protected @type {World} */  WorldRenderer.prototype._world;
 /** @protected @type {Player} */ WorldRenderer.prototype._player;
@@ -62,27 +62,27 @@ WorldRenderer.prototype.updateImage = function( aImage, aNewWidth, aNewHeight ) 
     const isPortrait = aNewHeight > aNewWidth;
 
     if ( !isPortrait ) {
-        this.maxTilesInWidth  = aNewWidth < 500 ? 7 : 15;
+        this.horizontalTileAmount  = aNewWidth < 500 ? 7 : 15;
 
-        WorldCache.tileWidth  = this._bounds.width  / this.maxTilesInWidth;
+        WorldCache.tileWidth  = this._bounds.width  / this.horizontalTileAmount;
         WorldCache.tileHeight = WorldCache.tileWidth; // tiles are squares
-        this.maxTilesInHeight = ( aNewHeight / WorldCache.tileHeight ) + 1;
+        this.verticalTileAmount = ( aNewHeight / WorldCache.tileHeight ) + 1;
 
         // odd numbers please...
-        if ( this.maxTilesInHeight % 2 === 0 )
-            ++this.maxTilesInHeight;
+        if ( this.verticalTileAmount % 2 === 0 )
+            ++this.verticalTileAmount;
     }
     else
     {
-        this.maxTilesInHeight = aNewHeight < 500 ? 7 : 15;
+        this.verticalTileAmount = aNewHeight < 500 ? 7 : 15;
 
-        WorldCache.tileHeight = this._bounds.height / this.maxTilesInHeight;
+        WorldCache.tileHeight = this._bounds.height / this.verticalTileAmount;
         WorldCache.tileWidth  = WorldCache.tileHeight;   // tiles are squares
-        this.maxTilesInWidth  = ( aNewWidth / WorldCache.tileWidth ) + 1;
+        this.horizontalTileAmount  = ( aNewWidth / WorldCache.tileWidth ) + 1;
 
         // odd numbers please...
-        if ( this.maxTilesInWidth % 2 === 0 ) {
-            ++this.maxTilesInWidth;
+        if ( this.horizontalTileAmount % 2 === 0 ) {
+            ++this.horizontalTileAmount;
         }
     }
 };
@@ -92,8 +92,8 @@ WorldRenderer.prototype.updateImage = function( aImage, aNewWidth, aNewHeight ) 
  * @param {number} aHeight
  */
 WorldRenderer.prototype.setTileDimensions = function( aWidth, aHeight ) {
-    this.maxTilesInWidth  = aWidth  / WorldCache.tileWidth;
-    this.maxTilesInHeight = aHeight / WorldCache.tileHeight;
+    this.horizontalTileAmount  = aWidth  / WorldCache.tileWidth;
+    this.verticalTileAmount = aHeight / WorldCache.tileHeight;
 
     // ensure the hit area matches the bounding box, make up for canvas scale factor
     const { x, y } = this.canvas._scale;
@@ -113,12 +113,12 @@ WorldRenderer.prototype.handleRelease = function( pointerX, pointerY ) {
     // determine which tile has been clicked by translating the pointer coordinate
     // local to the current canvas size against the amount of tiles we can display for this size
 
-    let tx = Math.floor( left + ( pointerX / this.canvas.getWidth() )  * this.maxTilesInWidth );
-    let ty = Math.floor( top  + ( pointerY / this.canvas.getHeight() ) * this.maxTilesInHeight );
+    let tx = Math.floor( left + ( pointerX / this.canvas.getWidth() )  * this.horizontalTileAmount );
+    let ty = Math.floor( top  + ( pointerY / this.canvas.getHeight() ) * this.verticalTileAmount );
 
     // keep within bounds (necessary when player is at environment edges)
-    tx = Math.max( 0, Math.min( tx, this.canvas.getWidth()  * this.maxTilesInWidth ));
-    ty = Math.max( 0, Math.min( ty, this.canvas.getHeight() * this.maxTilesInHeight ));
+    tx = Math.max( 0, Math.min( tx, this.canvas.getWidth()  * this.horizontalTileAmount ));
+    ty = Math.max( 0, Math.min( ty, this.canvas.getHeight() * this.verticalTileAmount ));
 
     const indexOfTile = coordinateToIndex( tx, ty, this._world ); // translate coordinate to 1D list index
     const targetTile  = terrain[ indexOfTile ];
@@ -150,22 +150,20 @@ WorldRenderer.prototype.isValidTarget = function( tileType ) {
  */
 WorldRenderer.prototype.getVisibleTiles = function() {
     // the amount of tiles on either side of the player
-    const widthTiles      = this.maxTilesInWidth;
-    const heightTiles     = this.maxTilesInHeight;
-    const halfWidthTiles  = Math.floor( widthTiles  / 2 );
-    const halfHeightTiles = Math.floor( heightTiles / 2 );
+    const halfHorizontalTileAmount = Math.floor( this.horizontalTileAmount  / 2 );
+    const halfVerticalTileAmount   = Math.floor( this.verticalTileAmount    / 2 );
 
     // the rectangle to draw, all relative in world coordinates (tiles)
 
     const { x, y } = this._world;
 
-    const left   = x - halfWidthTiles;
-    const right  = x + halfWidthTiles;
-    const top    = y - halfHeightTiles;
-    const bottom = y + halfHeightTiles;
+    const left   = x - halfHorizontalTileAmount;
+    const right  = x + halfHorizontalTileAmount;
+    const top    = y - halfVerticalTileAmount;
+    const bottom = y + halfVerticalTileAmount;
 
     return {
-        widthTiles, heightTiles, halfWidthTiles, halfHeightTiles,
+        halfHorizontalTileAmount, halfVerticalTileAmount,
         left, right, top, bottom
     };
 };
@@ -175,18 +173,18 @@ WorldRenderer.prototype.getVisibleTiles = function() {
  * @param {CanvasRenderingContext2D} aCanvasContext to draw on
  */
 WorldRenderer.prototype.draw = function( aCanvasContext ) {
-    const vx = this._world.x || 0;
-    const vy = this._world.y || 0;
-
     const world      = this._world;
+    const vx         = world.x;
+    const vy         = world.y;
     const worldWidth = world.width, worldHeight = world.height;
 
     const { tileWidth, tileHeight } = WorldCache;
 
+    const visibleTiles = this.getVisibleTiles();
     const {
         left, right, top, bottom,
-        widthTiles, heightTiles, halfWidthTiles, halfHeightTiles
-    } = this.getVisibleTiles();
+        halfHorizontalTileAmount, halfVerticalTileAmount
+    } = visibleTiles;
 
     // render terrain from cache
 
@@ -196,16 +194,16 @@ WorldRenderer.prototype.draw = function( aCanvasContext ) {
 
     // if player is at world edge, stop scrolling terrain
 
-    if ( world.x <= halfWidthTiles ) {
+    if ( world.x <= halfHorizontalTileAmount ) {
         sourceX = 0;
-    } else if ( left > worldWidth - widthTiles - 1 ) {
-        sourceX = ( worldWidth - widthTiles ) * tileWidth;
+    } else if ( left > worldWidth - this.horizontalTileAmount - 1 ) {
+        sourceX = ( worldWidth - this.horizontalTileAmount ) * tileWidth;
     }
 
-    if ( world.y <= halfHeightTiles ) {
+    if ( world.y <= halfVerticalTileAmount ) {
         sourceY = 0;
-    } else if ( top > worldHeight - heightTiles - 1 ) {
-        sourceY = ( worldHeight - heightTiles ) * tileHeight;
+    } else if ( top > worldHeight - this.verticalTileAmount - 1 ) {
+        sourceY = ( worldHeight - this.verticalTileAmount ) * tileHeight;
     }
 
     aCanvasContext.drawImage( SpriteCache.WORLD,
@@ -213,66 +211,34 @@ WorldRenderer.prototype.draw = function( aCanvasContext ) {
                               0, 0, canvasWidth, canvasHeight );
 
     const { caves, shops, enemies } = world;
-    let x, y;
 
-    // draw caves
-
-    for ( let i = 0, l = caves.length; i < l; ++i )
-    {
-        const cave = caves[ i ];
-
-        if ( cave.x >= left && cave.x <= right &&
-             cave.y >= top  && cave.y <= bottom )
-        {
-            x = ( cave.x - left ) * tileWidth;
-            y = ( cave.y - top )  * tileHeight;
-
-            aCanvasContext.fillStyle = 'rgba(255,0,255,1)';
-            aCanvasContext.fillRect( x - vx, y - vy, tileWidth, tileHeight );
-        }
-    }
-
-    // draw shops
-
-    for ( let i = 0, l = shops.length; i < l; ++i )
-    {
-        const shop = shops[ i ];
-
-        if ( shop.x >= left && shop.x <= right &&
-             shop.y >= top  && shop.y <= bottom )
-        {
-            x = ( shop.x - left ) * tileWidth;
-            y = ( shop.y - top )  * tileHeight;
-
-            aCanvasContext.fillStyle = 'white';
-            aCanvasContext.fillRect( x - vx, y - vy, tileWidth, tileHeight );
-        }
-    }
+    renderObjects( aCanvasContext, caves, visibleTiles, 'rgba(255,0,255,1)' );
+    renderObjects( aCanvasContext, shops, visibleTiles, 'white' );
 
     // draw player
 
-    x = ( world.x - left ) * tileWidth;
-    y = ( world.y - top  ) * tileHeight;
+    let x = ( world.x - left ) * tileWidth;
+    let y = ( world.y - top  ) * tileHeight;
 
     // if player is at world edge draw player out of center
 
-    if ( world.x <= halfWidthTiles - 1 ) {
+    if ( world.x <= halfHorizontalTileAmount - 1 ) {
         x = ( world.x * tileWidth ) + vx;
-    } else if ( world.x >= ( worldWidth - halfWidthTiles - 1 )) {
-        x = (( widthTiles - ( worldWidth - world.x )) * tileWidth ) + vx;
+    } else if ( world.x >= ( worldWidth - halfHorizontalTileAmount - 1 )) {
+        x = (( this.horizontalTileAmount - ( worldWidth - world.x )) * tileWidth ) + vx;
     }
 
-    if ( world.y <= halfHeightTiles - 1 ) {
+    if ( world.y <= halfVerticalTileAmount - 1 ) {
         y = ( world.y * tileHeight ) + vy;
-    } else if ( world.y >= ( worldHeight - halfHeightTiles - 1 )) {
-        y = (( heightTiles - ( worldHeight - world.y )) * tileHeight ) + vy;
+    } else if ( world.y >= ( worldHeight - halfVerticalTileAmount - 1 )) {
+        y = (( this.verticalTileAmount - ( worldHeight - world.y )) * tileHeight ) + vy;
     }
 
     aCanvasContext.fillStyle = 'rgba(0,0,255,.5)';
     aCanvasContext.fillRect( x, y, tileWidth, tileHeight );
 
     // draw enemies
-
+    // TODO: reuse renderObject below
     for ( let i = 0, l = enemies.length; i < l; ++i ) {
         const enemy = enemies[ i ];
 
@@ -284,19 +250,47 @@ WorldRenderer.prototype.draw = function( aCanvasContext ) {
 
             x -= 5; y-= 5;  // enemy sprite is 30x30, world is 20x20...
 
-            aCanvasContext.drawImage( SpriteCache.DRONE, x  - vx, y - vy, 30, 30 );
+            aCanvasContext.drawImage( SpriteCache.DRONE, x, y, 30, 30 );
         }
     }
 
     // draw path when walking to waypoint
 
     if ( DEBUG && Array.isArray( this.target )) {
-        this.target.forEach(({ x, y }) => {
-            const tLeft   = ((x - left ) * tileWidth ) + halfWidthTiles;
-            const tTop    = ((y - top )  * tileHeight ) +halfHeightTiles;
+        aCanvasContext.fillStyle = 'red';
 
-            aCanvasContext.fillStyle = 'red';
+        this.target.forEach(({ x, y }) => {
+            const tLeft   = (( x - left ) * tileWidth )  + halfHorizontalTileAmount;
+            const tTop    = (( y - top  ) * tileHeight ) + halfVerticalTileAmount;
+
             aCanvasContext.fillRect( tLeft - 2, tTop - 2, 4, 4 );
         });
     }
 };
+
+function renderObjects( aCanvasContext, objectList, { left, top, right, bottom }, fillStyle ) {
+    const { tileWidth, tileHeight } = WorldCache;
+    aCanvasContext.fillStyle        = fillStyle;
+    let targetX, targetY;
+
+    // to broaden the visible range, add one whole coordinate
+    // NOTE: this is just for determining visiblity, when rendering
+    // use the actual values !!
+
+    const l = left - 1;
+    const r = right + 1;
+    const t = top - 1;
+    const b = bottom + 1;
+
+    for ( let i = 0, l = objectList.length; i < l; ++i ) {
+        const { x, y } = objectList[ i ];
+        if ( x >= l && x <= r &&
+             y >= t && y <= b )
+        {
+            targetX = ( x - left ) * tileWidth;
+            targetY = ( y - top )  * tileHeight;
+
+            aCanvasContext.fillRect( targetX, targetY, tileWidth, tileHeight );
+        }
+    }
+}
