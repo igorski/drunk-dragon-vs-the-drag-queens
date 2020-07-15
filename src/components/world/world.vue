@@ -43,7 +43,6 @@ export default {
             animate: true,
             smoothing: false,
             stretchToFit: true,
-            backgroundColor: '#000',
             fps: 60,
             onUpdate: this.updateGame.bind( this )
         });

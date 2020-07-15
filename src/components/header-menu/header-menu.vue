@@ -50,12 +50,12 @@
                 <li>
                     <button v-t="'status'" type="button"
                             :disabled="!hasActiveGame"
-                            :title="$t('status')" @click="viewStatus">
+                            :title="$t('status')" @click="openScreen('status')">
                     </button>
                 </li>
                 <li>
                     <button v-t="'viewCredits'" type="button"
-                            :title="$t('viewCredits')" @click="viewCredits">
+                            :title="$t('viewCredits')" @click="openScreen('credits')">
                     </button>
                 </li>
             </ul>
@@ -99,8 +99,22 @@ export default {
             // prevent scrolling main body when scrolling menu list (TODO: are we expecting scrollable body?)
             document.body.style.overflow = this.menuOpened ? 'hidden' : 'auto';
         },
-        viewStatus() {
-            this.setScreen( SCREEN_STATUS );
+        openScreen( target ) {
+            let screen;
+            switch ( target ) {
+                default:
+                    return;
+                case 'status':
+                    screen = SCREEN_STATUS;
+                    break;
+                case 'credits':
+                    screen = SCREEN_CREDITS;
+                    break;
+            }
+            this.setScreen( screen );
+            if ( this.menuOpened ) {
+                this.toggleMenu();
+            }
         },
         viewCredits() {
             this.setScreen( SCREEN_CREDITS );
@@ -171,11 +185,6 @@ export default {
         background-color: $color-background;
         width: 100%;
         padding: 0;
-
-        @include large() {
-            left: 50%;
-            transform: translateX(-50%);
-        }
 
         @include mobile() {
             width: 100%;
@@ -291,6 +300,11 @@ export default {
 
         &--expanded {
             position: absolute;
+        }
+
+        @include large() {
+            max-width: $app-width;
+            margin: 0 auto;
         }
 
         // on resolution below the mobile threshold the menu is fullscreen and vertically stacked
