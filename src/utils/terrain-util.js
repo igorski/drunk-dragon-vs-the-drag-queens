@@ -60,7 +60,6 @@ export const getSurroundingIndices = ( x, y, mapWidth, mapHeight, inclDiagonals 
  *
  * @param {Array<number>} terrain
  * @param {number} tileType
- *
  * @return {number} free index in the terrain for given operation
  */
 export const positionAtRandomFreeTileType = ( terrain, tileType ) => {

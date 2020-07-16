@@ -66,6 +66,10 @@ npm run test
 ```
 ## TODO
 
+rename enemies[]
+
+Building should close in the morning!
+
 Don't spawn/generate actionable object in empty tile surrounding by closed path
 
 Make menu collapsable

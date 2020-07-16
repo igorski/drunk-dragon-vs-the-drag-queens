@@ -51,15 +51,15 @@ export default
                 case BUILDING_TILES.GROUND:
                     return drawTile( ctx, SpriteCache.FLOOR, 0, x, y );
 
-                case BUILDING_TILES.WALL: // wall
+                case BUILDING_TILES.WALL:
                     drawAdjacentTiles( tile, tx, ty, x, y, environment, terrain, ctx  );
                     break;
 
-                case BUILDING_TILES.STAIRS: // stairs
+                case BUILDING_TILES.STAIRS:
                     return drawTile( ctx, SpriteCache.FLOOR, 260, x, y );
 
                 default:
-                case BUILDING_TILES.NOTHING: // nothing
+                case BUILDING_TILES.NOTHING:
                     return;
             }
         }
@@ -83,9 +83,9 @@ export default
  */
 function drawTile( aCanvasContext, aBitmap, tileSourceX, targetX, targetY )
 {
-    if ( tileSourceX < 0 )
+    if ( tileSourceX < 0 ) {
         return;
-
+    }
     aCanvasContext.drawImage( aBitmap,
                               tileSourceX, 0,   TILE_SIZE, TILE_SIZE,
                               targetX, targetY, TILE_SIZE, TILE_SIZE );

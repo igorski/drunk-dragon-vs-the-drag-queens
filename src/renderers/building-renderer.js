@@ -5,6 +5,8 @@ import TerrainUtil   from '@/utils/terrain-util';
 import WorldCache    from '@/utils/world-cache';
 import SpriteCache   from '@/utils/sprite-cache';
 
+import { BUILDING_TILES } from '@/model/factories/building-factory';
+
 const DEBUG = process.env.NODE_ENV !== 'production';
 
 /**
@@ -17,6 +19,9 @@ const DEBUG = process.env.NODE_ENV !== 'production';
  */
 function BuildingRenderer( store, width, height ) {
     BuildingRenderer.super( this, 'constructor', store, width, height );
+
+    this.maxWalkableTileNum     = BUILDING_TILES.STAIRS;
+    this.validNavigationTargets = [ BUILDING_TILES.GROUND, BUILDING_TILES.STAIRS ];
 }
 WorldRenderer.extend( BuildingRenderer );
 
@@ -27,13 +32,11 @@ WorldRenderer.extend( BuildingRenderer );
  * @param {CanvasRenderingContext2D} aCanvasContext to draw on
  */
 BuildingRenderer.prototype.draw = function( aCanvasContext ) {
-    const building  = this._environment;
-    const vx        = building.x;
-    const vy        = building.y;
+    const floor  = this._environment;
+    const vx     = floor.x;
+    const vy     = floor.y;
 
-    const floor      = building.floors[ building.floor ];
-    const floorWidth = floor.width, floorHeight = floor.height;
-
+    const { width, height } = floor;
     const { tileWidth, tileHeight } = WorldCache;
 
     const visibleTiles = this.getVisibleTiles();
@@ -44,7 +47,7 @@ BuildingRenderer.prototype.draw = function( aCanvasContext ) {
 
     // flood fill the building with black
     aCanvasContext.fillStyle = '#000000';
-    aCanvasContext.fillRect( 0, 0, floorWidth, floorHeight );
+    aCanvasContext.fillRect( 0, 0, width, height );
 
     // render terrain from cache
 
@@ -58,7 +61,7 @@ BuildingRenderer.prototype.draw = function( aCanvasContext ) {
                               0, 0, canvasWidth, canvasHeight );
 
     this.renderPlayer( aCanvasContext, left, top, halfHorizontalTileAmount, halfVerticalTileAmount );
-    this.renderCharacters( aCanvasContext, building.enemies, left, top );
+    this.renderCharacters( aCanvasContext, floor.enemies, left, top );
 
     // draw path when walking to waypoint
 

@@ -13,6 +13,7 @@ export const renderEnvironment = environment =>
     console.log( 'RENDER ENVIRONMENT' );
 
     const { type } = environment;
+    // note that inside a building the environment to render is the currently active floor
     const environmentToRender = type === BUILDING_TYPE ? environment.floors[ environment.floor ] : environment;
     const { width, height, terrain } = environmentToRender;
 
@@ -43,7 +44,7 @@ export const renderEnvironment = environment =>
             // TODO : investigate https://github.com/imaya/CanvasTool.PngEncoder for 8-bit PNG ?
 
             let target;
-            switch ( environment.type ) {
+            switch ( environmentToRender.type ) {
                 default:
                     throw new Error(`Unknown environment "${environment.type}"`);
                 case WORLD_TYPE:
@@ -56,11 +57,6 @@ export const renderEnvironment = environment =>
             target.src    = cvs.toDataURL( 'image/png' );
             target.width  = cvs.width;
             target.height = cvs.height;
-
-            if (target === SpriteCache.BUILDING) {
-                console.warn(environmentToRender);
-                document.body.appendChild(target); // QQQ
-            }
 
             ImageUtil.onReady( target, () => {
                 resolve( target );
@@ -78,7 +74,7 @@ export const renderEnvironment = environment =>
                     x = j * tileWidth;
                     y = i * tileHeight;
 
-                    TerrainRenderer.drawTileForSurroundings( ctx, j, i, x, y, environment, terrain );
+                    TerrainRenderer.drawTileForSurroundings( ctx, j, i, x, y, environmentToRender, terrain );
                 }
             }
         }

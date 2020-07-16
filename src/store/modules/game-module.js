@@ -133,6 +133,7 @@ export default {
         async enterBuilding({ state, commit, dispatch }, building ) {
             // generate levels, terrains and enemies inside the building
             BuildingFactory.generateFloors( state.hash, building, state.player );
+            
             commit( 'setBuilding', building );
             commit( 'setActiveEnvironment', building );
 

@@ -1,7 +1,7 @@
 import { Map }            from 'rot-js';
 import HashUtil           from '@/utils/hash-util';
-import { positionAtRandomFreeTileType } from '@/utils/terrain-util';
 import EnvironmentFactory from './environment-factory';
+import { positionAtRandomFreeTileType } from '@/utils/terrain-util';
 
 export const BUILDING_TYPE = 'Building';
 
@@ -10,8 +10,8 @@ export const BUILDING_TYPE = 'Building';
  */
 export const BUILDING_TILES = {
     GROUND  : 0,
-    WALL    : 1,
-    STAIRS  : 2,
+    STAIRS  : 1,
+    WALL    : 2,
     NOTHING : 3
 };
 
@@ -42,32 +42,31 @@ const BuildingFactory =
         // generate terrain for each floor
 
         const maxFloor = floorAmount - 1;
-        let i, MAP_WIDTH, MAP_HEIGHT, MIN_ROOM_WIDTH, MIN_ROOM_HEIGHT, MAX_ROOM_WIDTH, MAX_ROOM_HEIGHT;
+        let i, floorWidth, floorHeight, minFloorWidth, minFloorHeight, maxFloorWidth, maxFloorHeight;
         let terrain;
 
-        for ( i = 0; i < floorAmount; ++i )
-        {
-            MAP_WIDTH       = Math.round( Math.random() * 50 ) + 10;
-            MAP_HEIGHT      = Math.round( Math.random() * 50 ) + 10;
-            MIN_ROOM_WIDTH  = Math.min( Math.round( Math.random() * 10 ) + 2, MAP_WIDTH );
-            MIN_ROOM_HEIGHT = Math.min( Math.round( Math.random() * 10 ) + 2, MAP_HEIGHT );
-            MAX_ROOM_WIDTH  = Math.min( Math.round( Math.random() * playerLevel * 10 ) + 2, MAP_WIDTH  );
-            MAX_ROOM_HEIGHT = Math.min( Math.round( Math.random() * playerLevel * 10 ) + 2, MAP_HEIGHT );
+        for ( i = 0; i < floorAmount; ++i ) {
+            floorWidth     = Math.round( Math.random() * 50 ) + 10;
+            floorHeight    = Math.round( Math.random() * 50 ) + 10;
+            minFloorWidth  = Math.min( Math.round( Math.random() * 10 ) + 2, floorWidth );
+            minFloorHeight = Math.min( Math.round( Math.random() * 10 ) + 2, floorHeight );
+            maxFloorWidth  = Math.min( Math.round( Math.random() * playerLevel * 10 ) + 2, floorWidth  );
+            maxFloorHeight = Math.min( Math.round( Math.random() * playerLevel * 10 ) + 2, floorHeight );
 
             // make sure the maximum dimensions exceed the minimum dimensions !
 
-            MAX_ROOM_WIDTH  = Math.max( MIN_ROOM_WIDTH, MAX_ROOM_WIDTH );
-            MAX_ROOM_HEIGHT = Math.max( MIN_ROOM_HEIGHT, MAX_ROOM_HEIGHT );
+            maxFloorWidth  = Math.max( minFloorWidth,  maxFloorWidth );
+            maxFloorHeight = Math.max( minFloorHeight, maxFloorHeight );
 
             try {
-                terrain = digger( MAP_WIDTH, MAP_HEIGHT, MIN_ROOM_WIDTH, MIN_ROOM_HEIGHT, MAX_ROOM_WIDTH, MAX_ROOM_HEIGHT );
+                terrain = digger( floorWidth, floorHeight, minFloorWidth, minFloorHeight, maxFloorWidth, maxFloorHeight );
             }
             catch ( e ) {
-                console.log(
+                console.warn(
                     `BuildingFactory::ERROR "${e.message}" occurred when generating for size:
-                    ${MAP_WIDTH} x ${MAP_HEIGHT} with min room size:
-                    ${MIN_ROOM_WIDTH} x ${MIN_ROOM_HEIGHT} and max room size:
-                    ${MAX_ROOM_WIDTH} x ${MAX_ROOM_HEIGHT}`
+                    ${floorWidth} x ${floorHeight} with min room size:
+                    ${minFloorWidth} x ${minFloorHeight} and max room size:
+                    ${maxFloorWidth} x ${maxFloorHeight}`
                 );
             }
 
@@ -82,52 +81,9 @@ const BuildingFactory =
                 terrain[ positionAtRandomFreeTileType( terrain, BUILDING_TILES.GROUND ) ] = BUILDING_TILES.STAIRS;
                 // E.O .TODO
             }
-            floors.push( BuildingFactory.createFloor( MAP_WIDTH, MAP_HEIGHT, terrain ));
+            floors.push( createFloor( floorWidth, floorHeight, terrain ));
         }
         aBuilding.floors = floors; // commit the floors to the Building
-    },
-
-    /**
-     * @param {number} width
-     * @param {number} height
-     * @param {Array<number>} terrain
-     */
-    createFloor( width, height, terrain = [] )
-    {
-        const out = {
-            width,
-            height,
-            terrain,
-            exits: [],
-            treasures: [],
-            startX: 0,
-            startY: 0
-        };
-
-        // cache treasures and exits for floor
-
-        for ( let x = 0, y = 0; y < height; x = ( ++x === width ? ( x % width + ( ++y & 0 ) ) : x )) {
-            // found the exit ?
-            if ( terrain[ y * width + x ] === BUILDING_TILES.STAIRS ) {
-                out.exits.push({ x, y });
-            }
-        }
-
-        // TODO : no treasures yet
-
-        // determine Players begin offset
-
-        for ( let x = 0, y = 0; y < height; x = ( ++x === width ? ( x % width + ( ++y & 0 ) ) : x )) {
-            // use first instance of ground as the start offset
-            if ( terrain[ y * width + x ] === BUILDING_TILES.GROUND ) {
-                out.startX = x;
-                out.startY = y;
-                break;
-            }
-        }
-    //        this.startX = Math.round( this.width / 2 );
-    //        this.startY = Math.round( this.height / 2 );
-        return out;
     },
 
     /**
@@ -167,13 +123,53 @@ const BuildingFactory =
 };
 export default BuildingFactory;
 
+/* internal methods */
+
+/**
+ * A floor is essentially an environment within a building
+ *
+ * @param {number} width
+ * @param {number} height
+ * @param {Array<number>} terrain
+ */
+function createFloor( width, height, terrain = [] ) {
+    const enemies = [];
+    const out = {
+        ...EnvironmentFactory.create( 0, 0, width, height, enemies, terrain ),
+        type: BUILDING_TYPE,
+        exits: [],
+        treasures: []
+    };
+
+    // create exit
+
+    for ( let x = 0, y = 0; y < height; x = ( ++x === width ? ( x % width + ( ++y & 0 ) ) : x )) {
+        // found the exit ?
+        if ( terrain[ y * width + x ] === BUILDING_TILES.STAIRS ) {
+            out.exits.push({ x, y });
+        }
+    }
+
+    // TODO : no treasures yet
+
+    // determine Players begin offset
+
+    for ( let x = 0, y = 0; y < height; x = ( ++x === width ? ( x % width + ( ++y & 0 ) ) : x )) {
+        // use first instance of ground as the start offset
+        if ( terrain[ y * width + x ] === BUILDING_TILES.GROUND ) {
+            out.x = x;
+            out.y = y;
+            break;
+        }
+    }
+    return out;
+};
+
 // taken from dungen https://github.com/englercj/dungen
 
-function digger( roomWidth, roomHeight, minRoomWidth, minRoomHeight, maxRoomWidth, maxRoomHeight )
-{
-    // do size - 1 since algo puts rooms up against side, and we need to create walls there later
-    const digger = new Map.Digger( roomWidth - 1, roomHeight - 1,
-    {
+function digger( roomWidth, roomHeight, minRoomWidth, minRoomHeight, maxRoomWidth, maxRoomHeight ) {
+    // do size - 1 since algorithm puts rooms up against side, and we need to create walls there later
+    const digger = new Map.Digger( roomWidth - 1, roomHeight - 1, {
         roomWidth      : [ minRoomWidth,  maxRoomWidth  ], /* room minimum and maximum width */
         roomHeight     : [ minRoomHeight, maxRoomHeight ], /* room minimum and maximum height */
         corridorLength : [ 3, 10 ], /* corridor minimum and maximum length */
@@ -182,47 +178,35 @@ function digger( roomWidth, roomHeight, minRoomWidth, minRoomHeight, maxRoomWidt
     });
     const map = [];
 
-    // init map
+    // init output terrain map
 
-    for ( let x = 0; x < roomWidth; ++x )
-    {
-        map[ x ] = [];
-        for( let y = 0; y < roomHeight; ++y ) {
-            map[ x ][ y ] = BUILDING_TILES.NOTHING;
-        }
+    for ( let x = 0; x < roomWidth; ++x ) {
+        map[ x ] = new Array( roomHeight ).fill( BUILDING_TILES.NOTHING );
     }
 
     // create map
-    digger.create(( i, j, tile ) =>
-    {
-        switch( tile )
-        {
+    digger.create(( x, y, tile ) => {
+        switch( tile ) {
             case 1:
-                map[ i + 1 ][ j + 1 ] = BUILDING_TILES.NOTHING;
+                map[ x + 1 ][ y + 1 ] = BUILDING_TILES.NOTHING;
                 break;
-
             case 0:
-                map[ i + 1 ][ j + 1 ] = BUILDING_TILES.GROUND;
+                map[ x + 1 ][ y + 1 ] = BUILDING_TILES.GROUND;
                 break;
         }
     });
-
     const xl = map.length;
     const yl = map[ 0 ].length;
 
     // setup walls
-    for ( let x = 0; x < xl; ++x )
-    {
-        for ( let y = 0; y < yl; ++y )
-        {
-            if ( map[ x ][ y ] === BUILDING_TILES.GROUND )
-            {
-                for ( let xx = x - 1; xx <= x + 1 && xx > 0; ++xx )
-                {
-                    for ( let yy = y - 1; yy <= y + 1 && yy > 0; ++yy )
-                    {
-                        if ( map[ xx ][ yy ] === BUILDING_TILES.NOTHING )
+    for ( let x = 0; x < xl; ++x ) {
+        for ( let y = 0; y < yl; ++y ) {
+            if ( map[ x ][ y ] === BUILDING_TILES.GROUND ) {
+                for ( let xx = x - 1; xx <= x + 1 && xx > 0; ++xx ) {
+                    for ( let yy = y - 1; yy <= y + 1 && yy > 0; ++yy ) {
+                        if ( map[ xx ][ yy ] === BUILDING_TILES.NOTHING ) {
                             map[ xx ][ yy ] = BUILDING_TILES.WALL;
+                        }
                     }
                 }
             }
@@ -233,8 +217,7 @@ function digger( roomWidth, roomHeight, minRoomWidth, minRoomHeight, maxRoomWidt
 
     const terrain = [];
 
-    for ( let x = 0; x < xl; ++x )
-    {
+    for ( let x = 0; x < xl; ++x ) {
         for ( let y = 0; y < yl; ++y ) {
             terrain[ y * xl + x ] = map[ x ][ y ];
         }

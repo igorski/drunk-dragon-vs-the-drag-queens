@@ -24,6 +24,24 @@ function WorldRenderer( store, width, height ) {
 
     commit   = store.commit;
     dispatch = store.dispatch;
+
+    /**
+     * Highest index within the tiles list which is associated
+     * with a tile type that the player can walk on
+     *
+     * @protected
+     * @type {number}
+     */
+    this.maxWalkableTileNum = WORLD_TILES.SAND;
+
+    /**
+     * The list of tiles in the tiles list that are valid targets
+     * for the player to walk to
+     *
+     * @protected
+     * @type {Array<number>}
+     */
+    this.validNavigationTargets = [ WORLD_TILES.GROUND, WORLD_TILES.GRASS, WORLD_TILES.SAND ];
 }
 sprite.extend( WorldRenderer );
 
@@ -32,7 +50,7 @@ sprite.extend( WorldRenderer );
 /** @protected @type {number} */ WorldRenderer.prototype.horizontalTileAmount = 10;
 /** @protected @type {number} */ WorldRenderer.prototype.verticalTileAmount   = 10;
 
-/** @protected @type {Object} */  WorldRenderer.prototype._environment;
+/** @protected @type {Object} */ WorldRenderer.prototype._environment;
 /** @protected @type {Object} */ WorldRenderer.prototype._player;
 
 /* public methods */
@@ -127,7 +145,7 @@ WorldRenderer.prototype.handleRelease = function( pointerX, pointerY ) {
     }
 
     if ( this.isValidTarget( targetTile )) {
-        this.target = findPath( this._environment, Math.round( x ), Math.round( y ), tx, ty, WORLD_TILES.SAND );
+        this.target = findPath( this._environment, Math.round( x ), Math.round( y ), tx, ty, this.maxWalkableTileNum );
         dispatch( 'moveToDestination', this.target );
     }
 };
@@ -140,7 +158,7 @@ WorldRenderer.prototype.handleRelease = function( pointerX, pointerY ) {
  * @return {boolean}
  */
 WorldRenderer.prototype.isValidTarget = function( tileType ) {
-    return [ WORLD_TILES.GROUND, WORLD_TILES.GRASS, WORLD_TILES.SAND ].includes( tileType );
+    return this.validNavigationTargets.includes( tileType );
 };
 
 /**
