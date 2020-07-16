@@ -64,8 +64,8 @@ const BuildingFactory =
             catch ( e ) {
                 console.warn(
                     `BuildingFactory::ERROR "${e.message}" occurred when generating for size:
-                    ${floorWidth} x ${floorHeight} with min room size:
-                    ${minFloorWidth} x ${minFloorHeight} and max room size:
+                    ${floorWidth} x ${floorHeight} with min floor size:
+                    ${minFloorWidth} x ${minFloorHeight} and max floor size:
                     ${maxFloorWidth} x ${maxFloorHeight}`
                 );
             }
@@ -99,7 +99,7 @@ const BuildingFactory =
             enemies: data.e,
             terrain: data.t,
             type: data.ty,
-            floor: data.f || NaN,
+            floor: data.f ?? NaN,
             floors: data.fs
         };
     },

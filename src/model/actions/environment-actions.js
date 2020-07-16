@@ -24,8 +24,7 @@ export default {
                 dispatch('enterBuilding', hit );
             }
         } else if ( environment.type === BUILDING_TYPE ) {
-            const floor = environment.floors[ environment.floor ];
-            if ( hit = internalHitTest( x, y, floor.exits )) {
+            if ( hit = internalHitTest( x, y, environment.exits )) {
                 dispatch('changeFloor', hit );
             }
         }

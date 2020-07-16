@@ -99,7 +99,6 @@ export default {
 
             if ( !environment ) return;
             let sprite;
-            let environmentToRender = environment;
 
             switch ( environment.type ) {
                 default:
@@ -108,8 +107,6 @@ export default {
                 case BUILDING_TYPE:
                     this.renderer = new BuildingRenderer( this.$store, 100, 100 );
                     sprite = SpriteCache.BUILDING;
-                    // TODO: this must update when changing floors
-                    environmentToRender = environment.floors[ environment.floor ];
                     break;
                 case WORLD_TYPE:
                     this.renderer = new WorldRenderer( this.$store, 100, 100 );
@@ -118,7 +115,7 @@ export default {
             }
             ImageUtil.onReady( sprite, () => {
                 this.zcanvas.addChild( this.renderer );
-                this.renderer.render( environmentToRender, this.player );
+                this.renderer.render( environment, this.player );
             });
         },
     }

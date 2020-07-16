@@ -1,75 +1,173 @@
-import SpriteCache from '@/utils/sprite-cache';
+import { zThread, zThreader } from 'zthreader';
+import { createPixelCanvas }  from '@/utils/canvas-util';
+import ImageUtil              from '@/utils/image-util';
+import SpriteCache            from '@/utils/sprite-cache';
+import WorldCache             from '@/utils/world-cache';
+
 import { BUILDING_TYPE, BUILDING_TILES } from '@/model/factories/building-factory';
-import { WORLD_TYPE, WORLD_TILES } from '@/model/factories/world-factory';
+import { WORLD_TYPE, WORLD_TILES }       from '@/model/factories/world-factory';
 
-export default
+/**
+ * This method takes in the terrain of the given environment and renders
+ * its contents onto a Bitmap image. This image is then consumed by the environment
+ * specific renderers in the @/renderers folder. Basically this precaches the
+ * entire environment contents for fast direct-from-memory blitting in the sprite.
+ */
+export const renderEnvironment = environment =>
 {
-    /**
-     * draws a tile taking the surrounding tiles into account for an aesthetically
-     * pleasing result by linking the adjacent tiletypes
-     *
-     * @param {CanvasRenderingContext2D} ctx to draw on
-     * @param {number} tx x index of the tile in the terrain map
-     * @param {number} ty y index of the tile in the terrain map
-     * @param {number} x targetX to draw the tile at on the ctx
-     * @param {number} y targetY to draw the tile at on the ctx
-     * @param {Object} environment the environment we're rendering
-     * @param {Array<Number>} terrain the terrain we're drawing from
-     */
-    drawTileForSurroundings( ctx, tx, ty, x, y, environment, terrain )
-    {
-        const tile     = getTileDescription( tx, ty, terrain, environment );
-        const tileType = tile.type;
+    console.log( 'CACHE BITMAP FOR ENVIRONMENT' );
 
-        // TODO : can we make this more generic ?
+    const { width, height, terrain, type } = environment;
 
-        if ( environment.type === WORLD_TYPE ) {
-            switch ( tileType ) {
+    return new Promise(( resolve, reject ) => {
+        const { tileWidth, tileHeight } = WorldCache;
+        const { cvs, ctx } = createPixelCanvas();
+
+        cvs.width  = tileWidth  * width;
+        cvs.height = tileHeight * height;
+
+        // we render the above coordinates, with addition of one extra
+        // tile outside of the tiles (prevents blank screen during movement)
+
+        let rl = 0, rr = width;
+        let rt = 0, rb = height;
+
+        let i, j, l, x, y, terrainTile;
+
+        // use zThreader and zThreads as this can be quite a heavy operation
+        // investigate how we can have a canvas and images available in a Worker
+
+        zThreader.init( .65, 60 );
+
+        const thread = new zThread(() => {
+            // store the result
+            // TODO : investigate https://github.com/imaya/CanvasTool.PngEncoder for 8-bit PNG ?
+
+            let target;
+            switch ( environment.type ) {
                 default:
-                case WORLD_TILES.GROUND:
-                case WORLD_TILES.GRASS:
-                    drawTile( ctx, getSheet( environment, tile ), 0, x, y ); // the lowest tiles in World underground
-                    // ctx.font = "6px Verdana";
-                    //ctx.fillText( `${ty}`, x, y);
+                    throw new Error(`Unknown environment "${environment.type}"`);
+                case WORLD_TYPE:
+                    target = SpriteCache.WORLD;
                     break;
-
-                case WORLD_TILES.SAND:
-                case WORLD_TILES.WATER:
-                case WORLD_TILES.MOUNTAIN:
-                    drawTile( ctx, getSheet( environment, tile ), 0, x, y ); // draw tile underground first
-                    drawAdjacentTiles( tile, tx, ty, x, y, environment, terrain, ctx );
-                    break;
-
-                case WORLD_TILES.TREE:
-                    drawTile( ctx, SpriteCache.GRASS, 0, x, y ); // grassy underground first
-                    drawTile( ctx, SpriteCache.TREE,  0, x, y ); // tree second
+                case BUILDING_TYPE:
+                    target = SpriteCache.BUILDING;
                     break;
             }
-        }
-        else if ( environment.type === BUILDING_TYPE ) {
-            switch ( tileType ) {
-                case BUILDING_TILES.GROUND:
-                    return drawTile( ctx, SpriteCache.FLOOR, 0, x, y );
+            target.src    = cvs.toDataURL( 'image/png' );
+            target.width  = cvs.width;
+            target.height = cvs.height;
 
-                case BUILDING_TILES.WALL:
-                    drawAdjacentTiles( tile, tx, ty, x, y, environment, terrain, ctx  );
-                    break;
+            ImageUtil.onReady( target, () => {
+                resolve( target );
+            });
+        });
 
-                case BUILDING_TILES.STAIRS:
-                    return drawTile( ctx, SpriteCache.FLOOR, 260, x, y );
+        // function to render the sprites onto the Canvas
 
-                default:
-                case BUILDING_TILES.NOTHING:
-                    return;
+        function render( aIteration ) {
+            for ( i = aIteration, l = aIteration + 1; i < l; ++i ) { // rows
+                for ( j = rl; j < rr; ++j ) { // columns
+                    x = j * tileWidth;
+                    y = i * tileHeight;
+                    drawTileForSurroundings( ctx, j, i, x, y, environment, terrain );
+                }
             }
         }
-        else {
-            throw new Error( `unknown Environment "${environment.type}"` );
-        }
-    }
+
+        // TODO : separate into individual tiles for mobile ?
+
+        // here we define our own custom override of the ZThread internal execution handler to
+        // render all columns of a single row, one by ony
+
+        const MAX_ITERATIONS = rb;    // all rows
+        let iterations       = rt - 1;
+
+        thread._executeInternal = () => {
+            // the amount of times we call the 'render'-function
+            // per iteration of the internal execution method
+            const stepsPerIteration = 1;
+
+            for ( let i = 0; i < stepsPerIteration; ++i ) {
+                if ( iterations >= MAX_ITERATIONS ) {
+                    return true;
+                }
+                else {
+                    // execute operation (and increment iteration)
+                    render( ++iterations );
+                }
+            }
+            return false;
+        };
+        thread.run(); // start crunching
+    });
 };
 
 /* internal methods */
+
+/**
+ * draws a tile taking the surrounding tiles into account for an aesthetically
+ * pleasing result by linking the adjacent tiletypes
+ *
+ * @param {CanvasRenderingContext2D} ctx to draw on
+ * @param {number} tx x index of the tile in the terrain map
+ * @param {number} ty y index of the tile in the terrain map
+ * @param {number} x targetX to draw the tile at on the ctx
+ * @param {number} y targetY to draw the tile at on the ctx
+ * @param {Object} environment the environment we're rendering
+ * @param {Array<Number>} terrain the terrain we're drawing from
+ */
+function drawTileForSurroundings( ctx, tx, ty, x, y, environment, terrain )
+{
+    const tile     = getTileDescription( tx, ty, terrain, environment );
+    const tileType = tile.type;
+
+    // TODO : can we make this more generic ?
+
+    if ( environment.type === WORLD_TYPE ) {
+        switch ( tileType ) {
+            default:
+            case WORLD_TILES.GROUND:
+            case WORLD_TILES.GRASS:
+                drawTile( ctx, getSheet( environment, tile ), 0, x, y ); // the lowest tiles in World underground
+                // ctx.font = "6px Verdana";
+                //ctx.fillText( `${ty}`, x, y);
+                break;
+
+            case WORLD_TILES.SAND:
+            case WORLD_TILES.WATER:
+            case WORLD_TILES.MOUNTAIN:
+                drawTile( ctx, getSheet( environment, tile ), 0, x, y ); // draw tile underground first
+                drawAdjacentTiles( tile, tx, ty, x, y, environment, terrain, ctx );
+                break;
+
+            case WORLD_TILES.TREE:
+                drawTile( ctx, SpriteCache.GRASS, 0, x, y ); // grassy underground first
+                drawTile( ctx, SpriteCache.TREE,  0, x, y ); // tree second
+                break;
+        }
+    }
+    else if ( environment.type === BUILDING_TYPE ) {
+        switch ( tileType ) {
+            case BUILDING_TILES.GROUND:
+                return drawTile( ctx, SpriteCache.FLOOR, 0, x, y );
+
+            case BUILDING_TILES.WALL:
+                drawAdjacentTiles( tile, tx, ty, x, y, environment, terrain, ctx  );
+                break;
+
+            case BUILDING_TILES.STAIRS:
+                return drawTile( ctx, SpriteCache.FLOOR, 260, x, y );
+
+            default:
+            case BUILDING_TILES.NOTHING:
+                return;
+        }
+    }
+    else {
+        throw new Error( `unknown Environment "${environment.type}"` );
+    }
+}
 
 /**
  * actual rendering of a single tile onto the canvas

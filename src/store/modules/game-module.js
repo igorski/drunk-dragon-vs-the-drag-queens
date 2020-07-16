@@ -7,7 +7,7 @@ import CharacterFactory      from '@/model/factories/character-factory';
 import GameFactory           from '@/model/factories/game-factory';
 import WorldFactory          from '@/model/factories/world-factory';
 import ShopFactory           from '@/model/factories/shop-factory';
-import { renderEnvironment } from '@/services/environment-renderer';
+import { renderEnvironment } from '@/services/environment-bitmap-cacher';
 import WorldCache            from '@/utils/world-cache';
 import EffectActions         from '@/model/actions/effect-actions';
 import { GAME_START_TIME, GAME_TIME_RATIO } from '@/utils/time-util';
@@ -81,7 +81,6 @@ export default {
         },
         setFloor( state, floor ) {
             state.building.floor = floor;
-            console.warn('CHANGING FLOOR RESET AI BEHAVIOUR');
         },
         setLastRender( state, value ) {
             state.lastRender = value;
@@ -133,9 +132,8 @@ export default {
         async enterBuilding({ state, commit, dispatch }, building ) {
             // generate levels, terrains and enemies inside the building
             BuildingFactory.generateFloors( state.hash, building, state.player );
-            
+
             commit( 'setBuilding', building );
-            commit( 'setActiveEnvironment', building );
 
             // enter building at the first floor
             await dispatch( 'changeFloor', { building, floor: 0  });
@@ -152,8 +150,10 @@ export default {
             } else {
                 // ascend/descend to requested level
                 commit( 'setFloor', floor );
+                commit( 'setActiveEnvironment', floor );
+                // render floor Bitmap
                 commit( 'setLoading', true );
-                await renderEnvironment( state.activeEnvironment ); // render floor
+                await renderEnvironment( state.activeEnvironment );
                 commit( 'setLoading', false );
             }
         },
@@ -194,8 +194,15 @@ export default {
                 const game = GameFactory.assemble( data );
                 commit( 'setGame', game );
                 commit( 'setHash', game.hash );
-                commit( 'setActiveEnvironment', game.world );
+                let activeEnvironmentToSet = game.world;
+                const { building } = game;
+                if ( building ) {
+                    // game was saved inside a building
+                    activeEnvironmentToSet = building.floors[ building.floor ];
+                }
+                commit( 'setActiveEnvironment', activeEnvironmentToSet );
                 commit( 'setLastRender', Date.now() );
+
                 await renderEnvironment( state.activeEnvironment );
             } catch {
                 // TODO : show message of disappointment

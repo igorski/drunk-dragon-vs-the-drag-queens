@@ -49,7 +49,6 @@ export default
                     startTime, duration, startValue, endValue,
                     () => {
                         if ( EnvironmentActions.hitTest( activeEnvironment, dispatch )) {
-                            console.warn('raak');
                             cancelPendingMovement( commit );
                         }
                     }
