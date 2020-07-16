@@ -43,20 +43,8 @@ export default {
         setGameActive( state, value ) {
            state.gameActive = !!value;
         },
-        setPlayer( state, value ) {
-            state.player = value;
-        },
-        setXPosition( state, value ) {
-            state.activeEnvironment.x = value;
-        },
-        setYPosition( state, value ) {
-            state.activeEnvironment.y = value;
-        },
         setHash( state, value ) {
             state.hash = value;
-        },
-        advanceGameTime( state, valueInMilliseconds ) {
-            state.gameTime += valueInMilliseconds;
         },
         setGame( state, value ) {
             state.created       = value.created;
@@ -68,6 +56,18 @@ export default {
             state.player        = value.player;
             state.building      = value.building;
             state.world         = value.world;
+        },
+        advanceGameTime( state, valueInMilliseconds ) {
+            state.gameTime += valueInMilliseconds;
+        },
+        setLastRender( state, value ) {
+            state.lastRender = value;
+        },
+        setXPosition( state, value ) {
+            state.activeEnvironment.x = value;
+        },
+        setYPosition( state, value ) {
+            state.activeEnvironment.y = value;
         },
         setActiveEnvironment( state, environment ) {
             state.activeEnvironment = environment;
@@ -81,9 +81,6 @@ export default {
         },
         setFloor( state, floor ) {
             state.building.floor = floor;
-        },
-        setLastRender( state, value ) {
-            state.lastRender = value;
         },
         addEffect( state, value ) {
             if ( !state.effects.includes( value )) {

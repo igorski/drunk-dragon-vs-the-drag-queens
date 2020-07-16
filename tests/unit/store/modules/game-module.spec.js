@@ -34,34 +34,99 @@ describe('Vuex game module', () => {
     });
 
     describe('mutations', () => {
-        it('should be able to set the game last render time', () => {
+        it('should be able to set the active game hash', () => {
+            const state = { hash: null };
+            const hash = 'foobarbaz';
+            mutations.setHash( state, hash );
+            expect( state.hash ).toEqual( hash );
+        });
+
+        it('should be able to set the last game render time', () => {
             const state = { lastRender: 0 };
             mutations.setLastRender( state, 100 );
             expect( state.lastRender ).toEqual( 100 );
         });
 
-        it('should be able to update the player x position in the current environment', () => {
-            const state = { activeEnvironment: { x: 0, y: 0 } };
-            mutations.setXPosition( state, 10 );
-            expect( state.activeEnvironment ).toEqual({ x: 10, y: 0 });
+        it('should be able to advance the current game time', () => {
+            const now = Date.now();
+            const state = { gameTime: now };
+            const delta = 1000;
+            mutations.advanceGameTime( state, delta );
+            expect( state.gameTime ).toEqual( now + delta );
         });
 
-        it('should be able to update the player y position in the current environment', () => {
-            const state = { activeEnvironment: { x: 0, y: 0 } };
-            mutations.setYPosition( state, 10 );
-            expect( state.activeEnvironment ).toEqual({ x: 0, y: 10 });
+        describe('when changing player position', () => {
+            it('should be able to update the player x position in the current environment', () => {
+                const state = { activeEnvironment: { x: 0, y: 0 } };
+                mutations.setXPosition( state, 10 );
+                expect( state.activeEnvironment ).toEqual({ x: 10, y: 0 });
+            });
+
+            it('should be able to update the player y position in the current environment', () => {
+                const state = { activeEnvironment: { x: 0, y: 0 } };
+                mutations.setYPosition( state, 10 );
+                expect( state.activeEnvironment ).toEqual({ x: 0, y: 10 });
+            });
+
+            it('should be able to set the active environment', () => {
+                const state = { activeEnvironment: null };
+                const env = { foo: 'bar' };
+                mutations.setActiveEnvironment( state, env );
+                expect( state.activeEnvironment ).toEqual( env );
+            });
+
+            it('should be able to set the active shop', () => {
+                const state = { shop: null };
+                const shop = { foo: 'bar' };
+                mutations.setShop( state, shop );
+                expect( state.shop ).toEqual( shop );
+            });
+
+            it('should be able to set the active building', () => {
+                const state = { building: null };
+                const building = { foo: 'bar' };
+                mutations.setBuilding( state, building );
+                expect( state.building ).toEqual( building );
+            });
+
+            it('should be able to set the current floor in the active building', () => {
+                const state = { building: { foo: 'bar', floor: 0 } };
+                mutations.setFloor( state, 1 );
+                expect( state.building.floor ).toEqual( 1 );
+            });
         });
 
-        it('should be able to add an effect to the game', () => {
-            const state = { effects: [{ foo: 'bar' }] };
-            mutations.addEffect( state, { baz: 'qux' });
-            expect( state.effects ).toEqual( [{ foo: 'bar' }, { baz: 'qux' }] );
-        });
+        describe('when adding time bound effects', () => {
+            it('should be able to add an effect to the game', () => {
+                const state = { effects: [{ foo: 'bar' }] };
+                mutations.addEffect( state, { baz: 'qux' });
+                expect( state.effects ).toEqual( [{ foo: 'bar' }, { baz: 'qux' }] );
+            });
 
-        it('should be able to remove an effect from the game', () => {
-            const state = { effects: [{ foo: 'bar' }, { baz: 'qux' } ]};
-            mutations.removeEffect( state, state.effects[ 0 ]);
-            expect( state.effects ).toEqual([{ baz: 'qux' }]);
+            it('should be able to remove an effect from the game', () => {
+                const state = { effects: [{ foo: 'bar' }, { baz: 'qux' } ]};
+                mutations.removeEffect( state, state.effects[ 0 ]);
+                expect( state.effects ).toEqual([{ baz: 'qux' }]);
+            });
+
+            it('should be able to remove effects of specific action types', () => {
+                const state = {
+                    effects: [
+                        { id: 1, action: 'foo' },
+                        { id: 2, action: 'bar' }, { id: 3, action: 'bar' },
+                        { id: 4, action: 'baz' },
+                        { id: 5, action: 'qux' },
+                    ]
+                };
+                mutations.removeEffectsByAction( state, [ 'bar' ]);
+                expect( state.effects ).toEqual([
+                    { id: 1, action: 'foo' },
+                    { id: 4, action: 'baz' },
+                    { id: 5, action: 'qux' }
+                ]);
+                mutations.removeEffectsByAction( state, [ 'foo', 'qux' ]);
+                expect( state.effects ).toEqual([ { id: 4, action: 'baz' } ]);
+            });
         });
     });
 
