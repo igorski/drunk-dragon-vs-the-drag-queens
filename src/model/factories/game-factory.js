@@ -49,7 +49,6 @@ export default
             modified: data.m,
             gameStart: data.gs,
             gameTime: data.gt,
-            gameActive: true,
             player: CharacterFactory.assemble( data.p ),
             world: WorldFactory.assemble( data.w, data.h ),
             building: data.b ? BuildingFactory.assemble( data.b ) : null,

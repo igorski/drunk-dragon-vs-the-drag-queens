@@ -16,6 +16,6 @@ describe('Game factory', () => {
             building: BuildingFactory.create()
         };
         const disassembled = GameFactory.disassemble( game );
-        expect( GameFactory.assemble( disassembled )).toEqual({ ...game, gameActive: true });
+        expect( GameFactory.assemble( disassembled )).toEqual( game );
     });
 });

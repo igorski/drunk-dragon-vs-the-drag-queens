@@ -8,8 +8,8 @@ export default
      * navigate through (e.g. derived Environments are the overground
      * world or buildings) an environment can also contain enemies, yikes!
      *
-     * @param {Number} x player x position
-     * @param {Number} y player y position
+     * @param {Number} x player x position within the environment
+     * @param {Number} y player y position within the environment
      * @param {Number} width total tiles this Environment occupies in its width
      * @param {Number} height total tiles this Environment occopies in its height
      * @param {Array<Object>=} enemies optional enemies in this Environment
@@ -41,7 +41,7 @@ export default
             case BUILDING_TYPE:
                 switch ( terrain ) {
                     case BUILDING_TILES.GROUND:
-                    case BUILDING_TILES.TUNNEL:
+                    case BUILDING_TILES.STAIRS:
                         return true;
 
                     default:

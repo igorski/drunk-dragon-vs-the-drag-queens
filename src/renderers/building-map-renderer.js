@@ -61,7 +61,7 @@ export default
                     color = '#AAA';
                     break;
 
-                case BUILDING_TILES.TUNNEL:
+                case BUILDING_TILES.STAIRS:
                     color = '#FF00FF';
                     tileWidth = tileHeight = 3;
                     break;

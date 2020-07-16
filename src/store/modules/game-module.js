@@ -8,6 +8,7 @@ import GameFactory           from '@/model/factories/game-factory';
 import WorldFactory          from '@/model/factories/world-factory';
 import ShopFactory           from '@/model/factories/shop-factory';
 import { renderEnvironment } from '@/services/environment-bitmap-cacher';
+import SpriteCache           from '@/utils/sprite-cache';
 import WorldCache            from '@/utils/world-cache';
 import EffectActions         from '@/model/actions/effect-actions';
 import { GAME_START_TIME, GAME_TIME_RATIO } from '@/utils/time-util';
@@ -18,7 +19,6 @@ const STORAGE_KEY = 'rpg';
 export default {
     state: {
         hash: '',
-        gameActive: false, // false == game over
         world: null,
         player: null,
         activeEnvironment: null,
@@ -32,7 +32,6 @@ export default {
         effects: [],
     },
     getters: {
-        gameActive: state => state.gameActive,
         gameTime: state => state.gameTime,
         activeEnvironment: state => state.activeEnvironment,
         shop: state => state.shop,
@@ -40,9 +39,6 @@ export default {
         hasSavedGame: state => () => !!storage.get( STORAGE_KEY ),
     },
     mutations: {
-        setGameActive( state, value ) {
-           state.gameActive = !!value;
-        },
         setHash( state, value ) {
             state.hash = value;
         },
@@ -52,7 +48,6 @@ export default {
             state.gameStart     = value.gameStart;
             state.lastSavedTime = value.lastSavedTime;
             state.gameTime      = value.gameTime;
-            state.gameActive    = !!value.gameActive;
             state.player        = value.player;
             state.building      = value.building;
             state.world         = value.world;
@@ -96,13 +91,15 @@ export default {
         },
     },
     actions: {
+        /* game management / storage */
         async createGame({ state, commit }, player = CharacterFactory.create() ) {
             const now = Date.now();
             // generate unique hash for the world
-            commit( 'setHash', MD5( now + Math.random() ));
+            const hash = MD5( now + Math.random());
+            commit( 'setHash', hash );
             // create world
             const world = WorldFactory.create();
-            WorldFactory.populate( world, state.hash, true );
+            WorldFactory.populate( world, hash, true );
             // set game data
             commit( 'setGame', {
                 created: now,
@@ -110,80 +107,13 @@ export default {
                 gameStart: now,
                 lastSavedTime: -1,
                 gameTime: new Date( GAME_START_TIME ).getTime(),
-                gameActive: true,
                 building: null,
                 player,
                 world,
             });
             commit( 'setActiveEnvironment', world );
             commit( 'setLastRender', Date.now() );
-            await renderEnvironment( state.activeEnvironment );
-        },
-        // enter given shop
-        enterShop({ state, commit }, shop ) {
-            ShopFactory.create( shop, state.player );
-            commit( 'setShop', shop );
-            commit( 'setScreen', SCREEN_SHOP );
-        },
-        // enter given building
-        async enterBuilding({ state, commit, dispatch }, building ) {
-            // generate levels, terrains and enemies inside the building
-            BuildingFactory.generateFloors( state.hash, building, state.player );
-
-            commit( 'setBuilding', building );
-
-            // enter building at the first floor
-            await dispatch( 'changeFloor', { building, floor: 0  });
-            // change music to building theme
-            dispatch( 'playSound', AudioTracks.BUILDING_THEME );
-        },
-        // change floor inside building
-        async changeFloor({ state, commit, dispatch }, { building, floor }) {
-            const maxFloors = building.floors.length;
-
-            if ( floor >= ( maxFloors - 1 )) {
-                // was final tunnel, go back up to overground
-                dispatch( 'leaveBuilding' );
-            } else {
-                // ascend/descend to requested level
-                commit( 'setFloor', floor );
-                commit( 'setActiveEnvironment', floor );
-                // render floor Bitmap
-                commit( 'setLoading', true );
-                await renderEnvironment( state.activeEnvironment );
-                commit( 'setLoading', false );
-            }
-        },
-        leaveBuilding({ state, commit, dispatch }) {
-            if ( !state.gameState ) return; // game is over
-
-            commit.setBuilding( null );
-            SpriteCache.BUILDING.src = ''; // reset building level cache
-
-            commit('setActiveEnvironment', state.world );
-            // change music to overground theme
-            dispatch( 'playSound', AudioTracks.OVERGROUND_THEME );
-        },
-        /**
-         * Hooks into the game's render loop. This updates the world environment
-         * prior to each render cycle. Given timestamp is the renderers timestamp
-         * which relative to the renderStart timestamp defines the relative time.
-         */
-        updateGame({ state, getters, commit }, timestamp ) {
-            // advance game time (values in milliseconds)
-            const delta = ( timestamp - state.lastRender ) * GAME_TIME_RATIO;
-            commit( 'advanceGameTime', delta );
-
-            const gameTimestamp = getters.gameTime;
-
-            // update the effects
-            state.effects.forEach( effect => {
-                if ( EffectActions.update( effect, gameTimestamp )) {
-                    commit( 'removeEffect', effect );
-                }
-            });
-
-            commit( 'setLastRender', timestamp );
+            await renderEnvironment( world );
         },
         async loadGame({ state, commit }) {
             const data = storage.get( STORAGE_KEY );
@@ -226,6 +156,71 @@ export default {
         },
         resetGame() {
             storage.remove( STORAGE_KEY );
-        }
+        },
+        /* navigation actions */
+        enterShop({ state, commit }, shop ) {
+            ShopFactory.generateShopItems( shop, state.player );
+            commit( 'setShop', shop );
+            commit( 'setScreen', SCREEN_SHOP );
+        },
+        async enterBuilding({ state, commit, dispatch }, building ) {
+            // generate levels, terrains and enemies inside the building
+            BuildingFactory.generateFloors( state.hash, building, state.player );
+
+            commit( 'setBuilding', building );
+
+            // enter building at the first floor
+            await dispatch( 'changeFloor', 0 );
+            // change music to building theme
+            dispatch( 'playSound', AudioTracks.BUILDING_THEME );
+        },
+        // change floor inside building
+        async changeFloor({ state, commit, dispatch }, floor ) {
+            const { floors } = state?.building;
+            const maxFloors  = floors.length;
+
+            if ( floor >= maxFloors) {
+                // was final stair (elevator), go back down to overground
+                dispatch( 'leaveBuilding' );
+            } else {
+                // ascend/descend to requested level
+                commit( 'setFloor', floor );
+                commit( 'setActiveEnvironment', floors[ floor ]);
+                // render floor Bitmap
+                commit( 'setLoading', true );
+                await renderEnvironment( state.activeEnvironment );
+                commit( 'setLoading', false );
+            }
+        },
+        leaveBuilding({ state, commit, dispatch }) {
+            commit( 'setBuilding', null );
+            SpriteCache.BUILDING.src = ''; // reset building level cache
+
+            commit('setActiveEnvironment', state.world );
+            // change music to overground theme
+            dispatch( 'playSound', AudioTracks.OVERGROUND_THEME );
+        },
+        /* game updates */
+        /**
+         * Hooks into the game's render loop. This updates the world environment
+         * prior to each render cycle. Given timestamp is the renderers timestamp
+         * which relative to the renderStart timestamp defines the relative time.
+         */
+        updateGame({ state, getters, commit }, timestamp ) {
+            // advance game time (values in milliseconds)
+            const delta = ( timestamp - state.lastRender ) * GAME_TIME_RATIO;
+            commit( 'advanceGameTime', delta );
+
+            const gameTimestamp = getters.gameTime;
+
+            // update the effects
+            state.effects.forEach( effect => {
+                if ( EffectActions.update( effect, gameTimestamp )) {
+                    commit( 'removeEffect', effect );
+                }
+            });
+
+            commit( 'setLastRender', timestamp );
+        },
     },
 };

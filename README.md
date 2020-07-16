@@ -34,8 +34,8 @@ of a Vuex state object that these should be called from a Vuex store mutation-me
  * _./config/_ generic configuration
  * _./definitions/_ enumerations for game specific actions
  * _./model/_ game actor factories and actions (e.g. game logic)
- * _./renderers/_ visualisers of game actors (either zcanvas "sprites" or Vue components)
- * _./services/_ preloading routines, etc.
+ * _./renderers/_ visualisers of game actors (either as zCanvas "sprites" or Vue components)
+ * _./services/_ preloading / caching routines, etc.
  * _./store/_ Vuex store root and sub modules
  * _./styles/_ SASS stylesheets
  * _./utils/_ common helper methods
