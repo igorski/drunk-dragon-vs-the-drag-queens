@@ -1,5 +1,5 @@
 import SpriteCache from '@/utils/sprite-cache';
-import { CAVE_TYPE, CAVE_TILES } from '@/model/factories/cave-factory';
+import { BUILDING_TYPE, BUILDING_TILES } from '@/model/factories/building-factory';
 import { WORLD_TYPE, WORLD_TILES } from '@/model/factories/world-factory';
 
 export default
@@ -46,27 +46,25 @@ export default
                     break;
             }
         }
-        else if ( environment.type === CAVE_TYPE )
-        {
-            switch ( tileType )
-            {
-                case CAVE_TILES.GROUND:
-                    return drawTile( ctx, SpriteCache.CAVE, 0, x, y );
+        else if ( environment.type === BUILDING_TYPE ) {
+            switch ( tileType ) {
+                case BUILDING_TILES.GROUND:
+                    return drawTile( ctx, SpriteCache.FLOOR, 0, x, y );
 
-                case CAVE_TILES.WALL: // wall
+                case BUILDING_TILES.WALL: // wall
                     drawAdjacentTiles( tile, tx, ty, x, y, environment, terrain, ctx  );
                     break;
 
-                case CAVE_TILES.TUNNEL: // tunnel
-                    return drawTile( ctx, SpriteCache.CAVE, 260, x, y );
+                case BUILDING_TILES.STAIRS: // stairs
+                    return drawTile( ctx, SpriteCache.FLOOR, 260, x, y );
 
                 default:
-                case CAVE_TILES.NOTHING: // nothing
+                case BUILDING_TILES.NOTHING: // nothing
                     return;
             }
         }
         else {
-            throw new Error( `unknown Environment ${environment.type}` );
+            throw new Error( `unknown Environment "${environment.type}"` );
         }
     }
 };
@@ -137,7 +135,7 @@ function getTileDescription( tx, ty, terrain, environment, blockRecursion )
     if ( equalOrPassable( environment, tile, tileLeft ) && tileAbove === tile &&
          tileRight === tile && tileAboveLeft !== tile )
     {
-        if ( tileBelow === CAVE_TILES.NOTHING )
+        if ( tileBelow === BUILDING_TILES.NOTHING )
             out.area = TOP_LEFT;
         else if ( tileBelow === tile )
             out.area = EMPTY_RIGHT;
@@ -147,7 +145,7 @@ function getTileDescription( tx, ty, terrain, environment, blockRecursion )
         return out;
     }
 
-    if ( tileLeft === tile && equalOrPassable( environment, tile, tileAbove ) && tileRight === CAVE_TILES.GROUND )
+    if ( tileLeft === tile && equalOrPassable( environment, tile, tileAbove ) && tileRight === BUILDING_TILES.GROUND )
     {
         if ( getTileDescription( tx - 1, ty, terrain, environment, true ).area === EMPTY_RIGHT )
             out.area = EMPTY_LEFT;
@@ -164,7 +162,7 @@ function getTileDescription( tx, ty, terrain, environment, blockRecursion )
         return out;
     }
 
-    if ( tileRight === tile && tileBelow === tile && tileLeft === CAVE_TILES.GROUND &&
+    if ( tileRight === tile && tileBelow === tile && tileLeft === BUILDING_TILES.GROUND &&
         equalOrPassable( environment, tile, tileAbove ))
     {
         out.area = EMPTY_BOTTOM_RIGHT;
@@ -173,25 +171,25 @@ function getTileDescription( tx, ty, terrain, environment, blockRecursion )
 
     // outer edges second
 
-    if ( tileLeft === CAVE_TILES.NOTHING && tileRight === tile && tileBelow === tile )
+    if ( tileLeft === BUILDING_TILES.NOTHING && tileRight === tile && tileBelow === tile )
     {
         out.area = BOTTOM_RIGHT;
         return out;
     }
 
-    if ( tileRight === CAVE_TILES.NOTHING && tileLeft === tile && tileBelow === tile )
+    if ( tileRight === BUILDING_TILES.NOTHING && tileLeft === tile && tileBelow === tile )
     {
         out.area = BOTTOM_LEFT;
         return out;
     }
 
-    if ( tileLeft === CAVE_TILES.NOTHING && tileRight === tile && tileAbove === tile )
+    if ( tileLeft === BUILDING_TILES.NOTHING && tileRight === tile && tileAbove === tile )
     {
         out.area = TOP_RIGHT;
         return out;
     }
 
-    if ( tileRight === CAVE_TILES.NOTHING && tileLeft === tile && tileAbove === tile )
+    if ( tileRight === BUILDING_TILES.NOTHING && tileLeft === tile && tileAbove === tile )
     {
         out.area = TOP_LEFT;
         return out;
@@ -215,7 +213,7 @@ function getTileDescription( tx, ty, terrain, environment, blockRecursion )
 
     if ( tileLeft === tile && tileRight === tile )
     {
-        if ( tileAbove === CAVE_TILES.NOTHING || tileAbove === tile )
+        if ( tileAbove === BUILDING_TILES.NOTHING || tileAbove === tile )
         {
             if ( getTileDescription( tx - 1, ty, terrain, environment, true ).area === EMPTY_RIGHT )
             {
@@ -279,7 +277,7 @@ function drawAdjacentTiles( tile, tx, ty, x, y, env, terrain, ctx )
         return;
     }
 
-    if ( env.type === CAVE_TYPE )
+    if ( env.type === BUILDING_TYPE )
     {
         // queries whether given compareTile is either
         // empty or of a type different to the current tile
@@ -289,7 +287,7 @@ function drawAdjacentTiles( tile, tx, ty, x, y, env, terrain, ctx )
             if ( !compareTile )
                 return true;
 
-            return ( compareTile.type !== CAVE_TILES.NOTHING &&
+            return ( compareTile.type !== BUILDING_TILES.NOTHING &&
                      compareTile.type !== type );
         }
 
@@ -308,7 +306,7 @@ function drawAdjacentTiles( tile, tx, ty, x, y, env, terrain, ctx )
 
         if ( area === EMPTY_LEFT )
         {
-            if ( tileRight === CAVE_TILES.WALL && tileLeft.type !== type )
+            if ( tileRight === BUILDING_TILES.WALL && tileLeft.type !== type )
                 drawTile( ctx, getSheet( env, tileLeft ), getSheetOffset( tileLeft ), x, y );
 
             else if ( inequalOrEmpty( tileLeft ))
@@ -341,8 +339,8 @@ function drawAdjacentTiles( tile, tx, ty, x, y, env, terrain, ctx )
  */
 function getSheet( environment, tileDescription )
 {
-    if ( environment.type === CAVE_TYPE ) {
-        return SpriteCache.CAVE;   // single sheet for a full cave
+    if ( environment.type === BUILDING_TYPE ) {
+        return SpriteCache.FLOOR;   // single sheet for a full floor
     }
     else if ( environment.type === WORLD_TYPE )
     {
@@ -383,12 +381,12 @@ function getSheetOffset( tileDescription )
     switch ( tileDescription.type )
     {
         case WORLD_TILES.GROUND:
-        case CAVE_TILES.GROUND:
+        case BUILDING_TILES.GROUND:
             return 0;
             break;
 
         default:
-        //case CAVE_TILES.WALL:   // wall
+        //case BUILDING_TILES.WALL:   // wall
 
             switch ( tileDescription.area )
             {
@@ -448,8 +446,8 @@ function equalOrPassable( environment, compareTile, tileToCompare ) {
     if ( environment.type === WORLD_TYPE ) {
         return tileToCompare === compareTile || [ WORLD_TILES.GROUND, WORLD_TILES.GRASS, WORLD_TILES.SAND ].includes( tileToCompare );
     }
-    else if ( environment.type === CAVE_TYPE ) {
-        return tileToCompare === compareTile || [ CAVE_TILES.GROUND, CAVE_TILES.TUNNEL ].includes( tileToCompare );
+    else if ( environment.type === BUILDING_TYPE ) {
+        return tileToCompare === compareTile || [ BUILDING_TILES.GROUND, BUILDING_TILES.STAIRS ].includes( tileToCompare );
     }
     throw new Error( `could not evaluate unknown Environment "${environment.type}"` );
 }

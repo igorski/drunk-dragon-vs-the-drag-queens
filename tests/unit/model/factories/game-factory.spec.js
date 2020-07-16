@@ -1,4 +1,4 @@
-import CaveFactory from '@/model/factories/cave-factory';
+import BuildingFactory from '@/model/factories/building-factory';
 import CharacterFactory from '@/model/factories/character-factory';
 import GameFactory from '@/model/factories/game-factory';
 import WorldFactory from '@/model/factories/world-factory';
@@ -13,7 +13,7 @@ describe('Game factory', () => {
             gameTime: Date.now() - 1000,
             player: CharacterFactory.create(),
             world: WorldFactory.create(),
-            cave: CaveFactory.create()
+            building: BuildingFactory.create()
         };
         const disassembled = GameFactory.disassemble( game );
         expect( GameFactory.assemble( disassembled )).toEqual({ ...game, gameActive: true });

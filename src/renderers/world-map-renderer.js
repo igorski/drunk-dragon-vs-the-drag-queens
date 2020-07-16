@@ -75,13 +75,13 @@ export const renderMap = ( world, magnification = 1 ) => {
 
     var dotSize = 3;
 
-    // draw caves
+    // draw buildings
 
-    for ( i = 0, l = world.caves.length; i < l; ++i ) {
-        const cave = world.caves[ i ];
+    for ( i = 0, l = world.buildings.length; i < l; ++i ) {
+        const building = world.buildings[ i ];
 
-        x = cave.x * tileWidth;
-        y = cave.y * tileHeight;
+        x = building.x * tileWidth;
+        y = building.y * tileHeight;
 
         ctx.fillStyle = 'rgba(255,0,255,1)';
         ctx.fillRect( x, y, dotSize, dotSize );

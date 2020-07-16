@@ -1,4 +1,4 @@
-import { CAVE_TYPE }  from '@/model/factories/cave-factory';
+import { BUILDING_TYPE }  from '@/model/factories/building-factory';
 import { WORLD_TYPE } from '@/model/factories/world-factory';
 
 export default {
@@ -8,7 +8,7 @@ export default {
      * @return {boolean} whether we've hit something
      */
     hitTest( environment, dispatch ) {
-        const { enemies, shops, caves, x, y } = environment;
+        const { enemies, shops, buildings, x, y } = environment;
         let hit;
 
         if ( hit = internalHitTest( x, y, enemies )) {
@@ -19,14 +19,14 @@ export default {
                 // entered shop, open the shop page
                 dispatch('enterShop', hit );
             }
-            else if ( hit = internalHitTest( x, y, caves )) {
-                // entered cave
-                dispatch('enterCave', hit );
+            else if ( hit = internalHitTest( x, y, buildings )) {
+                // entered building
+                dispatch('enterBuilding', hit );
             }
-        } else if ( environment.type === CAVE_TYPE ) {
-            const caveLevel = environment.levels[ environment.level ];
-            if ( hit = internalHitTest( x, y, caveLevel.exits )) {
-                dispatch('enterCaveTunnel', hit );
+        } else if ( environment.type === BUILDING_TYPE ) {
+            const floor = environment.floors[ environment.floor ];
+            if ( hit = internalHitTest( x, y, floor.exits )) {
+                dispatch('changeFloor', hit );
             }
         }
         return hit !== null;

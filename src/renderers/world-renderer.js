@@ -25,7 +25,6 @@ function WorldRenderer( store, width, height ) {
     commit   = store.commit;
     dispatch = store.dispatch;
 }
-
 sprite.extend( WorldRenderer );
 
 /* class properties */
@@ -33,18 +32,18 @@ sprite.extend( WorldRenderer );
 /** @protected @type {number} */ WorldRenderer.prototype.horizontalTileAmount = 10;
 /** @protected @type {number} */ WorldRenderer.prototype.verticalTileAmount   = 10;
 
-/** @protected @type {World} */  WorldRenderer.prototype._world;
-/** @protected @type {Player} */ WorldRenderer.prototype._player;
+/** @protected @type {Object} */  WorldRenderer.prototype._environment;
+/** @protected @type {Object} */ WorldRenderer.prototype._player;
 
 /* public methods */
 
 /**
- * @param {World} aWorld
- * @param {Player} aPlayer
+ * @param {Object} aWorld
+ * @param {Object} aPlayer
  */
 WorldRenderer.prototype.render = function( aWorld, aPlayer ) {
-    this._world  = aWorld;
-    this._player = aPlayer;
+    this._environment = aWorld;
+    this._player      = aPlayer;
 };
 
 /**
@@ -92,8 +91,8 @@ WorldRenderer.prototype.updateImage = function( aImage, aNewWidth, aNewHeight ) 
  * @param {number} aHeight
  */
 WorldRenderer.prototype.setTileDimensions = function( aWidth, aHeight ) {
-    this.horizontalTileAmount  = aWidth  / WorldCache.tileWidth;
-    this.verticalTileAmount = aHeight / WorldCache.tileHeight;
+    this.horizontalTileAmount = aWidth  / WorldCache.tileWidth;
+    this.verticalTileAmount   = aHeight / WorldCache.tileHeight;
 
     // ensure the hit area matches the bounding box, make up for canvas scale factor
     const { x, y } = this.canvas._scale;
@@ -107,7 +106,7 @@ WorldRenderer.prototype.setTileDimensions = function( aWidth, aHeight ) {
  * @param {number} pointerY mouse pointer coordinate
  */
 WorldRenderer.prototype.handleRelease = function( pointerX, pointerY ) {
-    const { x, y, terrain } = this._world;
+    const { x, y, terrain } = this._environment;
     const { left, top }     = this.getVisibleTiles();
 
     // determine which tile has been clicked by translating the pointer coordinate
@@ -120,7 +119,7 @@ WorldRenderer.prototype.handleRelease = function( pointerX, pointerY ) {
     tx = Math.max( 0, Math.min( tx, this.canvas.getWidth()  * this.horizontalTileAmount ));
     ty = Math.max( 0, Math.min( ty, this.canvas.getHeight() * this.verticalTileAmount ));
 
-    const indexOfTile = coordinateToIndex( tx, ty, this._world ); // translate coordinate to 1D list index
+    const indexOfTile = coordinateToIndex( tx, ty, this._environment ); // translate coordinate to 1D list index
     const targetTile  = terrain[ indexOfTile ];
 
     if ( DEBUG ) {
@@ -128,7 +127,7 @@ WorldRenderer.prototype.handleRelease = function( pointerX, pointerY ) {
     }
 
     if ( this.isValidTarget( targetTile )) {
-        this.target = findPath( this._world, Math.round( x ), Math.round( y ), tx, ty, WORLD_TILES.SAND );
+        this.target = findPath( this._environment, Math.round( x ), Math.round( y ), tx, ty, WORLD_TILES.SAND );
         dispatch( 'moveToDestination', this.target );
     }
 };
@@ -155,7 +154,7 @@ WorldRenderer.prototype.getVisibleTiles = function() {
 
     // the rectangle to draw, all relative in world coordinates (tiles)
 
-    const { x, y } = this._world;
+    const { x, y } = this._environment;
 
     const left   = x - halfHorizontalTileAmount;
     const right  = x + halfHorizontalTileAmount;
@@ -173,7 +172,7 @@ WorldRenderer.prototype.getVisibleTiles = function() {
  * @param {CanvasRenderingContext2D} aCanvasContext to draw on
  */
 WorldRenderer.prototype.draw = function( aCanvasContext ) {
-    const world      = this._world;
+    const world      = this._environment;
     const vx         = world.x;
     const vy         = world.y;
     const worldWidth = world.width, worldHeight = world.height;
@@ -189,7 +188,7 @@ WorldRenderer.prototype.draw = function( aCanvasContext ) {
     // render terrain from cache
 
     let sourceX       = left * tileWidth;
-    let sourceY       = top * tileHeight;
+    let sourceY       = top  * tileHeight;
     const canvasWidth = this.canvas.getWidth(), canvasHeight = this.canvas.getHeight();
 
     // if player is at world edge, stop scrolling terrain
@@ -210,12 +209,27 @@ WorldRenderer.prototype.draw = function( aCanvasContext ) {
                               sourceX, sourceY, canvasWidth, canvasHeight,
                               0, 0, canvasWidth, canvasHeight );
 
-    const { caves, shops, enemies } = world;
+    const { buildings, shops, enemies } = world;
 
-    renderObjects( aCanvasContext, caves, visibleTiles, 'rgba(255,0,255,1)' );
-    renderObjects( aCanvasContext, shops, visibleTiles, 'white' );
+    renderObjects( aCanvasContext, buildings, visibleTiles, 'rgba(255,0,255,1)' );
+    renderObjects( aCanvasContext, shops,     visibleTiles, 'white' );
 
-    // draw player
+    this.renderPlayer( aCanvasContext, left, top, halfHorizontalTileAmount, halfVerticalTileAmount );
+    this.renderCharacters( aCanvasContext, enemies, left, top );
+
+    // draw path when walking to waypoint
+
+    if ( DEBUG ) {
+        this.renderWaypoints( aCanvasContext, left, top, halfHorizontalTileAmount, halfVerticalTileAmount );
+    }
+};
+
+WorldRenderer.prototype.renderPlayer = function( aCanvasContext, left, top, halfHorizontalTileAmount, halfVerticalTileAmount ) {
+    const { tileWidth, tileHeight } = WorldCache;
+    const world      = this._environment;
+    const vx         = world.x;
+    const vy         = world.y;
+    const worldWidth = world.width, worldHeight = world.height;
 
     let x = ( world.x - left ) * tileWidth;
     let y = ( world.y - top  ) * tileHeight;
@@ -236,29 +250,32 @@ WorldRenderer.prototype.draw = function( aCanvasContext ) {
 
     aCanvasContext.fillStyle = 'rgba(0,0,255,.5)';
     aCanvasContext.fillRect( x, y, tileWidth, tileHeight );
+}
 
-    // draw enemies
-    // TODO: reuse renderObject below
-    for ( let i = 0, l = enemies.length; i < l; ++i ) {
-        const enemy = enemies[ i ];
+// TODO: reuse renderObjects method below (will be drawImage() based)
+WorldRenderer.prototype.renderCharacters = function( aCanvasContext, characters = [], left, top ) {
+    const { tileWidth, tileHeight } = WorldCache;
 
-        if ( enemy.x >= left && enemy.x <= right &&
-             enemy.y >= top  && enemy.y <= bottom )
+    for ( let i = 0, l = characters.length; i < l; ++i ) {
+        const character = characters[ i ];
+        if ( character.x >= left && character.x <= right &&
+             character.y >= top  && character.y <= bottom )
         {
-            x = ( enemy.x - left ) * tileWidth;
-            y = ( enemy.y - top )  * tileHeight;
+            let x = ( character.x - left ) * tileWidth;
+            let y = ( character.y - top )  * tileHeight;
 
-            x -= 5; y-= 5;  // enemy sprite is 30x30, world is 20x20...
+            x -= 5;
+            y -= 5;  // enemy sprite is 30x30, world is 20x20...
 
             aCanvasContext.drawImage( SpriteCache.DRONE, x, y, 30, 30 );
         }
     }
+}
 
-    // draw path when walking to waypoint
-
-    if ( DEBUG && Array.isArray( this.target )) {
+WorldRenderer.prototype.renderWaypoints = function( aCanvasContext, left, top, halfHorizontalTileAmount, halfVerticalTileAmount ) {
+    if (Array.isArray( this.target )) {
         aCanvasContext.fillStyle = 'red';
-
+        const { tileWidth, tileHeight } = WorldCache;
         this.target.forEach(({ x, y }) => {
             const tLeft   = (( x - left ) * tileWidth )  + halfHorizontalTileAmount;
             const tTop    = (( y - top  ) * tileHeight ) + halfVerticalTileAmount;
@@ -266,12 +283,13 @@ WorldRenderer.prototype.draw = function( aCanvasContext ) {
             aCanvasContext.fillRect( tLeft - 2, tTop - 2, 4, 4 );
         });
     }
-};
+}
 
 function renderObjects( aCanvasContext, objectList, { left, top, right, bottom }, fillStyle ) {
     const { tileWidth, tileHeight } = WorldCache;
-    aCanvasContext.fillStyle        = fillStyle;
     let targetX, targetY;
+
+    aCanvasContext.fillStyle = fillStyle;
 
     // to broaden the visible range, add one whole coordinate
     // NOTE: this is just for determining visiblity, when rendering

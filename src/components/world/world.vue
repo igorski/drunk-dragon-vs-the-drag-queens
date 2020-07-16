@@ -4,14 +4,14 @@
 
 <script>
 import { mapGetters, mapMutations, mapActions } from 'vuex';
-import { canvas }     from 'zcanvas';
-import CaveRenderer   from '@/renderers/cave-renderer';
-import WorldRenderer  from '@/renderers/world-renderer';
-import SpriteCache    from '@/utils/sprite-cache';
-import WorldCache     from '@/utils/world-cache';
-import ImageUtil      from '@/utils/image-util';
-import { CAVE_TYPE }  from '@/model/factories/cave-factory';
-import { WORLD_TYPE } from '@/model/factories/world-factory';
+import { canvas }        from 'zcanvas';
+import BuildingRenderer  from '@/renderers/building-renderer';
+import WorldRenderer     from '@/renderers/world-renderer';
+import SpriteCache       from '@/utils/sprite-cache';
+import WorldCache        from '@/utils/world-cache';
+import ImageUtil         from '@/utils/image-util';
+import { BUILDING_TYPE } from '@/model/factories/building-factory';
+import { WORLD_TYPE }    from '@/model/factories/world-factory';
 
 export default {
     data: () => ({
@@ -104,9 +104,9 @@ export default {
                 default:
                     throw new Error(`No renderer for type '${environment.type}'`);
                     break;
-                case CAVE_TYPE:
-                    this.renderer = new CaveRenderer( this.$store, 100, 100 );
-                    sprite = SpriteCache.CAVE;
+                case BUILDING_TYPE:
+                    this.renderer = new BuildingRenderer( this.$store, 100, 100 );
+                    sprite = SpriteCache.BUILDING;
                     break;
                 case WORLD_TYPE:
                     this.renderer = new WorldRenderer( this.$store, 100, 100 );

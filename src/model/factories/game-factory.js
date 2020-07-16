@@ -1,4 +1,4 @@
-import CaveFactory from './cave-factory';
+import BuildingFactory from './building-factory';
 import CharacterFactory from './character-factory';
 import WorldFactory from './world-factory';
 
@@ -20,7 +20,7 @@ export default
             gt: game.gameTime,
             p: CharacterFactory.disassemble( game.player ),
             w: WorldFactory.disassemble( game.world, game.hash ),
-            ca: game.cave ? CaveFactory.disassemble( game.cave ) : null,
+            b: game.building ? BuildingFactory.disassemble( game.building ) : null,
         };
         return window.btoa( JSON.stringify( out ));
     },
@@ -52,7 +52,7 @@ export default
             gameActive: true,
             player: CharacterFactory.assemble( data.p ),
             world: WorldFactory.assemble( data.w, data.h ),
-            cave: data.ca ? CaveFactory.assemble( data.ca ) : null,
+            building: data.b ? BuildingFactory.assemble( data.b ) : null,
         };
         return game;
     }

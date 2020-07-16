@@ -2,7 +2,7 @@ import MD5                from 'MD5';
 import HashUtil           from '@/utils/hash-util';
 import { growTerrain, getSurroundingIndices } from '@/utils/terrain-util';
 import WorldCache         from '@/utils/world-cache';
-import CaveFactory        from './cave-factory';
+import BuildingFactory    from './building-factory';
 import EnvironmentFactory from './environment-factory';
 import ShopFactory        from './shop-factory';
 
@@ -29,10 +29,10 @@ const WorldFactory =
         const size  = 8;
         const world = EnvironmentFactory.create( size / 2, size / 2, size, size );
 
-        world.type  = WORLD_TYPE;
-        world.level = 0;
-        world.caves = [];
-        world.shops = [];
+        world.type      = WORLD_TYPE;
+        world.level     = 0;
+        world.buildings = [];
+        world.shops     = [];
 
         return world;
     },
@@ -48,8 +48,6 @@ const WorldFactory =
      */
     populate( world, hash, optGenerateTerrain = true )
     {
-        let i, x, y;
-
         WorldCache.flush(); // flush all cached coordinates
 
         // calculate overworld dimensions
@@ -70,112 +68,17 @@ const WorldFactory =
 
         // generate some shops
 
-        const shops         = hash.substr( 4, 2 );
-        const amountOfShops = HashUtil.charsToNum( shops );
+        const shopHash      = hash.substr( 4, 2 );
+        const amountOfShops = HashUtil.charsToNum( shopHash );
 
-        world.shops = [];
+        world.shops = generateGroup( world, amountOfShops, ShopFactory.create, 4, .6 );
 
-        const mpi = Math.PI / 180;
-        const shopsInCircle = 4;
-        const maxDistanceFromEdge = 10;
-        let incrementRadians = ( 360 / shopsInCircle ) * mpi;
-        let radians = mpi;
-        let circleRadius = 10;
-        let circle = 0;
-        let targetX, targetY;
+        // generate some buildings
 
-        for ( i = 0; i < amountOfShops; ++i, ++circle )
-        {
-            x = world.x + Math.sin( radians ) * circleRadius;
-            y = world.y + Math.cos( radians ) * circleRadius;
+        const buildingHash      = hash.substr( 6, 8 );
+        const amountOfBuildings = HashUtil.charsToNum( buildingHash );
 
-            // keep within bounds of map
-
-            if ( x < maxDistanceFromEdge ) {
-                x = maxDistanceFromEdge;
-            }
-            else if ( x > world.width - maxDistanceFromEdge ) {
-                x = world.width - maxDistanceFromEdge;
-                circleRadius *= .6;
-            }
-
-            if ( y < maxDistanceFromEdge ) {
-                y = maxDistanceFromEdge;
-            }
-            else if ( y > world.height - maxDistanceFromEdge ) {
-                y = world.height - maxDistanceFromEdge;
-                circleRadius *= .6;
-            }
-
-            radians += incrementRadians;
-
-            targetX = Math.round( x );
-            targetY = Math.round( y );
-
-            const shop = ShopFactory.create( targetX, targetY );
-            reserveObject( targetX, targetY, shop, world );
-
-            world.shops.push( shop );
-
-            if ( circle === shopsInCircle ) {
-                circle = 0;
-                circleRadius *= 2.5;
-                incrementRadians = ( 270 / shopsInCircle ) * mpi;
-            }
-        }
-
-        // generate some caves
-
-        const caves         = hash.substr( 6, 8 );
-        const amountOfCaves = HashUtil.charsToNum( caves );
-
-        const cavesInCircle = 2;
-        circleRadius = 20;
-        incrementRadians = ( 360 / cavesInCircle ) * mpi;
-        circle = 0;
-        radians = mpi;
-
-        world.caves = [];
-
-        for ( i = 0; i < amountOfCaves; ++i, ++circle )
-        {
-            x = world.x + Math.sin( radians ) * circleRadius;
-            y = world.y + Math.cos( radians ) * circleRadius;
-
-            // keep within bounds of map
-
-            if ( x < maxDistanceFromEdge ) {
-                x = maxDistanceFromEdge;
-            }
-            else if ( x > world.width - maxDistanceFromEdge ) {
-                x = world.width - maxDistanceFromEdge;
-                circleRadius *= .33;
-            }
-
-            if ( y < maxDistanceFromEdge ) {
-                y = maxDistanceFromEdge;
-            }
-            else if ( y > world.height - maxDistanceFromEdge ) {
-                y = world.height - maxDistanceFromEdge;
-                circleRadius *= .33;
-            }
-
-            radians += incrementRadians;
-
-            targetX = Math.round( x );
-            targetY = Math.round( y );
-
-            const cave = CaveFactory.create( targetX, targetY );
-
-            reserveObject( targetX, targetY, cave, world );
-            world.caves.push( cave );
-
-            if ( circle === cavesInCircle ) {
-                circle = 0;
-                circleRadius *= 1.5;
-                incrementRadians = ( 90 / cavesInCircle ) * mpi;
-            }
-        }
+        world.buildings = generateGroup( world, amountOfBuildings, BuildingFactory.create, 2, .33 );
     },
 
     /**
@@ -417,6 +320,58 @@ function generateNumArrayFromSeed( aHash, aHashOffset, aHashEndOffset, aResultLe
 
         // catch Infinity
         out.push( Math.abs( value ) > 1 ? .95 : value );
+    }
+    return out;
+}
+
+function generateGroup( world, amountToCreate, typeFactoryCreateFn, amountInCircle = 4, radiusIncrement = .6 ) {
+    const out = [];
+    const mpi = Math.PI / 180;
+    const maxDistanceFromEdge = 10;
+    let incrementRadians      = ( 360 / amountInCircle ) * mpi;
+
+    let radians      = mpi;
+    let circleRadius = 10;
+    let circle       = 0;
+    let x, y;
+    
+    for ( let i = 0; i < amountToCreate; ++i, ++circle ) {
+        x = world.x + Math.sin( radians ) * circleRadius;
+        y = world.y + Math.cos( radians ) * circleRadius;
+
+        // keep within bounds of map
+
+        if ( x < maxDistanceFromEdge ) {
+            x = maxDistanceFromEdge;
+        }
+        else if ( x > world.width - maxDistanceFromEdge ) {
+            x = world.width - maxDistanceFromEdge;
+            circleRadius *= radiusIncrement;
+        }
+
+        if ( y < maxDistanceFromEdge ) {
+            y = maxDistanceFromEdge;
+        }
+        else if ( y > world.height - maxDistanceFromEdge ) {
+            y = world.height - maxDistanceFromEdge;
+            circleRadius *= radiusIncrement;
+        }
+
+        radians += incrementRadians;
+
+        const targetX = Math.round( x );
+        const targetY = Math.round( y );
+
+        const groupItem = typeFactoryCreateFn( targetX, targetY );
+        reserveObject( targetX, targetY, groupItem, world );
+
+        out.push( groupItem );
+
+        if ( circle === amountInCircle ) {
+            circle           = 0;
+            circleRadius    *= 2.5;
+            incrementRadians = ( 270 / amountInCircle ) * mpi;
+        }
     }
     return out;
 }

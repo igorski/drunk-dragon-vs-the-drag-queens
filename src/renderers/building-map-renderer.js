@@ -1,21 +1,21 @@
-import { CAVE_TILES } from '@/model/factories/cave-factory';
+import { BUILDING_TILES } from '@/model/factories/building-factory';
 import { createPixelCanvas } from '@/utils/canvas-util';
 
 export default
 {
     /**
-     * @param {Object} cave
+     * @param {Object} building
      * @param {number=} magnification optional magnification to grow / shrink
      *        the total map size
      *
      * @return {Image}
      */
-    render( cave, magnification = 1 ) {
+    render( building, magnification = 1 ) {
         // TODO : use magnification (scale up element in CSS)
 
-        const level = cave.levels[ cave.level ];
+        const floor = building.floors[ building.floor ];
 
-        const { width, height, terrain } = level;
+        const { width, height, terrain } = floor;
         const { cvs, ctx } = createPixelCanvas();
 
         cvs.width  = width;
@@ -49,19 +49,19 @@ export default
 
             switch ( terrain[ index ] )
             {
-                case CAVE_TILES.NOTHING:
+                case BUILDING_TILES.NOTHING:
                     continue;
                     break;
 
-                case CAVE_TILES.GROUND:
+                case BUILDING_TILES.GROUND:
                     color = '#0066FF';
                     break;
 
-                case CAVE_TILES.WALL:
+                case BUILDING_TILES.WALL:
                     color = '#AAA';
                     break;
 
-                case CAVE_TILES.TUNNEL:
+                case BUILDING_TILES.TUNNEL:
                     color = '#FF00FF';
                     tileWidth = tileHeight = 3;
                     break;
@@ -74,8 +74,11 @@ export default
 
         ctx.fillStyle = 'white';
         const dotSize = 3;
-        ctx.fillRect(( cave.x * tileWidth ) - dotSize / 2, ( cave.y * tileHeight ) - dotSize / 2, dotSize, dotSize );
-
+        ctx.fillRect(
+            ( building.x * tileWidth ) - dotSize / 2,
+            ( building.y * tileHeight ) - dotSize / 2,
+            dotSize, dotSize
+        );
         const out = new Image();
         out.src = cvs.toDataURL( 'image/png' );
 

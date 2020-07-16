@@ -1,4 +1,4 @@
-import { CAVE_TYPE, CAVE_TILES } from './cave-factory';
+import { BUILDING_TYPE, BUILDING_TILES } from './building-factory';
 import { WORLD_TYPE, WORLD_TILES } from './world-factory';
 
 export default
@@ -6,7 +6,7 @@ export default
     /**
      * an Environment describes an area the player can
      * navigate through (e.g. derived Environments are the overground
-     * world or Caves) an environment can also contain enemies, yikes!
+     * world or buildings) an environment can also contain enemies, yikes!
      *
      * @param {Number} x player x position
      * @param {Number} y player y position
@@ -38,15 +38,15 @@ export default
                 throw new Error(`Cannot determine positioning for unknown environment type "${environment.type}"`);
                 break;
 
-            case CAVE_TYPE:
+            case BUILDING_TYPE:
                 switch ( terrain ) {
-                    case CAVE_TILES.GROUND:
-                    case CAVE_TILES.TUNNEL:
+                    case BUILDING_TILES.GROUND:
+                    case BUILDING_TILES.TUNNEL:
                         return true;
 
                     default:
-                    case CAVE_TILES.NOTHING:
-                    case CAVE_TILES.WALL:
+                    case BUILDING_TILES.NOTHING:
+                    case BUILDING_TILES.WALL:
                         return false;
                 }
                 break;

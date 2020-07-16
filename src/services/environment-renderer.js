@@ -5,11 +5,16 @@ import SpriteCache            from '@/utils/sprite-cache';
 import WorldCache             from '@/utils/world-cache';
 import TerrainRenderer        from '@/renderers/terrain-renderer';
 
+import { BUILDING_TYPE } from '@/model/factories/building-factory';
+import { WORLD_TYPE }    from '@/model/factories/world-factory';
+
 export const renderEnvironment = environment =>
 {
     console.log( 'RENDER ENVIRONMENT' );
-// TODO: this is Overground only as of now, not Cave
-    const { width, height, terrain } = environment;
+
+    const { type } = environment;
+    const environmentToRender = type === BUILDING_TYPE ? environment.floors[ environment.floor ] : environment;
+    const { width, height, terrain } = environmentToRender;
 
     return new Promise(( resolve, reject ) => {
 
@@ -37,12 +42,28 @@ export const renderEnvironment = environment =>
             // store the result
             // TODO : investigate https://github.com/imaya/CanvasTool.PngEncoder for 8-bit PNG ?
 
-            SpriteCache.WORLD.src    = cvs.toDataURL( 'image/png' );
-            SpriteCache.WORLD.width  = cvs.width;
-            SpriteCache.WORLD.height = cvs.height;
+            let target;
+            switch ( environment.type ) {
+                default:
+                    throw new Error(`Unknown environment "${environment.type}"`);
+                case WORLD_TYPE:
+                    target = SpriteCache.WORLD;
+                    break;
+                case BUILDING_TYPE:
+                    target = SpriteCache.BUILDING;
+                    break;
+            }
+            target.src    = cvs.toDataURL( 'image/png' );
+            target.width  = cvs.width;
+            target.height = cvs.height;
 
-            ImageUtil.onReady( SpriteCache.WORLD, () => {
-                resolve( SpriteCache.WORLD );
+            if (target === SpriteCache.BUILDING) {
+                console.warn(environmentToRender);
+                document.body.appendChild(target); // QQQ
+            }
+
+            ImageUtil.onReady( target, () => {
+                resolve( target );
             });
         });
 
@@ -62,7 +83,7 @@ export const renderEnvironment = environment =>
             }
         }
 
-        // TODO : separate into individual tiles for mobile !!
+        // TODO : separate into individual tiles for mobile ?
 
         // here we define our own custom override of the ZThread internal execution handler to
         // render all columns of a single row, one by ony

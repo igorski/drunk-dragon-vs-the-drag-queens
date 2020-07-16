@@ -2,6 +2,7 @@ import MD5                   from 'MD5';
 import storage               from 'store/dist/store.modern';
 import Vue                   from 'vue';
 import AudioTracks           from '@/definitions/audio-tracks';
+import BuildingFactory       from '@/model/factories/building-factory';
 import CharacterFactory      from '@/model/factories/character-factory';
 import GameFactory           from '@/model/factories/game-factory';
 import WorldFactory          from '@/model/factories/world-factory';
@@ -21,7 +22,7 @@ export default {
         world: null,
         player: null,
         activeEnvironment: null,
-        cave: null,
+        building: null,
         shop: null,
         created: 0,
         modified: 0,
@@ -65,20 +66,22 @@ export default {
             state.gameTime      = value.gameTime;
             state.gameActive    = !!value.gameActive;
             state.player        = value.player;
-            state.cave          = value.cave;
+            state.building      = value.building;
             state.world         = value.world;
+        },
+        setActiveEnvironment( state, environment ) {
+            state.activeEnvironment = environment;
+            console.warn('CHANGING ENVIRONMENT RESET AI BEHAVIOUR');
         },
         setShop( state, shop ) {
             state.shop = shop;
         },
-        setActiveEnvironment( state, environment ) {
-            state.activeEnvironment = environment;
+        setBuilding( state, building ) {
+            state.building = building;
         },
-        setWorld( state, world ) {
-            state.world = world;
-        },
-        setCave( state, cave ) {
-            state.cave = cave;
+        setFloor( state, floor ) {
+            state.building.floor = floor;
+            console.warn('CHANGING FLOOR RESET AI BEHAVIOUR');
         },
         setLastRender( state, value ) {
             state.lastRender = value;
@@ -112,7 +115,7 @@ export default {
                 lastSavedTime: -1,
                 gameTime: new Date( GAME_START_TIME ).getTime(),
                 gameActive: true,
-                cave: null,
+                building: null,
                 player,
                 world,
             });
@@ -126,38 +129,38 @@ export default {
             commit( 'setShop', shop );
             commit( 'setScreen', SCREEN_SHOP );
         },
-        // enter given cave
-        enterCave({ state, commit }, cave ) {
-            // generate levels, terrains and enemies inside the cave
-            CaveFactory.generateCaveLevels( state.hash, cave, state.player );
-            commit( 'setCave', cave );
-            commit( 'setActiveEnvironment', cave );
+        // enter given building
+        async enterBuilding({ state, commit, dispatch }, building ) {
+            // generate levels, terrains and enemies inside the building
+            BuildingFactory.generateFloors( state.hash, building, state.player );
+            commit( 'setBuilding', building );
+            commit( 'setActiveEnvironment', building );
 
-            // we're entering a new cave, clear existing opponents from the cache
-            WorldCache.clearPositionsOfType( Opponent );
-
-            // enter cave at the right level
-            this.broadcast( Notifications.Game.ENTER_CAVE_LEVEL, gameModel.cave.level );
-            // change music to cave theme
-            dispatch( 'playSound', AudioTracks.CAVE_THEME );
+            // enter building at the first floor
+            await dispatch( 'changeFloor', { building, floor: 0  });
+            // change music to building theme
+            dispatch( 'playSound', AudioTracks.BUILDING_THEME );
         },
-        // descend deeper into/leave given cave
-        enterCaveTunnel({ state, dispatch }, cave ) {
-            const maxLevels = cave.levels.length;
+        // change floor inside building
+        async changeFloor({ state, commit, dispatch }, { building, floor }) {
+            const maxFloors = building.floors.length;
 
-            if ( cave.level === ( maxLevels - 1 )) {
+            if ( floor >= ( maxFloors - 1 )) {
                 // was final tunnel, go back up to overground
-                dispatch('enterOverground');
+                dispatch( 'leaveBuilding' );
             } else {
-                // descend to next level
-                this.broadcast( Notifications.Game.ENTER_CAVE_LEVEL, cave.level + 1 );
+                // ascend/descend to requested level
+                commit( 'setFloor', floor );
+                commit( 'setLoading', true );
+                await renderEnvironment( state.activeEnvironment ); // render floor
+                commit( 'setLoading', false );
             }
         },
-        enterOverground({ state, commit, dispatch }) {
+        leaveBuilding({ state, commit, dispatch }) {
             if ( !state.gameState ) return; // game is over
 
-            commit.setCave( null );
-            SpriteCache.CAVE_LEVEL.src = ''; // reset cave level cache
+            commit.setBuilding( null );
+            SpriteCache.BUILDING.src = ''; // reset building level cache
 
             commit('setActiveEnvironment', state.world );
             // change music to overground theme
