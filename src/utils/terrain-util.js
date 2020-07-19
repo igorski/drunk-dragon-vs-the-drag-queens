@@ -66,7 +66,7 @@ export const positionAtRandomFreeTileType = ( terrain, tileType ) => {
     let tries = 255, i;
 
     while ( tries-- ) {
-        i = Math.round( Math.random() * terrain.length );
+        i = Math.floor( Math.random() * terrain.length );
         while ( i-- ) {
             if ( terrain[ i ] === tileType ) {
                 return i;

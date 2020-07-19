@@ -334,7 +334,7 @@ function generateGroup( world, amountToCreate, typeFactoryCreateFn, amountInCirc
     let circleRadius = 10;
     let circle       = 0;
     let x, y;
-    
+
     for ( let i = 0; i < amountToCreate; ++i, ++circle ) {
         x = world.x + Math.sin( radians ) * circleRadius;
         y = world.y + Math.cos( radians ) * circleRadius;

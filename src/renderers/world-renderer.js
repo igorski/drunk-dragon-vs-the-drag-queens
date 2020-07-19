@@ -227,7 +227,7 @@ WorldRenderer.prototype.draw = function( aCanvasContext ) {
 */
     aCanvasContext.drawImage( SpriteCache.WORLD,
                               sourceX, sourceY, canvasWidth, canvasHeight,
-                              targeX, targetY, canvasWidth, canvasHeight );
+                              targetX, targetY, canvasWidth, canvasHeight );
 
     const { buildings, shops, enemies } = world;
 

@@ -202,137 +202,105 @@ function drawTile( aCanvasContext, aBitmap, tileSourceX, targetX, targetY )
  *
  * @return {{ type: number, area: number }}
  */
-function getTileDescription( tx, ty, terrain, environment, blockRecursion )
-{
+export function getTileDescription( tx, ty, terrain, environment, blockRecursion ) {
     const width = environment.width, maxX = width - 1, maxY = environment.height - 1;
     const tile  = terrain[ ty * width + tx ];
     const out   = { type : tile, area : FULL_SIZE };
 
-    const tileLeft       = tx > 0 ?    terrain[ ty * width + ( tx - 1 ) ] : 0;
-    const tileRight      = tx < maxX ? terrain[ ty * width + ( tx + 1 ) ] : 0;
-    const tileAbove      = ty > 0 ?    terrain[( ty - 1 ) * width + tx ]  : 0;
-    const tileBelow      = ty < maxY ? terrain[( ty + 1 ) * width + tx ]  : 0;
-    const tileAboveLeft  = tx > 0 && ty > 0    ? terrain[( ty - 1 ) * width + ( tx - 1 )] : 0;
-    const tileAboveRight = tx < maxX && ty > 0 ? terrain[( ty - 1 ) * width + ( tx + 1 )] : 0;
+    // whether there are tiles surrounding this tile
 
-    // inner corner types first
+    const hasLeft  = tx > 0;
+    const hasRight = tx < maxX;
+    const hasAbove = ty > 0;
+    const hasBelow = ty < maxY;
 
-    if ( tileLeft === tile && tileAbove === tile &&
-         equalOrPassable( environment, tile, tileRight ) && tileAboveRight !== tile )
-    {
-        if ( getTileDescription( tx - 1, ty, terrain, environment, true ).area === TOP_LEFT )
-            out.area = EMPTY_LEFT;
-        else if ( tileBelow !== tile )
-            out.area = EMPTY_TOP_LEFT;
-        else
-            out.area = EMPTY_LEFT;
+    // cache the surrounding tiles
 
-        return out;
+    const NONE = undefined;
+
+    const tileLeft       = hasLeft  ? terrain[ ty * width + ( tx - 1 ) ] : NONE;
+    const tileRight      = hasRight ? terrain[ ty * width + ( tx + 1 ) ] : NONE;
+    const tileAbove      = hasAbove ? terrain[( ty - 1 ) * width + tx ]  : NONE;
+    const tileAboveLeft  = hasAbove && hasLeft  ? terrain[( ty - 1 ) * width + ( tx - 1 )] : NONE;
+    const tileAboveRight = hasAbove && hasRight ? terrain[( ty - 1 ) * width + ( tx + 1 )] : NONE;
+    const tileBelow      = hasBelow ? terrain[( ty + 1 ) * width + tx ]  : NONE;
+    const tileBelowLeft  = hasBelow && hasLeft  ? terrain[( ty + 1 ) * width + ( tx - 1 )] : NONE;
+    const tileBelowRight = hasBelow && hasRight ? terrain[( ty + 1 ) * width + ( tx + 1 )] : NONE;
+
+    // TODO: make a generic tile index for 'nothing' (e.g. -1)
+    const empty = (ct) => environment.type === BUILDING_TYPE && ct === BUILDING_TILES.NOTHING;
+    const emptyOrUnequal = (t1, ttc) => empty( ttc ) || t1 !== ttc;
+    const emptyOrNonExisting = ct => ct === NONE || empty(ct); // non existing implies current tile is at world edge
+    const emptyOrUnequalOrNonExisting = ct => ct === NONE || emptyOrNonExisting(ct);
+
+    // when tile is between horizontally different tiles or at horizontal world ege
+
+    if ( emptyOrUnequal( tile, tileRight )) {
+        out.area = out.area === EMPTY_LEFT && !emptyOrNonExisting( tileRight ) ? EMPTY_LEFT : EMPTY_RIGHT;
     }
 
-    if ( equalOrPassable( environment, tile, tileLeft ) && tileAbove === tile &&
-         tileRight === tile && tileAboveLeft !== tile )
-    {
-        if ( tileBelow === BUILDING_TILES.NOTHING )
-            out.area = TOP_LEFT;
-        else if ( tileBelow === tile )
-            out.area = EMPTY_RIGHT;
-        else
-            out.area = EMPTY_TOP_RIGHT;
-
-        return out;
+    if ( emptyOrUnequal( tile, tileLeft )) {
+        out.area = emptyOrUnequalOrNonExisting( tileRight ) ? EMPTY_RIGHT : EMPTY_LEFT;
     }
 
-    if ( tileLeft === tile && equalOrPassable( environment, tile, tileAbove ) && tileRight === BUILDING_TILES.GROUND )
-    {
-        if ( getTileDescription( tx - 1, ty, terrain, environment, true ).area === EMPTY_RIGHT )
-            out.area = EMPTY_LEFT;
-        else if ( tileBelow === tile )
-            out.area = EMPTY_BOTTOM_LEFT;
-        else
-            out.area = EMPTY_TOP_LEFT;
+    // when tile is between vertically different tiles or at vertical world edge
 
-        return out;
+    if ( emptyOrUnequal( tile, tileBelow )) {
+        out.area = EMPTY_BOTTOM;
     }
 
-    if ( tileRight === tile && equalOrPassable( environment, tile, tileBelow ) && tileAbove === tile ) {
-        out.area = equalOrPassable( environment, tile, tileLeft ) ? EMPTY_TOP_RIGHT: TOP_RIGHT;
-        return out;
+    if ( emptyOrUnequal( tile, tileAbove )) {
+        out.area = emptyOrUnequalOrNonExisting( tileBelow ) ? EMPTY_BOTTOM : EMPTY_TOP;
     }
 
-    if ( tileRight === tile && tileBelow === tile && tileLeft === BUILDING_TILES.GROUND &&
-        equalOrPassable( environment, tile, tileAbove ))
-    {
+    // inner corners
+
+    if ( tileBelow !== tile && tileAbove === tile && tileRight === tile ) {
+        out.area = EMPTY_TOP_RIGHT;
+    } else if ( tileAbove !== tile && tileBelow === tile && tileLeft === tile ) {
+        out.area = EMPTY_BOTTOM_LEFT;
+    }
+
+    if ( tileBelow !== tile && tileAbove === tile && tileLeft === tile ) {
+        out.area = EMPTY_TOP_LEFT;
+    } else if ( tileAbove !== tile && tileBelow === tile && tileRight === tile ) {
         out.area = EMPTY_BOTTOM_RIGHT;
-        return out;
     }
 
-    // outer edges second
+    // special cases (likely adjust the terrain generator to not render walls next to each other)
 
-    if ( tileLeft === BUILDING_TILES.NOTHING && tileRight === tile && tileBelow === tile )
-    {
-        out.area = BOTTOM_RIGHT;
-        return out;
-    }
+    // targeting the large W in the following wall setup:
+    // w - - -
+    // w W w w
+    // - w - -
 
-    if ( tileRight === BUILDING_TILES.NOTHING && tileLeft === tile && tileBelow === tile )
-    {
-        out.area = BOTTOM_LEFT;
-        return out;
-    }
-
-    if ( tileLeft === BUILDING_TILES.NOTHING && tileRight === tile && tileAbove === tile )
-    {
-        out.area = TOP_RIGHT;
-        return out;
-    }
-
-    if ( tileRight === BUILDING_TILES.NOTHING && tileLeft === tile && tileAbove === tile )
-    {
-        out.area = TOP_LEFT;
-        return out;
-    }
-
-    // vertical types
-
-    if ( tileLeft !== tile && tileBelow === tile && equalOrPassable( environment, tile, tileRight ))
-    {
-        out.area = EMPTY_LEFT;
-        return out;
-    }
-
-    if ( tileRight !== tile && tileBelow === tile && equalOrPassable( environment, tile, tileLeft ))
-    {
-        out.area = EMPTY_RIGHT;
-        return out;
-    }
-
-    // horizontal types
-
-    if ( tileLeft === tile && tileRight === tile )
-    {
-        if ( tileAbove === BUILDING_TILES.NOTHING || tileAbove === tile )
-        {
-            if ( getTileDescription( tx - 1, ty, terrain, environment, true ).area === EMPTY_RIGHT )
-            {
-                if ( !blockRecursion && getTileDescription( tx + 2, ty, terrain, environment, true ).area === FULL_SIZE )
-                    out.area = BOTTOM_RIGHT;
-                else
-                    out.area = EMPTY_LEFT;
-            }
-            else
-                out.area = EMPTY_TOP;
+    if ( environment.type === BUILDING_TYPE && tile === BUILDING_TILES.WALL ) {
+        if ( tileLeft === tile && tileBelow === tile && tileRight === tile ) {
+            out.area = EMPTY_BOTTOM_LEFT;
         }
-        else if ( equalOrPassable( environment, tile, tileAbove ))
-            out.area = EMPTY_BOTTOM;
+    }
 
-        return out;
+    // outer corners
+
+    if ( emptyOrUnequalOrNonExisting( tileAbove ) && emptyOrUnequalOrNonExisting( tileLeft )) {
+        out.area = BOTTOM_RIGHT;
+    }
+
+    if ( emptyOrUnequalOrNonExisting( tileAbove ) && emptyOrUnequalOrNonExisting( tileRight )) {
+        out.area = BOTTOM_LEFT;
+    }
+
+    if ( emptyOrUnequalOrNonExisting( tileBelow ) && emptyOrUnequalOrNonExisting( tileLeft )) {
+        out.area = TOP_RIGHT;
+    }
+
+    if ( emptyOrUnequalOrNonExisting( tileBelow ) && emptyOrUnequalOrNonExisting( tileRight )) {
+        out.area = TOP_LEFT;
     }
     return out;
 }
 
-function drawAdjacentTiles( tile, tx, ty, x, y, env, terrain, ctx )
-{
+function drawAdjacentTiles( tile, tx, ty, x, y, env, terrain, ctx ) {
     const width = env.width, maxX = width - 1, maxY = env.height - 1;
     const { type, area } = tile;
 
@@ -555,16 +523,16 @@ const TILE_SIZE = 20; // size of a single tile (in pixels, tiles are squares)
 // the visible area a tile can occupy, the spritesheets
 // should store these tiles in this order
 
-const FULL_SIZE          = 0,
-      BOTTOM_RIGHT       = 1,
-      BOTTOM_LEFT        = 2,
-      TOP_RIGHT          = 3,
-      TOP_LEFT           = 4,
-      EMPTY_LEFT         = 5,
-      EMPTY_RIGHT        = 6,
-      EMPTY_TOP          = 7,
-      EMPTY_BOTTOM       = 8,
-      EMPTY_BOTTOM_RIGHT = 9,
-      EMPTY_BOTTOM_LEFT  = 10,
-      EMPTY_TOP_RIGHT    = 11,
-      EMPTY_TOP_LEFT     = 12;
+export const FULL_SIZE          = 0,
+             BOTTOM_RIGHT       = 1,
+             BOTTOM_LEFT        = 2,
+             TOP_RIGHT          = 3,
+             TOP_LEFT           = 4,
+             EMPTY_LEFT         = 5,
+             EMPTY_RIGHT        = 6,
+             EMPTY_TOP          = 7,
+             EMPTY_BOTTOM       = 8,
+             EMPTY_BOTTOM_RIGHT = 9,
+             EMPTY_BOTTOM_LEFT  = 10,
+             EMPTY_TOP_RIGHT    = 11,
+             EMPTY_TOP_LEFT     = 12;

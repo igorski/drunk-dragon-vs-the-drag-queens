@@ -17,8 +17,8 @@ export const BUILDING_TILES = {
 
 const BuildingFactory =
 {
-    create( x = 0, y = 0 ) {
-        const building = EnvironmentFactory.create( x, y );
+    create( x = 0, y = 0, width = 0, height = 0 ) {
+        const building = EnvironmentFactory.create( x, y, width, height );
 
         building.type   = BUILDING_TYPE;
         building.floor  = NaN; // the current floor within the building where the player is at
