@@ -193,8 +193,8 @@ WorldRenderer.prototype.draw = function( aCanvasContext ) {
     const world      = this._environment;
     const vx         = world.x;
     const vy         = world.y;
-    const worldWidth = world.width, worldHeight = world.height;
 
+    const { width, height }         = world;
     const { tileWidth, tileHeight } = WorldCache;
 
     const visibleTiles = this.getVisibleTiles();
@@ -207,25 +207,27 @@ WorldRenderer.prototype.draw = function( aCanvasContext ) {
 
     let sourceX       = left * tileWidth;
     let sourceY       = top  * tileHeight;
+    let targetX       = 0;
+    let targetY       = 0;
     const canvasWidth = this.canvas.getWidth(), canvasHeight = this.canvas.getHeight();
 
     // if player is at world edge, stop scrolling terrain
-
+/*
     if ( world.x <= halfHorizontalTileAmount ) {
         sourceX = 0;
-    } else if ( left > worldWidth - this.horizontalTileAmount - 1 ) {
-        sourceX = ( worldWidth - this.horizontalTileAmount ) * tileWidth;
+    } else if ( left > width - this.horizontalTileAmount - 1 ) {
+        sourceX = ( width - this.horizontalTileAmount ) * tileWidth;
     }
 
     if ( world.y <= halfVerticalTileAmount ) {
         sourceY = 0;
-    } else if ( top > worldHeight - this.verticalTileAmount - 1 ) {
-        sourceY = ( worldHeight - this.verticalTileAmount ) * tileHeight;
+    } else if ( top > height - this.verticalTileAmount - 1 ) {
+        sourceY = ( height - this.verticalTileAmount ) * tileHeight;
     }
-
+*/
     aCanvasContext.drawImage( SpriteCache.WORLD,
                               sourceX, sourceY, canvasWidth, canvasHeight,
-                              0, 0, canvasWidth, canvasHeight );
+                              targeX, targetY, canvasWidth, canvasHeight );
 
     const { buildings, shops, enemies } = world;
 
@@ -253,7 +255,7 @@ WorldRenderer.prototype.renderPlayer = function( aCanvasContext, left, top, half
     let y = ( world.y - top  ) * tileHeight;
 
     // if player is at world edge draw player out of center
-
+/*
     if ( world.x <= halfHorizontalTileAmount - 1 ) {
         x = ( world.x * tileWidth ) + vx;
     } else if ( world.x >= ( worldWidth - halfHorizontalTileAmount - 1 )) {
@@ -265,7 +267,7 @@ WorldRenderer.prototype.renderPlayer = function( aCanvasContext, left, top, half
     } else if ( world.y >= ( worldHeight - halfVerticalTileAmount - 1 )) {
         y = (( this.verticalTileAmount - ( worldHeight - world.y )) * tileHeight ) + vy;
     }
-
+*/
     aCanvasContext.fillStyle = 'rgba(0,0,255,.5)';
     aCanvasContext.fillRect( x, y, tileWidth, tileHeight );
 }

@@ -256,7 +256,7 @@ function getTileDescription( tx, ty, terrain, environment, blockRecursion )
     }
 
     if ( tileRight === tile && equalOrPassable( environment, tile, tileBelow ) && tileAbove === tile ) {
-        out.area = EMPTY_TOP_RIGHT;
+        out.area = equalOrPassable( environment, tile, tileLeft ) ? EMPTY_TOP_RIGHT: TOP_RIGHT;
         return out;
     }
 

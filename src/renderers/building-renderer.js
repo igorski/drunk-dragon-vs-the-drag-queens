@@ -51,14 +51,15 @@ BuildingRenderer.prototype.draw = function( aCanvasContext ) {
 
     // render terrain from cache
 
-    const sourceX     = ( left * tileWidth ) + vx, sourceY = ( top * tileHeight ) + vy;
+    const sourceX = left * tileWidth;
+    const sourceY = top * tileHeight;
+    const targetX = 0;
+    const targetY = 0;
     const canvasWidth = this.canvas.getWidth(), canvasHeight = this.canvas.getHeight();
-
-    // contrary to the overground, the player is always bang in the middle
 
     aCanvasContext.drawImage( SpriteCache.BUILDING,
                               sourceX, sourceY, canvasWidth, canvasHeight,
-                              0, 0, canvasWidth, canvasHeight );
+                              targetX, targetY, canvasWidth, canvasHeight );
 
     this.renderPlayer( aCanvasContext, left, top, halfHorizontalTileAmount, halfVerticalTileAmount );
     this.renderCharacters( aCanvasContext, floor.enemies, left, top );
