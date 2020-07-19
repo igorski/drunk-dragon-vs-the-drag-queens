@@ -34,6 +34,7 @@ export default {
     getters: {
         gameTime: state => state.gameTime,
         activeEnvironment: state => state.activeEnvironment,
+        floor: state => state.building?.floor ?? NaN,
         shop: state => state.shop,
         player: state => state.player,
         hasSavedGame: state => () => !!storage.get( STORAGE_KEY ),
@@ -176,7 +177,7 @@ export default {
         },
         // change floor inside building
         async changeFloor({ state, commit, dispatch }, floor ) {
-            const { floors } = state?.building;
+            const { floors } = state.building;
             const maxFloors  = floors.length;
 
             if ( floor >= maxFloors) {

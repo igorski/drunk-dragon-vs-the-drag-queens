@@ -3,11 +3,11 @@ import { WORLD_TYPE } from '@/model/factories/world-factory';
 
 export default {
     /**
+     * @param {Object} Vuex store getters and dispatch methods
      * @param {Object} environment environment to traverse
-     * @param {Function} dispatch Vuex store dispatch
      * @return {boolean} whether we've hit something
      */
-    hitTest( environment, dispatch ) {
+    hitTest({ dispatch, getters }, environment ) {
         const { enemies, shops, buildings, x, y } = environment;
         let hit;
 
@@ -25,7 +25,7 @@ export default {
             }
         } else if ( environment.type === BUILDING_TYPE ) {
             if ( hit = internalHitTest( x, y, environment.exits )) {
-                dispatch('changeFloor', hit );
+                dispatch('changeFloor', getters.floor + 1 );
             }
         }
         return hit !== null;

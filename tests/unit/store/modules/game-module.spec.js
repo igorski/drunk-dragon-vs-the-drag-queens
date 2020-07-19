@@ -44,6 +44,13 @@ describe('Vuex game module', () => {
             const state = { player: { baz: 'qux' } };
             expect( getters.player( state )).toEqual( state.player );
         });
+
+        it('should return the active floor, when in a building', () => {
+            const state = { building: null };
+            expect( getters.floor( state )).toEqual( NaN );
+            state.building = { floor: 2 };
+            expect( getters.floor( state )).toEqual( 2 );
+        });
     });
 
     describe('mutations', () => {

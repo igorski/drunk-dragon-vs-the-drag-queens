@@ -68,7 +68,7 @@ npm run test
 
 rename enemies[]
 
-Building should close in the morning!
+Buildings should close in the morning! unless you have a place to sleep
 
 Don't spawn/generate actionable object in empty tile surrounding by closed path
 
