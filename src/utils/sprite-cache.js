@@ -9,6 +9,7 @@ export default
 
     GROUND     : new Image(),
     GRASS      : new Image(),
+    ROAD       : new Image(),
     ROCK       : new Image(),
     SAND       : new Image(),
     WATER      : new Image(),

@@ -68,6 +68,10 @@ export const renderMap = ( world, magnification = 1 ) => {
             case WORLD_TILES.TREE:
                 color = '#00FF65';
                 break;
+
+            case WORLD_TILES.ROAD:
+                color = '#333';
+                break;
         }
         ctx.fillStyle = color;
         ctx.fillRect( x, y, 1, 1 );

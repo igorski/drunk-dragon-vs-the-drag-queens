@@ -27,14 +27,14 @@ export default {
     data: () => ({
         artwork: [
             {
+                title: "Roguelike Modern City pack",
+                author: "Kenney",
+                href: "https://opengameart.org/content/roguelike-modern-city-pack"
+            },
+            {
                 title: "LPC Lamp Posts Rework",
                 author: "AntumDeluge",
                 href: "https://opengameart.org/content/lpc-lamp-posts-rework"
-            },
-            {
-                title: "Sewer tileset",
-                author: "Beast",
-                href: "https://opengameart.org/content/sewer-tileset"
             },
             {
                 title: "City pixel tileset",

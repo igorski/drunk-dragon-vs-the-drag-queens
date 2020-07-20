@@ -1,3 +1,4 @@
+import { Map }            from 'rot-js';
 import MD5                from 'MD5';
 import HashUtil           from '@/utils/hash-util';
 import { growTerrain, getSurroundingIndices } from '@/utils/terrain-util';
@@ -15,9 +16,11 @@ export const WORLD_TILES = {
     GROUND   : 0,
     GRASS    : 1,
     SAND     : 2,
-    WATER    : 3,
-    MOUNTAIN : 4,
-    TREE     : 5
+    ROAD     : 3,
+    WATER    : 4,
+    MOUNTAIN : 5,
+    TREE     : 6,
+    NOTHING  : 7
 };
 
 const WorldFactory =
@@ -214,66 +217,75 @@ function checkIfFree( x, y ) {
  * @param {World} aWorld
  */
 function generateTerrain( aHash, aWorld ) {
-    const map       = []; // will hold the terrain
     const MAP_WIDTH = aWorld.width, MAP_HEIGHT = aWorld.height;
 
-    function genTerrain() {
-        let x, y, i, index;
-        for ( x = 0, y = 0; y < MAP_HEIGHT; x = ( ++x === MAP_WIDTH ? ( x % MAP_WIDTH + ( ++y & 0 )) : x )) {
-            map.push( WORLD_TILES.GROUND );
-        }
+    // first create the GROUND
 
-        function genSeed( type, size ) {
-            const WS = Math.ceil( MAP_WIDTH * MAP_HEIGHT / 1000 );
+    const map = new Array( MAP_WIDTH * MAP_HEIGHT ).fill( WORLD_TILES.GROUND );
 
-            for ( i = 0; i < WS; i++ ) {
-                x = Math.floor( Math.random() * MAP_WIDTH );
-                y = Math.floor( Math.random() * MAP_HEIGHT );
-                index = y * MAP_WIDTH + x;
-                map[ index ] = type;
+    // create some roads
+/*
+    try {
+        const roadMap = digRoads( MAP_WIDTH, MAP_HEIGHT );
+        roadMap.forEach(( tile, index ) => {
+            if ( tile !== WORLD_TILES.NOTHING ) {
+                map[ index ] = tile;
             }
-            for ( i = 0; i < size; i++ ) {
-                growTerrain( map, MAP_WIDTH, MAP_HEIGHT, type );
-            }
-        }
+        });
+    } catch {
+        // never mind...
+    }
+*/
+    let x, y, i, index;
 
-        genSeed( WORLD_TILES.WATER,    4 ); // plant water seeds (lake)
-        genSeed( WORLD_TILES.GRASS,    3 ); // plant grass seeds (park)
-        genSeed( WORLD_TILES.MOUNTAIN, 3 ); // plant rock seeds (mountain)
+    function genSeed( type, size ) {
+        const WS = Math.ceil( MAP_WIDTH * MAP_HEIGHT / 1000 );
 
-        // sandify (creates "beaches" around water)
-
-        for ( x = 0, y = 0; y < MAP_HEIGHT; x = ( ++x === MAP_WIDTH ? ( x % MAP_WIDTH + ( ++y & 0 )) : x )) {
+        for ( i = 0; i < WS; i++ ) {
+            x = Math.floor( Math.random() * MAP_WIDTH );
+            y = Math.floor( Math.random() * MAP_HEIGHT );
             index = y * MAP_WIDTH + x;
+            map[ index ] = type;
+        }
+        for ( i = 0; i < size; i++ ) {
+            growTerrain( map, MAP_WIDTH, MAP_HEIGHT, type );
+        }
+    }
 
-            if ( map[ index ] === WORLD_TILES.GROUND ) {
-                const around = getSurroundingIndices( x, y, MAP_WIDTH, MAP_HEIGHT, true );
-                for ( i = 0; i < around.length; i++ ) {
-                    if ( map[ around[ i ]] === WORLD_TILES.WATER && Math.random() > .7 ) {
-                        map[ index ] = WORLD_TILES.SAND;
-                        break;
-                    }
+    genSeed( WORLD_TILES.WATER,    4 ); // plant water seeds (lake)
+    genSeed( WORLD_TILES.GRASS,    3 ); // plant grass seeds (park)
+    genSeed( WORLD_TILES.MOUNTAIN, 3 ); // plant rock seeds (mountain)
+
+    // sandify (creates "beaches" around water)
+
+    for ( x = 0, y = 0; y < MAP_HEIGHT; x = ( ++x === MAP_WIDTH ? ( x % MAP_WIDTH + ( ++y & 0 )) : x )) {
+        index = y * MAP_WIDTH + x;
+
+        if ( map[ index ] === WORLD_TILES.GROUND ) {
+            const around = getSurroundingIndices( x, y, MAP_WIDTH, MAP_HEIGHT, true );
+            for ( i = 0; i < around.length; i++ ) {
+                if ( map[ around[ i ]] === WORLD_TILES.WATER && Math.random() > .7 ) {
+                    map[ index ] = WORLD_TILES.SAND;
+                    break;
                 }
             }
         }
-        growTerrain( map, MAP_WIDTH, MAP_HEIGHT, WORLD_TILES.SAND, 0.9 );
+    }
+    growTerrain( map, MAP_WIDTH, MAP_HEIGHT, WORLD_TILES.SAND, 0.9 );
 
-        // Plant some trees in the parks
+    // plant some trees in the parks
 
-        const TS = Math.ceil( MAP_WIDTH * MAP_HEIGHT * 0.1 );
+    const TS = Math.ceil( MAP_WIDTH * MAP_HEIGHT * 0.1 );
 
-        for ( i = 0; i < TS; i++ ) {
-            x     = Math.floor( Math.random() * MAP_WIDTH );
-            y     = Math.floor( Math.random() * MAP_HEIGHT );
-            index = y * MAP_WIDTH + x;
+    for ( i = 0; i < TS; i++ ) {
+        x     = Math.floor( Math.random() * MAP_WIDTH );
+        y     = Math.floor( Math.random() * MAP_HEIGHT );
+        index = y * MAP_WIDTH + x;
 
-            if ( map[ index ] === WORLD_TILES.GRASS ) {
-                map[ index ] = WORLD_TILES.TREE;
-            }
+        if ( map[ index ] === WORLD_TILES.GRASS ) {
+            map[ index ] = WORLD_TILES.TREE;
         }
     }
-    genTerrain(); // get crunching !
-
     aWorld.terrain = map;
 }
 
@@ -374,4 +386,55 @@ function generateGroup( world, amountToCreate, typeFactoryCreateFn, amountInCirc
         }
     }
     return out;
+}
+
+function digRoads( worldWidth, worldHeight ) {
+    const minRoadWidth  = Math.min( Math.round( Math.random() ) + 2, worldWidth );
+    const minRoadHeight = Math.min( Math.round( Math.random() ) + 2, worldHeight );
+    let maxRoadWidth    = Math.min( Math.round( Math.random() ) + 2, worldWidth  );
+    let maxRoadHeight   = Math.min( Math.round( Math.random() ) + 2, worldHeight );
+
+    // make sure the maximum dimensions exceed the minimum dimensions !
+
+    maxRoadWidth  = Math.max( minRoadWidth,  maxRoadWidth );
+    maxRoadHeight = Math.max( minRoadHeight, maxRoadHeight );
+
+    const digger = new Map.Digger( worldWidth, worldHeight, {
+        roomWidth      : [ minRoadWidth,  maxRoadWidth  ], /* room minimum and maximum width */
+        roomHeight     : [ minRoadHeight, maxRoadHeight ], /* room minimum and maximum height */
+        corridorLength : [ 5, 20 ], /* corridor minimum and maximum length */
+        dugPercentage  : 0.2, /* we stop after this percentage of floor area has been dug out */
+        timeLimit      : 1000 /* we stop after this much time has passed (msec) */
+    });
+    const map = [];
+
+    // init output terrain map
+
+    for ( let x = 0; x < worldWidth; ++x ) {
+        map[ x ] = new Array( worldHeight ).fill( WORLD_TILES.NOTHING );
+    }
+
+    // create map
+    digger.create(( x, y, tile ) => {
+        switch( tile ) {
+            case 1:
+                break;
+            case 0:
+                map[ x + 1 ][ y + 1 ] = WORLD_TILES.ROAD;
+                break;
+        }
+    });
+    const xl = map.length;
+    const yl = map[ 0 ].length;
+
+    // convert two dimensional array to one dimensional terrain map
+
+    const terrain = [];
+
+    for ( let x = 0; x < xl; ++x ) {
+        for ( let y = 0; y < yl; ++y ) {
+            terrain[ y * xl + x ] = map[ x ][ y ];
+        }
+    }
+    return terrain;
 }

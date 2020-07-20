@@ -174,8 +174,6 @@ function createFloor( width, height, terrain = [] ) {
     return out;
 };
 
-// taken from dungen https://github.com/englercj/dungen
-
 function digger( roomWidth, roomHeight, minRoomWidth, minRoomHeight, maxRoomWidth, maxRoomHeight ) {
     // do size - 1 since algorithm puts rooms up against side, and we need to create walls there later
     const digger = new Map.Digger( roomWidth - 1, roomHeight - 1, {

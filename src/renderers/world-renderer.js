@@ -32,7 +32,7 @@ function WorldRenderer( store, width, height ) {
      * @protected
      * @type {number}
      */
-    this.maxWalkableTileNum = WORLD_TILES.SAND;
+    this.maxWalkableTileNum = WORLD_TILES.ROAD;
 
     /**
      * The list of tiles in the tiles list that are valid targets
@@ -41,7 +41,7 @@ function WorldRenderer( store, width, height ) {
      * @protected
      * @type {Array<number>}
      */
-    this.validNavigationTargets = [ WORLD_TILES.GROUND, WORLD_TILES.GRASS, WORLD_TILES.SAND ];
+    this.validNavigationTargets = [ WORLD_TILES.GROUND, WORLD_TILES.GRASS, WORLD_TILES.SAND, WORLD_TILES.ROAD ];
 }
 sprite.extend( WorldRenderer );
 

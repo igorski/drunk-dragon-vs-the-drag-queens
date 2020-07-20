@@ -7,6 +7,8 @@ import WorldCache             from '@/utils/world-cache';
 import { BUILDING_TYPE, BUILDING_TILES } from '@/model/factories/building-factory';
 import { WORLD_TYPE, WORLD_TILES }       from '@/model/factories/world-factory';
 
+const NONE = undefined;
+
 /**
  * This method takes in the terrain of the given environment and renders
  * its contents onto a Bitmap image. This image is then consumed by the environment
@@ -65,12 +67,13 @@ export const renderEnvironment = environment =>
 
         // function to render the sprites onto the Canvas
 
+        const finalRenders = [];
         function render( aIteration ) {
             for ( i = aIteration, l = aIteration + 1; i < l; ++i ) { // rows
                 for ( j = rl; j < rr; ++j ) { // columns
                     x = j * tileWidth;
                     y = i * tileHeight;
-                    drawTileForSurroundings( ctx, j, i, x, y, environment, terrain );
+                    drawTileForSurroundings( ctx, j, i, x, y, environment, terrain, finalRenders );
                 }
             }
         }
@@ -90,6 +93,10 @@ export const renderEnvironment = environment =>
 
             for ( let i = 0; i < stepsPerIteration; ++i ) {
                 if ( iterations >= MAX_ITERATIONS ) {
+                    // process the finalRenders and we're done
+                    while ( finalRenders.length ) {
+                        finalRenders.shift()();
+                    }
                     return true;
                 }
                 else {
@@ -116,22 +123,22 @@ export const renderEnvironment = environment =>
  * @param {number} y targetY to draw the tile at on the ctx
  * @param {Object} environment the environment we're rendering
  * @param {Array<Number>} terrain the terrain we're drawing from
+ * @param {Array<Function>} finalRenders list of items to render last (above everything else)
  */
-function drawTileForSurroundings( ctx, tx, ty, x, y, environment, terrain )
-{
+function drawTileForSurroundings( ctx, tx, ty, x, y, environment, terrain, finalRenders ) {
     const tile     = getTileDescription( tx, ty, terrain, environment );
     const tileType = tile.type;
 
     // TODO : can we make this more generic ?
 
     if ( environment.type === WORLD_TYPE ) {
+        const SIDEWALK_TYPE = WORLD_TILES.GROUND;
         switch ( tileType ) {
             default:
-            case WORLD_TILES.GROUND:
+            case SIDEWALK_TYPE:
             case WORLD_TILES.GRASS:
-                drawTile( ctx, getSheet( environment, tile ), 0, x, y ); // the lowest tiles in World underground
-                // ctx.font = "6px Verdana";
-                //ctx.fillText( `${ty}`, x, y);
+            case WORLD_TILES.ROAD:
+                drawTile( ctx, getSheet( environment, tile ), 0, x, y );
                 break;
 
             case WORLD_TILES.SAND:
@@ -143,9 +150,32 @@ function drawTileForSurroundings( ctx, tx, ty, x, y, environment, terrain )
 
             case WORLD_TILES.TREE:
                 drawTile( ctx, SpriteCache.GRASS, 0, x, y ); // grassy underground first
-                drawTile( ctx, SpriteCache.TREE,  0, x, y ); // tree second
+                // trees goe on top of everything, render last
+                finalRenders.push(() => {
+                    drawTile( ctx, SpriteCache.TREE,  0, x, y );
+                });
                 break;
         }
+        // draw sidewalk edges when applicable (the sidewalk in the world environment gets
+        // custom treatment as it receives a tiny hint of depth
+        const {
+            tileLeft, tileRight, tileAbove, tileAboveLeft, tileAboveRight,
+            tileBelow, tileBelowLeft, tileBelowRight,
+        } = getSurroundingTiles( tileType, tx, ty, environment, terrain );
+
+        if ( tileType === SIDEWALK_TYPE ) return; // only draw when surrounding tiles are sidewalks
+        if ( tileAbove === SIDEWALK_TYPE ) {
+            let sheetX = 160;
+            if ( tileAboveRight !== SIDEWALK_TYPE ) sheetX = 180;
+            else if ( tileAboveLeft !== SIDEWALK_TYPE ) sheetX = 200;
+            drawTile( ctx, SpriteCache.GROUND, sheetX, x, y );
+        }/*
+        if ( tileBelow === SIDEWALK_TYPE ) {
+            let sheetX = 140;
+            if ( tileBelowRight !== SIDEWALK_TYPE ) sheetX = 220;
+            else if ( tileBelowLeft !== SIDEWALK_TYPE ) sheetX = 240;
+            drawTile( ctx, SpriteCache.GROUND, sheetX, x, y );
+        }*/
     }
     else if ( environment.type === BUILDING_TYPE ) {
         switch ( tileType ) {
@@ -179,14 +209,42 @@ function drawTileForSurroundings( ctx, tx, ty, x, y, environment, terrain )
  * @param {number} targetX target x-coordinate of the tile inside the given context
  * @param {number} targetY target y-coordinate of the tile inside the given context
  */
-function drawTile( aCanvasContext, aBitmap, tileSourceX, targetX, targetY )
-{
+function drawTile( aCanvasContext, aBitmap, tileSourceX, targetX, targetY ) {
     if ( tileSourceX < 0 ) {
         return;
     }
-    aCanvasContext.drawImage( aBitmap,
-                              tileSourceX, 0,   TILE_SIZE, TILE_SIZE,
+    aCanvasContext.drawImage( aBitmap, tileSourceX, 0, TILE_SIZE, TILE_SIZE,
                               targetX, targetY, TILE_SIZE, TILE_SIZE );
+}
+
+function getSurroundingTiles( tile, tx, ty, environment, terrain ) {
+    const { width, height } = environment;
+    const maxX = width - 1, maxY = environment.height - 1;
+
+    // whether there are tiles surrounding this tile
+
+    const hasLeft  = tx > 0;
+    const hasRight = tx < maxX;
+    const hasAbove = ty > 0;
+    const hasBelow = ty < maxY;
+
+    // cache the surrounding tiles
+
+    const tileLeft       = hasLeft  ? terrain[ ty * width + ( tx - 1 ) ] : NONE;
+    const tileRight      = hasRight ? terrain[ ty * width + ( tx + 1 ) ] : NONE;
+    const tileAbove      = hasAbove ? terrain[( ty - 1 ) * width + tx ]  : NONE;
+    const tileAboveLeft  = hasAbove && hasLeft  ? terrain[( ty - 1 ) * width + ( tx - 1 )] : NONE;
+    const tileAboveRight = hasAbove && hasRight ? terrain[( ty - 1 ) * width + ( tx + 1 )] : NONE;
+    const tileBelow      = hasBelow ? terrain[( ty + 1 ) * width + tx ]  : NONE;
+    const tileBelowLeft  = hasBelow && hasLeft  ? terrain[( ty + 1 ) * width + ( tx - 1 )] : NONE;
+    const tileBelowRight = hasBelow && hasRight ? terrain[( ty + 1 ) * width + ( tx + 1 )] : NONE;
+
+    return {
+        width, height, maxX, maxY,
+        hasLeft, hasRight, hasAbove, hasBelow,
+        tileLeft, tileRight, tileAbove, tileAboveLeft, tileAboveRight,
+        tileBelow, tileBelowLeft, tileBelowRight,
+    };
 }
 
 /**
@@ -203,29 +261,13 @@ function drawTile( aCanvasContext, aBitmap, tileSourceX, targetX, targetY )
  * @return {{ type: number, area: number }}
  */
 export function getTileDescription( tx, ty, terrain, environment, blockRecursion ) {
-    const width = environment.width, maxX = width - 1, maxY = environment.height - 1;
-    const tile  = terrain[ ty * width + tx ];
+    const tile  = terrain[ ty * environment.width + tx ];
     const out   = { type : tile, area : FULL_SIZE };
 
-    // whether there are tiles surrounding this tile
-
-    const hasLeft  = tx > 0;
-    const hasRight = tx < maxX;
-    const hasAbove = ty > 0;
-    const hasBelow = ty < maxY;
-
-    // cache the surrounding tiles
-
-    const NONE = undefined;
-
-    const tileLeft       = hasLeft  ? terrain[ ty * width + ( tx - 1 ) ] : NONE;
-    const tileRight      = hasRight ? terrain[ ty * width + ( tx + 1 ) ] : NONE;
-    const tileAbove      = hasAbove ? terrain[( ty - 1 ) * width + tx ]  : NONE;
-    const tileAboveLeft  = hasAbove && hasLeft  ? terrain[( ty - 1 ) * width + ( tx - 1 )] : NONE;
-    const tileAboveRight = hasAbove && hasRight ? terrain[( ty - 1 ) * width + ( tx + 1 )] : NONE;
-    const tileBelow      = hasBelow ? terrain[( ty + 1 ) * width + tx ]  : NONE;
-    const tileBelowLeft  = hasBelow && hasLeft  ? terrain[( ty + 1 ) * width + ( tx - 1 )] : NONE;
-    const tileBelowRight = hasBelow && hasRight ? terrain[( ty + 1 ) * width + ( tx + 1 )] : NONE;
+    const {
+        tileLeft, tileRight, tileAbove, tileAboveLeft, tileAboveRight,
+        tileBelow, tileBelowLeft, tileBelowRight,
+    } = getSurroundingTiles( tile, tx, ty, environment, terrain );
 
     // TODO: make a generic tile index for 'nothing' (e.g. -1)
     const empty = (ct) => environment.type === BUILDING_TYPE && ct === BUILDING_TILES.NOTHING;
@@ -301,58 +343,58 @@ export function getTileDescription( tx, ty, terrain, environment, blockRecursion
 }
 
 function drawAdjacentTiles( tile, tx, ty, x, y, env, terrain, ctx ) {
-    const width = env.width, maxX = width - 1, maxY = env.height - 1;
     const { type, area } = tile;
 
-    // get the surrounding tiles
+    const {
+        width, height, maxX, maxY,
+        hasLeft, hasRight, hasAbove, hasBelow
+    } = getSurroundingTiles( tile, tx, ty, env, terrain );
 
-    const tileLeft       = tx > 0 ?                 getTileDescription( tx - 1, ty,     terrain, env ) : 0;
-    const tileRight      = tx < maxX ?              getTileDescription( tx + 1, ty,     terrain, env ) : 0;
-    const tileAbove      = ty > 0 ?                 getTileDescription( tx,     ty - 1, terrain, env ) : 0;
-    const tileBelow      = ty < maxY ?              getTileDescription( tx,     ty + 1, terrain, env ) : 0;
-    const tileBelowLeft  = tx > 0    && ty < maxY ? getTileDescription( tx - 1, ty + 1, terrain, env ) : 0;
-    const tileBelowRight = tx < maxX && ty < maxY ? getTileDescription( tx + 1, ty + 1, terrain, env ) : 0;
+    const tileLeft       = hasLeft              ? getTileDescription( tx - 1, ty,     terrain, env ) : NONE;
+    const tileRight      = hasRight             ? getTileDescription( tx + 1, ty,     terrain, env ) : NONE;
+    const tileAbove      = hasAbove             ? getTileDescription( tx,     ty - 1, terrain, env ) : NONE;
+    const tileBelow      = hasBelow             ? getTileDescription( tx,     ty + 1, terrain, env ) : NONE;
+    const tileBelowLeft  = hasLeft  && hasBelow ? getTileDescription( tx - 1, ty + 1, terrain, env ) : NONE;
+    const tileBelowRight = hasRight && hasBelow ? getTileDescription( tx + 1, ty + 1, terrain, env ) : NONE;
 
-    if ( env.type === WORLD_TYPE )
-    {
+    if ( env.type === WORLD_TYPE ) {
         // alters the input tile t depending on its surroundings
         // it should be exchanged for a different tile
 
-        function sanitize( t )
-        {
+        function sanitize( t ) {
             // trees should act as grass when used to connect adjacent tiles
-
-            if ( t.type === WORLD_TILES.TREE )
+            if ( t.type === WORLD_TILES.TREE ) {
                 t.type = WORLD_TILES.GRASS;
-
+            }
             return t;
         }
+        // do not render non existing tiles, tiles of the same type and
+        // ground type tiles (as these are rendered in drawTileForSurroundings())
+        const forbiddenTypes = [ NONE, tile, WORLD_TILES.GROUND ];
 
-        if ( tileLeft && tileLeft.type !== type )
+        if ( !forbiddenTypes.includes( tileLeft?.type ))
             drawTile( ctx, getSheet( env, sanitize( tileLeft )), 120, x, y );
 
-        if ( tileRight && tileRight.type !== type )
+        if ( !forbiddenTypes.includes( tileRight?.type ))
             drawTile( ctx, getSheet( env, sanitize( tileRight )), 100, x, y );
 
-        if ( tileAbove && tileAbove.type !== type )
+        if ( !forbiddenTypes.includes( tileAbove?.type ))
             drawTile( ctx, getSheet( env, sanitize( tileAbove )), 160, x, y );
 
-        if ( tileBelow && tileBelow.type !== type )
+        if ( !forbiddenTypes.includes( tileBelow?.type ))
             drawTile( ctx, getSheet( env, sanitize( tileBelow )), 140, x, y );
 
         return;
     }
 
-    if ( env.type === BUILDING_TYPE )
-    {
+    if ( env.type === BUILDING_TYPE ) {
         // queries whether given compareTile is either
         // empty or of a type different to the current tile
 
-        function inequalOrEmpty( compareTile )
-        {
-            if ( !compareTile )
+        function inequalOrEmpty( compareTile ) {
+            if ( !compareTile ) {
                 return true;
-
+            }
             return ( compareTile.type !== BUILDING_TILES.NOTHING &&
                      compareTile.type !== type );
         }
@@ -370,8 +412,7 @@ function drawAdjacentTiles( tile, tx, ty, x, y, env, terrain, ctx ) {
 
         // vertical types
 
-        if ( area === EMPTY_LEFT )
-        {
+        if ( area === EMPTY_LEFT ) {
             if ( tileRight === BUILDING_TILES.WALL && tileLeft.type !== type )
                 drawTile( ctx, getSheet( env, tileLeft ), getSheetOffset( tileLeft ), x, y );
 
@@ -406,12 +447,10 @@ function drawAdjacentTiles( tile, tx, ty, x, y, env, terrain, ctx ) {
 function getSheet( environment, tileDescription )
 {
     if ( environment.type === BUILDING_TYPE ) {
-        return SpriteCache.FLOOR;   // single sheet for a full floor
+        return SpriteCache.FLOOR;   // there is only a single sheet for buildings
     }
-    else if ( environment.type === WORLD_TYPE )
-    {
-        switch ( tileDescription.type )
-        {
+    else if ( environment.type === WORLD_TYPE ) {
+        switch ( tileDescription.type ) {
             default:
             case WORLD_TILES.GROUND:
                 return SpriteCache.GROUND;
@@ -428,6 +467,9 @@ function getSheet( environment, tileDescription )
             case WORLD_TILES.MOUNTAIN:
                 return SpriteCache.ROCK;
 
+            case WORLD_TILES.ROAD:
+                return SpriteCache.ROAD;
+
             case WORLD_TILES.TREE:
                 return SpriteCache.TREE;
         }
@@ -442,10 +484,8 @@ function getSheet( environment, tileDescription )
  * @param {{ type: number, area: number }} tileDescription
  * @return {number} -1 in case tile describes no known sheet offset
  */
-function getSheetOffset( tileDescription )
-{
-    switch ( tileDescription.type )
-    {
+function getSheetOffset( tileDescription ) {
+    switch ( tileDescription.type ) {
         case WORLD_TILES.GROUND:
         case BUILDING_TILES.GROUND:
             return 0;
@@ -454,8 +494,7 @@ function getSheetOffset( tileDescription )
         default:
         //case BUILDING_TILES.WALL:   // wall
 
-            switch ( tileDescription.area )
-            {
+            switch ( tileDescription.area ) {
                 case FULL_SIZE:
                     return 0;
 
