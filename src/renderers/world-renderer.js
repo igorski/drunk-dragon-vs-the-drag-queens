@@ -249,11 +249,48 @@ WorldRenderer.prototype.draw = function( aCanvasContext ) {
     this.renderPlayer( aCanvasContext, left, top, halfHorizontalTileAmount, halfVerticalTileAmount );
     this.renderCharacters( aCanvasContext, enemies, left, top );
 
+    // transform lighting
+
+    this.applyLighting( aCanvasContext, canvasWidth, canvasHeight );
+
     // draw path when walking to waypoint
 
     if ( DEBUG ) {
         this.renderWaypoints( aCanvasContext, left, top, halfHorizontalTileAmount, halfVerticalTileAmount );
     }
+};
+
+WorldRenderer.prototype.applyLighting = function( aCanvasContext, canvasWidth, canvasHeight ) {
+    const orgComp = aCanvasContext.globalCompositeOperation;
+
+    aCanvasContext.globalAlpha = 0.8; // something between 0.3 and 0.95 as time progresses ?
+    aCanvasContext.globalCompositeOperation = "multiply";
+    aCanvasContext.fillStyle = "#262373"; // see _colors.scss
+    aCanvasContext.fillRect(0, 0, canvasWidth, canvasHeight);
+
+    aCanvasContext.globalAlpha = 1;
+    aCanvasContext.globalCompositeOperation = orgComp;
+    /*
+    // get raw pixel values
+    const imageData = aCanvasContext.getImageData( 0, 0, canvasWidth, canvasHeight );
+    const pixels    = imageData.data;
+    const factor    = 0.5;
+    // modify each pixel
+    for ( let i = 0; i < pixels.length; i += 4 ) {
+       // red is pixels[i];
+       // green is pixels[i + 1];
+       // blue is pixels[i + 2];
+       // alpha is pixels[i + 3];
+       // all values are integers between 0 and 255
+       // do with them whatever you like. Here we are reducing the color volume to 75%
+       // without affecting the alpha channel
+       pixels[ i ]     *= factor / 2; // red
+       pixels[ i + 1 ] *= factor / 2; // green
+       pixels[ i + 2 ] *= factor; // blue
+    }
+    // write modified pixels back to canvas
+    aCanvasContext.putImageData( imageData, 0, 0 );
+    */
 };
 
 WorldRenderer.prototype.renderPlayer = function( aCanvasContext, left, top, halfHorizontalTileAmount, halfVerticalTileAmount ) {
