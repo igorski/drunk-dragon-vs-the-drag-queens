@@ -66,7 +66,7 @@ const BuildingFactory =
                 try {
                     return digger( floorWidth, floorHeight, minFloorWidth, minFloorHeight, maxFloorWidth, maxFloorHeight );
                 } catch {
-                    generate();
+                    return generate();
                 }
             };
             const terrain = generate();

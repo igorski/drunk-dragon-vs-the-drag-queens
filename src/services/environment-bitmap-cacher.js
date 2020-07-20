@@ -390,10 +390,9 @@ function drawAdjacentTiles( tile, tx, ty, x, y, env, terrain, ctx ) {
     if ( env.type === BUILDING_TYPE ) {
         // queries whether given compareTile is either
         // empty or of a type different to the current tile
-
         function inequalOrEmpty( compareTile ) {
             if ( !compareTile ) {
-                return true;
+                return false;
             }
             return ( compareTile.type !== BUILDING_TILES.NOTHING &&
                      compareTile.type !== type );

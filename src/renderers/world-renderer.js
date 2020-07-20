@@ -6,10 +6,12 @@ import SpriteCache from '@/utils/sprite-cache';
 import WorldCache  from '@/utils/world-cache';
 import { coordinateToIndex, indexToCoordinate } from '@/utils/terrain-util';
 import { findPath } from '@/utils/path-finder';
+import { generateBitmap } from './character-female-bitmap';
 
 let commit, dispatch; // Vuex store hooks
 
 const DEBUG = process.env.NODE_ENV !== 'production';
+const PLAYER_SIZE = 55;
 
 /**
  * @constructor
@@ -42,6 +44,12 @@ function WorldRenderer( store, width, height ) {
      * @type {Array<number>}
      */
     this.validNavigationTargets = [ WORLD_TILES.GROUND, WORLD_TILES.GRASS, WORLD_TILES.SAND, WORLD_TILES.ROAD ];
+
+    /**
+     * Bitmap that renders the player character. Will
+     * be lazily created once rendering starts.
+     */
+    this.playerBitmap = null;
 }
 sprite.extend( WorldRenderer );
 
@@ -62,6 +70,10 @@ sprite.extend( WorldRenderer );
 WorldRenderer.prototype.render = function( aWorld, aPlayer ) {
     this._environment = aWorld;
     this._player      = aPlayer;
+
+    generateBitmap( aPlayer ).then( img => {
+        this._playerBitmap = img;
+    });
 };
 
 /**
@@ -268,8 +280,15 @@ WorldRenderer.prototype.renderPlayer = function( aCanvasContext, left, top, half
         y = (( this.verticalTileAmount - ( worldHeight - world.y )) * tileHeight ) + vy;
     }
 */
-    aCanvasContext.fillStyle = 'rgba(0,0,255,.5)';
-    aCanvasContext.fillRect( x, y, tileWidth, tileHeight );
+    if ( this._playerBitmap ) {
+        const { width, height } = this._playerBitmap;
+        const xDelta = PLAYER_SIZE / 2 - tileWidth / 2;
+        const yDelta = PLAYER_SIZE / 2 - tileHeight / 2
+        aCanvasContext.drawImage( this._playerBitmap, 0, 0, width, height, x - xDelta, y - yDelta, PLAYER_SIZE, PLAYER_SIZE );
+    } else {
+        aCanvasContext.fillStyle = 'rgba(0,0,255,.5)';
+        aCanvasContext.fillRect( x, y, tileWidth, tileHeight );
+    }
 }
 
 // TODO: reuse renderObjects method below (will be drawImage() based)
