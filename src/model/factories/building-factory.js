@@ -43,7 +43,6 @@ const BuildingFactory =
 
         const maxFloor = floorAmount - 1;
         let i, floorWidth, floorHeight, minFloorWidth, minFloorHeight, maxFloorWidth, maxFloorHeight;
-        let terrain;
 
         for ( i = 0; i < floorAmount; ++i ) {
             floorWidth     = Math.round( Math.random() * 50 ) + 10;
@@ -58,11 +57,21 @@ const BuildingFactory =
             maxFloorWidth  = Math.max( minFloorWidth,  maxFloorWidth );
             maxFloorHeight = Math.max( minFloorHeight, maxFloorHeight );
 
-            try {
-                terrain = digger( floorWidth, floorHeight, minFloorWidth, minFloorHeight, maxFloorWidth, maxFloorHeight );
-            }
-            catch ( e ) {
-                console.warn(
+            // a bit bruteforce sillyness every now and then ROT fails to create a terrain, just retry
+            let tries = 10;
+            const generate = () => {
+                if ( --tries === 0 ) {
+                    return null;
+                }
+                try {
+                    return digger( floorWidth, floorHeight, minFloorWidth, minFloorHeight, maxFloorWidth, maxFloorHeight );
+                } catch {
+                    generate();
+                }
+            };
+            const terrain = generate();
+            if ( terrain === null ) {
+                console.error(
                     `BuildingFactory::ERROR "${e.message}" occurred when generating for size:
                     ${floorWidth} x ${floorHeight} with min floor size:
                     ${minFloorWidth} x ${minFloorHeight} and max floor size:
