@@ -31,6 +31,14 @@
                             ></button>
                         </li>
                         <li>
+                            <button v-t="'options'"
+                                    type="button"
+                                    :disabled="!hasActiveGame"
+                                    :title="$t('options')"
+                                    @click="openScreen('options')"
+                            ></button>
+                        </li>
+                        <li>
                             <button v-t="'importGame'"
                                     type="button"
                                     :title="$t('importGame')"
@@ -65,7 +73,7 @@
 
 <script>
 import { mapGetters, mapMutations, mapActions } from 'vuex';
-import { SCREEN_GAME, SCREEN_STATUS, SCREEN_CREDITS } from '@/definitions/screens';
+import { SCREEN_GAME, SCREEN_OPTIONS, SCREEN_STATUS, SCREEN_CREDITS } from '@/definitions/screens';
 import messages from './messages.json';
 
 export default {
@@ -104,6 +112,9 @@ export default {
             switch ( target ) {
                 default:
                     return;
+                case 'options':
+                    screen = SCREEN_OPTIONS;
+                    break;
                 case 'status':
                     screen = SCREEN_STATUS;
                     break;

@@ -1,18 +1,18 @@
-import ScriptLoader from 'promised-script-loader';
+import scriptLoader from 'promised-script-loader';
 
 const SOUNDCLOUD_SDK = 'https://connect.soundcloud.com/sdk.js';
 const SC_API_ID      = '0028757d978a9473e5310125967e7e47'; // roll your own!
 
 // automatic audio playback is blocked until a user interaction
 
-const prepare = ( commit, optCallback ) => {
+const prepare = ({ state, commit }, optCallback ) => {
     if ( !state.sdkReady ) {
         throw new Error('Soundcloud SDK not yet loaded');
     }
     const handler = () => {
         document.removeEventListener( 'keyup', handler );
         document.removeEventListener( 'click', handler );
-        SC.initialize({ client_id });
+        SC.initialize({ client_id: SC_API_ID });
 
         commit( 'setPrepared', true );
 
@@ -30,12 +30,18 @@ export default {
         playing: false,
         lastTrackId: null,
     },
+    getters: {
+        muted: state => state.muted,
+    },
     mutations: {
         setSDKReady( state, value ) {
             state.sdkReady = !!value;
         },
         setPrepared( state, value ) {
             state.prepared = !!value;
+        },
+        setMuted( state, value ) {
+            state.muted = !!value;
         },
         setPlaying( state, value ) {
             state.playing = !!value;
@@ -52,12 +58,12 @@ export default {
             try {
                 await scriptLoader([ SOUNDCLOUD_SDK ]);
                 commit( 'setSDKReady', true );
-                prepare( commit );
+                prepare({ state, commit });
             } catch {
                 // non critical, continue.
             }
         },
-        playSound({ state, commit }, trackId = null ) {
+        playSound({ state, commit, dispatch }, trackId = null ) {
             if ( state.muted || state.playing ) {
                 return;
             }
@@ -68,7 +74,7 @@ export default {
                 if ( state.lastTrackId === trackId ) {
                     return;  // already playing this tune!
                 }
-                commit( 'stop' ); // stop playing the current track (TODO : fade out?)
+                dispatch( 'stopSound' ); // stop playing the current track (TODO : fade out?)
                 commit( 'setLastTrackId', trackId );
 
                 SC.stream( `/tracks/${trackId}`, sound => {
@@ -79,7 +85,7 @@ export default {
             };
 
             if ( !state.prepared ) {
-                prepare( commit, start );
+                prepare({ state, commit }, start );
             } else {
                 start();
             }

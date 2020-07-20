@@ -47,7 +47,7 @@ import World from '@/components/world/world';
 import messages from './messages.json';
 
 import {
-    SCREEN_GAME, SCREEN_CHARACTER_CREATE, SCREEN_STATUS, SCREEN_SHOP, SCREEN_CREDITS
+    SCREEN_GAME, SCREEN_CHARACTER_CREATE, SCREEN_OPTIONS, SCREEN_STATUS, SCREEN_SHOP, SCREEN_CREDITS
 } from '@/definitions/screens';
 
 Vue.use( VueI18n );
@@ -86,6 +86,8 @@ export default {
                     return null;
                 case SCREEN_CHARACTER_CREATE:
                     return () => import('./components/character-creator/character-creator');
+                case SCREEN_OPTIONS:
+                    return () => import('./components/options/options');
                 case SCREEN_STATUS:
                     return () => import('./components/status/status');
                 case SCREEN_SHOP:
