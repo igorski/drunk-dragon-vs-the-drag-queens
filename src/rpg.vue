@@ -202,6 +202,7 @@ export default {
     }
     .game-renderer {
         position: absolute;
+        cursor: pointer;
         top: 0;
         left: 0;
         z-index: $z-index-game;

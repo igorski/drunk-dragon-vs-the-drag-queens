@@ -51,8 +51,7 @@ const WorldFactory =
      * @param {boolean=} optGenerateTerrain optional, whether to generate
      *        the terrain too, defaults to true
      */
-    populate( world, hash, optGenerateTerrain = true )
-    {
+    populate( world, hash, optGenerateTerrain = true ) {
         WorldCache.flush(); // flush all cached coordinates
 
         // calculate overworld dimensions
@@ -60,10 +59,8 @@ const WorldFactory =
         world.width  =
         world.height = HashUtil.charsToNum( hash );
 
-        // center player within world
-
-        world.x = Math.round( world.width  / 2 );
-        world.y = Math.round( world.height / 2 );
+        const centerX = Math.round( world.width  / 2 );
+        const centerY = Math.round( world.height / 2 );
 
         // generate the terrain if it didn't exist yet
 
@@ -76,14 +73,19 @@ const WorldFactory =
         const shopHash      = hash.substr( 4, 2 );
         const amountOfShops = HashUtil.charsToNum( shopHash );
 
-        world.shops = generateGroup( world, amountOfShops, ShopFactory.create, 4, .6 );
+        world.shops = generateGroup( centerX, centerY, world, amountOfShops, ShopFactory.create, 4, .6 );
 
         // generate some buildings
 
         const buildingHash      = hash.substr( 6, 8 );
         const amountOfBuildings = HashUtil.charsToNum( buildingHash );
 
-        world.buildings = generateGroup( world, amountOfBuildings, BuildingFactory.create, 2, .33 );
+        world.buildings = generateGroup( centerX, centerY, world, amountOfBuildings, BuildingFactory.create, 2, .33 );
+
+        // center player within world
+        // TODO: ensure player is on a walkable tile!
+        world.x = centerX;
+        world.y = centerY;
     },
 
     /**
@@ -137,80 +139,6 @@ export default WorldFactory;
 
 /* internal methods */
 
-// convenience methods for world generation
-
-/**
- * reserve a given object obj at the given coordinate (x, y)
- * and registers it in the WorldCache at given id
- *
- * if the requested coordinate isn't free/available, this method
- * will search for the next free position as close as possible to
- * the the requested coordinate
- *
- * @param {number} x preferred x-position of obj
- * @param {number} y preferred y-position of obj
- * @param {*} obj Object with x and y properties so its
- *                position can be updated with the final result
- * @param {World} world the current world the object should fit in
- */
-function reserveObject( x, y, obj, world ) {
-    if ( !checkIfFree( x, y )) {
-        let tries = 255;        // fail-safe, let's not recursive forever
-        let found = false;
-
-        // which direction we'll try next
-
-        const left  = x > world.width  / 2;
-        const up    = y > world.height / 2;
-
-        while ( !found ) {
-            if ( left ) {
-                --x;
-            } else {
-                ++x;
-            }
-
-            if ( up ) {
-                --y;
-            } else {
-                ++y;
-            }
-
-            // keep within world bounds
-
-            x = Math.max( 0, Math.min( x, world.width ));
-            y = Math.max( 0, Math.min( y, world.height ));
-
-            if ( checkIfFree( x, y )) {
-                found = true;
-            }
-
-            // fail-safe in case we'll never find a spot... :(
-
-            if ( --tries === 0 ) {
-                found = true;
-            }
-        }
-    }
-    // reserve the Object inside the WorldCache
-    WorldCache.reserve( x, y, obj );
-
-    obj.x = x;
-    obj.y = y;
-}
-
-/**
- * check whether there is nothing occupying the given
- * coordinate in the world
- *
- * @param {number} x
- * @param {number} y
- * @return {boolean} whether the position is free
- */
-function checkIfFree( x, y ) {
-    return WorldCache.getObjectAtPosition( x, y ) === null;
-}
-
 /**
  * generate the terrain for the given world
  * blatantly stolen from code by Igor Kogan
@@ -253,9 +181,9 @@ function generateTerrain( hash, world ) {
         }
     }
 
-    genSeed( WORLD_TILES.WATER,    5 ); // plant water seeds (lake)
-    genSeed( WORLD_TILES.GRASS,    4 ); // plant grass seeds (park)
-    genSeed( WORLD_TILES.MOUNTAIN, 2 ); // plant rock seeds (mountain)
+    genSeed( WORLD_TILES.WATER,    10 ); // plant water seeds (lake)
+    genSeed( WORLD_TILES.GRASS,    7 ); // plant grass seeds (park)
+    genSeed( WORLD_TILES.MOUNTAIN, 5 ); // plant rock seeds (mountain)
 
     // sandify (creates "beaches" around water)
 
@@ -302,7 +230,7 @@ function generateTerrain( hash, world ) {
                 // if the tile was grass, just plant a tree, it probably looks cute!
                 map[ tileIndex ] = WORLD_TILES.TREE;
             } else {
-                tile = surroundingTiles.left;
+                map[ tileIndex ] = surroundingTiles.left;
             }
         }
     }
@@ -340,9 +268,9 @@ function generateNumArrayFromSeed( aHash, aHashOffset, aHashEndOffset, aResultLe
     // if the requested output Array length is larger than the hash
     // length, increase the hash by hashing the snippet
 
-    while ( hash.length < aResultLength )
+    while ( hash.length < aResultLength ) {
         hash += MD5( hash );
-
+    }
     const out = [];
 
     // generate values
@@ -356,10 +284,20 @@ function generateNumArrayFromSeed( aHash, aHashOffset, aHashEndOffset, aResultLe
     return out;
 }
 
-function generateGroup( world, amountToCreate, typeFactoryCreateFn, amountInCircle = 4, radiusIncrement = .6 ) {
+/**
+ * Generate a group of Objects of the same type, these will be laid out in a circular pattern
+ *
+ * @param {number} startX x-coordinate around which the group radius will be calculated
+ * @param {number} startY y-coordinate around which the group radius will be calculated
+ * @param {Object} world
+ * @param {number} amountToCreate
+ * @param {Function} typeFactoryCreateFn factory function to create a new instance of the type
+ * @param {number} amountInCircle the amount of Objects within a single circle radius
+ */
+function generateGroup( startX, startY, world, amountToCreate, typeFactoryCreateFn, amountInCircle = 4, radiusIncrement = .6 ) {
     const out = [];
     const mpi = Math.PI / 180;
-    const maxDistanceFromEdge = 10;
+    const maxDistanceFromEdge = 10; // in tiles
     let incrementRadians      = ( 360 / amountInCircle ) * mpi;
 
     let radians      = mpi;
@@ -368,8 +306,8 @@ function generateGroup( world, amountToCreate, typeFactoryCreateFn, amountInCirc
     let x, y;
 
     for ( let i = 0; i < amountToCreate; ++i, ++circle ) {
-        x = world.x + Math.sin( radians ) * circleRadius;
-        y = world.y + Math.cos( radians ) * circleRadius;
+        x = startX + Math.sin( radians ) * circleRadius;
+        y = startY + Math.cos( radians ) * circleRadius;
 
         // keep within bounds of map
 
@@ -408,6 +346,10 @@ function generateGroup( world, amountToCreate, typeFactoryCreateFn, amountInCirc
     return out;
 }
 
+
+/**
+ * Generate roads
+ */
 function digRoads( worldWidth, worldHeight ) {
     const minRoadWidth  = Math.min( Math.round( Math.random() ) + 2, worldWidth );
     const minRoadHeight = Math.min( Math.round( Math.random() ) + 2, worldHeight );
@@ -457,4 +399,83 @@ function digRoads( worldWidth, worldHeight ) {
         }
     }
     return terrain;
+}
+
+/**
+ * reserve a given object at the given coordinate
+ * and register it in the WorldCache at given id
+ *
+ * if the requested coordinate isn't free/available, this method
+ * will search for the next free position as close as possible to
+ * the the requested coordinate
+ *
+ * @param {number} x preferred x-position of obj
+ * @param {number} y preferred y-position of obj
+ * @param {*} obj Object with x and y properties so its
+ *                position can be updated with the final result
+ * @param {Object} world the current world the object should fit in
+ */
+function reserveObject( x, y, obj, world ) {
+    if ( !checkIfFree( x, y, world )) {
+        let tries = 255;        // fail-safe, let's not recursive forever
+        let found = false;
+
+        // which direction we'll try next
+
+        const left  = x > world.width  / 2;
+        const up    = y > world.height / 2;
+
+        while ( !found ) {
+            if ( left ) {
+                --x;
+            } else {
+                ++x;
+            }
+            if ( up ) {
+                --y;
+            } else {
+                ++y;
+            }
+            // keep within world bounds
+
+            x = Math.max( 0, Math.min( x, world.width ));
+            y = Math.max( 0, Math.min( y, world.height ));
+
+            if ( checkIfFree( x, y, world )) {
+                found = true;
+            }
+
+            // fail-safe in case we'll never find a spot... :(
+
+            if ( --tries === 0 ) {
+                found = true;
+            }
+        }
+    }
+    // reserve the Object inside the WorldCache
+    WorldCache.reserve( x, y, obj );
+
+    obj.x = x;
+    obj.y = y;
+}
+
+/**
+ * check whether there is nothing occupying the given
+ * coordinate in the world
+ *
+ * @param {number} x
+ * @param {number} y
+ * @param {Object} world
+ * @return {boolean} whether the position is free
+ */
+function checkIfFree( x, y, { width, terrain }) {
+    // check if the underlying tile type is available for Object placement
+    const tile = terrain [ coordinateToIndex( x, y, { width })];
+
+    if ( ![ WORLD_TILES.GROUND ].includes( tile )) {
+        return false;
+    }
+
+    // check if there is no other Object registered in the WorldCache at this position
+    return WorldCache.getObjectAtPosition( x, y ) === null;
 }
