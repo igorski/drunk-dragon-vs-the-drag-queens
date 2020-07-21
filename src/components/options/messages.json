@@ -2,6 +2,7 @@
     "en-US": {
         "options": "Options",
         "playSound": "Play sound",
+        "autoSave": "Auto save",
         "on": "On",
         "off": "Off"
     }

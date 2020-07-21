@@ -1,10 +1,6 @@
-import Vue    from 'vue';
-import Vuex   from 'vuex';
 import audio  from './modules/audio-module';
 import game   from './modules/game-module';
 import player from './modules/player-module';
-
-Vue.use( Vuex );
 
 // here we cheat a little by exposing the vue-i18n translations directly to the
 // store so we can commit translated error/success messages from actions
@@ -15,7 +11,11 @@ const translate = (key, optArgs) => i18n && typeof i18n.t === 'function' ? i18n.
 // internal timers
 let _saveTimer;
 
-export default new Vuex.Store({
+/**
+ * The root Vuex store is used to manage "system"-wide states.
+ * The individual game sections are separated into sub modules.
+ */
+export default {
     modules: {
         audio,
         game,
@@ -46,14 +46,7 @@ export default new Vuex.Store({
             state.screen = value;
         },
         setAutoSave( state, value ) {
-            window.clearInterval( _saveTimer );
             state.autoSave = !!value;
-            if ( state.autoSave ) {
-                _saveTimer = window.setInterval(() => {
-                  throw new Error('TODO make work');
-                    this.broadcast( Notifications.Storage.SAVE_GAME );
-                }, 3 * 60 * 1000 );
-            }
         },
         /**
          * open a dialog window showing given title and message.
@@ -84,5 +77,14 @@ export default new Vuex.Store({
         },
     },
     actions: {
-    },
-});
+        enableAutoSave({ commit, dispatch }, enabled ) {
+            window.clearInterval( _saveTimer );
+            commit( 'setAutoSave', enabled );
+            if ( enabled ) {
+                _saveTimer = window.setInterval(() => {
+                    dispatch( 'saveGame' );
+                }, 3 * 60 * 1000 );
+            }
+        },
+    }
+};
