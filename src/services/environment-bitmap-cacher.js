@@ -39,7 +39,7 @@ export const renderEnvironment = environment =>
         // use zThreader and zThreads as this can be quite a heavy operation
         // investigate how we can have a canvas and images available in a Worker
 
-        zThreader.init( .65, 60 );
+        zThreader.init( .5, 60 );
 
         const thread = new zThread(() => {
             // store the result

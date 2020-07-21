@@ -48,9 +48,7 @@ export default {
             max-width: $app-width;
             max-height: 75vh;
             box-sizing: border-box;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
+            @include center(fixed);
 
             &__header {
                 padding: $spacing-medium $spacing-large;

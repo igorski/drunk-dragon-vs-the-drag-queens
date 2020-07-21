@@ -209,8 +209,9 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-    @import '@/styles/_layout';
-    @import '@/styles/forms';
+    @import '@/styles/_layout.scss';
+    @import '@/styles/forms.scss';
+    @import '@/styles/animations.scss';
 
     .character-creator {
         @include window();
@@ -236,20 +237,5 @@ export default {
                 width: 100%;
             }
         }
-    }
-
-    /* animations */
-
-    .slide-leave-active,
-    .slide-enter-active {
-        transition: 1s;
-    }
-    .slide-enter {
-        opacity: 0;
-        transform: translate(100%, 0);
-    }
-    .slide-leave-to {
-        opacity: 1;
-        transform: translate(-100%, 0);
     }
 </style>

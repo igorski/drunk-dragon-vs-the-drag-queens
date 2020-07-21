@@ -100,16 +100,10 @@ export default {
       @include overlay();
       @include noSelect();
       @include boxSize();
+      @include center(fixed);
 
       width: auto;
       height: auto;
-      left: 50%;
-      top: 50%;
-      -ms-transform: translate(-50%,-50%);
-      -moz-transform:translate(-50%,-50%);
-      -webkit-transform: translate(-50%,-50%);
-      transform: translate(-50%,-50%);
-
       padding: $spacing-small $spacing-large;
       border-radius: $spacing-small;
       box-shadow: 0 0 25px rgba(0,0,0,.5);

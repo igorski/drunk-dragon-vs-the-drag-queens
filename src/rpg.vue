@@ -1,7 +1,9 @@
 <template>
     <div class="rpg">
         <template v-if="loading">
-            Loading...
+            <transition name="fade">
+                <img src="@/assets/animations/loader.svg" class="loader" />
+            </transition>
         </template>
         <template v-else>
             <!-- application menu -->
@@ -155,9 +157,10 @@ export default {
 
 <style lang="scss">
     @import '@/styles/_variables.scss';
+    @import '@/styles/animations.scss';
 
     html, body {
-      overscroll-behavior-x: none; /* disable navigation back/forward swipe on Chrome */
+        overscroll-behavior-x: none; /* disable navigation back/forward swipe on Chrome */
     }
 
     body {
@@ -179,6 +182,9 @@ export default {
         @include mobile() {
             margin-top: $menu-height-mobile;
         }
+    }
+    .loader {
+        @include center();
     }
     .ui {
         position: absolute;
