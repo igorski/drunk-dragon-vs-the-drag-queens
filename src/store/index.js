@@ -1,6 +1,11 @@
-import audio  from './modules/audio-module';
-import game   from './modules/game-module';
-import player from './modules/player-module';
+import storage from 'store/dist/store.modern';
+import audio   from './modules/audio-module';
+import game    from './modules/game-module';
+import player  from './modules/player-module';
+
+const STORAGE_KEY = 'rpg_settings';
+
+const storedData = storage.get( STORAGE_KEY ) || {};
 
 // here we cheat a little by exposing the vue-i18n translations directly to the
 // store so we can commit translated error/success messages from actions
@@ -24,7 +29,7 @@ export default {
     state: {
         loading: true,
         lastSavedTime: 0,
-        autoSave: false,
+        autoSave: storedData.autoSave ?? false,
         dialog: null,
         notifications: [],
         screen: 0,
@@ -80,11 +85,18 @@ export default {
         enableAutoSave({ commit, dispatch }, enabled ) {
             window.clearInterval( _saveTimer );
             commit( 'setAutoSave', enabled );
+            dispatch( 'saveOptions' );
             if ( enabled ) {
                 _saveTimer = window.setInterval(() => {
                     dispatch( 'saveGame' );
                 }, 3 * 60 * 1000 );
             }
+        },
+        saveOptions({ state }) {
+            const data = {
+                autoSave: state.autoSave,
+            };
+            storage.set( STORAGE_KEY, data );
         },
     }
 };

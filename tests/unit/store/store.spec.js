@@ -101,9 +101,10 @@ describe('Vuex store', () => {
 
             actions.enableAutoSave({ commit, dispatch }, true );
             expect( commit ).toHaveBeenCalledWith( 'setAutoSave', true );
+            expect( dispatch ).toHaveBeenNthCalledWith( 1, 'saveOptions' );
 
             jest.advanceTimersByTime( 180000 );
-            expect( dispatch ).toHaveBeenCalledWith( 'saveGame' );
+            expect( dispatch ).toHaveBeenNthCalledWith( 2, 'saveGame' );
         });
     });
 });
