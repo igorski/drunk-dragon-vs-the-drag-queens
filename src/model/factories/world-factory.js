@@ -60,7 +60,7 @@ const WorldFactory =
         world.width  =
         world.height = HashUtil.charsToNum( hash );
 
-        // center player within world (overridden by restored save game)
+        // center player within world
 
         world.x = Math.round( world.width  / 2 );
         world.y = Math.round( world.height / 2 );
@@ -242,11 +242,10 @@ function generateTerrain( hash, world ) {
 
     function genSeed( type, size ) {
         const WS = Math.ceil( MAP_WIDTH * MAP_HEIGHT / 1000 );
-
         for ( i = 0; i < WS; i++ ) {
             x = Math.floor( Math.random() * MAP_WIDTH );
             y = Math.floor( Math.random() * MAP_HEIGHT );
-            index = y * MAP_WIDTH + x;
+            index = coordinateToIndex( x, y, world );
             map[ index ] = type;
         }
         for ( i = 0; i < size; i++ ) {
@@ -254,14 +253,14 @@ function generateTerrain( hash, world ) {
         }
     }
 
-    genSeed( WORLD_TILES.WATER,    4 ); // plant water seeds (lake)
-    genSeed( WORLD_TILES.GRASS,    3 ); // plant grass seeds (park)
-    genSeed( WORLD_TILES.MOUNTAIN, 3 ); // plant rock seeds (mountain)
+    genSeed( WORLD_TILES.WATER,    5 ); // plant water seeds (lake)
+    genSeed( WORLD_TILES.GRASS,    4 ); // plant grass seeds (park)
+    genSeed( WORLD_TILES.MOUNTAIN, 2 ); // plant rock seeds (mountain)
 
     // sandify (creates "beaches" around water)
 
     for ( x = 0, y = 0; y < MAP_HEIGHT; x = ( ++x === MAP_WIDTH ? ( x % MAP_WIDTH + ( ++y & 0 )) : x )) {
-        index = y * MAP_WIDTH + x;
+        const index = coordinateToIndex( x, y, world );
         if ( map[ index ] === WORLD_TILES.GROUND ) {
             const around = getSurroundingIndices( x, y, MAP_WIDTH, MAP_HEIGHT, true );
             for ( i = 0; i < around.length; i++ ) {
@@ -281,7 +280,7 @@ function generateTerrain( hash, world ) {
     for ( i = 0; i < TS; i++ ) {
         x     = Math.floor( Math.random() * MAP_WIDTH );
         y     = Math.floor( Math.random() * MAP_HEIGHT );
-        index = y * MAP_WIDTH + x;
+        index = coordinateToIndex( x, y, world );
 
         if ( map[ index ] === WORLD_TILES.GRASS ) {
             map[ index ] = WORLD_TILES.TREE;
