@@ -19,9 +19,11 @@
 
 <script>
 import { mapState, mapGetters } from 'vuex';
-import Modal         from '@/components/modal/modal';
-import { renderMap } from '@/renderers/world-map-renderer';
+import Modal from '@/components/modal/modal';
+import { BUILDING_TYPE } from '@/model/factories/building-factory';
 import { timestampToFormattedDate, timestampToTimeString } from '@/utils/time-util';
+import renderWorld from '@/renderers/world-map-renderer';
+import renderBuilding from '@/renderers/building-map-renderer';
 
 import messages from './messages.json';
 
@@ -56,8 +58,17 @@ export default {
             return timestampToTimeString( this.gameTime );
         },
     },
-    mounted() {
-        this.$refs.map.src = renderMap( this.activeEnvironment, 1.25 ).src;
+    async mounted() {
+        let renderFn;
+        switch ( this.activeEnvironment.type ) {
+            default:
+                renderFn = renderWorld;
+                break;
+            case BUILDING_TYPE:
+                renderFn = renderBuilding;
+                break;
+        }
+        this.$refs.map.src = renderFn( this.activeEnvironment, 210 ).src;
     },
 };
 </script>
@@ -71,7 +82,6 @@ export default {
 
     .map-image {
         width: 210px;
-        height: 210px;
     }
 
     @include large() {

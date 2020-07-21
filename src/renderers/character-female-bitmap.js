@@ -1,4 +1,5 @@
 import { loader } from 'zcanvas';
+import { createPixelCanvas } from '@/utils/canvas-util';
 import {
     ASSET_PATH, CHARACTER_SIZE, BODY_SIZE, BODY_PARTS, fileSuffix
 } from '@/definitions/character-female';
@@ -26,12 +27,7 @@ export const generateBitmap = async femaleCharacterToRender => {
         await loader.loadImage( itl.src, itl.img );
     }
 
-    const cvs  = document.createElement( 'canvas' );
-    cvs.width  = TARGET_SIZE;
-    cvs.height = CHARACTER_SIZE.height * scale;
-
-    const ctx  = cvs.getContext( '2d' );
-    ctx.imageSmoothingEnabled = false;
+    const { cvs, ctx } = createPixelCanvas( TARGET_SIZE, CHARACTER_SIZE.height * scale );
 
     renderBodyPart( ctx, shadows, scale, BODY_PARTS.shadows );
     renderBodyPart( ctx, nose,    scale, BODY_PARTS.nose );

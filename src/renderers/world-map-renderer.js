@@ -1,56 +1,35 @@
-import { WORLD_TILES } from '@/model/factories/world-factory';
+import { WORLD_TILES }       from '@/model/factories/world-factory';
 import { createPixelCanvas } from '@/utils/canvas-util';
+import { coordinateToIndex } from '@/utils/terrain-util';
 
 /**
- * @param {Object} world
- * @param {number=} magnification optional magnification to grow / shrink
- *        the total map size
- *
+ * @param {Object} environment (is world)
+ * @param {number} targetWidth the target width of the resulting Image
  * @return {Image}
  */
-export const renderMap = ( world, magnification = 1 ) => {
-    // TODO : use magnification (scale up element in CSS)
+export default function( environment, targetWidth ) {
+    const { width : cols, height : rows } = environment;
 
-    const { width, height } = world;
-    const { cvs, ctx } = createPixelCanvas();
+    const targetHeight = targetWidth * rows / cols;
+    const { cvs, ctx } = createPixelCanvas( targetWidth, targetHeight );
 
-    cvs.width  = width;
-    cvs.height = height;
-
-    const cols = width;
-    const rows = height;
-    const tileWidth  = Math.round( width  / cols  );
-    const tileHeight = Math.round( height / rows );
-    let i, l, x, y;
-
-    // don't render the map, for now floodfill the world with green
-    ctx.fillStyle = 'rgba(0,0,0,.5)';
-    ctx.fillRect( 0, 0, width, height );
-    // outline
-    ctx.strokeStyle = 'green';
-    ctx.beginPath();
-    ctx.moveTo( 0, 0 );
-    ctx.lineTo( width, 0 );
-    ctx.lineTo( width, height );
-    ctx.lineTo( 0, height );
-    ctx.lineTo( 0, 0 );
-    ctx.stroke();
+    const tileWidth  = Math.round( targetWidth  / cols  );
+    const tileHeight = Math.round( targetHeight / rows );
 
     // render the terrain
 
-    const SX = 2, SY = 2;
     let tx, ty;
 
-    for ( x = 0, y = 0; y < height; x = ( ++x == width ? ( x % width + ( ++y & 0 ) ) : x ) ) {
-        const index = y * width + x;
-        tx = x * SX;
-        ty = y * SY;
+    for ( let x = 0, y = 0; y < cols; x = ( ++x == rows ? ( x % rows + ( ++y & 0 ) ) : x ) ) {
+        const index = coordinateToIndex( x, y, { width: rows });
+        tx = Math.round( x * tileWidth );
+        ty = Math.round( y * tileHeight );
 
-        const color = '#F00';
+        const color = 'grey';
 
-        switch ( world.terrain[ index ] ) {
+        switch ( environment.terrain[ index ] ) {
             case WORLD_TILES.GRASS:
-                continue;
+                color = 'green';
                 break;
 
             case WORLD_TILES.WATER:
@@ -74,55 +53,39 @@ export const renderMap = ( world, magnification = 1 ) => {
                 break;
         }
         ctx.fillStyle = color;
-        ctx.fillRect( x, y, 1, 1 );
+        ctx.fillRect(
+            tx - ( Math.floor( tileWidth / 2 )),
+            ty - ( Math.floor( tileHeight / 2 )),
+            tileWidth, tileHeight
+        );
     }
 
-    var dotSize = 3;
+    const { buildings, shops } = environment;
 
-    // draw buildings
-
-    for ( i = 0, l = world.buildings.length; i < l; ++i ) {
-        const building = world.buildings[ i ];
-
-        x = building.x * tileWidth;
-        y = building.y * tileHeight;
-
-        ctx.fillStyle = 'rgba(255,0,255,1)';
-        ctx.fillRect( x, y, dotSize, dotSize );
-    }
-
-    // draw shops
-
-    for ( i = 0, l = world.shops.length; i < l; ++i ) {
-        const shop = world.shops[ i ];
-
-        x = shop.x * tileWidth;
-        y = shop.y * tileHeight;
-
-        ctx.fillStyle = 'white';
-        ctx.fillRect( x, y, dotSize, dotSize );
-    }
-
-    // draw enemies
-
-    for ( i = 0, l = world.enemies.length; i < l; ++i ) {
-        const enemy = world.enemies[ i ];
-
-        x = enemy.x * tileWidth;
-        y = enemy.y * tileHeight;
-
-        ctx.fillStyle = 'red';
-        ctx.fillRect( x, y, dotSize, dotSize );
-    }
+    drawItems( ctx, buildings, 4, tileWidth, tileHeight, 'purple' );
+    drawItems( ctx, shops,     4, tileWidth, tileHeight, 'blue' );
 
     // draw player
 
-    ctx.fillStyle = 'white';
-    dotSize = 7;
-    ctx.fillRect(( world.x * tileWidth ) - dotSize / 2, ( world.y * tileHeight ) - dotSize / 2, dotSize, dotSize );
-
+    ctx.fillStyle = '#FFF';
+    const size = 8;
+    ctx.fillRect(
+        ( environment.x * tileWidth )  - size / 2,
+        ( environment.y * tileHeight ) - size / 2,
+        size, size
+    );
     const out = new Image();
     out.src = cvs.toDataURL( 'image/png' );
 
     return out;
 };
+
+function drawItems( ctx, items, size, tileWidth, tileHeight, color ) {
+    items.forEach(({ x, y }) => {
+        const tx = x * tileWidth;
+        const ty = y * tileHeight;
+
+        ctx.fillStyle = color;
+        ctx.fillRect( tx, ty, size, size );
+    });
+}

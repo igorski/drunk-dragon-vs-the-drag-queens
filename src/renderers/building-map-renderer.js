@@ -1,87 +1,82 @@
-import { BUILDING_TILES } from '@/model/factories/building-factory';
+import { BUILDING_TILES }    from '@/model/factories/building-factory';
+import { coordinateToIndex } from '@/utils/terrain-util';
 import { createPixelCanvas } from '@/utils/canvas-util';
 
-export default
-{
-    /**
-     * @param {Object} building
-     * @param {number=} magnification optional magnification to grow / shrink
-     *        the total map size
-     *
-     * @return {Image}
-     */
-    render( building, magnification = 1 ) {
-        // TODO : use magnification (scale up element in CSS)
+/**
+ * @param {Object} environment (is building floor)
+ * @param {number} targetWidth the target width of the resulting Image
+ * @return {Image}
+ */
+export default function( environment, targetWidth ) {
+    const { width : cols, height : rows, terrain } = environment;
 
-        const floor = building.floors[ building.floor ];
+    const targetHeight = targetWidth * rows / cols;
+    const { cvs, ctx } = createPixelCanvas( targetWidth, targetHeight );
+    let x, y;
 
-        const { width, height, terrain } = floor;
-        const { cvs, ctx } = createPixelCanvas();
+    // floodfill the background with black
+    ctx.fillStyle = '#000';
+    ctx.fillRect( 0, 0, targetWidth, targetHeight );
 
-        cvs.width  = width;
-        cvs.height = height;
+    // outline
+    ctx.strokeStyle = 'green';
+    ctx.beginPath();
+    ctx.moveTo( 0, 0 );
+    ctx.lineTo( targetWidth, 0 );
+    ctx.lineTo( targetWidth, targetHeight );
+    ctx.lineTo( 0, targetHeight );
+    ctx.lineTo( 0, 0 );
+    ctx.stroke();
 
-        let x, y;
+    let tx, ty, color, tileWidth, tileHeight;
 
-        // don't render the map, for now floodfill the world with black
-        ctx.fillStyle = 'rgba(0,0,0,1)';
-        ctx.fillRect( 0, 0, width, height );
-        // outline
-        ctx.strokeStyle = 'green';
-        ctx.beginPath();
-        ctx.moveTo( 0, 0 );
-        ctx.lineTo( width, 0 );
-        ctx.lineTo( width, height );
-        ctx.lineTo( 0, height );
-        ctx.lineTo( 0, 0 );
-        ctx.stroke();
+    for ( x = 0, y = 0; y < rows; x = ( ++x == cols ? ( x % cols + ( ++y & 0 ) ) : x )) {
+        const index = coordinateToIndex( x, y, { width: cols });
 
-        const SX = 2, SY = 2;
-        let tx, ty, color, tileWidth, tileHeight;
+        tx = Math.round( x * tileWidth );
+        ty = Math.round( y * tileHeight );
 
-        for ( x = 0, y = 0; y < height; x = ( ++x == width ? ( x % width + ( ++y & 0 ) ) : x )) {
-            const index = y * width + x;
-            tx = x * SX;
-            ty = y * SY;
+        tileWidth  = Math.round( targetWidth  / cols );
+        tileHeight = Math.round( targetHeight / rows );
 
-            color = '#F00';
-            tileWidth = tileHeight = 1;
+        color = '#F00';
 
-            switch ( terrain[ index ] )
-            {
-                case BUILDING_TILES.NOTHING:
-                    continue;
-                    break;
+        switch ( terrain[ index ] ) {
+            case BUILDING_TILES.NOTHING:
+                continue;
 
-                case BUILDING_TILES.GROUND:
-                    color = '#0066FF';
-                    break;
+            case BUILDING_TILES.GROUND:
+                color = '#0066FF';
+                break;
 
-                case BUILDING_TILES.WALL:
-                    color = '#AAA';
-                    break;
+            case BUILDING_TILES.WALL:
+                color = '#AAA';
+                break;
 
-                case BUILDING_TILES.STAIRS:
-                    color = '#FF00FF';
-                    tileWidth = tileHeight = 3;
-                    break;
-            }
-            ctx.fillStyle = color;
-            ctx.fillRect( x - ( Math.floor( tileWidth / 2 )), y - ( Math.floor( tileHeight / 2 )), tileWidth, tileHeight );
+            case BUILDING_TILES.STAIRS:
+                color = '#FF00FF';
+                tileWidth = tileHeight = 4;
+                break;
         }
-
-        // draw player
-
-        ctx.fillStyle = 'white';
-        const dotSize = 3;
+        ctx.fillStyle = color;
         ctx.fillRect(
-            ( building.x * tileWidth ) - dotSize / 2,
-            ( building.y * tileHeight ) - dotSize / 2,
-            dotSize, dotSize
+            tx - ( Math.floor( tileWidth / 2 )),
+            ty - ( Math.floor( tileHeight / 2 )),
+            tileWidth, tileHeight
         );
-        const out = new Image();
-        out.src = cvs.toDataURL( 'image/png' );
-
-        return out;
     }
+
+    // draw player
+
+    ctx.fillStyle = 'white';
+    const dotSize = 4;
+    ctx.fillRect(
+        ( environment.x * tileWidth )  - dotSize / 2,
+        ( environment.y * tileHeight ) - dotSize / 2,
+        dotSize, dotSize
+    );
+    const out = new Image();
+    out.src = cvs.toDataURL( 'image/png' );
+
+    return out;
 };
