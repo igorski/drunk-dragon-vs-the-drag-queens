@@ -246,12 +246,14 @@ WorldRenderer.prototype.draw = function( aCanvasContext ) {
     renderObjects( aCanvasContext, buildings, visibleTiles, 'rgba(255,0,255,1)' );
     renderObjects( aCanvasContext, shops,     visibleTiles, 'white' );
 
-    this.renderPlayer( aCanvasContext, left, top, halfHorizontalTileAmount, halfVerticalTileAmount );
-    this.renderCharacters( aCanvasContext, enemies, left, top );
-
     // transform lighting
 
     this.applyLighting( aCanvasContext, canvasWidth, canvasHeight );
+
+    // render characters
+
+    this.renderPlayer( aCanvasContext, left, top, halfHorizontalTileAmount, halfVerticalTileAmount );
+    this.renderCharacters( aCanvasContext, enemies, left, top );
 
     // draw path when walking to waypoint
 
