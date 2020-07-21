@@ -193,11 +193,17 @@ export default {
                 commit( 'setLoading', false );
             }
         },
-        leaveBuilding({ state, commit, dispatch }) {
+        async leaveBuilding({ state, commit, dispatch }) {
             commit( 'setBuilding', null );
             SpriteCache.BUILDING.src = ''; // reset building level cache
 
-            commit('setActiveEnvironment', state.world );
+            commit( 'setActiveEnvironment', state.world );
+
+            // render world Bitmap (necessary when building was entered by loaded game)
+            commit( 'setLoading', true );
+            await renderEnvironment( state.activeEnvironment );
+            commit( 'setLoading', false );
+
             // change music to overground theme
             dispatch( 'playSound', AudioTracks.OVERGROUND_THEME );
         },
