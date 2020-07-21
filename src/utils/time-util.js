@@ -1,5 +1,5 @@
-export const GAME_START_TIME = '1986-08-29T23:00:00.000Z';
-export const GAME_TIME_RATIO = 8; // the amount of real time vs game time
+export const GAME_START_TIME = '1986-08-29T21:00:00.000Z';
+export const GAME_TIME_RATIO = 20; // how much faster the clock ticks in game time vs real time
 
 export const dateToTimeString = date => {
     // hours part from the timestamp
@@ -16,6 +16,12 @@ export const dateToTimeString = date => {
 };
 
 export const timestampToTimeString = timestamp => dateToTimeString( new Date( timestamp ));
+
+export const timestampToFormattedDate = timestamp => {
+    const dateTimeFormat = new Intl.DateTimeFormat( 'en', { year: 'numeric', month: 'short', day: '2-digit' });
+    const [{ value: month },,{ value: day },,{ value: year }] = dateTimeFormat.formatToParts( new Date( timestamp ));
+    return `${month} ${day}, ${year}`;
+};
 
 /* internal methods */
 

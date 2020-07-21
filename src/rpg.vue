@@ -8,7 +8,6 @@
             <header-menu />
             <!-- game screens -->
             <div class="ui" v-if="hasScreen">
-                <!-- <span class="time">{{ time }}</span> -->
                 <component
                     :is="activeScreen"
                     @input="handleScreenInput( $event )"
@@ -39,7 +38,6 @@ import VueI18n from 'vue-i18n';
 import VueRadioToggleButtons from 'vue-radio-toggle-buttons';
 import 'vue-radio-toggle-buttons/dist/vue-radio-toggle-buttons.css';
 import { preloadAssets } from '@/services/asset-preloader';
-import { timestampToTimeString } from '@/utils/time-util';
 import DialogWindow from '@/components/dialog-window/dialog-window';
 import HeaderMenu from '@/components/header-menu/header-menu';
 import Notifications from '@/components/notifications/notifications';
@@ -76,7 +74,6 @@ export default {
             'dialog',
         ]),
         ...mapGetters([
-            'gameTime',
             'hasSavedGame',
             'player',
         ]),
@@ -95,9 +92,6 @@ export default {
                 case SCREEN_CREDITS:
                     return () => import('./components/credits/credits');
             }
-        },
-        time() {
-            return timestampToTimeString( this.gameTime );
         },
         hasScreen() {
             return this.screen !== SCREEN_GAME;
@@ -185,9 +179,6 @@ export default {
         @include mobile() {
             margin-top: $menu-height-mobile;
         }
-    }
-    .time {
-        color: #fff;
     }
     .ui {
         position: absolute;

@@ -1,7 +1,12 @@
 <template>
     <modal :title="$t('status')" @close="$emit('close')">
         <div class="status-content">
+            <h3 v-t="'map'"></h3>
             <img ref="map" class="map-image" />
+            <h3 v-t="'time'"></h3>
+            <span class="time">{{ time }}</span>
+            <h3 v-t="'date'"></h3>
+            <span class="date">{{ date }}</span>
             <component
                 class="character-preview"
                 :is="characterComponent"
@@ -16,6 +21,7 @@
 import { mapState, mapGetters } from 'vuex';
 import Modal         from '@/components/modal/modal';
 import { renderMap } from '@/renderers/world-map-renderer';
+import { timestampToFormattedDate, timestampToTimeString } from '@/utils/time-util';
 
 import messages from './messages.json';
 
@@ -30,6 +36,7 @@ export default {
         ]),
         ...mapGetters([
             'activeEnvironment',
+            'gameTime',
             'player',
         ]),
         characterComponent() {
@@ -41,6 +48,12 @@ export default {
             const ideal = 300; /* see _variables@mobile-width */
             const { width } = this.dimensions;
             return Math.min( ideal, width * .9 );
+        },
+        date() {
+            return timestampToFormattedDate( this.gameTime );
+        },
+        time() {
+            return timestampToTimeString( this.gameTime );
         },
     },
     mounted() {

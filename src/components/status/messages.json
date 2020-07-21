@@ -1,5 +1,8 @@
 {
     "en-US": {
-        "status": "Status"
+        "status": "Status",
+        "map": "Map",
+        "time": "Time",
+        "date": "Date"
     }
 }
