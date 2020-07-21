@@ -1,11 +1,13 @@
 import { Map }            from 'rot-js';
 import MD5                from 'MD5';
 import HashUtil           from '@/utils/hash-util';
-import { growTerrain, getSurroundingIndices } from '@/utils/terrain-util';
 import WorldCache         from '@/utils/world-cache';
 import BuildingFactory    from './building-factory';
 import EnvironmentFactory from './environment-factory';
 import ShopFactory        from './shop-factory';
+import {
+    growTerrain, getSurroundingIndices, getSurroundingTiles, coordinateToIndex
+} from '@/utils/terrain-util';
 
 export const WORLD_TYPE = 'Overground';
 
@@ -210,14 +212,14 @@ function checkIfFree( x, y ) {
 }
 
 /**
- * generate the terrain for the given World aWorld
+ * generate the terrain for the given world
  * blatantly stolen from code by Igor Kogan
  *
- * @param {string} aHash
- * @param {World} aWorld
+ * @param {string} hash
+ * @param {Object} world
  */
-function generateTerrain( aHash, aWorld ) {
-    const MAP_WIDTH = aWorld.width, MAP_HEIGHT = aWorld.height;
+function generateTerrain( hash, world ) {
+    const MAP_WIDTH = world.width, MAP_HEIGHT = world.height;
 
     // first create the GROUND
 
@@ -260,7 +262,6 @@ function generateTerrain( aHash, aWorld ) {
 
     for ( x = 0, y = 0; y < MAP_HEIGHT; x = ( ++x === MAP_WIDTH ? ( x % MAP_WIDTH + ( ++y & 0 )) : x )) {
         index = y * MAP_WIDTH + x;
-
         if ( map[ index ] === WORLD_TILES.GROUND ) {
             const around = getSurroundingIndices( x, y, MAP_WIDTH, MAP_HEIGHT, true );
             for ( i = 0; i < around.length; i++ ) {
@@ -286,7 +287,27 @@ function generateTerrain( aHash, aWorld ) {
             map[ index ] = WORLD_TILES.TREE;
         }
     }
-    aWorld.terrain = map;
+
+    // now clean up possible weirdness
+
+    for ( x = 0, y = 0; y < MAP_HEIGHT; x = ( ++x === MAP_WIDTH ? ( x % MAP_WIDTH + ( ++y & 0 )) : x )) {
+        if ( x === 0 || x === MAP_WIDTH - 1 || y === 0 || y === MAP_HEIGHT - 1 ) {
+            continue; // ignore tiles at world edges
+        }
+        const tileIndex = coordinateToIndex( x, y, world );
+        const tile = map[ tileIndex ];
+        const surroundingTiles = getSurroundingTiles( x, y, world, map );
+        // get rid of tiles that are surrounded by completely different tiles
+        if ( !Object.values( surroundingTiles ).includes( tile )) {
+            if ( tile === WORLD_TILES.GRASS ) {
+                // if the tile was grass, just plant a tree, it probably looks cute!
+                map[ tileIndex ] = WORLD_TILES.TREE;
+            } else {
+                tile = surroundingTiles.left;
+            }
+        }
+    }
+    world.terrain = map;
 }
 
 /**

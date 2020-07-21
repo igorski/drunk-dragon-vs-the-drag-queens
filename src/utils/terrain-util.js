@@ -77,6 +77,21 @@ export const positionAtRandomFreeTileType = ( terrain, tileType ) => {
 };
 
 /**
+ * Retrieves all eight tiles surrounding the given coordinate
+ * TODO: there is no bounds checking here, so coordinate must not be at world edge
+ */
+export const getSurroundingTiles = ( x, y, environment, terrain ) => ({
+    above      : terrain[ coordinateToIndex( x, y - 1, environment )],
+    aboveLeft  : terrain[ coordinateToIndex( x - 1, y - 1, environment )],
+    aboveRight : terrain[ coordinateToIndex( x + 1, y - 1, environment )],
+    left       : terrain[ coordinateToIndex( x - 1, y, environment )],
+    right      : terrain[ coordinateToIndex( x + 1, y, environment )],
+    below      : terrain[ coordinateToIndex( x, y + 1, environment )],
+    belowLeft  : terrain[ coordinateToIndex( x - 1, y + 1, environment )],
+    belowRight : terrain[ coordinateToIndex( x + 1, y + 1, environment )]
+});
+
+/**
  * Translates an x/y coordinate to the corresponding index in an environments terrain list
  *
  * @param {number} x

@@ -66,30 +66,18 @@ npm run test
 ```
 ## TODO
 
-rename enemies[]
-
-Buildings should close in the morning! unless you have a place to sleep
-
-Don't spawn/generate actionable object in empty tile surrounding by closed path
-
-Make menu collapsable
-
-Keep track of important dates (Christmas, New Year)
-
-World must become lighter when morning comes
-
-Rename World to Overground (see Factories and renderers)
-Serialize Effects into saved game (subtract elapsed and set current value as start)
-
-Time should be able to speed up (when sleeping for instance)
-
-When drunk shuffle letters in sentences randomly =D
-
-Maps should only show visited tiles
-
-ShopFactory > shop items are available by player level, lower levels don't get higher items
-
-Add a timer to GameModel that runs periodic updates:
+* Rename enemies[]
+* Buildings should close in the morning! unless you have a place to sleep
+* Serialize Effects into saved game (subtract elapsed and set current value as start)
+* Don't spawn/generate actionable object in empty tile surrounded by a closed path
+* Make menu collapsable
+* World must become lighter when morning comes
+* Keep track of important dates (Christmas, New Year)
+* When a new waypoint is set and its first tile(s) is equal to the existing waypoint, keep momentum going?
+* Time should be able to speed up (when sleeping for instance)
+* When drunk shuffle letters in sentences randomly =D
+* Maps should only show visited tiles
+* Add a timer to GameModel that runs periodic updates:
 
  every now and then re-generate all enemies (if none is currently in the range of the player 20 tiles)
  if enemies share their new position with another enemy, halt movement
