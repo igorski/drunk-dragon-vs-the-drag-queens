@@ -5,7 +5,7 @@ import TerrainUtil   from '@/utils/terrain-util';
 import WorldCache    from '@/utils/world-cache';
 import SpriteCache   from '@/utils/sprite-cache';
 
-import { BUILDING_TILES } from '@/model/factories/building-factory';
+import { BUILDING_TILES, MAX_WALKABLE_TILE } from '@/model/factories/building-factory';
 
 const DEBUG = process.env.NODE_ENV !== 'production';
 
@@ -20,7 +20,7 @@ const DEBUG = process.env.NODE_ENV !== 'production';
 function BuildingRenderer( store, width, height ) {
     BuildingRenderer.super( this, 'constructor', store, width, height );
 
-    this.maxWalkableTileNum     = BUILDING_TILES.STAIRS;
+    this.maxWalkableTileNum     = BUILDING_TILES.MAX_WALKABLE_TILE;
     this.validNavigationTargets = [ BUILDING_TILES.GROUND, BUILDING_TILES.STAIRS ];
 }
 WorldRenderer.extend( BuildingRenderer );

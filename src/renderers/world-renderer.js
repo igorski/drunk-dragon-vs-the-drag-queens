@@ -1,7 +1,7 @@
 export default WorldRenderer;
 
 import { sprite }  from 'zcanvas';
-import { WORLD_TILES } from '@/model/factories/world-factory';
+import { WORLD_TILES, MAX_WALKABLE_TILE } from '@/model/factories/world-factory';
 import SpriteCache from '@/utils/sprite-cache';
 import WorldCache  from '@/utils/world-cache';
 import { coordinateToIndex, indexToCoordinate } from '@/utils/terrain-util';
@@ -41,15 +41,6 @@ function WorldRenderer( store, width, height ) {
     dispatch = store.dispatch;
 
     /**
-     * Highest index within the tiles list which is associated
-     * with a tile type that the player can walk on
-     *
-     * @protected
-     * @type {number}
-     */
-    this.maxWalkableTileNum = WORLD_TILES.ROAD;
-
-    /**
      * The list of tiles in the tiles list that are valid targets
      * for the player to walk to
      *
@@ -63,6 +54,8 @@ function WorldRenderer( store, width, height ) {
      * be lazily created once rendering starts.
      */
     this.playerBitmap = null;
+
+    this.maxWalkableTileNum = MAX_WALKABLE_TILE;
 }
 sprite.extend( WorldRenderer );
 

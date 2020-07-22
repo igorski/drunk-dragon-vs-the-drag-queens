@@ -67,6 +67,9 @@ npm run test
 ## TODO
 
 * Limit waypoint to width+height of screen in size (prevent easily navigating to far away points)
+* Buildings should occupy their full size on sidewalk tiles
+* Building should not be too close to each other
+* When leaving building you get stuck in the entrance (re-entering the building)
 * Rename enemies[]
 * Buildings should close in the morning! unless you have a place to sleep
 * Serialize Effects into saved game (subtract elapsed and set current value as start)

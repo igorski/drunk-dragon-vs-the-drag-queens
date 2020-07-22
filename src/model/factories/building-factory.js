@@ -1,7 +1,7 @@
 import { Map }            from 'rot-js';
 import HashUtil           from '@/utils/hash-util';
 import EnvironmentFactory from './environment-factory';
-import { positionAtRandomFreeTileType } from '@/utils/terrain-util';
+import { positionAtRandomFreeTileType, coordinateToIndex } from '@/utils/terrain-util';
 
 export const BUILDING_TYPE = 'Building';
 
@@ -14,6 +14,11 @@ export const BUILDING_TILES = {
     WALL    : 2,
     NOTHING : 3
 };
+/**
+* Highest index within the tiles list which is associated
+* with a tile type that the player can walk on
+*/
+export const MAX_WALKABLE_TILE = BUILDING_TILES.STAIRS;
 
 const BuildingFactory =
 {
@@ -154,7 +159,7 @@ function createFloor( width, height, terrain = [] ) {
 
     for ( let x = 0, y = 0; y < height; x = ( ++x === width ? ( x % width + ( ++y & 0 ) ) : x )) {
         // found the exit ?
-        if ( terrain[ y * width + x ] === BUILDING_TILES.STAIRS ) {
+        if ( terrain[ coordinateToIndex( x, y, { width }) ] === BUILDING_TILES.STAIRS ) {
             out.exits.push({ x, y });
         }
     }
@@ -165,7 +170,7 @@ function createFloor( width, height, terrain = [] ) {
 
     for ( let x = 0, y = 0; y < height; x = ( ++x === width ? ( x % width + ( ++y & 0 ) ) : x )) {
         // use first instance of ground as the start offset
-        if ( terrain[ y * width + x ] === BUILDING_TILES.GROUND ) {
+        if ( terrain[ coordinateToIndex( x, y, { width }) ] === BUILDING_TILES.GROUND ) {
             out.x = x;
             out.y = y;
             break;

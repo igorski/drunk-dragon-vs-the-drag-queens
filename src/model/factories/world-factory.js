@@ -25,6 +25,11 @@ export const WORLD_TILES = {
     TREE     : 6,
     NOTHING  : 7
 };
+/**
+* Highest index within the tiles list which is associated
+* with a tile type that the player can walk on
+*/
+export const MAX_WALKABLE_TILE = WORLD_TILES.ROAD;
 
 const WorldFactory =
 {
@@ -63,6 +68,7 @@ const WorldFactory =
         // on iOS we don't exceed the 6 megapixel (2500 x 2500) limit on images, we COULD investigate
         // in stitching multiple smaller images together, but this might just be a satisfactory world size :p
 
+alert(JSON.stringify(parsedResult));
         if ( parsedResult?.os?.name === 'iOS' ) {
             size = Math.min( 2200 / WorldCache.tileWidth, size );
         }
@@ -84,7 +90,7 @@ const WorldFactory =
         const amountOfShops = HashUtil.charsToNum( shopHash );
 
         world.shops = generateGroup(
-            centerX, centerY, world, amountOfShops, ShopFactory.create, WorldCache.sizeShop, 4, .6
+            centerX, centerY, world, amountOfShops, ShopFactory.create, WorldCache.sizeShop, 8, .6
         );
 
         // generate some buildings
@@ -93,13 +99,20 @@ const WorldFactory =
         const amountOfBuildings = HashUtil.charsToNum( buildingHash );
 
         world.buildings = generateGroup(
-            centerX, centerY, world, amountOfBuildings, BuildingFactory.create, WorldCache.sizeBuilding, 2, .33
+            centerX, centerY, world, amountOfBuildings, BuildingFactory.create, WorldCache.sizeBuilding, 8, .33
         );
 
         // center player within world
-        // TODO: ensure player is on a walkable tile!
+
         world.x = centerX;
         world.y = centerY;
+
+        // ensure player begins on a walkable tile TODO: should we check if there's a walkable path instead?
+
+        while ( world.terrain[ coordinateToIndex( world.x, world.y, world )] > MAX_WALKABLE_TILE ) {
+            --world.x;
+            --world.y;
+        }
     },
 
     /**
@@ -313,11 +326,11 @@ function generateGroup( startX, startY, world, amountToCreate, typeFactoryCreate
     const halfWidth = Math.floor( width  / 2 );
     const out = [];
     const mpi = Math.PI / 180;
-    const maxDistanceFromEdge = 10; // in tiles
+    const maxDistanceFromEdge = width + height; // in tiles
     let incrementRadians      = ( 360 / amountInCircle ) * mpi;
 
     let radians      = mpi;
-    let circleRadius = 10;
+    let circleRadius = Math.round( world.width / 5 );
     let circle       = 0;
     let x, y;
 
@@ -368,7 +381,7 @@ function generateGroup( startX, startY, world, amountToCreate, typeFactoryCreate
 
         if ( circle === amountInCircle ) {
             circle           = 0;
-            circleRadius    *= 2.5;
+            circleRadius    *= 2;
             incrementRadians = ( 270 / amountInCircle ) * mpi;
         }
     }
