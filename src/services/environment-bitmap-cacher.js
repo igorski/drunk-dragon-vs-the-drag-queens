@@ -24,7 +24,7 @@ export const renderEnvironment = environment =>
     return new Promise(( resolve, reject ) => {
         const { tileWidth, tileHeight } = WorldCache;
         const { cvs, ctx } = createPixelCanvas( tileWidth * width, tileHeight * height );
-console.warn(tileWidth * width, tileHeight * height);
+
         // we render the above coordinates, with addition of one extra
         // tile outside of the tiles (prevents blank screen during movement)
 

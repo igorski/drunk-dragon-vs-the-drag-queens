@@ -60,12 +60,11 @@ const WorldFactory =
         let size = HashUtil.charsToNum( hash );
         const { parsedResult } = Bowser.getParser( window.navigator.userAgent );
 
-        // on iOS we don't exceed the 6 megapixel limit on images, we COULD investigate
-        // in stitching multiple smaller images, but this might just be a satisfactory world size :p
-        
+        // on iOS we don't exceed the 6 megapixel (2500 x 2500) limit on images, we COULD investigate
+        // in stitching multiple smaller images together, but this might just be a satisfactory world size :p
+
         if ( parsedResult?.os?.name === 'iOS' ) {
             size = Math.min( 2500 / WorldCache.tileWidth, size );
-            console.warn('down sized');
         }
         world.width  =
         world.height = size;
