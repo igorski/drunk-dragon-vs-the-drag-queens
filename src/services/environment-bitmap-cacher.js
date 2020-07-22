@@ -47,10 +47,10 @@ export const renderEnvironment = environment =>
                 default:
                     throw new Error(`Unknown environment "${environment.type}"`);
                 case WORLD_TYPE:
-                    target = SpriteCache.WORLD;
+                    target = SpriteCache.ENV_WORLD;
                     break;
                 case BUILDING_TYPE:
-                    target = SpriteCache.BUILDING;
+                    target = SpriteCache.ENV_BUILDING;
                     break;
             }
             target.src    = cvs.toDataURL( 'image/png' );
