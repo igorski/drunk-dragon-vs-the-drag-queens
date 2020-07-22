@@ -20,7 +20,7 @@ const DEBUG = process.env.NODE_ENV !== 'production';
 function BuildingRenderer( store, width, height ) {
     BuildingRenderer.super( this, 'constructor', store, width, height );
 
-    this.maxWalkableTileNum     = BUILDING_TILES.MAX_WALKABLE_TILE;
+    this.maxWalkableTileNum     = MAX_WALKABLE_TILE;
     this.validNavigationTargets = [ BUILDING_TILES.GROUND, BUILDING_TILES.STAIRS ];
 }
 WorldRenderer.extend( BuildingRenderer );

@@ -14,8 +14,8 @@ const WorldCache =
 
     // Object sizes (in tiles)
 
-    sizeBuilding : { width: 6, height: 6 },
-    sizeShop     : { width: 4, height: 3 },
+    sizeBuilding : { width: 7, height: 6 },
+    sizeShop     : { width: 5, height: 3 },
 
     // cached positions of all Objects
 

@@ -67,10 +67,10 @@ const WorldFactory =
 
         // on iOS we don't exceed the 6 megapixel (2500 x 2500) limit on images, we COULD investigate
         // in stitching multiple smaller images together, but this might just be a satisfactory world size :p
+        // note on iPad OS 13 the platform i reported as macOS 10.15, hence the Safari check...
 
-alert(JSON.stringify(parsedResult));
-        if ( parsedResult?.os?.name === 'iOS' ) {
-            size = Math.min( 2200 / WorldCache.tileWidth, size );
+        if ( parsedResult?.os?.name === 'iOS' || parsedResult?.browser?.name === 'Safari') {
+            size = Math.min( 2500 / WorldCache.tileWidth, size );
         }
         world.width  =
         world.height = size;
@@ -90,7 +90,7 @@ alert(JSON.stringify(parsedResult));
         const amountOfShops = HashUtil.charsToNum( shopHash );
 
         world.shops = generateGroup(
-            centerX, centerY, world, amountOfShops, ShopFactory.create, WorldCache.sizeShop, 8, .6
+            centerX, centerY, world, amountOfShops, ShopFactory.create, WorldCache.sizeShop, 4, .6
         );
 
         // generate some buildings
@@ -99,7 +99,7 @@ alert(JSON.stringify(parsedResult));
         const amountOfBuildings = HashUtil.charsToNum( buildingHash );
 
         world.buildings = generateGroup(
-            centerX, centerY, world, amountOfBuildings, BuildingFactory.create, WorldCache.sizeBuilding, 8, .33
+            centerX, centerY, world, amountOfBuildings, BuildingFactory.create, WorldCache.sizeBuilding, 4, .33
         );
 
         // center player within world
@@ -208,9 +208,9 @@ function generateTerrain( hash, world ) {
         }
     }
 
-    genSeed( WORLD_TILES.WATER,    10 ); // plant water seeds (lake)
-    genSeed( WORLD_TILES.GRASS,    7 ); // plant grass seeds (park)
-    genSeed( WORLD_TILES.MOUNTAIN, 5 ); // plant rock seeds (mountain)
+    genSeed( WORLD_TILES.WATER,    8 ); // plant water seeds (lake)
+    genSeed( WORLD_TILES.GRASS,    6 );  // plant grass seeds (park)
+    genSeed( WORLD_TILES.MOUNTAIN, 3 );  // plant rock seeds (mountain)
 
     // sandify (creates "beaches" around water)
 
@@ -325,11 +325,11 @@ function generateNumArrayFromSeed( aHash, aHashOffset, aHashEndOffset, aResultLe
 function generateGroup( startX, startY, world, amountToCreate, typeFactoryCreateFn, { width, height }, amountInCircle = 4, radiusIncrement = .6 ) {
     const halfWidth = Math.floor( width  / 2 );
     const out = [];
-    const mpi = Math.PI / 180;
+    const degToRad = Math.PI / 180;
     const maxDistanceFromEdge = width + height; // in tiles
-    let incrementRadians      = ( 360 / amountInCircle ) * mpi;
+    let incrementRadians      = ( 360 / amountInCircle ) * degToRad;
 
-    let radians      = mpi;
+    let radians      = degToRad;
     let circleRadius = Math.round( world.width / 5 );
     let circle       = 0;
     let x, y;
@@ -361,15 +361,22 @@ function generateGroup( startX, startY, world, amountToCreate, typeFactoryCreate
         const targetX = Math.round( x );
         const targetY = Math.round( y );
 
+        // generate instance of item
         const groupItem = typeFactoryCreateFn( targetX, targetY );
-        reserveObject( targetX, targetY, groupItem, world );
+
+        // reserve object at position nearest to targetX and Y
+        const reservedPosition = reserveObject( targetX, targetY, groupItem, world );
+
+        // get the actual position at which the object has been placed
+        x = reservedPosition.x;
+        y = reservedPosition.y;
 
         // bit of a cheat... add a wall around the object entrance (estimated to
         // be at the horizontal middle of the vertical bottom) so the player can't enter from that side
 
-        for ( let xd = targetX - halfWidth; xd < targetX + halfWidth; ++xd ) {
-            for ( let yd = targetY - height; yd < targetY; ++yd ) {
-                if ( xd === targetX && yd === targetY ) {
+        for ( let xd = x - halfWidth; xd < x + halfWidth; ++xd ) {
+            for ( let yd = y - height; yd <= y; ++yd ) {
+                if ( xd === x && yd === y ) {
                     continue;
                 }
                 // TODO: this doesn't seem to do much?
@@ -382,7 +389,8 @@ function generateGroup( startX, startY, world, amountToCreate, typeFactoryCreate
         if ( circle === amountInCircle ) {
             circle           = 0;
             circleRadius    *= 2;
-            incrementRadians = ( 270 / amountInCircle ) * mpi;
+            incrementRadians = ( 270 / amountInCircle ) * degToRad;
+            radians = 360 * degToRad * Math.random();
         }
     }
     return out;
@@ -456,6 +464,7 @@ function digRoads( worldWidth, worldHeight ) {
  * @param {*} obj Object with x and y properties so its
  *                position can be updated with the final result
  * @param {Object} world the current world the object should fit in
+ * @return {Object} coordinates at which Object has been reserved
  */
 function reserveObject( x, y, obj, world ) {
     if ( !checkIfFree( x, y, world )) {
@@ -499,6 +508,8 @@ function reserveObject( x, y, obj, world ) {
 
     obj.x = x;
     obj.y = y;
+
+    return { x, y };
 }
 
 /**

@@ -67,8 +67,11 @@ npm run test
 ## TODO
 
 * Limit waypoint to width+height of screen in size (prevent easily navigating to far away points)
+* When player clicks on non-navigatable tile, navigate as close to the tile as possible (take dominant distance on x-y coordinate and keep reducing until path is found)
+* Building floors should have two stairs, to go up but also down! (last floor has no up, player should go back down!!)
 * Buildings should occupy their full size on sidewalk tiles
 * Building should not be too close to each other
+* Sometimes building start offset is not inside walkable ground ?
 * When leaving building you get stuck in the entrance (re-entering the building)
 * Rename enemies[]
 * Buildings should close in the morning! unless you have a place to sleep
