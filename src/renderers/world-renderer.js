@@ -10,8 +10,21 @@ import { generateBitmap } from './character-female-bitmap';
 
 let commit, dispatch; // Vuex store hooks
 
-const DEBUG = process.env.NODE_ENV !== 'production';
-const PLAYER_SIZE = 55;
+const DEBUG        = process.env.NODE_ENV !== 'production';
+const PLAYER_SIZE  = 55;
+
+const { tileWidth, tileHeight, sizeBuilding, sizeShop } = WorldCache;
+
+const BUILDING = {
+    bitmap: SpriteCache.BUILDING,
+    width: sizeBuilding.width * tileWidth,
+    height: sizeBuilding.height * tileHeight
+};
+const SHOP = {
+    bitmap: SpriteCache.SHOP,
+    width: sizeShop.width * tileWidth,
+    height: sizeShop.height * tileHeight
+};
 
 /**
  * @constructor
@@ -237,14 +250,14 @@ WorldRenderer.prototype.draw = function( aCanvasContext ) {
         sourceY = ( height - this.verticalTileAmount ) * tileHeight;
     }
 */
-    aCanvasContext.drawImage( SpriteCache.WORLD,
+    aCanvasContext.drawImage( SpriteCache.ENV_WORLD,
                               sourceX, sourceY, canvasWidth, canvasHeight,
                               targetX, targetY, canvasWidth, canvasHeight );
 
     const { buildings, shops, enemies } = world;
 
-    renderObjects( aCanvasContext, buildings, visibleTiles, 'rgba(255,0,255,1)' );
-    renderObjects( aCanvasContext, shops,     visibleTiles, 'white' );
+    renderObjects( aCanvasContext, buildings, visibleTiles, BUILDING );
+    renderObjects( aCanvasContext, shops,     visibleTiles, SHOP );
 
     // transform lighting
 
@@ -363,20 +376,21 @@ WorldRenderer.prototype.renderWaypoints = function( aCanvasContext, left, top, h
     }
 }
 
-function renderObjects( aCanvasContext, objectList, { left, top, right, bottom }, fillStyle ) {
+function renderObjects( aCanvasContext, objectList, { left, top, right, bottom }, { bitmap, width, height }) {
     const { tileWidth, tileHeight } = WorldCache;
     let targetX, targetY;
 
-    aCanvasContext.fillStyle = fillStyle;
-
     // to broaden the visible range, add one whole coordinate
-    // NOTE: this is just for determining visiblity, when rendering
+    // NOTE: this is just for determining visibility, when rendering
     // use the actual values !!
 
-    const l = left - 1;
-    const r = right + 1;
-    const t = top - 1;
-    const b = bottom + 1;
+    const w = width  / tileWidth;
+    const h = height / tileHeight;
+
+    const l = left - w;
+    const r = right + w;
+    const t = top - h;
+    const b = bottom + h;
 
     for ( let i = 0, l = objectList.length; i < l; ++i ) {
         const { x, y } = objectList[ i ];
@@ -385,8 +399,10 @@ function renderObjects( aCanvasContext, objectList, { left, top, right, bottom }
         {
             targetX = ( x - left ) * tileWidth;
             targetY = ( y - top )  * tileHeight;
+            targetX -= (( width  - tileWidth )  * .5 ); // align horizontally
+            targetY -= (( height - tileHeight )); // entrance is on lowest side
 
-            aCanvasContext.fillRect( targetX, targetY, tileWidth, tileHeight );
+            aCanvasContext.drawImage( bitmap, targetX,targetY, width, height );
         }
     }
 }

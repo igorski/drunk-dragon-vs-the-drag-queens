@@ -195,7 +195,7 @@ export default {
         },
         async leaveBuilding({ state, commit, dispatch }) {
             commit( 'setBuilding', null );
-            SpriteCache.BUILDING.src = ''; // reset building level cache
+            SpriteCache.ENV_BUILDING.src = ''; // reset building level cache
 
             commit( 'setActiveEnvironment', state.world );
 

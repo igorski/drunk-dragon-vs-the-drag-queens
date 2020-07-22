@@ -106,11 +106,11 @@ export default {
                     break;
                 case BUILDING_TYPE:
                     this.renderer = new BuildingRenderer( this.$store, 100, 100 );
-                    sprite = SpriteCache.BUILDING;
+                    sprite = SpriteCache.ENV_BUILDING;
                     break;
                 case WORLD_TYPE:
                     this.renderer = new WorldRenderer( this.$store, 100, 100 );
-                    sprite = SpriteCache.WORLD;
+                    sprite = SpriteCache.ENV_WORLD;
                     break;
             }
             ImageUtil.onReady( sprite, () => {

@@ -1,11 +1,21 @@
 import EnvironmentFactory from '@/model/factories/environment-factory';
 
+/**
+ * The WorldCache is used to:
+ * identify the sizes of Objects when translated from a tile onto a rectangle in pixels.
+ * cache the coordinates of interactive elements.
+ */
 const WorldCache =
 {
     // the amount of pixels per terrain tile
 
     tileWidth  : 20,
     tileHeight : 20,
+
+    // Object sizes (in tiles)
+
+    sizeBuilding : { width: 6, height: 6 },
+    sizeShop     : { width: 4, height: 3 },
 
     // cached positions of all Objects
 

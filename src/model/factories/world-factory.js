@@ -64,7 +64,7 @@ const WorldFactory =
         // in stitching multiple smaller images together, but this might just be a satisfactory world size :p
 
         if ( parsedResult?.os?.name === 'iOS' ) {
-            size = Math.min( 2500 / WorldCache.tileWidth, size );
+            size = Math.min( 2200 / WorldCache.tileWidth, size );
         }
         world.width  =
         world.height = size;
@@ -83,14 +83,18 @@ const WorldFactory =
         const shopHash      = hash.substr( 4, 2 );
         const amountOfShops = HashUtil.charsToNum( shopHash );
 
-        world.shops = generateGroup( centerX, centerY, world, amountOfShops, ShopFactory.create, 4, .6 );
+        world.shops = generateGroup(
+            centerX, centerY, world, amountOfShops, ShopFactory.create, WorldCache.sizeShop, 4, .6
+        );
 
         // generate some buildings
 
         const buildingHash      = hash.substr( 6, 8 );
         const amountOfBuildings = HashUtil.charsToNum( buildingHash );
 
-        world.buildings = generateGroup( centerX, centerY, world, amountOfBuildings, BuildingFactory.create, 2, .33 );
+        world.buildings = generateGroup(
+            centerX, centerY, world, amountOfBuildings, BuildingFactory.create, WorldCache.sizeBuilding, 2, .33
+        );
 
         // center player within world
         // TODO: ensure player is on a walkable tile!
@@ -302,9 +306,11 @@ function generateNumArrayFromSeed( aHash, aHashOffset, aHashEndOffset, aResultLe
  * @param {Object} world
  * @param {number} amountToCreate
  * @param {Function} typeFactoryCreateFn factory function to create a new instance of the type
+ * @param {Object} dimensions of a single item (in tiles)
  * @param {number} amountInCircle the amount of Objects within a single circle radius
  */
-function generateGroup( startX, startY, world, amountToCreate, typeFactoryCreateFn, amountInCircle = 4, radiusIncrement = .6 ) {
+function generateGroup( startX, startY, world, amountToCreate, typeFactoryCreateFn, { width, height }, amountInCircle = 4, radiusIncrement = .6 ) {
+    const halfWidth = Math.floor( width  / 2 );
     const out = [];
     const mpi = Math.PI / 180;
     const maxDistanceFromEdge = 10; // in tiles
@@ -344,6 +350,19 @@ function generateGroup( startX, startY, world, amountToCreate, typeFactoryCreate
 
         const groupItem = typeFactoryCreateFn( targetX, targetY );
         reserveObject( targetX, targetY, groupItem, world );
+
+        // bit of a cheat... add a wall around the object entrance (estimated to
+        // be at the horizontal middle of the vertical bottom) so the player can't enter from that side
+
+        for ( let xd = targetX - halfWidth; xd < targetX + halfWidth; ++xd ) {
+            for ( let yd = targetY - height; yd < targetY; ++yd ) {
+                if ( xd === targetX && yd === targetY ) {
+                    continue;
+                }
+                // TODO: this doesn't seem to do much?
+                world.terrain[ coordinateToIndex( xd, yd, world )] = WORLD_TILES.MOUNTAIN;
+            }
+        }
 
         out.push( groupItem );
 
@@ -480,7 +499,7 @@ function reserveObject( x, y, obj, world ) {
  */
 function checkIfFree( x, y, { width, terrain }) {
     // check if the underlying tile type is available for Object placement
-    const tile = terrain [ coordinateToIndex( x, y, { width })];
+    const tile = terrain[ coordinateToIndex( x, y, { width })];
 
     if ( ![ WORLD_TILES.GROUND ].includes( tile )) {
         return false;

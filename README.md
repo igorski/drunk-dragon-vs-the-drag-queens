@@ -66,6 +66,7 @@ npm run test
 ```
 ## TODO
 
+* Limit waypoint to width+height of screen in size (prevent easily navigating to far away points)
 * Rename enemies[]
 * Buildings should close in the morning! unless you have a place to sleep
 * Serialize Effects into saved game (subtract elapsed and set current value as start)

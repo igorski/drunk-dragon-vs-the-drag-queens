@@ -32,9 +32,9 @@ export default {
                 href: "https://opengameart.org/content/roguelike-modern-city-pack"
             },
             {
-                title: "LPC Lamp Posts Rework",
-                author: "AntumDeluge",
-                href: "https://opengameart.org/content/lpc-lamp-posts-rework"
+                title: "Overworld Objects",
+                author: "Kelvin Shadewing",
+                href: "https://opengameart.org/content/overworld-objects"
             },
             {
                 title: "City pixel tileset",

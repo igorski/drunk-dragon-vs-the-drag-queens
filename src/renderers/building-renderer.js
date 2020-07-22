@@ -57,7 +57,7 @@ BuildingRenderer.prototype.draw = function( aCanvasContext ) {
     const targetY = 0;
     const canvasWidth = this.canvas.getWidth(), canvasHeight = this.canvas.getHeight();
 
-    aCanvasContext.drawImage( SpriteCache.BUILDING,
+    aCanvasContext.drawImage( SpriteCache.ENV_BUILDING,
                               sourceX, sourceY, canvasWidth, canvasHeight,
                               targetX, targetY, canvasWidth, canvasHeight );
 
