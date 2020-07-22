@@ -1,4 +1,5 @@
 import { Map }            from 'rot-js';
+import Bowser             from 'bowser';
 import MD5                from 'MD5';
 import HashUtil           from '@/utils/hash-util';
 import WorldCache         from '@/utils/world-cache';
@@ -56,8 +57,18 @@ const WorldFactory =
 
         // calculate overworld dimensions
 
+        let size = HashUtil.charsToNum( hash );
+        const { parsedResult } = Bowser.getParser( window.navigator.userAgent );
+
+        // on iOS we don't exceed the 6 megapixel limit on images, we COULD investigate
+        // in stitching multiple smaller images, but this might just be a satisfactory world size :p
+        
+        if ( parsedResult?.os?.name === 'iOS' ) {
+            size = Math.min( 2500 / WorldCache.tileWidth, size );
+            console.warn('down sized');
+        }
         world.width  =
-        world.height = HashUtil.charsToNum( hash );
+        world.height = size;
 
         const centerX = Math.round( world.width  / 2 );
         const centerY = Math.round( world.height / 2 );

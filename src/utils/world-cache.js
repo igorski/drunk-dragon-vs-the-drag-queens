@@ -2,21 +2,14 @@ import EnvironmentFactory from '@/model/factories/environment-factory';
 
 const WorldCache =
 {
+    // the amount of pixels per terrain tile
+
     tileWidth  : 20,
     tileHeight : 20,
-    positions  : {},            // cached position of all enemies
 
-    /**
-     * cache all enemy positions
-     *
-     * @param {Array<Object>} enemies
-     */
-    cachePositions( enemies ) {
-        const positions = WorldCache.positions;
-        enemies.forEach(enemy => {
-            positions[ `${enemy.x}-${enemy.y}` ] = enemy;
-        });
-    },
+    // cached positions of all Objects
+
+    positions  : {},
 
     /**
      * clear all cached positions for Objects of given aType
@@ -67,10 +60,9 @@ throw new Error('TODO instanceof wont wrk');
      */
     getObjectAtPosition( x, y ) {
         const id = `${x}-${y}`;
-
-        if ( !WorldCache.positions[ id ])
+        if ( !WorldCache.positions[ id ]) {
             return null;
-
+        }
         return WorldCache.positions[ id ];
     },
 
