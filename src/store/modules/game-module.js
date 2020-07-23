@@ -9,7 +9,6 @@ import WorldFactory          from '@/model/factories/world-factory';
 import ShopFactory           from '@/model/factories/shop-factory';
 import { renderEnvironment } from '@/services/environment-bitmap-cacher';
 import SpriteCache           from '@/utils/sprite-cache';
-import WorldCache            from '@/utils/world-cache';
 import EffectActions         from '@/model/actions/effect-actions';
 import { GAME_START_TIME, GAME_TIME_RATIO } from '@/utils/time-util';
 import { SCREEN_SHOP } from '@/definitions/screens';

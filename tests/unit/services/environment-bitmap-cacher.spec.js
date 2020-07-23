@@ -19,8 +19,7 @@ import { coordinateToIndex } from '@/utils/terrain-util';
 
 describe('Environment bitmap cacher', () => {
     it('should calculate the correct tile sheet indices for the floor terrain walls', () => {
-        const x = 2, y = 2, width = 12, height = 12;
-        const environment = BuildingFactory.create( x, y, width, height );
+        const environment = BuildingFactory.create();
 
         // cache the building tile types (makes it easier to "view" the map
         // in below terrain list)
@@ -32,6 +31,7 @@ describe('Environment bitmap cacher', () => {
 
         // create a floor with a terrain that covers most edge cases (mostly double walls!)
 
+        const x = 2, y = 2, width = 12, height = 12;
         const floor = {
             x, y, width, height,
             type: BUILDING_TYPE,
@@ -73,7 +73,8 @@ describe('Environment bitmap cacher', () => {
         const areas = [];
         for ( let x = 0; x < floor.width; ++x ) { // rows
             for ( let y = 0; y < floor.height; ++y ) { // columns
-                const desc = getTileDescription( x, y, floor.terrain, environment );
+                const desc = getTileDescription( x, y, floor.terrain, floor );
+                // only push the wall types as we only want to assert these
                 if ([ BUILDING_TILES.WALL ].includes( desc.type )) {
                     areas[ coordinateToIndex( x, y, floor )] = desc.area;
                 }
@@ -82,6 +83,6 @@ describe('Environment bitmap cacher', () => {
 
         // assert the list looks as expected
 
-        expect( areas.filter(value => value !== undefined)).toEqual( expected );
+        expect( areas.filter( value => value !== undefined )).toEqual( expected );
     });
 });

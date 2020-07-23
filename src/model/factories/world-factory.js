@@ -7,7 +7,7 @@ import BuildingFactory    from './building-factory';
 import EnvironmentFactory from './environment-factory';
 import ShopFactory        from './shop-factory';
 import {
-    growTerrain, getSurroundingIndices, getSurroundingTiles, coordinateToIndex
+    growTerrain, getSurroundingIndices, getSurroundingTiles, coordinateToIndex, distance
 } from '@/utils/terrain-util';
 
 export const WORLD_TYPE = 'Overground';
@@ -58,8 +58,6 @@ const WorldFactory =
      *        the terrain too, defaults to true
      */
     populate( world, hash, optGenerateTerrain = true ) {
-        WorldCache.flush(); // flush all cached coordinates
-
         // calculate overworld dimensions
 
         let size = HashUtil.charsToNum( hash );
@@ -90,7 +88,7 @@ const WorldFactory =
         const amountOfShops = HashUtil.charsToNum( shopHash );
 
         world.shops = generateGroup(
-            centerX, centerY, world, amountOfShops, ShopFactory.create, WorldCache.sizeShop, 4, .6
+            centerX, centerY, world, amountOfShops, ShopFactory.create, 4, .6
         );
 
         // generate some buildings
@@ -99,7 +97,7 @@ const WorldFactory =
         const amountOfBuildings = HashUtil.charsToNum( buildingHash );
 
         world.buildings = generateGroup(
-            centerX, centerY, world, amountOfBuildings, BuildingFactory.create, WorldCache.sizeBuilding, 4, .33
+            centerX, centerY, world, amountOfBuildings, BuildingFactory.create, 4, .33
         );
 
         // center player within world
@@ -319,11 +317,11 @@ function generateNumArrayFromSeed( aHash, aHashOffset, aHashEndOffset, aResultLe
  * @param {Object} world
  * @param {number} amountToCreate
  * @param {Function} typeFactoryCreateFn factory function to create a new instance of the type
- * @param {Object} dimensions of a single item (in tiles)
  * @param {number} amountInCircle the amount of Objects within a single circle radius
  */
-function generateGroup( startX, startY, world, amountToCreate, typeFactoryCreateFn, { width, height }, amountInCircle = 4, radiusIncrement = .6 ) {
-    const halfWidth = Math.floor( width  / 2 );
+function generateGroup( startX, startY, world, amountToCreate, typeFactoryCreateFn, amountInCircle = 4, radiusIncrement = .6 ) {
+    const { width, height } = typeFactoryCreateFn(); // tile dimensions implied by factory method
+    const halfWidth = Math.round( width  / 2 );
     const out = [];
     const degToRad = Math.PI / 180;
     const maxDistanceFromEdge = width + height; // in tiles
@@ -364,27 +362,27 @@ function generateGroup( startX, startY, world, amountToCreate, typeFactoryCreate
         // generate instance of item
         const groupItem = typeFactoryCreateFn( targetX, targetY );
 
-        // reserve object at position nearest to targetX and Y
-        const reservedPosition = reserveObject( targetX, targetY, groupItem, world );
+        // reserve object at position nearest to targetX and targetY
+        const reservedPosition = reserveObject( groupItem, world, out );
 
-        // get the actual position at which the object has been placed
-        x = reservedPosition.x;
-        y = reservedPosition.y;
+        if ( reservedPosition !== null ) {
+            // Object has been placed, set its final position
+            groupItem.x = reservedPosition.x;
+            groupItem.y = reservedPosition.y;
 
-        // bit of a cheat... add a wall around the object entrance (estimated to
-        // be at the horizontal middle of the vertical bottom) so the player can't enter from that side
+            // bit of a cheat... add a wall around the object entrance (should be at the
+            // horizontal middle of the vertical bottom) so the player can't enter from that side
 
-        for ( let xd = x - halfWidth; xd < x + halfWidth; ++xd ) {
-            for ( let yd = y - height; yd <= y; ++yd ) {
-                if ( xd === x && yd === y ) {
-                    continue;
+            for ( let xd = groupItem.x - halfWidth; xd < groupItem.x + halfWidth; ++xd ) {
+                for ( let yd = groupItem.y - height; yd <= groupItem.y; ++yd ) {
+                    if ( xd === groupItem.x && yd === groupItem.y ) {
+                        continue;
+                    }
+                    world.terrain[ coordinateToIndex( xd, yd, world )] = WORLD_TILES.MOUNTAIN;
                 }
-                // TODO: this doesn't seem to do much?
-                world.terrain[ coordinateToIndex( xd, yd, world )] = WORLD_TILES.MOUNTAIN;
             }
+            out.push( groupItem );
         }
-
-        out.push( groupItem );
 
         if ( circle === amountInCircle ) {
             circle           = 0;
@@ -453,30 +451,30 @@ function digRoads( worldWidth, worldHeight ) {
 
 /**
  * reserve a given object at the given coordinate
- * and register it in the WorldCache at given id
  *
  * if the requested coordinate isn't free/available, this method
  * will search for the next free position as close as possible to
  * the the requested coordinate
  *
- * @param {number} x preferred x-position of obj
- * @param {number} y preferred y-position of obj
- * @param {*} obj Object with x and y properties so its
- *                position can be updated with the final result
+ * @param {Object} object to place
  * @param {Object} world the current world the object should fit in
- * @return {Object} coordinates at which Object has been reserved
+ * @param {Array<Object>=} others Array of Objects that should be checked against
+ * @return {Object|null} coordinates at which Object has been reserved
  */
-function reserveObject( x, y, obj, world ) {
-    if ( !checkIfFree( x, y, world )) {
-        let tries = 255;        // fail-safe, let's not recursive forever
-        let found = false;
+function reserveObject( object, world, others = [] ) {
+    // assemble the list of Object we shouldn't collide with
+    const compare = [ ...world.shops, ...world.buildings, ...others ];
+
+    let { x, y } = object;
+    if ( !checkIfFree( object, world, compare )) {
 
         // which direction we'll try next
 
         const left  = x > world.width  / 2;
         const up    = y > world.height / 2;
 
-        while ( !found ) {
+        let tries = 255; // fail-safe, let's not recursive forever
+        while ( true ) {
             if ( left ) {
                 --x;
             } else {
@@ -492,23 +490,17 @@ function reserveObject( x, y, obj, world ) {
             x = Math.max( 0, Math.min( x, world.width ));
             y = Math.max( 0, Math.min( y, world.height ));
 
-            if ( checkIfFree( x, y, world )) {
-                found = true;
+            if ( checkIfFree({ ...object, x, y }, world, compare )) {
+                break;
             }
 
-            // fail-safe in case we'll never find a spot... :(
+            // didn't find a spot... :(
 
             if ( --tries === 0 ) {
-                found = true;
+                return null;
             }
         }
     }
-    // reserve the Object inside the WorldCache
-    WorldCache.reserve( x, y, obj );
-
-    obj.x = x;
-    obj.y = y;
-
     return { x, y };
 }
 
@@ -516,19 +508,29 @@ function reserveObject( x, y, obj, world ) {
  * check whether there is nothing occupying the given
  * coordinate in the world
  *
- * @param {number} x
- * @param {number} y
+ * @param {number} area rectangle to verify if is free
  * @param {Object} world
+ * @param {Array<Object>} objects
  * @return {boolean} whether the position is free
  */
-function checkIfFree( x, y, { width, terrain }) {
+function checkIfFree({ x, y, width, height }, world, objects ) {
     // check if the underlying tile type is available for Object placement
-    const tile = terrain[ coordinateToIndex( x, y, { width })];
+    const tile = world.terrain[ coordinateToIndex( x, y, world )];
 
     if ( ![ WORLD_TILES.GROUND ].includes( tile )) {
         return false;
     }
 
-    // check if there is no other Object registered in the WorldCache at this position
-    return WorldCache.getObjectAtPosition( x, y ) === null;
+    // check if there is no other Object registered at this position
+
+    const radius = Math.round( Math.max( width, height ) / 2 );
+    for ( let i = 0, l = objects.length; i < l; ++i ) {
+        const { x: cx, y: cy, width: cwidth, height: cheight } = objects[ i ];
+        const cRadius = Math.round( Math.max( cwidth, cheight ));
+        const dist = distance( x, y, cx, cy );
+        if ( dist < radius + cRadius ) {
+            return false;
+        }
+    }
+    return true;
 }

@@ -1,5 +1,6 @@
 import MedicineTypes from '@/definitions/medicine-types';
 import ItemTypes     from '@/definitions/item-types';
+import WorldCache    from '@/utils/world-cache';
 
 export default
 {
@@ -10,10 +11,10 @@ export default
      * @param {number} y position in the world
      * @param {Array<Object>=} items optional list of shop items
      */
-    create( x, y, items = [] )
-    {
+    create( x, y, items = [] ) {
+        const { width, height } = WorldCache.sizeShop;
         return {
-            x, y, items
+            x, y, width, height, items
         };
     },
 
@@ -23,8 +24,7 @@ export default
      * @param {Shop} aShop
      * @param {Player} aPlayer
      */
-    generateShopItems( aShop, aPlayer )
-    {
+    generateShopItems( aShop, aPlayer ) {
         const items = [];
 
         // always sell basic medicine

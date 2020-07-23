@@ -66,15 +66,16 @@ npm run test
 ```
 ## TODO
 
-* Limit waypoint to width+height of screen in size (prevent easily navigating to far away points)
-* When player clicks on non-navigatable tile, navigate as close to the tile as possible (take dominant distance on x-y coordinate and keep reducing until path is found)
+* Limit waypoints to width+height of screen in max size (prevent easily navigating to far away points)
+* When player clicks on non-navigate-able tile, navigate as close to the tile as possible (take dominant distance on x-y coordinate and keep reducing until path is found)
 * Building floors should have two stairs, to go up but also down! (last floor has no up, player should go back down!!)
-* Buildings should occupy their full size on sidewalk tiles
-* Building should not be too close to each other
+* Buildings should occupy their full size on sidewalk-only tiles?
 * Sometimes building start offset is not inside walkable ground ?
-* When leaving building you get stuck in the entrance (re-entering the building)
-* Rename enemies[]
+* Buildings should not be too close to each other
+* When leaving building/shop you get stuck in the entrance (re-entering the building)
+* Rename enemies[] to characters[]
 * Buildings should close in the morning! unless you have a place to sleep
+* Kick people out of shop after 30 game minutes have passed
 * Serialize Effects into saved game (subtract elapsed and set current value as start)
 * Don't spawn/generate actionable object in empty tile surrounded by a closed path
 * Make menu collapsable
@@ -86,5 +87,5 @@ npm run test
 * Maps should only show visited tiles
 * Add a timer to GameModel that runs periodic updates:
 
- every now and then re-generate all enemies (if none is currently in the range of the player 20 tiles)
+ every now and then re-generate all character (if none is currently in the range of the player 20 tiles)
  if enemies share their new position with another enemy, halt movement

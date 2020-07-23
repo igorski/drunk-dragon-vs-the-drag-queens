@@ -1,5 +1,6 @@
 import { Map }            from 'rot-js';
 import HashUtil           from '@/utils/hash-util';
+import WorldCache         from '@/utils/world-cache';
 import EnvironmentFactory from './environment-factory';
 import { positionAtRandomFreeTileType, coordinateToIndex } from '@/utils/terrain-util';
 
@@ -22,7 +23,8 @@ export const MAX_WALKABLE_TILE = BUILDING_TILES.STAIRS;
 
 const BuildingFactory =
 {
-    create( x = 0, y = 0, width = 0, height = 0 ) {
+    create( x = 0, y = 0 ) {
+        const { width, height } = WorldCache.sizeBuilding;
         const building = EnvironmentFactory.create( x, y, width, height );
 
         building.type   = BUILDING_TYPE;

@@ -112,3 +112,8 @@ export const indexToCoordinate = ( index, { width, height }) => ({
     x: index % width,
     y: Math.round( index / width )
 });
+
+/**
+ * Calculate the distance between the two provided points
+ */
+export const distance = ( x1, y1, x2, y2 ) => Math.sqrt( Math.pow(( x1 - x2 ), 2) + Math.pow(( y1 - y2 ), 2 ));
