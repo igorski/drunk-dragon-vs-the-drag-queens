@@ -63,7 +63,7 @@ export default
             gameTime: data.gt,
             player: CharacterFactory.assemble( data.p ),
             world: WorldFactory.assemble( data.w, data.h ),
-            building: data.b ? BuildingFactory.assemble( data.b ) : null,
+            building: data.b ? BuildingFactory.assemble( data.b ) : null
         };
         return game;
     }

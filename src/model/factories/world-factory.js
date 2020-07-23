@@ -4,6 +4,7 @@ import MD5                from 'MD5';
 import HashUtil           from '@/utils/hash-util';
 import WorldCache         from '@/utils/world-cache';
 import BuildingFactory    from './building-factory';
+import CharacterFactory   from './character-factory';
 import EnvironmentFactory from './environment-factory';
 import ShopFactory        from './shop-factory';
 import {
@@ -96,6 +97,15 @@ const WorldFactory =
             centerX, centerY, world, amountOfBuildings, BuildingFactory.create, 4, .33
         );
 
+        // generate some characters
+
+        const characterHash      = hash.substr( 8, 8 );
+        const amountOfCharacters = HashUtil.charsToNum( characterHash ) * 4;
+console.warn('amount of characters:' +amountOfCharacters);
+        world.characters = generateGroup(
+            centerX, centerY, world, amountOfCharacters, CharacterFactory.create, 4, .25
+        );
+
         // center player within world
 
         world.x = centerX;
@@ -121,8 +131,9 @@ const WorldFactory =
             w: world.width,
             h: world.height,
             t: world.terrain.join( '' ), // int values
-            s: JSON.stringify( world.shops ),
-            b: JSON.stringify( world.buildings )
+            s: world.shops,
+            b: world.buildings,
+            c: world.characters.map( c => CharacterFactory.disassemble( c ))
         };
     },
 
@@ -150,8 +161,9 @@ const WorldFactory =
         }
 
         // restore shops and buildings
-        world.shops     = JSON.parse( data.s );
-        world.buildings = JSON.parse( data.b );
+        world.shops      = data.s;
+        world.buildings  = data.b;
+        world.characters = data.c.map( c => CharacterFactory.assemble( c ));
 
         return world;
     }

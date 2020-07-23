@@ -33,8 +33,12 @@ const CharacterFactory =
       * their visual appearance, a series of properties that affects their
       * performance (e.g. speed, accuracy) and an inventory.
       */
-     create( appearance = {}, properties = {},  inventory = InventoryFactory.create() ) {
+     create( x = 0, y = 0, appearance = {}, properties = {},  inventory = InventoryFactory.create() ) {
          const character = {
+             x,
+             y,
+             // all characters are always 1 tile in width and height
+             width: 1, height: 1,
              appearance: {
                  sex: 'F', // it's the 80's, gender identity wasn't in vogue and sex is binary ;)
                  name: 'Derp',
@@ -74,7 +78,8 @@ const CharacterFactory =
      * back into a Character instance
      */
     assemble( data ) {
-        return CharacterFactory.create({
+        return CharacterFactory.create( data.x, data.y,
+        {
             sex: data.s,
             name: data.n,
             skin: data.sk,
@@ -95,8 +100,9 @@ const CharacterFactory =
      * serializes a Character instance into a JSON structure
      */
     disassemble( character ) {
-        const { appearance, properties, inventory } = character;
+        const { x, y, appearance, properties, inventory } = character;
         return {
+            x, y,
             s: appearance.sex,
             n: appearance.name,
             sk: appearance.skin,

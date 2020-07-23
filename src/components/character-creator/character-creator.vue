@@ -123,7 +123,7 @@ import messages from './messages.json';
 
 const DEFAULT_CASH = 50;
 
-const createCharacter = (sex, name) => CharacterFactory.create({ sex, name }, null, InventoryFactory.create( DEFAULT_CASH ));
+const createCharacter = (sex, name) => CharacterFactory.create( 0, 0, { sex, name }, null, InventoryFactory.create( DEFAULT_CASH ));
 
 export default {
     i18n: { messages },

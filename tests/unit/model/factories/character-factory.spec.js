@@ -7,14 +7,14 @@ describe('Character factory', () => {
             const appearance = {
                 sex: 'yes', // invalid sex, so should be invalid
             };
-            expect(() => CharacterFactory.create( appearance )).toThrow();
+            expect(() => CharacterFactory.create( 0, 0, appearance )).toThrow();
         });
 
         it('should throw when an invalid property configuration is passed', () => {
             const properties = {
                 speed: 2, // out of range value, so should be invalid
             };
-            expect(() => CharacterFactory.create( {}, properties )).toThrow();
+            expect(() => CharacterFactory.create( 0, 0, {}, properties )).toThrow();
         });
 
         it('should leave all construction arguments unchanged', () => {
@@ -35,7 +35,7 @@ describe('Character factory', () => {
                 boost: 0.3
             };
             const inventory = InventoryFactory.create();
-            const char = CharacterFactory.create( appearance, properties, inventory );
+            const char = CharacterFactory.create( 0, 0, appearance, properties, inventory );
             expect( char.appearance ).toEqual( appearance );
             expect( char.properties ).toEqual( properties );
             expect( char.inventory ).toEqual( inventory );
@@ -43,7 +43,7 @@ describe('Character factory', () => {
     });
 
     it('should be able to assemble and disassemble a serialized character without loss of data', () => {
-        const character = CharacterFactory.create({ name: 'Billy' });
+        const character = CharacterFactory.create( 15, 20, { name: 'Billy' });
         const { appearance, properties, inventory } = character;
         appearance.sex = 'M';
         properties.speed = .7;

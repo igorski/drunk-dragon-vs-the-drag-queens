@@ -10,8 +10,8 @@ import { generateBitmap } from './character-female-bitmap';
 
 let commit, dispatch; // Vuex store hooks
 
-const DEBUG        = process.env.NODE_ENV !== 'production';
-const PLAYER_SIZE  = 55;
+const DEBUG          = process.env.NODE_ENV !== 'production';
+const CHARACTER_SIZE = 55;
 
 const { tileWidth, tileHeight, sizeBuilding, sizeShop } = WorldCache;
 
@@ -286,7 +286,7 @@ WorldRenderer.prototype.draw = function( aCanvasContext ) {
     // render characters
 
     this.renderPlayer( aCanvasContext, left, top, halfHorizontalTileAmount, halfVerticalTileAmount );
-    this.renderCharacters( aCanvasContext, characters, left, top );
+    this.renderCharacters( aCanvasContext, characters, visibleTiles );
 
     // draw path when walking to waypoint
 
@@ -354,17 +354,16 @@ WorldRenderer.prototype.renderPlayer = function( aCanvasContext, left, top, half
 */
     if ( this._playerBitmap ) {
         const { width, height } = this._playerBitmap;
-        const xDelta = PLAYER_SIZE / 2 - tileWidth / 2;
-        const yDelta = PLAYER_SIZE / 2 - tileHeight / 2
-        aCanvasContext.drawImage( this._playerBitmap, 0, 0, width, height, x - xDelta, y - yDelta, PLAYER_SIZE, PLAYER_SIZE );
+        const xDelta = CHARACTER_SIZE / 2 - tileWidth / 2;
+        const yDelta = CHARACTER_SIZE / 2 - tileHeight / 2
+        aCanvasContext.drawImage( this._playerBitmap, 0, 0, width, height, x - xDelta, y - yDelta, CHARACTER_SIZE, CHARACTER_SIZE );
     } else {
         aCanvasContext.fillStyle = 'rgba(0,0,255,.5)';
         aCanvasContext.fillRect( x, y, tileWidth, tileHeight );
     }
 }
 
-// TODO: reuse renderObjects method below (will be drawImage() based)
-WorldRenderer.prototype.renderCharacters = function( aCanvasContext, characters = [], left, top ) {
+WorldRenderer.prototype.renderCharacters = function( aCanvasContext, characters = [], { left, top, right, bottom }) {
     const { tileWidth, tileHeight } = WorldCache;
 
     for ( let i = 0, l = characters.length; i < l; ++i ) {
@@ -375,10 +374,27 @@ WorldRenderer.prototype.renderCharacters = function( aCanvasContext, characters 
             let x = ( character.x - left ) * tileWidth;
             let y = ( character.y - top )  * tileHeight;
 
-            x -= 5;
-            y -= 5;  // enemy sprite is 30x30, world is 20x20...
+            if ( character.bitmap ) {
+                const { width, height } = character.bitmap;
+                const xDelta = CHARACTER_SIZE / 2 - tileWidth / 2;
+                const yDelta = CHARACTER_SIZE / 2 - tileHeight / 2
 
-            aCanvasContext.drawImage( SpriteCache.DRONE, x, y, 30, 30 );
+                aCanvasContext.drawImage(
+                    character.bitmap, 0, 0, width, height,
+                    Math.round( x - xDelta ), Math.round( y - yDelta ),
+                    CHARACTER_SIZE, CHARACTER_SIZE
+                );
+            } else {
+                // we lazily load the Characters when they come in view
+                if ( !character.bitmapLoading ) {
+                    character.bitmapLoading = true;
+                    generateBitmap( character ).then( img => {
+                        character.bitmap = img;
+                    });
+                }
+                aCanvasContext.fillStyle = 'rgba(0,0,255,.5)';
+                aCanvasContext.fillRect( x, y, tileWidth, tileHeight );
+            }
         }
     }
 }
@@ -422,7 +438,7 @@ function renderObjects( aCanvasContext, objectList, { left, top, right, bottom }
             targetX -= (( width  - tileWidth )  * .5 ); // align horizontally
             targetY -= (( height - tileHeight )); // entrance is on lowest side
 
-            aCanvasContext.drawImage( bitmap, targetX,targetY, width, height );
+            aCanvasContext.drawImage( bitmap, targetX, targetY, width, height );
         }
     }
 }
