@@ -54,10 +54,8 @@ const WorldFactory =
      *
      * @param {Object} world
      * @param {string} hash MD5 hash 32 characters in length
-     * @param {boolean=} optGenerateTerrain optional, whether to generate
-     *        the terrain too, defaults to true
      */
-    populate( world, hash, optGenerateTerrain = true ) {
+    populate( world, hash ) {
         // calculate overworld dimensions
 
         let size = HashUtil.charsToNum( hash );
@@ -76,11 +74,9 @@ const WorldFactory =
         const centerX = Math.round( world.width  / 2 );
         const centerY = Math.round( world.height / 2 );
 
-        // generate the terrain if it didn't exist yet
+        // generate the terrain
 
-        if ( optGenerateTerrain ) {
-            generateTerrain( hash, world );
-        }
+        generateTerrain( hash, world );
 
         // generate some shops
 
@@ -124,7 +120,9 @@ const WorldFactory =
             y: world.y,
             w: world.width,
             h: world.height,
-            t: world.terrain.join( '' ) // int values
+            t: world.terrain.join( '' ), // int values
+            s: JSON.stringify( world.shops ),
+            b: JSON.stringify( world.buildings )
         };
     },
 
@@ -134,11 +132,6 @@ const WorldFactory =
      */
     assemble( data, hash ) {
         const world = WorldFactory.create();
-        const hasTerrain = typeof data.t === 'string';
-
-        // recreate and restore world
-
-        WorldFactory.populate( world, hash, !hasTerrain );
 
         // restore position
 
@@ -149,14 +142,17 @@ const WorldFactory =
 
         // restore World terrain
 
-        if ( hasTerrain ) {
-            world.terrain = data.t.split( '' ); // split integer values to Array
-            const { terrain } = world;
-            let i = terrain.length;
-            while ( i-- ) {
-                terrain[ i ] = parseInt( terrain[ i ], 10 ); // String to numerical
-            }
+        world.terrain = data.t.split( '' ); // split integer values to Array
+        const { terrain } = world;
+        let i = terrain.length;
+        while ( i-- ) {
+            terrain[ i ] = parseInt( terrain[ i ], 10 ); // String to numerical
         }
+
+        // restore shops and buildings
+        world.shops     = JSON.parse( data.s );
+        world.buildings = JSON.parse( data.b );
+
         return world;
     }
 };

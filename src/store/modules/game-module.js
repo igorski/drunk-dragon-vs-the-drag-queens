@@ -99,7 +99,7 @@ export default {
             commit( 'setHash', hash );
             // create world
             const world = WorldFactory.create();
-            WorldFactory.populate( world, hash, true );
+            WorldFactory.populate( world, hash );
             // set game data
             commit( 'setGame', {
                 created: now,
@@ -164,7 +164,7 @@ export default {
             commit( 'setScreen', SCREEN_SHOP );
         },
         async enterBuilding({ state, commit, dispatch }, building ) {
-            // generate levels, terrains and enemies inside the building
+            // generate levels, terrains and characters inside the building
             BuildingFactory.generateFloors( state.hash, building, state.player );
 
             commit( 'setBuilding', building );

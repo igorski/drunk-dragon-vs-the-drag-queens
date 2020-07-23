@@ -247,7 +247,7 @@ WorldRenderer.prototype.draw = function( aCanvasContext ) {
                               sourceX, sourceY, canvasWidth, canvasHeight,
                               targetX, targetY, canvasWidth, canvasHeight );
 
-    const { buildings, shops, enemies } = world;
+    const { buildings, shops, characters } = world;
 
     renderObjects( aCanvasContext, buildings, visibleTiles, BUILDING );
     renderObjects( aCanvasContext, shops,     visibleTiles, SHOP );
@@ -259,7 +259,7 @@ WorldRenderer.prototype.draw = function( aCanvasContext ) {
     // render characters
 
     this.renderPlayer( aCanvasContext, left, top, halfHorizontalTileAmount, halfVerticalTileAmount );
-    this.renderCharacters( aCanvasContext, enemies, left, top );
+    this.renderCharacters( aCanvasContext, characters, left, top );
 
     // draw path when walking to waypoint
 

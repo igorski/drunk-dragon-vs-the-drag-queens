@@ -8,12 +8,12 @@ export default {
      * @return {boolean} whether we've hit something
      */
     hitTest({ dispatch, getters }, environment ) {
-        const { enemies, shops, buildings, x, y } = environment;
+        const { characters, shops, buildings, x, y } = environment;
         let hit;
 
-        if ( hit = internalHitTest( x, y, enemies )) {
-            // hit an enemy, start battle !!
-            console.warn("HIT AN ENEMY!");
+        if ( hit = internalHitTest( x, y, characters )) {
+            // hit an character, do something!!!
+            console.warn("HIT AN CHARACTER!");
         } else if ( environment.type === WORLD_TYPE ) {
             if ( hit = internalHitTest( x, y, shops )) {
                 // entered shop, open the shop page

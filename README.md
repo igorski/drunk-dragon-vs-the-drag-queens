@@ -71,9 +71,7 @@ npm run test
 * Building floors should have two stairs, to go up but also down! (last floor has no up, player should go back down!!)
 * Buildings should occupy their full size on sidewalk-only tiles?
 * Sometimes building start offset is not inside walkable ground ?
-* Buildings should not be too close to each other
 * When leaving building/shop you get stuck in the entrance (re-entering the building)
-* Rename enemies[] to characters[]
 * Buildings should close in the morning! unless you have a place to sleep
 * Kick people out of shop after 30 game minutes have passed
 * Serialize Effects into saved game (subtract elapsed and set current value as start)
@@ -87,5 +85,5 @@ npm run test
 * Maps should only show visited tiles
 * Add a timer to GameModel that runs periodic updates:
 
- every now and then re-generate all character (if none is currently in the range of the player 20 tiles)
- if enemies share their new position with another enemy, halt movement
+ every now and then re-generate all characters (if none is currently in the range of the player 20 tiles)
+ if characters share their new position with another character, halt movement

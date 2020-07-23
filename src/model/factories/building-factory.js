@@ -112,7 +112,7 @@ const BuildingFactory =
             y: data.y,
             width: data.w,
             height: data.h,
-            enemies: data.e,
+            characters: data.c,
             terrain: data.t,
             type: data.ty,
             floor: data.f ?? NaN,
@@ -129,7 +129,7 @@ const BuildingFactory =
              y: building.y,
              w: building.width,
              h: building.height,
-             e: building.enemies,
+             c: building.characters,
              t: building.terrain,
              ty: building.type,
              f: building.floor,
@@ -149,9 +149,9 @@ export default BuildingFactory;
  * @param {Array<number>} terrain
  */
 function createFloor( width, height, terrain = [] ) {
-    const enemies = [];
+    const characters = [];
     const out = {
-        ...EnvironmentFactory.create( 0, 0, width, height, enemies, terrain ),
+        ...EnvironmentFactory.create( 0, 0, width, height, characters, terrain ),
         type: BUILDING_TYPE,
         exits: [],
         treasures: []
