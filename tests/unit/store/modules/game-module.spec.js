@@ -180,7 +180,7 @@ describe('Vuex game module', () => {
             expect( commit ).toHaveBeenNthCalledWith( 3, 'setActiveEnvironment', state.world);
             expect( commit ).toHaveBeenNthCalledWith( 4, 'setLastRender', expect.any(Number));
             expect( mockUpdateFn ).toHaveBeenNthCalledWith( 1, 'create' );
-            expect( mockUpdateFn ).toHaveBeenNthCalledWith( 2, 'populate', state.world, expect.any(String), true);
+            expect( mockUpdateFn ).toHaveBeenNthCalledWith( 2, 'populate', state.world, expect.any(String));
             expect( mockUpdateFn ).toHaveBeenNthCalledWith( 3, 'renderEnvironment', state.world);
         });
 
