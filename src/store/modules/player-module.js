@@ -3,11 +3,11 @@ import EnvironmentActions  from '@/model/actions/environment-actions';
 import CharacterActions    from '@/model/actions/character-actions';
 import { GAME_TIME_RATIO } from '@/utils/time-util';
 
-// cancel the pending movements TODO: this would also apply to non-player characters!
+// cancel the pending movements TODO: this should target the effect "owner"!
 const cancelPendingMovement = commit => {
     commit( 'removeEffectsByAction', [ 'setXPosition', 'setYPosition' ]);
 };
-const WALK_SPEED = 400; // ms for a single step
+const DEFAULT_WALK_SPEED = 400; // ms for a single step
 
 /**
  * Player module mediates all interactions the game's Player can take. As it is
@@ -31,7 +31,7 @@ export default
 
             const { activeEnvironment, gameTime, player } = getters;
             let startTime  = gameTime;
-            const duration = ( WALK_SPEED * CharacterActions.getSpeed( player )) * GAME_TIME_RATIO;
+            const duration = ( DEFAULT_WALK_SPEED * CharacterActions.getSpeed( player )) * GAME_TIME_RATIO;
             let lastX      = activeEnvironment.x;
             let lastY      = activeEnvironment.y;
 

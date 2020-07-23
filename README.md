@@ -66,7 +66,6 @@ npm run test
 ```
 ## TODO
 
-* Limit waypoints to width+height of screen in max size (prevent easily navigating to far away points)
 * When player clicks on non-navigate-able tile, navigate as close to the tile as possible (take dominant distance on x-y coordinate and keep reducing until path is found)
 * Building floors should have two stairs, to go up but also down! (last floor has no up, player should go back down!!)
 * Buildings should occupy their full size on sidewalk-only tiles?

@@ -163,8 +163,20 @@ WorldRenderer.prototype.handleRelease = function( pointerX, pointerY ) {
     }
 
     if ( this.isValidTarget( targetTile )) {
-        this.target = findPath( this._environment, Math.round( x ), Math.round( y ), tx, ty, this.maxWalkableTileNum );
-        dispatch( 'moveToDestination', this.target );
+        const path = findPath( this._environment, Math.round( x ), Math.round( y ), tx, ty, this.maxWalkableTileNum );
+        const maxLen = this.horizontalTileAmount + this.verticalTileAmount;
+        if ( path.length > maxLen ) {
+            if ( DEBUG ) {
+                console.warn( `Path length ${path.length} exceeds max of ${maxLen}` );
+            }
+            // if the full walkable path isn't inside visual bounds, cancel navigation, player
+            // must navigate to smaller steps (prevents automagically resolving of long distances)
+            return;
+        }
+        dispatch( 'moveToDestination', path );
+        if ( DEBUG ) {
+            this.target = path;
+        }
     }
 };
 
