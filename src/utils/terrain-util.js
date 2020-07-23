@@ -34,13 +34,14 @@ export const growTerrain = ( map, mapWidth, mapHeight, type, optChanceThreshhold
  * @param {number} mapWidth width of the total terrain map
  * @param {number} mapHeight height of the total terrain map
  * @param {boolean} inclDiagonals whether to include diagonals
+ * @param {number=} size of the surrounding area (in tiles)
  * @return {Array<number>} of possible indices
  */
-export const getSurroundingIndices = ( x, y, mapWidth, mapHeight, inclDiagonals ) => {
+export const getSurroundingIndices = ( x, y, mapWidth, mapHeight, inclDiagonals, size = 3 ) => {
     const possibleIndices = [];
     let tx, ty, nx, ny;
 
-    for ( tx = 0, ty = 0; ty < 3; tx = ( ++tx === 3 ? ( tx % 3 + ( ++ty & 0 ) ) : tx )) {
+    for ( tx = 0, ty = 0; ty < size; tx = ( ++tx === size ? ( tx % size + ( ++ty & 0 ) ) : tx )) {
         nx = x + tx - 1;
         ny = y + ty - 1;
 

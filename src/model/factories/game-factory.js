@@ -1,15 +1,16 @@
-import BuildingFactory from './building-factory';
+import LZString         from 'lz-string';
+import BuildingFactory  from './building-factory';
 import CharacterFactory from './character-factory';
-import WorldFactory from './world-factory';
+import WorldFactory     from './world-factory';
 
 export default
 {
     /**
-     * disassemble the state of the models into a base64-
-     * encoded stringified JSON Object
+     * disassemble the state of the models into a
+     * LZ compressed JSON String
      *
      * @param {Object} game state
-     * @return {string} base64 encoded JSON Object
+     * @return {string} compressed JSON String
      */
     disassemble( game ) {
         const out = {
@@ -22,20 +23,31 @@ export default
             w: WorldFactory.disassemble( game.world, game.hash ),
             b: game.building ? BuildingFactory.disassemble( game.building ) : null,
         };
-        return window.btoa( JSON.stringify( out ));
+        const json = JSON.stringify( out );
+        try {
+            const compressed = LZString.compressToUTF16( json );
+            console.log(
+                `Compressed ${json.length} to ${compressed.length}
+                (${(( compressed.length / json.length ) * 100 ).toFixed( 2 )}% of original size)`
+            );
+            return compressed;
+        }
+        catch ( e ) {
+            return json;
+        }
     },
 
     /**
-     * assemble a base64 stringified JSON Object
+     * assemble a LZ compressed JSON String
      * back into model structure and instances
      *
-     * @param {string} encodedData base64 encoded JSON String
+     * @param {string} encodedData compressed JSON String
      * @return {Object|null}
      */
     assemble( encodedData ) {
         let data;
         try {
-            data = JSON.parse( window.atob( encodedData ));
+            data = JSON.parse( LZString.decompressFromUTF16( encodedData ));
         } catch ( e ) {
             return null;
         }

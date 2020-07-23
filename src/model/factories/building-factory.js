@@ -82,7 +82,7 @@ const BuildingFactory =
                     `BuildingFactory::ERROR "${terrain.message}" occurred when generating for size:
                     ${floorWidth} x ${floorHeight} with min floor size:
                     ${minFloorWidth} x ${minFloorHeight} and max floor size:
-                    ${maxFloorWidth} x ${maxFloorHeight}`
+                    ${maxFloorWidth} x ${maxFloorHeight} with ${tries} left`
                 );
             }
 

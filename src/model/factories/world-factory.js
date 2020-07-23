@@ -208,10 +208,13 @@ function generateTerrain( hash, world ) {
 
     // sandify (creates "beaches" around water)
 
+    const beachHash = hash.substr( 8, 1 );
+    const beachSize = HashUtil.charsToNum( beachHash );
+
     for ( x = 0, y = 0; y < MAP_HEIGHT; x = ( ++x === MAP_WIDTH ? ( x % MAP_WIDTH + ( ++y & 0 )) : x )) {
         const index = coordinateToIndex( x, y, world );
         if ( map[ index ] === WORLD_TILES.GROUND ) {
-            const around = getSurroundingIndices( x, y, MAP_WIDTH, MAP_HEIGHT, true );
+            const around = getSurroundingIndices( x, y, MAP_WIDTH, MAP_HEIGHT, true, beachSize );
             for ( i = 0; i < around.length; i++ ) {
                 if ( map[ around[ i ]] === WORLD_TILES.WATER && Math.random() > .7 ) {
                     map[ index ] = WORLD_TILES.SAND;
@@ -513,7 +516,7 @@ function checkIfFree({ x, y, width, height }, world, objects ) {
     // check if the underlying tile type is available for Object placement
     const tile = world.terrain[ coordinateToIndex( x, y, world )];
 
-    if ( ![ WORLD_TILES.GROUND ].includes( tile )) {
+    if ( ![ WORLD_TILES.GROUND, WORLD_TILES.SAND ].includes( tile )) {
         return false;
     }
 

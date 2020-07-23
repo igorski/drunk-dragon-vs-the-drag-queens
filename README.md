@@ -66,11 +66,12 @@ npm run test
 ```
 ## TODO
 
+* Show navigation icon
 * When player clicks on non-navigate-able tile, navigate as close to the tile as possible (take dominant distance on x-y coordinate and keep reducing until path is found)
 * Building floors should have two stairs, to go up but also down! (last floor has no up, player should go back down!!)
-* Buildings should occupy their full size on sidewalk-only tiles?
+* Buildings should occupy their full size on sidewalk/sand-only tiles?
 * Sometimes building start offset is not inside walkable ground ?
-* Buildings should close in the morning! unless you have a place to sleep
+* Buildings should close in the morning! (unless you have a place to sleep inside)
 * Kick people out of shop after 30 game minutes have passed
 * Serialize Effects into saved game (subtract elapsed and set current value as start)
 * Don't spawn/generate actionable object in empty tile surrounded by a closed path
