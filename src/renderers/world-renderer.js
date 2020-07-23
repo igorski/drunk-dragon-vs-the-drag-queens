@@ -163,20 +163,7 @@ WorldRenderer.prototype.handleRelease = function( pointerX, pointerY ) {
     }
 
     if ( this.isValidTarget( targetTile )) {
-        const path = findPath( this._environment, Math.round( x ), Math.round( y ), tx, ty, this.maxWalkableTileNum );
-        const maxLen = this.horizontalTileAmount + this.verticalTileAmount;
-        if ( path.length > maxLen ) {
-            if ( DEBUG ) {
-                console.warn( `Path length ${path.length} exceeds max of ${maxLen}` );
-            }
-            // if the full walkable path isn't inside visual bounds, cancel navigation, player
-            // must navigate to smaller steps (prevents automagically resolving of long distances)
-            return;
-        }
-        dispatch( 'moveToDestination', path );
-        if ( DEBUG ) {
-            this.target = path;
-        }
+        this.navigateToTile( tx, ty );
     }
 };
 
@@ -189,6 +176,34 @@ WorldRenderer.prototype.handleRelease = function( pointerX, pointerY ) {
  */
 WorldRenderer.prototype.isValidTarget = function( tileType ) {
     return this.validNavigationTargets.includes( tileType );
+};
+
+/**
+ * Calculate the waypoint to given coordinate and navigate when valid.
+ *
+ * @protected
+ * @param {number} tx destination x-coordinate
+ * @param {number} ty destination y-coordinate
+ */
+WorldRenderer.prototype.navigateToTile = function( x, y ) {
+    const path = findPath(
+        this._environment,
+        Math.round( this._environment.x ), Math.round( this._environment.y ),
+        x, y, this.maxWalkableTileNum
+    );
+    const maxLen = this.horizontalTileAmount + this.verticalTileAmount;
+    if ( path.length > maxLen ) {
+        if ( DEBUG ) {
+            console.warn( `Path length ${path.length} exceeds max of ${maxLen}` );
+        }
+        // if the full walkable path isn't inside visual bounds, cancel navigation, player
+        // must navigate to smaller steps (prevents automagically resolving of long distances)
+        return;
+    }
+    dispatch( 'moveToDestination', path );
+    if ( DEBUG ) {
+        this.target = path;
+    }
 };
 
 /**
