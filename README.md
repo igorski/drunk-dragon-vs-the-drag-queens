@@ -71,7 +71,6 @@ npm run test
 * Building floors should have two stairs, to go up but also down! (last floor has no up, player should go back down!!)
 * Buildings should occupy their full size on sidewalk-only tiles?
 * Sometimes building start offset is not inside walkable ground ?
-* When leaving building/shop you get stuck in the entrance (re-entering the building)
 * Buildings should close in the morning! unless you have a place to sleep
 * Kick people out of shop after 30 game minutes have passed
 * Serialize Effects into saved game (subtract elapsed and set current value as start)

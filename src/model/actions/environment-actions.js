@@ -3,11 +3,11 @@ import { WORLD_TYPE } from '@/model/factories/world-factory';
 
 export default {
     /**
-     * @param {Object} Vuex store getters and dispatch methods
+     * @param {Object} Vuex store getters, commit and dispatch methods
      * @param {Object} environment environment to traverse
      * @return {boolean} whether we've hit something
      */
-    hitTest({ dispatch, getters }, environment ) {
+    hitTest({ dispatch, commit, getters }, environment ) {
         const { characters, shops, buildings, x, y } = environment;
         let hit;
 
@@ -17,10 +17,12 @@ export default {
         } else if ( environment.type === WORLD_TYPE ) {
             if ( hit = internalHitTest( x, y, shops )) {
                 // entered shop, open the shop page
+                commit( 'setYPosition', y + 1 ); // ensures when we leave we don't collide with entrance
                 dispatch('enterShop', hit );
             }
             else if ( hit = internalHitTest( x, y, buildings )) {
                 // entered building
+                commit( 'setYPosition', y + 1 ); // ensures when we leave we don't collide with entrance
                 dispatch('enterBuilding', hit );
             }
         } else if ( environment.type === BUILDING_TYPE ) {

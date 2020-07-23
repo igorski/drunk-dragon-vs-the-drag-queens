@@ -48,7 +48,7 @@ export default
                     isHorizontal ? 'setXPosition' : 'setYPosition',
                     startTime, duration, startValue, endValue,
                     () => {
-                        if ( EnvironmentActions.hitTest({ dispatch, getters }, activeEnvironment )) {
+                        if ( EnvironmentActions.hitTest({ dispatch, commit, getters }, activeEnvironment )) {
                             cancelPendingMovement( commit );
                         }
                     }
