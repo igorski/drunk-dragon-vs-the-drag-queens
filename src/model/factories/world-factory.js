@@ -369,8 +369,8 @@ function generateGroup( startX, startY, world, amountToCreate, typeFactoryCreate
             // bit of a cheat... add a wall around the object entrance (should be at the
             // horizontal middle of the vertical bottom) so the player can't enter from that side
 
-            for ( let xd = groupItem.x - halfWidth; xd < groupItem.x + halfWidth; ++xd ) {
-                for ( let yd = groupItem.y - height; yd <= groupItem.y; ++yd ) {
+            for ( let xd = groupItem.x - ( halfWidth - 1 ); xd < groupItem.x + halfWidth; ++xd ) {
+                for ( let yd = groupItem.y - ( height - 1 ); yd <= groupItem.y; ++yd ) {
                     if ( xd === groupItem.x && yd === groupItem.y ) {
                         continue;
                     }

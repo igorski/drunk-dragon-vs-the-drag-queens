@@ -13,7 +13,8 @@ const NONE = undefined;
  * This method takes in the terrain of the given environment and renders
  * its contents onto a Bitmap image. This image is then consumed by the environment
  * specific renderers in the @/renderers folder. Basically this precaches the
- * entire environment contents for fast direct-from-memory blitting in the sprite.
+ * entire environment contents for fast direct-from-memory blitting in the sprite
+ * reducing the need for repeated recalculation of non-dynamic content
  */
 export const renderEnvironment = environment =>
 {
