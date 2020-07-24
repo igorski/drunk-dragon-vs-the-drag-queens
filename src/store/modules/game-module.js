@@ -11,7 +11,7 @@ import { renderEnvironment } from '@/services/environment-bitmap-cacher';
 import SpriteCache           from '@/utils/sprite-cache';
 import EffectActions         from '@/model/actions/effect-actions';
 import { GAME_START_TIME, GAME_TIME_RATIO } from '@/utils/time-util';
-import { SCREEN_SHOP } from '@/definitions/screens';
+import { SCREEN_CHARACTER_CREATE, SCREEN_SHOP } from '@/definitions/screens';
 
 const STORAGE_KEY = 'rpg';
 
@@ -119,10 +119,11 @@ export default {
             const data = storage.get( STORAGE_KEY );
             try {
                 const game = GameFactory.assemble( data );
-                if ( data && !game?.player || !game?.world ) {
+                if ( data && ( !game?.player || !game?.world )) {
                     // corrupted or outdated format
                     dispatch( 'resetGame' );
-                    throw Error();
+                    commit( 'setScreen', SCREEN_CHARACTER_CREATE );
+                    return;
                 }
                 commit( 'setGame', game );
                 commit( 'setHash', game.hash );

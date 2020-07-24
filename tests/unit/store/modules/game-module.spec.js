@@ -219,8 +219,8 @@ describe('Vuex game module', () => {
               actions.loadGame({ state, commit, dispatch });
 
               expect( mockUpdateFn ).toHaveBeenNthCalledWith( 1, 'get', 'rpg' );
-              expect( commit ).not.toHaveBeenCalled();
               expect( dispatch ).toHaveBeenCalledWith( 'resetGame' );
+              expect( commit ).toHaveBeenCalledWith( 'setScreen', expect.any( Number ));
             });
 
             it('should be able to import an exported save game', async () => {
