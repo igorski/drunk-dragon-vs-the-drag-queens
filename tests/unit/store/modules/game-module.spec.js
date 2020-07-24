@@ -194,18 +194,33 @@ describe('Vuex game module', () => {
             });
 
             it('should be able to restore a saved game from local storage', () => {
-                const game = { hash: 'foo', world: 'bar' };
+                const game = { hash: 'foo', world: 'bar', player: {} };
                 mockUpdateFn = jest.fn(() => game);
                 const state = { activeEnvironment: null };
                 const commit = jest.fn();
+                const dispatch = jest.fn();
 
-                actions.loadGame({ state, commit });
+                actions.loadGame({ state, commit, dispatch });
 
                 expect( mockUpdateFn ).toHaveBeenNthCalledWith( 1, 'get', 'rpg' );
                 expect( commit ).toHaveBeenNthCalledWith( 1, 'setGame', game );
                 expect( commit ).toHaveBeenNthCalledWith( 2, 'setHash', game.hash );
                 expect( commit ).toHaveBeenNthCalledWith( 3, 'setActiveEnvironment', game.world );
                 //expect( commit ).toHaveBeenNthCalledWith( 4, 'setLastRender', Date.now() );
+            });
+
+            it('should reset the game state if the save is corrupted', () => {
+              const game = { hash: 'foo' };
+              mockUpdateFn = jest.fn(() => game);
+              const state = { activeEnvironment: null };
+              const commit = jest.fn();
+              const dispatch = jest.fn();
+
+              actions.loadGame({ state, commit, dispatch });
+
+              expect( mockUpdateFn ).toHaveBeenNthCalledWith( 1, 'get', 'rpg' );
+              expect( commit ).not.toHaveBeenCalled();
+              expect( dispatch ).toHaveBeenCalledWith( 'resetGame' );
             });
 
             it('should be able to import an exported save game', async () => {

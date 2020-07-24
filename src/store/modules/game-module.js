@@ -115,10 +115,15 @@ export default {
             commit( 'setLastRender', Date.now() );
             await renderEnvironment( world );
         },
-        async loadGame({ state, commit }) {
+        async loadGame({ state, commit, dispatch }) {
             const data = storage.get( STORAGE_KEY );
             try {
                 const game = GameFactory.assemble( data );
+                if ( data && !game?.player || !game?.world ) {
+                    // corrupted or outdated format
+                    dispatch( 'resetGame' );
+                    throw Error();
+                }
                 commit( 'setGame', game );
                 commit( 'setHash', game.hash );
                 let activeEnvironmentToSet = game.world;
@@ -132,7 +137,7 @@ export default {
 
                 await renderEnvironment( state.activeEnvironment );
             } catch {
-                // TODO : show message of disappointment
+                // nowt... screen will match game state (e.g. show character creation)
             }
         },
         async saveGame({ state }) {
