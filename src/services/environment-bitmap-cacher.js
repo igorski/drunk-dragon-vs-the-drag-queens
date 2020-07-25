@@ -1,6 +1,6 @@
 import { zThread, zThreader } from 'zthreader';
+import { loader }             from 'zcanvas';
 import { createPixelCanvas }  from '@/utils/canvas-util';
-import ImageUtil              from '@/utils/image-util';
 import SpriteCache            from '@/utils/sprite-cache';
 import WorldCache             from '@/utils/world-cache';
 import { generateBitmap }     from '@/renderers/character-female-bitmap';
@@ -40,7 +40,7 @@ export const renderEnvironment = environment =>
 
         zThreader.init( .5, 60 );
 
-        const thread = new zThread(() => {
+        const thread = new zThread( async () => {
             // store the result
             // TODO : investigate https://github.com/imaya/CanvasTool.PngEncoder for 8-bit PNG ?
 
@@ -60,16 +60,16 @@ export const renderEnvironment = environment =>
             target.height = cvs.height;
 
             // Environment terrain ready
-            ImageUtil.onReady( target, async () => {
-                // ensure all Characters have their Bitmaps cached
-                for ( i = 0, l = characters.length; i < l; ++i ) {
-                    const character = characters[ i ];
-                    if ( !characters.bitmap ) {
-                        character.bitmap = await generateBitmap( character );
-                    }
+            await loader.onReady( target );
+
+            // ensure all Characters have their Bitmaps cached
+            for ( i = 0, l = characters.length; i < l; ++i ) {
+                const character = characters[ i ];
+                if ( !characters.bitmap ) {
+                    character.bitmap = await generateBitmap( character );
                 }
-                resolve( target );
-            });
+            }
+            resolve( target );
         });
 
         // function to render the sprites onto the Canvas

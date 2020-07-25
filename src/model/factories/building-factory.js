@@ -1,6 +1,7 @@
 import { Map }            from 'rot-js';
 import HashUtil           from '@/utils/hash-util';
 import WorldCache         from '@/utils/world-cache';
+import CharacterFactory   from './character-factory';
 import EnvironmentFactory from './environment-factory';
 import { positionAtRandomFreeTileType, coordinateToIndex } from '@/utils/terrain-util';
 
@@ -112,7 +113,7 @@ const BuildingFactory =
             y: data.y,
             width: data.w,
             height: data.h,
-            characters: data.c,
+            characters: data.c.map( c => CharacterFactory.assemble( c )),
             terrain: data.t,
             type: data.ty,
             floor: data.f ?? NaN,
@@ -129,7 +130,7 @@ const BuildingFactory =
              y: building.y,
              w: building.width,
              h: building.height,
-             c: building.characters,
+             c: building.characters.map( c => CharacterFactory.disassemble( c )),
              t: building.terrain,
              ty: building.type,
              f: building.floor,

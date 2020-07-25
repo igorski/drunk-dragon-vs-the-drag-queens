@@ -66,7 +66,6 @@ export default {
         },
         setActiveEnvironment( state, environment ) {
             state.activeEnvironment = environment;
-            console.warn('CHANGING ENVIRONMENT RESET AI BEHAVIOUR');
         },
         setShop( state, shop ) {
             state.shop = shop;
@@ -89,10 +88,15 @@ export default {
         removeEffectsByAction( state, types = [] ) {
             Vue.set( state, 'effects', state.effects.filter(({ action }) => !types.includes( action )));
         },
+        flushBitmaps( state ) {
+            state.activeEnvironment.characters.forEach( character => {
+                delete character.bitmap;
+            });
+        },
     },
     actions: {
         /* game management / storage */
-        async createGame({ state, commit }, player = CharacterFactory.create() ) {
+        async createGame({ state, commit, dispatch }, player = CharacterFactory.create() ) {
             const now = Date.now();
             // generate unique hash for the world
             const hash = MD5( now + Math.random());
@@ -111,9 +115,8 @@ export default {
                 player,
                 world,
             });
-            commit( 'setActiveEnvironment', world );
             commit( 'setLastRender', Date.now() );
-            await renderEnvironment( world );
+            await dispatch( 'changeActiveEnvironment', world );
         },
         async loadGame({ state, commit, dispatch }) {
             const data = storage.get( STORAGE_KEY );
@@ -133,10 +136,8 @@ export default {
                     // game was saved inside a building
                     activeEnvironmentToSet = building.floors[ building.floor ];
                 }
-                commit( 'setActiveEnvironment', activeEnvironmentToSet );
                 commit( 'setLastRender', Date.now() );
-
-                await renderEnvironment( state.activeEnvironment );
+                await dispatch( 'changeActiveEnvironment', activeEnvironmentToSet );
             } catch {
                 // nowt... screen will match game state (e.g. show character creation)
             }
@@ -191,26 +192,29 @@ export default {
             } else {
                 // ascend/descend to requested level
                 commit( 'setFloor', floor );
-                commit( 'setActiveEnvironment', floors[ floor ]);
-                // render floor Bitmap
-                commit( 'setLoading', true );
-                await renderEnvironment( state.activeEnvironment );
-                commit( 'setLoading', false );
+                await dispatch( 'changeActiveEnvironment', floors[ floor ]);
             }
         },
         async leaveBuilding({ state, commit, dispatch }) {
             commit( 'setBuilding', null );
             SpriteCache.ENV_BUILDING.src = ''; // reset building level cache
 
-            commit( 'setActiveEnvironment', state.world );
-
-            // render world Bitmap (necessary when building was entered by loaded game)
-            commit( 'setLoading', true );
-            await renderEnvironment( state.activeEnvironment );
-            commit( 'setLoading', false );
+            await dispatch( 'changeActiveEnvironment', state.world );
 
             // change music to overground theme
             dispatch( 'playSound', AudioTracks.OVERGROUND_THEME );
+        },
+        async changeActiveEnvironment({ state, commit }, environment ) {
+            if ( !!state.activeEnvironment ) {
+                // free memory allocated to Bitmaps
+                commit( 'flushBitmaps' );
+            }
+            commit( 'setActiveEnvironment', environment );
+            commit( 'setLoading', true );
+            await renderEnvironment( environment );
+            commit( 'setLoading', false );
+
+            console.warn('TODO: WHEN CHANGING ACTIVE ENVIRONMENT RESET AI BEHAVIOUR');
         },
         /* game updates */
         /**

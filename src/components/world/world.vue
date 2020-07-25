@@ -4,14 +4,13 @@
 
 <script>
 import { mapGetters, mapMutations, mapActions } from 'vuex';
-import { canvas }        from 'zcanvas';
-import BuildingRenderer  from '@/renderers/building-renderer';
-import WorldRenderer     from '@/renderers/world-renderer';
-import SpriteCache       from '@/utils/sprite-cache';
-import WorldCache        from '@/utils/world-cache';
-import ImageUtil         from '@/utils/image-util';
-import { BUILDING_TYPE } from '@/model/factories/building-factory';
-import { WORLD_TYPE }    from '@/model/factories/world-factory';
+import { canvas, loader } from 'zcanvas';
+import BuildingRenderer   from '@/renderers/building-renderer';
+import WorldRenderer      from '@/renderers/world-renderer';
+import SpriteCache        from '@/utils/sprite-cache';
+import WorldCache         from '@/utils/world-cache';
+import { BUILDING_TYPE }  from '@/model/factories/building-factory';
+import { WORLD_TYPE }     from '@/model/factories/world-factory';
 
 export default {
     data: () => ({
@@ -58,7 +57,6 @@ export default {
     },
     mounted() {
         this.zcanvas.insertInPage( this.$refs.canvasContainer );
-        this.handleResize( null ); // size to match device / browser dimensions
     },
     destroyed() {
         this.handlers.forEach(({ event, callback }) => {
@@ -93,7 +91,7 @@ export default {
             this.renderer.updateImage ( null, windowWidth, windowHeight );
             */
         },
-        handleEnvironment() {
+        async handleEnvironment() {
             this.renderer && this.renderer.dispose();
             const environment = this.activeEnvironment;
 
@@ -113,10 +111,12 @@ export default {
                     sprite = SpriteCache.ENV_WORLD;
                     break;
             }
-            ImageUtil.onReady( sprite, () => {
-                this.zcanvas.addChild( this.renderer );
-                this.renderer.render( environment, this.player );
-            });
+            await loader.onReady( sprite );
+
+            this.zcanvas.addChild( this.renderer );
+            this.renderer.render( environment, this.player );
+
+            this.handleResize( null ); // size to match device / browser dimensions
         },
     }
 };

@@ -130,6 +130,21 @@ describe('Vuex game module', () => {
                 mutations.setFloor( state, 1 );
                 expect( state.building.floor ).toEqual( 1 );
             });
+
+            it('should be able to flush all cached Bitmaps for the current environment', () => {
+                const state = {
+                    activeEnvironment: {
+                        characters: [
+                            { foo: 'bar', bitmap: 'baz' },
+                            { qux: 'quz', bitmap: 'quuz' }
+                        ]
+                    }
+                };
+                mutations.flushBitmaps( state );
+                expect( state.activeEnvironment.characters ).toEqual([
+                    { foo: 'bar' }, { qux: 'quz' }
+                ]);
+            });
         });
 
         describe('when adding time bound effects', () => {
@@ -171,17 +186,17 @@ describe('Vuex game module', () => {
             const character = CharacterFactory.create();
             const state     = { world: { foo: 'bar' } };
             const commit    = jest.fn();
+            const dispatch  = jest.fn();
             mockUpdateFn    = jest.fn(() => state.world);
 
-            await actions.createGame({ state, commit }, character );
+            await actions.createGame({ state, commit, dispatch }, character );
 
             expect( commit ).toHaveBeenNthCalledWith( 1, 'setHash', expect.any(String));
             expect( commit ).toHaveBeenNthCalledWith( 2, 'setGame', expect.any(Object));
-            expect( commit ).toHaveBeenNthCalledWith( 3, 'setActiveEnvironment', state.world);
-            expect( commit ).toHaveBeenNthCalledWith( 4, 'setLastRender', expect.any(Number));
+            expect( commit ).toHaveBeenNthCalledWith( 3, 'setLastRender', expect.any(Number));
+            expect( dispatch ).toHaveBeenCalledWith( 'changeActiveEnvironment', state.world);
             expect( mockUpdateFn ).toHaveBeenNthCalledWith( 1, 'create' );
             expect( mockUpdateFn ).toHaveBeenNthCalledWith( 2, 'populate', state.world, expect.any(String));
-            expect( mockUpdateFn ).toHaveBeenNthCalledWith( 3, 'renderEnvironment', state.world);
         });
 
         describe('when storing the game', () => {
@@ -205,7 +220,7 @@ describe('Vuex game module', () => {
                 expect( mockUpdateFn ).toHaveBeenNthCalledWith( 1, 'get', 'rpg' );
                 expect( commit ).toHaveBeenNthCalledWith( 1, 'setGame', game );
                 expect( commit ).toHaveBeenNthCalledWith( 2, 'setHash', game.hash );
-                expect( commit ).toHaveBeenNthCalledWith( 3, 'setActiveEnvironment', game.world );
+                expect( dispatch ).toHaveBeenCalledWith( 'changeActiveEnvironment', game.world );
                 //expect( commit ).toHaveBeenNthCalledWith( 4, 'setLastRender', Date.now() );
             });
 
@@ -272,6 +287,22 @@ describe('Vuex game module', () => {
                 expect( dispatch ).toHaveBeenCalledWith( 'changeFloor', 0 );
             });
 
+            it('should be able to change currently the active environment', async () => {
+                const state    = { activeEnvironment: { foo: 'bar' } };
+                const commit   = jest.fn();
+                const dispatch = jest.fn();
+                mockUpdateFn = jest.fn();
+
+                const newEnvironment = { baz: 'qux' };
+                await actions.changeActiveEnvironment({ state, commit, dispatch }, newEnvironment );
+
+                expect( commit ).toHaveBeenNthCalledWith( 1, 'flushBitmaps' );
+                expect( commit ).toHaveBeenNthCalledWith( 2, 'setActiveEnvironment', newEnvironment );
+                expect( commit ).toHaveBeenNthCalledWith( 3, 'setLoading', true );
+                expect( mockUpdateFn ).toHaveBeenCalledWith( 'renderEnvironment', newEnvironment );
+                expect( commit ).toHaveBeenNthCalledWith( 4, 'setLoading', false );
+            });
+
             describe('when changing floors within a building', () => {
                 const state  = {
                     activeEnvironment: { foo : 'bar' },
@@ -290,15 +321,11 @@ describe('Vuex game module', () => {
                 it('should be able to change floors within a building', async () => {
                     const commit   = jest.fn();
                     const dispatch = jest.fn();
-                    mockUpdateFn   = jest.fn();
 
                     await actions.changeFloor({ state, commit, dispatch }, 1 );
 
-                    expect( commit ).toHaveBeenNthCalledWith( 1, 'setFloor', 1 );
-                    expect( commit ).toHaveBeenNthCalledWith( 2, 'setActiveEnvironment', state.building.floors[1] );
-                    expect( commit ).toHaveBeenNthCalledWith( 3, 'setLoading', true );
-                    expect( mockUpdateFn ).toHaveBeenCalledWith( 'renderEnvironment', state.activeEnvironment);
-                    expect( commit ).toHaveBeenNthCalledWith( 4, 'setLoading', false );
+                    expect( commit ).toHaveBeenCalledWith( 'setFloor', 1 );
+                    expect( dispatch ).toHaveBeenCalledWith( 'changeActiveEnvironment', expect.any( Object ));
                 });
             });
 
@@ -309,8 +336,8 @@ describe('Vuex game module', () => {
 
                 actions.leaveBuilding({ state, commit, dispatch });
 
-                expect( commit ).toHaveBeenNthCalledWith( 1, 'setBuilding', null );
-                expect( commit ).toHaveBeenNthCalledWith( 2, 'setActiveEnvironment', state.world );
+                expect( commit ).toHaveBeenCalledWith( 'setBuilding', null );
+                expect( dispatch ).toHaveBeenCalledWith( 'changeActiveEnvironment', state.world );
             });
         });
 
