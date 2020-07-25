@@ -3,6 +3,7 @@ import { createPixelCanvas }  from '@/utils/canvas-util';
 import ImageUtil              from '@/utils/image-util';
 import SpriteCache            from '@/utils/sprite-cache';
 import WorldCache             from '@/utils/world-cache';
+import { generateBitmap }     from '@/renderers/character-female-bitmap';
 
 import { BUILDING_TYPE, BUILDING_TILES } from '@/model/factories/building-factory';
 import { WORLD_TYPE, WORLD_TILES }       from '@/model/factories/world-factory';
@@ -20,7 +21,7 @@ export const renderEnvironment = environment =>
 {
     console.log( 'CACHE BITMAP FOR ENVIRONMENT' );
 
-    const { width, height, terrain, type } = environment;
+    const { width, height, terrain, type, characters } = environment;
 
     return new Promise(( resolve, reject ) => {
         const { tileWidth, tileHeight } = WorldCache;
@@ -58,7 +59,15 @@ export const renderEnvironment = environment =>
             target.width  = cvs.width;
             target.height = cvs.height;
 
-            ImageUtil.onReady( target, () => {
+            // Environment terrain ready
+            ImageUtil.onReady( target, async () => {
+                // ensure all Characters have their Bitmaps cached
+                for ( i = 0, l = characters.length; i < l; ++i ) {
+                    const character = characters[ i ];
+                    if ( !characters.bitmap ) {
+                        character.bitmap = await generateBitmap( character );
+                    }
+                }
                 resolve( target );
             });
         });

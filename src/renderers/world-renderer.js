@@ -385,14 +385,7 @@ WorldRenderer.prototype.renderCharacters = function( aCanvasContext, characters 
                     CHARACTER_SIZE, CHARACTER_SIZE
                 );
             } else {
-                // we lazily load the Characters when they come in view
-                if ( !character.bitmapLoading ) {
-                    character.bitmapLoading = true;
-                    generateBitmap( character ).then( img => {
-                        character.bitmap = img;
-                    });
-                }
-                aCanvasContext.fillStyle = 'rgba(0,0,255,.5)';
+                aCanvasContext.fillStyle = 'red';
                 aCanvasContext.fillRect( x, y, tileWidth, tileHeight );
             }
         }

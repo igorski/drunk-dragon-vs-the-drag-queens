@@ -66,6 +66,7 @@ npm run test
 ```
 ## TODO
 
+* Replace ImageUtil with zCanvas.loader
 * Environments should not have an x, y for the player, but its Character should!
 * Show navigation icon
 * When player clicks on non-navigate-able tile, navigate as close to the tile as possible (take dominant distance on x-y coordinate and keep reducing until path is found)
