@@ -42,7 +42,6 @@ const WorldFactory =
         const world = EnvironmentFactory.create( size / 2, size / 2, size, size );
 
         world.type      = WORLD_TYPE;
-        world.level     = 0;
         world.buildings = [];
         world.shops     = [];
 
@@ -125,45 +124,24 @@ const WorldFactory =
     disassemble( world ) {
         // we only assemble position and terrain (the game hash can
         // regenerate the world properties deterministically)
-        return {
-            x: world.x,
-            y: world.y,
-            w: world.width,
-            h: world.height,
-            t: world.terrain.join( '' ), // int values
-            s: world.shops.map( s => ShopFactory.disassemble( s )),
-            b: world.buildings.map( b => BuildingFactory.disassemble( b )),
-            c: world.characters.map( c => CharacterFactory.disassemble( c ))
-        };
+        const out = EnvironmentFactory.disassemble( world );
+
+        out.s = world.shops.map( s => ShopFactory.disassemble( s ));
+        out.b = world.buildings.map( b => BuildingFactory.disassemble( b ));
+
+        return out;
     },
 
     /**
      * assemble a serialized JSON Object
      * back into world structure
      */
-    assemble( data, hash ) {
-        const world = WorldFactory.create();
-
-        // restore position
-
-        world.x      = data.x;
-        world.y      = data.y;
-        world.width  = data.w;
-        world.height = data.h;
-
-        // restore World terrain
-
-        world.terrain = data.t.split( '' ); // split integer values to Array
-        const { terrain } = world;
-        let i = terrain.length;
-        while ( i-- ) {
-            terrain[ i ] = parseInt( terrain[ i ], 10 ); // String to numerical
-        }
+    assemble( data ) {
+        const world = EnvironmentFactory.assemble( data );
 
         // restore shops and buildings
         world.shops      = data.s.map( s => ShopFactory.assemble( s ));
         world.buildings  = data.b.map( b => BuildingFactory.assemble( b ));
-        world.characters = data.c.map( c => CharacterFactory.assemble( c ));
 
         return world;
     }

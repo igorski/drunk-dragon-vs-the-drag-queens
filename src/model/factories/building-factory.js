@@ -1,7 +1,6 @@
 import { Map }            from 'rot-js';
 import HashUtil           from '@/utils/hash-util';
 import WorldCache         from '@/utils/world-cache';
-import CharacterFactory   from './character-factory';
 import EnvironmentFactory from './environment-factory';
 import { positionAtRandomFreeTileType, coordinateToIndex } from '@/utils/terrain-util';
 
@@ -108,34 +107,24 @@ const BuildingFactory =
      * back into a building structure
      */
     assemble( data ) {
-        return {
-            x: data.x,
-            y: data.y,
-            width: data.w,
-            height: data.h,
-            characters: data.c.map( c => CharacterFactory.assemble( c )),
-            terrain: data.t,
-            type: data.ty,
-            floor: data.f ?? NaN,
-            floors: data.fs
-        };
+        const out  = EnvironmentFactory.assemble( data );
+
+        out.floor  = data.f ?? NaN,
+        out.floors = data.fs;
+
+        return out;
     },
 
     /**
      * serializes a building structure into a JSON structure
      */
      disassemble( building ) {
-         return {
-             x: building.x,
-             y: building.y,
-             w: building.width,
-             h: building.height,
-             c: building.characters.map( c => CharacterFactory.disassemble( c )),
-             t: building.terrain,
-             ty: building.type,
-             f: building.floor,
-             fs: building.floors,
-         };
+         const out = EnvironmentFactory.disassemble( building );
+
+         out.f  = building.floor;
+         out.fs = building.floors; // TODO: optimize floors
+
+         return out;
      }
 };
 export default BuildingFactory;

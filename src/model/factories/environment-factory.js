@@ -1,3 +1,5 @@
+import CharacterFactory from '@/model/factories/character-factory';
+
 export default
 {
     /**
@@ -13,6 +15,46 @@ export default
      * @param {Array<Number>=} terrain describing the Environment tile types
      */
     create( x = 0, y = 0, width = 0, height = 0, characters = [], terrain = [] ) {
-        return { x, y, width, height, characters, terrain };
+        return {
+            x, y,
+            width, height,
+            characters,
+            terrain,
+            visitedTerrain: [],
+            type: 'DEFAULT', // to be extended in inheriting factories
+        };
     },
+
+    /**
+     * assemble a serialized JSON structure
+     * back into an environment structure
+     */
+    assemble( data ) {
+        return {
+            x: data.x,
+            y: data.y,
+            width: data.w,
+            height: data.h,
+            characters: data.c.map( c => CharacterFactory.assemble( c )),
+            terrain: data.t,
+            visitedTerrain: data.v,
+            type: data.ty,
+        };
+    },
+
+    /**
+     * serializes an environment structure into a JSON structure
+     */
+     disassemble( environment ) {
+         return {
+             x: environment.x,
+             y: environment.y,
+             w: environment.width,
+             h: environment.height,
+             c: environment.characters.map( c => CharacterFactory.disassemble( c )),
+             t: environment.terrain,
+             v: environment.visitedTerrain,
+             ty: environment.type
+         };
+     }
 };

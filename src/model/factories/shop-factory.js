@@ -62,13 +62,13 @@ const ShopFactory =
         let items;
         switch ( shop.type ) {
             case SHOP_TYPES.PHARMACY:
-                items = ItemFactory.create( ItemTypes.HEALTHCARE, amountToCreate );
+                items = ItemFactory.createList( ItemTypes.HEALTHCARE, amountToCreate );
                 break;
             case SHOP_TYPES.JEWELLER:
-                items = ItemFactory.create( ItemTypes.JEWELRY, amountToCreate );
+                items = ItemFactory.createList( ItemTypes.JEWELRY, amountToCreate );
                 break;
             case SHOP_TYPES.LIQUOR:
-                items = ItemFactory.create( ItemTypes.LIQUOR, amountToCreate );
+                items = ItemFactory.createList( ItemTypes.LIQUOR, amountToCreate );
                 break;
         }
         shop.items.push( ...items );

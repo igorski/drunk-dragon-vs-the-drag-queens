@@ -2,32 +2,37 @@ import ItemTypes  from '@/definitions/item-types';
 import PriceTypes from '@/definitions/price-types';
 import Random     from 'random-seed';
 
-export default
+const ItemFactory =
 {
-    create( itemType, amountToCreate ) {
+    create( itemType ) {
+        const rand = Random.create();
+        const basePrice = rand.intBetween( 0, Object.keys( PriceTypes ).length - 1 );
+
+        let price = basePrice;
+        if ( rand.intBetween( 0, 1 ) === 0 ) {
+            price *= ( Math.random() + 1 )
+            price = parseFloat( price.toFixed( 2 ));
+        }
+
+        let type = '';
+        switch ( itemType ) {
+            case ItemTypes.JEWELRY:
+                break;
+            case ItemTypes.LIQUOR:
+                break;
+            case ItemTypes.HEALTHCARE:
+                break;
+        }
+        return {
+            type, price
+        };
+    },
+
+    createList( itemType, amountToCreate ) {
         const out = [];
+
         for ( let i = 0; i < amountToCreate; ++i ) {
-            const rand = Random.create();
-            const basePrice = rand.intBetween( 0, Object.keys( PriceTypes ).length - 1 );
-
-            let price = basePrice;
-            if ( rand.intBetween( 0, 1 ) === 0 ) {
-                price *= ( Math.random() + 1 )
-                price = parseFloat( price.toFixed( 2 ));
-            }
-
-            let type = '';
-            switch ( itemType ) {
-                case ItemTypes.JEWELRY:
-                    break;
-                case ItemTypes.LIQUOR:
-                    break;
-                case ItemTypes.HEALTHCARE:
-                    break;
-            }
-            out.push({
-                type, price
-            });
+            out.push( ItemFactory.create( itemType ));
         }
         return out;
     },
@@ -53,3 +58,4 @@ export default
         };
     },
 };
+export default ItemFactory;
