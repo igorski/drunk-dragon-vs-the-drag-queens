@@ -288,7 +288,7 @@ describe('Vuex game module', () => {
             });
 
             it('should be able to change currently the active environment', async () => {
-                const state    = { activeEnvironment: { foo: 'bar' } };
+                const state    = { activeEnvironment: { foo: 'bar' }, player: { baz: 'qux' } };
                 const commit   = jest.fn();
                 const dispatch = jest.fn();
                 mockUpdateFn = jest.fn();
@@ -299,7 +299,7 @@ describe('Vuex game module', () => {
                 expect( commit ).toHaveBeenNthCalledWith( 1, 'flushBitmaps' );
                 expect( commit ).toHaveBeenNthCalledWith( 2, 'setActiveEnvironment', newEnvironment );
                 expect( commit ).toHaveBeenNthCalledWith( 3, 'setLoading', true );
-                expect( mockUpdateFn ).toHaveBeenCalledWith( 'renderEnvironment', newEnvironment );
+                expect( mockUpdateFn ).toHaveBeenCalledWith( 'renderEnvironment', newEnvironment, state.player );
                 expect( commit ).toHaveBeenNthCalledWith( 4, 'setLoading', false );
             });
 

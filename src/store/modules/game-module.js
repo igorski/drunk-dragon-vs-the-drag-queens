@@ -211,7 +211,7 @@ export default {
             }
             commit( 'setActiveEnvironment', environment );
             commit( 'setLoading', true );
-            await renderEnvironment( environment );
+            await renderEnvironment( environment, state.player );
             commit( 'setLoading', false );
 
             console.warn('TODO: WHEN CHANGING ACTIVE ENVIRONMENT RESET AI BEHAVIOUR');

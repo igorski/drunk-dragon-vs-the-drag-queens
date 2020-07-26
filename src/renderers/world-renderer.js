@@ -6,7 +6,6 @@ import SpriteCache from '@/utils/sprite-cache';
 import WorldCache  from '@/utils/world-cache';
 import { coordinateToIndex, indexToCoordinate } from '@/utils/terrain-util';
 import { findPath } from '@/utils/path-finder';
-import { generateBitmap } from './character-female-bitmap';
 
 let commit, dispatch; // Vuex store hooks
 
@@ -77,9 +76,9 @@ WorldRenderer.prototype.render = function( aWorld, aPlayer ) {
     this._environment = aWorld;
     this._player      = aPlayer;
 
-    generateBitmap( aPlayer ).then( img => {
-        this._playerBitmap = img;
-    });
+    // cache player Bitmap dimensions
+    this._playerBmpWidth  = aPlayer.bitmap.width;
+    this._playerBmpHeight = aPlayer.bitmap.height;
 };
 
 /**
@@ -285,8 +284,8 @@ WorldRenderer.prototype.draw = function( aCanvasContext ) {
 
     // render characters
 
-    this.renderPlayer( aCanvasContext, left, top, halfHorizontalTileAmount, halfVerticalTileAmount );
     this.renderCharacters( aCanvasContext, characters, visibleTiles );
+    this.renderPlayer( aCanvasContext, left, top, halfHorizontalTileAmount, halfVerticalTileAmount );
 
     // draw path when walking to waypoint
 
@@ -352,15 +351,9 @@ WorldRenderer.prototype.renderPlayer = function( aCanvasContext, left, top, half
         y = (( this.verticalTileAmount - ( worldHeight - world.y )) * tileHeight ) + vy;
     }
 */
-    if ( this._playerBitmap ) {
-        const { width, height } = this._playerBitmap;
-        const xDelta = CHARACTER_SIZE / 2 - tileWidth / 2;
-        const yDelta = CHARACTER_SIZE / 2 - tileHeight / 2
-        aCanvasContext.drawImage( this._playerBitmap, 0, 0, width, height, x - xDelta, y - yDelta, CHARACTER_SIZE, CHARACTER_SIZE );
-    } else {
-        aCanvasContext.fillStyle = 'rgba(0,0,255,.5)';
-        aCanvasContext.fillRect( x, y, tileWidth, tileHeight );
-    }
+    const xDelta = CHARACTER_SIZE / 2 - tileWidth / 2;
+    const yDelta = CHARACTER_SIZE / 2 - tileHeight / 2
+    aCanvasContext.drawImage( this._player.bitmap, 0, 0, this._playerBmpWidth, this._playerBmpHeight, x - xDelta, y - yDelta, CHARACTER_SIZE, CHARACTER_SIZE );
 }
 
 WorldRenderer.prototype.renderCharacters = function( aCanvasContext, characters = [], { left, top, right, bottom }) {
@@ -374,20 +367,15 @@ WorldRenderer.prototype.renderCharacters = function( aCanvasContext, characters 
             let x = ( character.x - left ) * tileWidth;
             let y = ( character.y - top )  * tileHeight;
 
-            if ( character.bitmap ) {
-                const { width, height } = character.bitmap;
-                const xDelta = CHARACTER_SIZE / 2 - tileWidth / 2;
-                const yDelta = CHARACTER_SIZE / 2 - tileHeight / 2
+            const { width, height } = character.bitmap;
+            const xDelta = CHARACTER_SIZE / 2 - tileWidth / 2;
+            const yDelta = CHARACTER_SIZE / 2 - tileHeight / 2
 
-                aCanvasContext.drawImage(
-                    character.bitmap, 0, 0, width, height,
-                    Math.round( x - xDelta ), Math.round( y - yDelta ),
-                    CHARACTER_SIZE, CHARACTER_SIZE
-                );
-            } else {
-                aCanvasContext.fillStyle = 'red';
-                aCanvasContext.fillRect( x, y, tileWidth, tileHeight );
-            }
+            aCanvasContext.drawImage(
+                character.bitmap, 0, 0, width, height,
+                Math.round( x - xDelta ), Math.round( y - yDelta ),
+                CHARACTER_SIZE, CHARACTER_SIZE
+            );
         }
     }
 }

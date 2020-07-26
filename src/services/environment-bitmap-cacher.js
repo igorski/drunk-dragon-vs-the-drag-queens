@@ -17,7 +17,7 @@ const NONE = undefined;
  * entire environment contents for fast direct-from-memory blitting in the sprite
  * reducing the need for repeated recalculation of non-dynamic content
  */
-export const renderEnvironment = environment =>
+export const renderEnvironment = ( environment, player ) =>
 {
     console.log( 'CACHE BITMAP FOR ENVIRONMENT' );
 
@@ -59,10 +59,13 @@ export const renderEnvironment = environment =>
             target.width  = cvs.width;
             target.height = cvs.height;
 
-            // Environment terrain ready
+            // Environment terrain rendered, await Bitmap ready
             await loader.onReady( target );
 
-            // ensure all Characters have their Bitmaps cached
+            // generate player Bitmap
+            player.bitmap = await generateBitmap( player );
+
+            // ensure all Characters also have their Bitmaps cached
             for ( i = 0, l = characters.length; i < l; ++i ) {
                 const character = characters[ i ];
                 if ( !characters.bitmap ) {
