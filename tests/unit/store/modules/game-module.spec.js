@@ -16,7 +16,7 @@ jest.mock('@/model/factories/game-factory', () => ({
     disassemble: (...args) => mockUpdateFn('disassemble', ...args)
 }));
 jest.mock('@/model/factories/shop-factory', () => ({
-    generateShopItems: (...args) => mockUpdateFn('generateShopItems', ...args),
+    generateItems: (...args) => mockUpdateFn('generateItems', ...args),
 }));
 jest.mock('@/model/factories/world-factory', () => ({
     create: (...args) => mockUpdateFn('create', ...args),
@@ -268,7 +268,7 @@ describe('Vuex game module', () => {
                 mockUpdateFn = jest.fn();
                 actions.enterShop({ state, commit }, shop );
 
-                expect( mockUpdateFn ).toHaveBeenCalledWith( 'generateShopItems', shop, state.player );
+                expect( mockUpdateFn ).toHaveBeenCalledWith( 'generateItems', shop, 5 );
                 expect( commit ).toHaveBeenNthCalledWith( 1, 'setShop', shop );
                 expect( commit ).toHaveBeenNthCalledWith( 2, 'setScreen', SCREEN_SHOP );
             });

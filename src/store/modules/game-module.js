@@ -166,7 +166,7 @@ export default {
         },
         /* navigation actions */
         enterShop({ state, commit }, shop ) {
-            ShopFactory.generateShopItems( shop, state.player );
+            ShopFactory.generateItems( shop, 5 );
             commit( 'setShop', shop );
             commit( 'setScreen', SCREEN_SHOP );
         },

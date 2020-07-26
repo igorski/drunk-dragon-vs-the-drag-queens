@@ -101,7 +101,7 @@ const WorldFactory =
 
         const characterHash      = hash.substr( 8, 8 );
         const amountOfCharacters = HashUtil.charsToNum( characterHash ) * 4;
-console.warn('amount of characters:' +amountOfCharacters);
+
         world.characters = generateGroup(
             centerX, centerY, world, amountOfCharacters, CharacterFactory.create, 4, .25
         );
@@ -131,8 +131,8 @@ console.warn('amount of characters:' +amountOfCharacters);
             w: world.width,
             h: world.height,
             t: world.terrain.join( '' ), // int values
-            s: world.shops,
-            b: world.buildings,
+            s: world.shops.map( s => ShopFactory.disassemble( s )),
+            b: world.buildings.map( b => BuildingFactory.disassemble( b )),
             c: world.characters.map( c => CharacterFactory.disassemble( c ))
         };
     },
@@ -161,8 +161,8 @@ console.warn('amount of characters:' +amountOfCharacters);
         }
 
         // restore shops and buildings
-        world.shops      = data.s;
-        world.buildings  = data.b;
+        world.shops      = data.s.map( s => ShopFactory.assemble( s ));
+        world.buildings  = data.b.map( b => BuildingFactory.assemble( b ));
         world.characters = data.c.map( c => CharacterFactory.assemble( c ));
 
         return world;

@@ -1,118 +1,55 @@
-import ItemTypes     from '@/definitions/item-types';
-import MedicineTypes from '@/definitions/medicine-types';
-import Random        from 'random-seed';
+import ItemTypes  from '@/definitions/item-types';
+import PriceTypes from '@/definitions/price-types';
+import Random     from 'random-seed';
 
 export default
 {
-    generateItem()
-    {
-        const rand = Random.create();
-        const type = rand.intBetween( 0, Object.keys( ItemTypes ).length - 1 );
+    create( itemType, amountToCreate ) {
+        const out = [];
+        for ( let i = 0; i < amountToCreate; ++i ) {
+            const rand = Random.create();
+            const basePrice = rand.intBetween( 0, Object.keys( PriceTypes ).length - 1 );
 
-        return { type, value: ItemFactory.generateItemValue( item ) };
+            let price = basePrice;
+            if ( rand.intBetween( 0, 1 ) === 0 ) {
+                price *= ( Math.random() + 1 )
+                price = parseFloat( price.toFixed( 2 ));
+            }
+
+            let type = '';
+            switch ( itemType ) {
+                case ItemTypes.JEWELRY:
+                    break;
+                case ItemTypes.LIQUOR:
+                    break;
+                case ItemTypes.HEALTHCARE:
+                    break;
+            }
+            out.push({
+                type, price
+            });
+        }
+        return out;
     },
 
     /**
-     * get the localized name for a given item
-     *
-     * @param {Item|ShopItem} aItem
-     * @return {string}
+     * assemble a serialized JSON structure
+     * back into an Item instance
      */
-    getItemName({ type })
-    {
-        switch ( type )
-        {
-            case ItemTypes.WEAPON:
-                return 'TODO';//Copy.ITEMS[ aItem.type ] + ' '' + Copy.WEAPONS[ aItem.value ] + ''';
-                break;
-
-            case ItemTypes.MEDICINE:
-                return 'TODO';//Copy.ITEMS[ aItem.type ] + ' '' + Copy.MEDICINE[ aItem.value ] + ''';
-                break;
-        }
-    },
-
-    generateItemValue({ type })
-    {
-        switch ( type )
-        {
-            case ItemTypes.WEAPON:
-
-                const types = [
-                    // TODO: create
-                ];
-                return types[ Random.create().intBetween( 0, types.length - 1 )];
-                break;
-
-            // medicine, value is MedicineType
-
-            case ItemTypes.MEDICINE:
-                return MedicineTypes.POTION;
-                break;
-        }
+    assemble( data ) {
+        return {
+            type: data.t,
+            price: data.p,
+        };
     },
 
     /**
-     * generate a price for a given Item for given aPlayers level
-     *
-     * @param {Item} aItem
-     * @param {Player} aPlayer
-     * @return {number}
+     * serializes an Item instance into a JSON structure
      */
-    generateItemPrice({ type }, aPlayer )
-    {
-        let price = 1;
-
-        switch ( type )
-        {
-            case ItemTypes.WEAPON:
-                price  = price + ( AttackTypes[ Object.keys( AttackTypes )[ aItem.value ]] / aPlayer.level );
-                price *= 3;
-                break;
-
-            case ItemTypes.MEDICINE:
-                price  = price + ( MedicineTypes[ Object.keys( MedicineTypes )[ aItem.value ]] / aPlayer.level );
-                price *= 3;
-                break;
-        }
-        return price;
+    disassemble( item ) {
+        return {
+            t: item.type,
+            p: item.price
+        };
     },
-
-    /**
-     * apply given aItem onto given aPlayer
-     *
-     * @param {Item} aItem
-     * @param {Player} aPlayer
-     */
-    applyItem({ type, value }, aPlayer )
-    {
-        switch ( type )
-        {
-            // apply medicine
-
-            case ItemTypes.MEDICINE:
-
-                let multiplier = .2;
-
-                switch ( value )
-                {
-                    default:
-                    case MedicineTypes.POTION:
-                        multiplier = .3;
-                        break;
-
-                    case MedicineTypes.MEDIKIT:
-                        multiplier = .5;
-                        break;
-
-                    case MedicineTypes.FULL_POWER:
-                        multiplier = 1;
-                        break;
-                }
-                const extraHP = Math.round( aPlayer.maxHP * multiplier );
-                aPlayer.HP    = Math.min( aPlayer.maxHP, aPlayer.HP + extraHP );
-
-                break;
-        }
-    }
 };

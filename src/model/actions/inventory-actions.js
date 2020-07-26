@@ -32,7 +32,6 @@ export default
 
         inventoryToMergeWith.items.forEach(item => {
             inventory.items.push( item );
-            out.push( ItemFactory.getItemName( item ));
         });
         inventoryToMergeWith.items.splice( 0, inventoryToMergeWith.items.length );
 
