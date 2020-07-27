@@ -2,6 +2,7 @@ import store            from '@/store/modules/game-module';
 import { SCREEN_SHOP }  from '@/definitions/screens';
 import CharacterFactory from '@/model/factories/character-factory';
 import EffectFactory    from '@/model/factories/effect-factory';
+
 const { getters, mutations, actions } = store;
 
 let mockUpdateFn;
@@ -40,11 +41,6 @@ describe('Vuex game module', () => {
             expect( getters.activeEnvironment( state )).toEqual( state.activeEnvironment );
         });
 
-        it('should return the player Character', () => {
-            const state = { player: { baz: 'qux' } };
-            expect( getters.player( state )).toEqual( state.player );
-        });
-
         it('should return the active floor, when in a building', () => {
             const state = { building: null };
             expect( getters.floor( state )).toEqual( NaN );
@@ -54,13 +50,6 @@ describe('Vuex game module', () => {
     });
 
     describe('mutations', () => {
-        it('should be able to set the active game hash', () => {
-            const state = { hash: null };
-            const hash = 'foobarbaz';
-            mutations.setHash( state, hash );
-            expect( state.hash ).toEqual( hash );
-        });
-
         it('should be able to set the active game', () => {
             const state = {};
             const game = {
@@ -69,9 +58,9 @@ describe('Vuex game module', () => {
                 gameStart: Date.now() + 1000,
                 lastSavedTime: Date.now() + 3000,
                 gameTime: Date.now() - 100000,
-                player: { foo: 'bar' },
                 building: { baz: 'qux' },
-                world: { quux: 'corge' }
+                world: { quux: 'quuz' },
+                hash: 'corge',
             };
             mutations.setGame( state, game );
             expect( state ).toEqual( game );
@@ -178,38 +167,63 @@ describe('Vuex game module', () => {
                 mutations.removeEffectsByAction( state, [ 'foo', 'qux' ]);
                 expect( state.effects ).toEqual([ { id: 4, action: 'baz' } ]);
             });
+
+            it('should be able to remover a specific item from the currently visited shop', () => {
+                const item  = { foo: 'bar' };
+                const state = { shop: { items: [{ baz: 'qux' }, item ] } };
+                mutations.removeItemFromShop( state, item );
+                expect( state.shop.items ).toEqual([{ baz: 'qux' }]);
+            });
         });
     });
 
     describe('actions', () => {
         it('should be able to create a new game', async () => {
             const character = CharacterFactory.create();
-            const state     = { world: { foo: 'bar' } };
+            const world     = { foo: 'bar' };
             const commit    = jest.fn();
             const dispatch  = jest.fn();
-            mockUpdateFn    = jest.fn(() => state.world);
+            mockUpdateFn    = jest.fn(() => world );
 
-            await actions.createGame({ state, commit, dispatch }, character );
+            await actions.createGame({ commit, dispatch }, character );
 
-            expect( commit ).toHaveBeenNthCalledWith( 1, 'setHash', expect.any(String));
-            expect( commit ).toHaveBeenNthCalledWith( 2, 'setGame', expect.any(Object));
-            expect( commit ).toHaveBeenNthCalledWith( 3, 'setLastRender', expect.any(Number));
-            expect( dispatch ).toHaveBeenCalledWith( 'changeActiveEnvironment', state.world);
+            expect( commit ).toHaveBeenNthCalledWith( 1, 'setGame', expect.any( Object ));
+            expect( commit ).toHaveBeenNthCalledWith( 2, 'setPlayer', character );
+            expect( commit ).toHaveBeenNthCalledWith( 3, 'setLastRender', expect.any( Number ));
+            expect( dispatch ).toHaveBeenCalledWith( 'changeActiveEnvironment', world );
             expect( mockUpdateFn ).toHaveBeenNthCalledWith( 1, 'create' );
-            expect( mockUpdateFn ).toHaveBeenNthCalledWith( 2, 'populate', state.world, expect.any(String));
+            expect( mockUpdateFn ).toHaveBeenNthCalledWith( 2, 'populate', world, expect.any( String ));
         });
 
         describe('when storing the game', () => {
             it('should be able to save the game state into local storage', () => {
                 mockUpdateFn = jest.fn(() => 'mockReturn');
                 const state  = { foo: 'bar' };
-                actions.saveGame({ state });
-                expect( mockUpdateFn ).toHaveBeenNthCalledWith( 1, 'disassemble', state );
+                const mockedGetters = { player: { baz: 'qux' } };
+                actions.saveGame({ state, getters: mockedGetters });
+                expect( mockUpdateFn ).toHaveBeenNthCalledWith( 1, 'disassemble', state, mockedGetters.player );
                 expect( mockUpdateFn ).toHaveBeenNthCalledWith( 2, 'set', 'rpg', 'mockReturn' );
             });
 
             it('should be able to restore a saved game from local storage', () => {
-                const game = { hash: 'foo', world: 'bar', player: {} };
+                const game     = { hash: 'foo', world: 'bar' };
+                const player   = { baz: 'qux' };
+                mockUpdateFn   = jest.fn(() => ({ game, player }));
+                const state    = { activeEnvironment: null };
+                const commit   = jest.fn();
+                const dispatch = jest.fn();
+
+                actions.loadGame({ state, commit, dispatch });
+
+                expect( mockUpdateFn ).toHaveBeenNthCalledWith( 1, 'get', 'rpg' );
+                expect( commit ).toHaveBeenNthCalledWith( 1, 'setGame', game );
+                expect( commit ).toHaveBeenNthCalledWith( 2, 'setPlayer', player );
+                expect( dispatch ).toHaveBeenCalledWith( 'changeActiveEnvironment', game.world );
+                //expect( commit ).toHaveBeenNthCalledWith( 4, 'setLastRender', Date.now() );
+            });
+
+            it('should reset the game state if the save is corrupted', () => {
+                const game = { hash: 'foo' };
                 mockUpdateFn = jest.fn(() => game);
                 const state = { activeEnvironment: null };
                 const commit = jest.fn();
@@ -218,37 +232,23 @@ describe('Vuex game module', () => {
                 actions.loadGame({ state, commit, dispatch });
 
                 expect( mockUpdateFn ).toHaveBeenNthCalledWith( 1, 'get', 'rpg' );
-                expect( commit ).toHaveBeenNthCalledWith( 1, 'setGame', game );
-                expect( commit ).toHaveBeenNthCalledWith( 2, 'setHash', game.hash );
-                expect( dispatch ).toHaveBeenCalledWith( 'changeActiveEnvironment', game.world );
-                //expect( commit ).toHaveBeenNthCalledWith( 4, 'setLastRender', Date.now() );
-            });
-
-            it('should reset the game state if the save is corrupted', () => {
-              const game = { hash: 'foo' };
-              mockUpdateFn = jest.fn(() => game);
-              const state = { activeEnvironment: null };
-              const commit = jest.fn();
-              const dispatch = jest.fn();
-
-              actions.loadGame({ state, commit, dispatch });
-
-              expect( mockUpdateFn ).toHaveBeenNthCalledWith( 1, 'get', 'rpg' );
-              expect( dispatch ).toHaveBeenCalledWith( 'resetGame' );
-              expect( commit ).toHaveBeenCalledWith( 'setScreen', expect.any( Number ));
+                expect( dispatch ).toHaveBeenCalledWith( 'resetGame' );
+                expect( commit ).toHaveBeenCalledWith( 'setScreen', expect.any( Number ));
             });
 
             it('should be able to import an exported save game', async () => {
-                const game = { hash: 'foo' };
-                mockUpdateFn = jest.fn(() => game);
+                const encodedData = { h: 'foo', w: 'bar', p: 'baz' };
+                const game = { hash: 'foo', world: 'bar' };
+                const player = { baz: 'qux' };
+                mockUpdateFn = jest.fn(() => ({ game, player }));
                 const commit = jest.fn();
                 const dispatch = jest.fn();
 
-                await actions.importGame({ commit, dispatch }, 'foo' );
+                await actions.importGame({ commit, dispatch }, encodedData );
 
-                expect( mockUpdateFn ).toHaveBeenNthCalledWith( 1, 'assemble', 'foo' );
+                expect( mockUpdateFn ).toHaveBeenNthCalledWith( 1, 'assemble', encodedData );
                 expect( commit ).toHaveBeenNthCalledWith( 1, 'setGame', game );
-                expect( commit ).toHaveBeenNthCalledWith( 2, 'setHash', game.hash );
+                expect( commit ).toHaveBeenNthCalledWith( 2, 'setPlayer', player );
                 expect( dispatch ).toHaveBeenNthCalledWith( 1, 'saveGame' );
                 expect( dispatch ).toHaveBeenNthCalledWith( 2, 'loadGame' );
             });
@@ -261,45 +261,61 @@ describe('Vuex game module', () => {
         });
 
         describe('when navigating through the game world', () => {
-            it('should be able to enter a shop', () => {
-                const shop = { foo: 'bar' };
-                const state = { player: { baz: 'qux' } };
-                const commit = jest.fn();
-                mockUpdateFn = jest.fn();
-                actions.enterShop({ state, commit }, shop );
+            describe('and entering a shop', () => {
+                it('should be able to enter a shop, generating stock when it has no items upon entry', () => {
+                    const shop = { foo: 'bar', items: [] };
+                    const state = { player: { baz: 'qux' } };
+                    const commit = jest.fn();
+                    mockUpdateFn = jest.fn();
+                    actions.enterShop({ state, commit }, shop );
 
-                expect( mockUpdateFn ).toHaveBeenCalledWith( 'generateItems', shop, 5 );
-                expect( commit ).toHaveBeenNthCalledWith( 1, 'setShop', shop );
-                expect( commit ).toHaveBeenNthCalledWith( 2, 'setScreen', SCREEN_SHOP );
+                    expect( mockUpdateFn ).toHaveBeenCalledWith( 'generateItems', shop, expect.any( Number ));
+                    expect( commit ).toHaveBeenNthCalledWith( 1, 'setShop', shop );
+                    expect( commit ).toHaveBeenNthCalledWith( 2, 'setScreen', SCREEN_SHOP );
+                });
+
+                it('should be able to enter a shop, not generating new items when there are stil in stock', () => {
+                    const shop = { foo: 'bar', items: [{ baz: 'qux' }]};
+                    const state = { player: { baz: 'qux' } };
+                    const commit = jest.fn();
+                    mockUpdateFn = jest.fn();
+                    actions.enterShop({ state, commit }, shop );
+
+                    expect( mockUpdateFn ).not.toHaveBeenCalledWith( 'generateItems', shop, expect.any( Number ));
+                    expect( commit ).toHaveBeenNthCalledWith( 1, 'setShop', shop );
+                    expect( commit ).toHaveBeenNthCalledWith( 2, 'setScreen', SCREEN_SHOP );
+                });
             });
 
             it('should be able to enter a building', () => {
-                const state    = { hash: 'foo', player: 'bar' }
-                const building = { baz: 'qux' };
-                const commit   = jest.fn();
-                const dispatch = jest.fn();
-                mockUpdateFn   = jest.fn();
+                const state         = { hash: 'foo' };
+                const building      = { baz: 'qux' };
+                const commit        = jest.fn();
+                const dispatch      = jest.fn();
+                const mockedGetters = { player: { baz: 'qux' } };
+                mockUpdateFn        = jest.fn();
 
-                actions.enterBuilding({ state, commit, dispatch }, building );
+                actions.enterBuilding({ state, getters: mockedGetters, commit, dispatch }, building );
 
-                expect( mockUpdateFn ).toHaveBeenCalledWith( 'generateFloors', state.hash, building, state.player );
+                expect( mockUpdateFn ).toHaveBeenCalledWith( 'generateFloors', state.hash, building, mockedGetters.player );
                 expect( commit ).toHaveBeenCalledWith( 'setBuilding', building );
                 expect( dispatch ).toHaveBeenCalledWith( 'changeFloor', 0 );
             });
 
             it('should be able to change currently the active environment', async () => {
-                const state    = { activeEnvironment: { foo: 'bar' }, player: { baz: 'qux' } };
-                const commit   = jest.fn();
-                const dispatch = jest.fn();
-                mockUpdateFn = jest.fn();
+                const state         = { activeEnvironment: { foo: 'bar' } };
+                const commit        = jest.fn();
+                const dispatch      = jest.fn();
+                const mockedGetters = { player: { baz: 'qux' } };
+                mockUpdateFn        = jest.fn();
 
                 const newEnvironment = { baz: 'qux' };
-                await actions.changeActiveEnvironment({ state, commit, dispatch }, newEnvironment );
+                await actions.changeActiveEnvironment({ state, getters: mockedGetters, commit, dispatch }, newEnvironment );
 
                 expect( commit ).toHaveBeenNthCalledWith( 1, 'flushBitmaps' );
                 expect( commit ).toHaveBeenNthCalledWith( 2, 'setActiveEnvironment', newEnvironment );
                 expect( commit ).toHaveBeenNthCalledWith( 3, 'setLoading', true );
-                expect( mockUpdateFn ).toHaveBeenCalledWith( 'renderEnvironment', newEnvironment, state.player );
+                expect( mockUpdateFn ).toHaveBeenCalledWith( 'renderEnvironment', newEnvironment, mockedGetters.player );
                 expect( commit ).toHaveBeenNthCalledWith( 4, 'setLoading', false );
             });
 

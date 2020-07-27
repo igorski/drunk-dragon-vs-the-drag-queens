@@ -10,16 +10,17 @@ export default
      * LZ compressed JSON String
      *
      * @param {Object} game state
+     * @param {Object} player state
      * @return {string} compressed JSON String
      */
-    disassemble( game ) {
+    disassemble( game, player ) {
         const out = {
             h: game.hash,
             c: game.created,
             m: game.modified,
             gs: game.gameStart,
             gt: game.gameTime,
-            p: CharacterFactory.disassemble( game.player ),
+            p: CharacterFactory.disassemble( player ),
             w: WorldFactory.disassemble( game.world, game.hash ),
             b: game.building ? BuildingFactory.disassemble( game.building ) : null,
         };
@@ -61,10 +62,9 @@ export default
             modified: data.m,
             gameStart: data.gs,
             gameTime: data.gt,
-            player: CharacterFactory.assemble( data.p ),
             world: WorldFactory.assemble( data.w, data.h ),
             building: data.b ? BuildingFactory.assemble( data.b ) : null
         };
-        return game;
+        return { game, player: CharacterFactory.assemble( data.p ) };
     }
 };

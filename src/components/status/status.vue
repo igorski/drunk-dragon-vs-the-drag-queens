@@ -4,9 +4,11 @@
             <h3 v-t="'map'"></h3>
             <img ref="map" class="map-image" />
             <h3 v-t="'time'"></h3>
-            <span class="time">{{ time }}</span>
+            <span>{{ time }}</span>
             <h3 v-t="'date'"></h3>
-            <span class="date">{{ date }}</span>
+            <span>{{ date }}</span>
+            <h3 v-t="'cash'"></h3>
+            <span>$ {{ player.inventory.cash.toFixed( 2 ) }}</span>
             <component
                 class="character-preview"
                 :is="characterComponent"

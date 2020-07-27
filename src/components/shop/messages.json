@@ -1,5 +1,16 @@
 {
     "en-US": {
-        "shop": "Shop"
+        "shop": "Shop",
+        "welcomeToOur": "Welcome to our {type}",
+        "pharmacy": "Pharmacy",
+        "jewelryStore": "Jewelry store",
+        "liquorStore": "Liquor store",
+        "itemsForSale": "Right now, we have the following items for sale:",
+        "noItemsForSale": "Right now we are completely out of stock.",
+        "buy": "Buy",
+        "confirmPurchase": "Confirm your purchase",
+        "buyItemForPrice": "Buy {type} for {price} ?",
+        "insufficientFunds": "It seems you have insufficient funds to buy this item.",
+        "thanksForPurchase": "Thank you for your business!"
     }
 }

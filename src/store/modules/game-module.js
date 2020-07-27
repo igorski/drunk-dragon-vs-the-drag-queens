@@ -19,7 +19,6 @@ export default {
     state: {
         hash: '',
         world: null,
-        player: null,
         activeEnvironment: null,
         building: null,
         shop: null,
@@ -35,20 +34,16 @@ export default {
         activeEnvironment: state => state.activeEnvironment,
         floor: state => state.building?.floor ?? NaN,
         shop: state => state.shop,
-        player: state => state.player,
         hasSavedGame: state => () => !!storage.get( STORAGE_KEY ),
     },
     mutations: {
-        setHash( state, value ) {
-            state.hash = value;
-        },
         setGame( state, value ) {
             state.created       = value.created;
             state.modified      = value.modified;
             state.gameStart     = value.gameStart;
+            state.hash          = value.hash;
             state.lastSavedTime = value.lastSavedTime;
             state.gameTime      = value.gameTime;
-            state.player        = value.player;
             state.building      = value.building;
             state.world         = value.world;
         },
@@ -88,6 +83,12 @@ export default {
         removeEffectsByAction( state, types = [] ) {
             Vue.set( state, 'effects', state.effects.filter(({ action }) => !types.includes( action )));
         },
+        removeItemFromShop( state, item ) {
+            const index = state.shop.items.indexOf( item );
+            if ( index > -1 ) {
+                state.shop.items.splice( index, 1 );
+            }
+        },
         flushBitmaps( state ) {
             state.activeEnvironment.characters.forEach( character => {
                 delete character.bitmap;
@@ -96,11 +97,10 @@ export default {
     },
     actions: {
         /* game management / storage */
-        async createGame({ state, commit, dispatch }, player = CharacterFactory.create() ) {
+        async createGame({ commit, dispatch }, player = CharacterFactory.create() ) {
             const now = Date.now();
             // generate unique hash for the world
             const hash = MD5( now + Math.random());
-            commit( 'setHash', hash );
             // create world
             const world = WorldFactory.create();
             WorldFactory.populate( world, hash );
@@ -112,24 +112,25 @@ export default {
                 lastSavedTime: -1,
                 gameTime: new Date( GAME_START_TIME ).getTime(),
                 building: null,
-                player,
                 world,
+                hash,
             });
+            commit( 'setPlayer', player );
             commit( 'setLastRender', Date.now() );
             await dispatch( 'changeActiveEnvironment', world );
         },
         async loadGame({ state, commit, dispatch }) {
             const data = storage.get( STORAGE_KEY );
             try {
-                const game = GameFactory.assemble( data );
-                if ( data && ( !game?.player || !game?.world )) {
+                const { game, player } = GameFactory.assemble( data );
+                if ( data && ( !player || !game?.world )) {
                     // corrupted or outdated format
                     dispatch( 'resetGame' );
                     commit( 'setScreen', SCREEN_CHARACTER_CREATE );
                     return;
                 }
                 commit( 'setGame', game );
-                commit( 'setHash', game.hash );
+                commit( 'setPlayer', player );
                 let activeEnvironmentToSet = game.world;
                 const { building } = game;
                 if ( building ) {
@@ -142,20 +143,20 @@ export default {
                 // nowt... screen will match game state (e.g. show character creation)
             }
         },
-        async saveGame({ state }) {
-            const data = GameFactory.disassemble( state );
+        async saveGame({ state, getters }) {
+            const data = GameFactory.disassemble( state, getters.player );
             storage.set( STORAGE_KEY, data );
         },
         async importGame({ commit, dispatch }, data ) {
-            const game = GameFactory.assemble( data );
+            const { game, player } = GameFactory.assemble( data );
             if ( game === null ) throw new Error(); // catch in calling component
             commit( 'setGame', game );
-            commit( 'setHash', game.hash );
+            commit( 'setPlayer', player );
             await dispatch( 'saveGame' );
             await dispatch( 'loadGame' );
         },
         async exportGame({ state }) {
-            const data = GameFactory.disassemble( state );
+            const data = GameFactory.disassemble( state, getters.player );
             const pom = document.createElement( 'a' );
             pom.setAttribute( 'href', `data:text/plain;charset=utf-8,${encodeURIComponent( data )}`);
             pom.setAttribute( 'download', 'savegame.rpg' );
@@ -166,13 +167,15 @@ export default {
         },
         /* navigation actions */
         enterShop({ state, commit }, shop ) {
-            ShopFactory.generateItems( shop, 5 );
+            if ( !shop.items.length ) {
+                ShopFactory.generateItems( shop, 5 );
+            }
             commit( 'setShop', shop );
             commit( 'setScreen', SCREEN_SHOP );
         },
-        async enterBuilding({ state, commit, dispatch }, building ) {
+        async enterBuilding({ state, getters, commit, dispatch }, building ) {
             // generate levels, terrains and characters inside the building
-            BuildingFactory.generateFloors( state.hash, building, state.player );
+            BuildingFactory.generateFloors( state.hash, building, getters.player );
 
             commit( 'setBuilding', building );
 
@@ -204,14 +207,14 @@ export default {
             // change music to overground theme
             dispatch( 'playSound', AudioTracks.OVERGROUND_THEME );
         },
-        async changeActiveEnvironment({ state, commit }, environment ) {
+        async changeActiveEnvironment({ state, getters, commit }, environment ) {
             if ( !!state.activeEnvironment ) {
                 // free memory allocated to Bitmaps
                 commit( 'flushBitmaps' );
             }
             commit( 'setActiveEnvironment', environment );
             commit( 'setLoading', true );
-            await renderEnvironment( environment, state.player );
+            await renderEnvironment( environment, getters.player );
             commit( 'setLoading', false );
 
             console.warn('TODO: WHEN CHANGING ACTIVE ENVIRONMENT RESET AI BEHAVIOUR');

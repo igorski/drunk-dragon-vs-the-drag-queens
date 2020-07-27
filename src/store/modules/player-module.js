@@ -17,13 +17,27 @@ const DEFAULT_WALK_SPEED = 400; // ms for a single step
 export default
 {
     state: {
-
+        player: null,
     },
     getters: {
-
+        player: state => state.player,
     },
     mutations: {
-
+        setPlayer( state, player ) {
+            state.player = player;
+        },
+        deductCash( state, amount ) {
+            state.player.inventory.cash -= amount;
+        },
+        awardCash( state, amount ) {
+            state.player.inventory.cash += amount;
+        },
+        addItemToInventory( state, item ) {
+            const { items } = state.player.inventory;
+            if ( !items.includes( item )) {
+                items.push( item );
+            }
+        },
     },
     actions: {
         moveToDestination({ state, getters, commit, dispatch }, waypoints = [] ) {
@@ -58,5 +72,16 @@ export default
                 lastY = y;
             });
         },
+        buyItem({ state, commit }, item ) {
+            const { player } = state;
+            if ( player.inventory.cash < item.price ) {
+                return false;
+            }
+            commit( 'deductCash', item.price );
+            commit( 'removeItemFromShop', item );
+            commit( 'addItemToInventory', item );
+
+            return true;
+        }
     },
 };
