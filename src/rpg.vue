@@ -111,9 +111,11 @@ export default {
         await preloadAssets();
         await this.prepareAudio();
 
+        let hasGame = false;
         if ( this.hasSavedGame() ) {
-            await this.loadGame();
-        } else {
+            hasGame = await this.loadGame();
+        }
+        if ( !hasGame ) {
             this.setScreen( SCREEN_CHARACTER_CREATE );
         }
         this.setLoading( false );

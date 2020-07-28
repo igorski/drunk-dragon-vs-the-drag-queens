@@ -135,7 +135,7 @@ export default {
                     // corrupted or outdated format
                     dispatch( 'resetGame' );
                     commit( 'setScreen', SCREEN_CHARACTER_CREATE );
-                    return;
+                    return false;
                 }
                 commit( 'setGame', game );
                 commit( 'setPlayer', player );
@@ -148,8 +148,10 @@ export default {
                 commit( 'setLastRender', Date.now() );
                 await dispatch( 'changeActiveEnvironment', activeEnvironmentToSet );
             } catch {
-                // nowt... screen will match game state (e.g. show character creation)
+                // likely corrupted or really outdated format
+                return false;
             }
+            return true;
         },
         async saveGame({ state, getters }) {
             const data = GameFactory.disassemble( state, getters.player );

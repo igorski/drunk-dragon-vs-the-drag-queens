@@ -215,7 +215,7 @@ describe('Vuex game module', () => {
                 expect( mockUpdateFn ).toHaveBeenNthCalledWith( 2, 'set', 'rpg', 'mockReturn' );
             });
 
-            it('should be able to restore a saved game from local storage', () => {
+            it('should be able to restore a saved game from local storage', async () => {
                 const game     = { hash: 'foo', world: 'bar' };
                 const player   = { baz: 'qux' };
                 mockUpdateFn   = jest.fn(() => ({ game, player }));
@@ -223,8 +223,9 @@ describe('Vuex game module', () => {
                 const commit   = jest.fn();
                 const dispatch = jest.fn();
 
-                actions.loadGame({ state, commit, dispatch });
+                const success = await actions.loadGame({ state, commit, dispatch });
 
+                expect( success ).toBe( true );
                 expect( mockUpdateFn ).toHaveBeenNthCalledWith( 1, 'get', 'rpg' );
                 expect( commit ).toHaveBeenNthCalledWith( 1, 'setGame', game );
                 expect( commit ).toHaveBeenNthCalledWith( 2, 'setPlayer', player );
@@ -232,15 +233,16 @@ describe('Vuex game module', () => {
                 //expect( commit ).toHaveBeenNthCalledWith( 4, 'setLastRender', Date.now() );
             });
 
-            it('should reset the game state if the save is corrupted', () => {
+            it('should reset the game state if the save is corrupted', async () => {
                 const game = { hash: 'foo' };
                 mockUpdateFn = jest.fn(() => game);
                 const state = { activeEnvironment: null };
                 const commit = jest.fn();
                 const dispatch = jest.fn();
 
-                actions.loadGame({ state, commit, dispatch });
+                const success = await actions.loadGame({ state, commit, dispatch });
 
+                expect( success ).toBe( false );
                 expect( mockUpdateFn ).toHaveBeenNthCalledWith( 1, 'get', 'rpg' );
                 expect( dispatch ).toHaveBeenCalledWith( 'resetGame' );
                 expect( commit ).toHaveBeenCalledWith( 'setScreen', expect.any( Number ));
