@@ -89,6 +89,14 @@ export default {
                 state.shop.items.splice( index, 1 );
             }
         },
+        markVisitedTerrain( state, visitedTerrainIndices = [] ) {
+            const { visitedTerrain } = state.activeEnvironment;
+            visitedTerrainIndices.forEach( index => {
+                if ( !visitedTerrain.includes( index )) {
+                    visitedTerrain.push( index );
+                }
+            });
+        },
         flushBitmaps( state ) {
             state.activeEnvironment.characters.forEach( character => {
                 delete character.bitmap;
@@ -189,7 +197,7 @@ export default {
             const { floors } = state.building;
             const maxFloors  = floors.length;
 
-            if ( floor >= maxFloors) {
+            if ( floor >= maxFloors ) {
                 // was final stair (elevator), go back down to overground
                 dispatch( 'leaveBuilding' );
             } else {

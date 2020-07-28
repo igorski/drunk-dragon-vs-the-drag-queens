@@ -33,6 +33,10 @@ export default function( environment, targetWidth ) {
     for ( x = 0, y = 0; y < rows; x = ( ++x == cols ? ( x % cols + ( ++y & 0 ) ) : x )) {
         const index = coordinateToIndex( x, y, { width: cols });
 
+        if ( !environment.visitedTerrain.includes( index )) {
+            continue; // only render visited tiles
+        }
+
         tx = Math.round( x * tileWidth );
         ty = Math.round( y * tileHeight );
 

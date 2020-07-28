@@ -40,16 +40,16 @@ export default
         },
     },
     actions: {
-        moveToDestination({ state, getters, commit, dispatch }, waypoints = [] ) {
+        moveToDestination({ state, getters, commit, dispatch }, { waypoints = [], onProgress = null }) {
             cancelPendingMovement( commit );
 
-            const { activeEnvironment, gameTime, player } = getters;
+            const { activeEnvironment, gameTime } = getters;
             let startTime  = gameTime;
-            const duration = ( DEFAULT_WALK_SPEED * CharacterActions.getSpeed( player )) * GAME_TIME_RATIO;
+            const duration = ( DEFAULT_WALK_SPEED * CharacterActions.getSpeed( state.player )) * GAME_TIME_RATIO;
             let lastX      = activeEnvironment.x;
             let lastY      = activeEnvironment.y;
 
-            waypoints.forEach(({ x, y }) => {
+            waypoints.forEach(({ x, y }, index ) => {
                 // waypoints only move between one axis at a time
                 const isHorizontal = x !== lastX;
                 const startValue = isHorizontal ? lastX : lastY;
@@ -65,6 +65,7 @@ export default
                         if ( EnvironmentActions.hitTest({ dispatch, commit, getters }, activeEnvironment )) {
                             cancelPendingMovement( commit );
                         }
+                        typeof onProgress === 'function' && onProgress();
                     }
                 ));
                 startTime += duration;
@@ -73,8 +74,7 @@ export default
             });
         },
         buyItem({ state, commit }, item ) {
-            const { player } = state;
-            if ( player.inventory.cash < item.price ) {
+            if ( state.player.inventory.cash < item.price ) {
                 return false;
             }
             commit( 'deductCash', item.price );

@@ -38,6 +38,24 @@ describe('Vuex player module', () => {
     });
 
     describe('actions', () => {
+        it('should be able to move the player to the requested destination', () => {
+            const state         = { player: { properties: { speed: 1, intoxication: 0, boost: 0 } } };
+            const mockedGetters = { activeEnvironment: { x: 0, y: 0 }, gameTime: 0 };
+            const commit        = jest.fn();
+            const dispatch      = jest.fn();
+
+            const waypoints  = [{ x: 1, y: 1 }, { x: 2, y: 2 }];
+            const onProgress = jest.fn();
+
+            actions.moveToDestination({ state, getters: mockedGetters, commit, dispatch }, { waypoints, onProgress });
+
+            // expect cancellation of existing movement effects
+            expect( commit ).toHaveBeenNthCalledWith( 1, 'removeEffectsByAction', [ 'setXPosition', 'setYPosition' ]);
+            // expect individual addition of each waypoint as an effect
+            expect( commit ).toHaveBeenNthCalledWith( 2, 'addEffect', expect.any( Object ));
+            expect( commit ).toHaveBeenNthCalledWith( 3, 'addEffect', expect.any( Object ));
+        });
+
         describe('when buying an item from a shop', () => {
             it('should deny the transaction when the player has insufficient funds', () => {
                 const state  = { player: { inventory: { cash: 5 } } };

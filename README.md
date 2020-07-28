@@ -83,7 +83,6 @@ npm run test
 * When a new waypoint is set and its first tile(s) is equal to the existing waypoint, keep momentum going?
 * Time should be able to speed up (when sleeping for instance)
 * When drunk shuffle letters in sentences randomly =D
-* Maps should only show visited tiles
 * Add a timer to GameModel that runs periodic updates:
 
  every now and then re-generate all characters (if none is currently in the range of the player 20 tiles)

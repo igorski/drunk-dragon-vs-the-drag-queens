@@ -120,6 +120,16 @@ describe('Vuex game module', () => {
                 expect( state.building.floor ).toEqual( 1 );
             });
 
+            it('should be able to mark the visited terrain for the current environment with deduplication', () => {
+                const state = {
+                    activeEnvironment: {
+                        visitedTerrain: [ 0, 1, 2 ]
+                    }
+                };
+                mutations.markVisitedTerrain( state, [ 1, 2, 3, 4, 5 ] );
+                expect( state.activeEnvironment.visitedTerrain ).toEqual([ 0, 1, 2, 3, 4, 5 ]);
+            });
+
             it('should be able to flush all cached Bitmaps for the current environment', () => {
                 const state = {
                     activeEnvironment: {

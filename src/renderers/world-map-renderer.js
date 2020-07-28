@@ -16,12 +16,20 @@ export default function( environment, targetWidth ) {
     const tileWidth  = Math.round( targetWidth  / cols  );
     const tileHeight = Math.round( targetHeight / rows );
 
+    ctx.fillStyle = '#5b2974';
+    ctx.fillRect( 0, 0, targetWidth, targetHeight );
+
     // render the terrain
 
     let tx, ty;
 
     for ( let x = 0, y = 0; y < cols; x = ( ++x == rows ? ( x % rows + ( ++y & 0 ) ) : x ) ) {
         const index = coordinateToIndex( x, y, { width: rows });
+
+        if ( !environment.visitedTerrain.includes( index )) {
+            continue; // only render visited tiles
+        }
+
         tx = Math.round( x * tileWidth );
         ty = Math.round( y * tileHeight );
 
@@ -62,8 +70,8 @@ export default function( environment, targetWidth ) {
 
     const { buildings, shops } = environment;
 
-    drawItems( ctx, buildings, 4, tileWidth, tileHeight, 'purple' );
-    drawItems( ctx, shops,     4, tileWidth, tileHeight, 'blue' );
+    drawItems( ctx, environment, buildings, 4, tileWidth, tileHeight, 'purple' );
+    drawItems( ctx, environment, shops,     4, tileWidth, tileHeight, 'blue' );
 
     // draw player
 
@@ -80,11 +88,15 @@ export default function( environment, targetWidth ) {
     return out;
 };
 
-function drawItems( ctx, items, size, tileWidth, tileHeight, color ) {
+function drawItems( ctx, environment, items, size, tileWidth, tileHeight, color ) {
     items.forEach(({ x, y }) => {
         const tx = x * tileWidth;
         const ty = y * tileHeight;
 
+        const index = coordinateToIndex( tx, ty, environment);
+        if ( !environment.visitedTerrain.includes( index )) {
+            return; // only render visited items
+        }
         ctx.fillStyle = color;
         ctx.fillRect( tx, ty, size, size );
     });

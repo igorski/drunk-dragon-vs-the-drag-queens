@@ -185,23 +185,29 @@ WorldRenderer.prototype.isValidTarget = function( tileType ) {
  * @param {number} ty destination y-coordinate
  */
 WorldRenderer.prototype.navigateToTile = function( x, y ) {
-    const path = findPath(
+    const waypoints = findPath(
         this._environment,
         Math.round( this._environment.x ), Math.round( this._environment.y ),
         x, y, this.maxWalkableTileNum
     );
     const maxLen = this.horizontalTileAmount + this.verticalTileAmount;
-    if ( path.length > maxLen ) {
-        if ( DEBUG ) {
-            console.warn( `Path length ${path.length} exceeds max of ${maxLen}` );
-        }
+    if ( waypoints.length > maxLen ) {
         // if the full walkable path isn't inside visual bounds, cancel navigation, player
         // must navigate to smaller steps (prevents automagically resolving of long distances)
         return;
     }
-    dispatch( 'moveToDestination', path );
+    dispatch( 'moveToDestination', { waypoints, onProgress: () => {
+        const visited = [];
+        const { left, top, right, bottom } = this.getVisibleTiles();
+        for ( let ix = left; ix < right; ++ix ) {
+            for ( let iy = top; iy < bottom; ++ iy ) {
+                visited.push( coordinateToIndex( ix, iy, this._environment ));
+            }
+        }
+        commit( 'markVisitedTerrain', visited );
+    }});
     if ( DEBUG ) {
-        this.target = path;
+        this.target = waypoints;
     }
 };
 
