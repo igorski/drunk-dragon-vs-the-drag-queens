@@ -26,18 +26,20 @@ export const findPath = ( world, startX, startY, targetX, targetY, maxWalkableTi
     const worldSize   = worldWidth * worldHeight;
     const terrain     = world.terrain;
 
-    // which heuristic should we use?
-    // default: no diagonals (Manhattan)
-    const distanceFunction = ManhattanDistance;
-    const findNeighbours   = () => {}; // noop
+    // define heuristic to use
 
     /*
     // alternate heuristics, depending on purpose:
 
+    // no diagonals (Manhattan)
+    const distanceFunction = ManhattanDistance;
+    const findNeighbours   = () => {}; // noop
+
     // diagonals allowed but no sqeezing through cracks:
+    */
     const distanceFunction = DiagonalDistance;
     const findNeighbours = DiagonalNeighbours;
-
+    /*
     // diagonals and squeezing through cracks allowed:
     const distanceFunction = DiagonalDistance;
     const findNeighbours = DiagonalNeighboursFree;

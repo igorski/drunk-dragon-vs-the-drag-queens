@@ -50,27 +50,25 @@ export default
             let lastY      = activeEnvironment.y;
 
             waypoints.forEach(({ x, y }, index ) => {
-                // waypoints only move between one axis at a time
-                const isHorizontal = x !== lastX;
-                const startValue = isHorizontal ? lastX : lastY;
-                const endValue   = isHorizontal ? x : y;
-
-                if ( startValue === endValue ) return;
-
-                commit( 'addEffect', EffectFactory.create(
-                    commit,
-                    isHorizontal ? 'setXPosition' : 'setYPosition',
-                    startTime, duration, startValue, endValue,
-                    () => {
-                        if ( EnvironmentActions.hitTest({ dispatch, commit, getters }, activeEnvironment )) {
-                            cancelPendingMovement( commit );
-                        }
-                        typeof onProgress === 'function' && onProgress();
+                const callback = () => {
+                    if ( EnvironmentActions.hitTest({ dispatch, commit, getters }, activeEnvironment )) {
+                        cancelPendingMovement( commit );
                     }
-                ));
+                    typeof onProgress === 'function' && onProgress();
+                };
+                // waypoints can move between two axes at a time
+                if ( x !== lastX ) {
+                    commit( 'addEffect', EffectFactory.create(
+                        commit, 'setXPosition', startTime, duration, lastX, x, callback
+                    ));
+                    lastX = x;
+                }
+                if ( y !== lastY ) {
+                    commit( 'addEffect', EffectFactory.create(
+                        commit, 'setYPosition', startTime, duration, lastY, y, callback
+                    ));
+                }
                 startTime += duration;
-                lastX = x;
-                lastY = y;
             });
         },
         buyItem({ state, commit }, item ) {
