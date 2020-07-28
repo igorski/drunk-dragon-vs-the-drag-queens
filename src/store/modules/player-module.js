@@ -67,6 +67,7 @@ export default
                     commit( 'addEffect', EffectFactory.create(
                         commit, 'setYPosition', startTime, duration, lastY, y, callback
                     ));
+                    lastY = y;
                 }
                 startTime += duration;
             });
