@@ -5,13 +5,16 @@ import AudioTracks           from '@/definitions/audio-tracks';
 import BuildingFactory       from '@/model/factories/building-factory';
 import CharacterFactory      from '@/model/factories/character-factory';
 import GameFactory           from '@/model/factories/game-factory';
+import IntentFactory         from '@/model/factories/intent-factory';
 import WorldFactory          from '@/model/factories/world-factory';
 import ShopFactory           from '@/model/factories/shop-factory';
 import { renderEnvironment } from '@/services/environment-bitmap-cacher';
 import SpriteCache           from '@/utils/sprite-cache';
 import EffectActions         from '@/model/actions/effect-actions';
 import { GAME_START_TIME, GAME_TIME_RATIO } from '@/utils/time-util';
-import { SCREEN_CHARACTER_CREATE, SCREEN_SHOP } from '@/definitions/screens';
+import {
+    SCREEN_CHARACTER_CREATE, SCREEN_SHOP, SCREEN_CHARACTER_INTERACTION
+} from '@/definitions/screens';
 
 const STORAGE_KEY = 'rpg';
 
@@ -19,9 +22,10 @@ export default {
     state: {
         hash: '',
         world: null,
-        activeEnvironment: null,
-        building: null,
-        shop: null,
+        activeEnvironment: null, // environment player is currently navigating
+        building: null,          // currently entered building
+        character: null,         // character currently interacting with
+        shop: null,              // currently entered shop
         created: 0,
         modified: 0,
         gameStart: 0,   // timestamp at which the game was originally created
@@ -34,6 +38,7 @@ export default {
         activeEnvironment: state => state.activeEnvironment,
         floor: state => state.building?.floor ?? NaN,
         shop: state => state.shop,
+        character: state => state.character,
         hasSavedGame: state => () => !!storage.get( STORAGE_KEY ),
     },
     mutations: {
@@ -61,6 +66,9 @@ export default {
         },
         setActiveEnvironment( state, environment ) {
             state.activeEnvironment = environment;
+        },
+        setCharacter( state, character ) {
+            state.character = character;
         },
         setShop( state, shop ) {
             state.shop = shop;
@@ -176,6 +184,14 @@ export default {
             storage.remove( STORAGE_KEY );
         },
         /* navigation actions */
+        interactWithCharacter({ state, commit }, character ) {
+            let { intent } = character.properties;
+            if ( !intent ) {
+                character.properties.intent = IntentFactory.create();
+            }
+            commit( 'setCharacter', character );
+            commit( 'setScreen', SCREEN_CHARACTER_INTERACTION );
+        },
         enterShop({ state, commit }, shop ) {
             if ( !shop.items.length ) {
                 ShopFactory.generateItems( shop, 5 );

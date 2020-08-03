@@ -1,7 +1,7 @@
 import store            from '@/store/modules/game-module';
-import { SCREEN_SHOP }  from '@/definitions/screens';
 import CharacterFactory from '@/model/factories/character-factory';
 import EffectFactory    from '@/model/factories/effect-factory';
+import { SCREEN_SHOP, SCREEN_CHARACTER_INTERACTION } from '@/definitions/screens';
 
 const { getters, mutations, actions } = store;
 
@@ -15,6 +15,9 @@ jest.mock('@/model/factories/building-factory', () => ({
 jest.mock('@/model/factories/game-factory', () => ({
     assemble: (...args) => mockUpdateFn('assemble', ...args),
     disassemble: (...args) => mockUpdateFn('disassemble', ...args)
+}));
+jest.mock('@/model/factories/intent-factory', () => ({
+    create: (...args) => mockUpdateFn('create', ...args),
 }));
 jest.mock('@/model/factories/shop-factory', () => ({
     generateItems: (...args) => mockUpdateFn('generateItems', ...args),
@@ -46,6 +49,11 @@ describe('Vuex game module', () => {
             expect( getters.floor( state )).toEqual( NaN );
             state.building = { floor: 2 };
             expect( getters.floor( state )).toEqual( 2 );
+        });
+
+        it('should return the character the player is currently interacting with', () => {
+            const state = { character: { foo: 'bar' } };
+            expect( getters.character( state )).toEqual( state.character );
         });
     });
 
@@ -118,6 +126,13 @@ describe('Vuex game module', () => {
                 const state = { building: { foo: 'bar', floor: 0 } };
                 mutations.setFloor( state, 1 );
                 expect( state.building.floor ).toEqual( 1 );
+            });
+
+            it('should be able to set the character the player is interacting with', () => {
+                const state = { character: null };
+                const character = { foo: 'bar' };
+                mutations.setCharacter( state, character );
+                expect( state.character ).toEqual( character );
             });
 
             it('should be able to mark the visited terrain for the current environment with deduplication', () => {
@@ -366,6 +381,18 @@ describe('Vuex game module', () => {
 
                 expect( commit ).toHaveBeenCalledWith( 'setBuilding', null );
                 expect( dispatch ).toHaveBeenCalledWith( 'changeActiveEnvironment', state.world );
+            });
+
+            it('should be able to interact with a character', () => {
+                const commit    = jest.fn();
+                const character = CharacterFactory.create();
+                mockUpdateFn    = jest.fn();
+
+                actions.interactWithCharacter({ commit }, character );
+
+                expect( mockUpdateFn ).toHaveBeenCalledWith( 'create' );
+                expect( commit ).toHaveBeenNthCalledWith( 1, 'setCharacter', character );
+                expect( commit ).toHaveBeenNthCalledWith( 2, 'setScreen', SCREEN_CHARACTER_INTERACTION );
             });
         });
 

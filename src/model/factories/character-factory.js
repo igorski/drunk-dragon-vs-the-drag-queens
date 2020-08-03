@@ -1,4 +1,5 @@
 import Random           from 'random-seed';
+import IntentFactory    from '@/model/factories/intent-factory';
 import InventoryFactory from '@/model/factories/inventory-factory';
 import { validateAppearance, validateProperties } from '../validator';
 
@@ -48,6 +49,7 @@ const CharacterFactory =
              // all in percentile range (e.g. 0-1)
              properties: {
                  speed: 1,
+                 intent: null,
                  intoxication: 0,
                  boost: 0,
                  ...properties
@@ -91,7 +93,8 @@ const CharacterFactory =
             clothes: data.c
         }, {
             speed: data.sp,
-            intoxication: data.i,
+            intent: data.i ? IntentFactory.assemble( data.i ) : null,
+            intoxication: data.in,
             boost: data.b,
         }, InventoryFactory.assemble( data.iv ));
     },
@@ -113,7 +116,8 @@ const CharacterFactory =
             no: appearance.nose,
             c: appearance.clothes,
             sp: properties.speed,
-            i: properties.intoxication,
+            i: properties.intent ? IntentFactory.disassemble( properties.intent ) : null,
+            in: properties.intoxication,
             b: properties.boost,
             iv: InventoryFactory.disassemble( inventory )
         };

@@ -2,7 +2,7 @@
  * All different types of item a Character can carry
  * in their Inventory.
  *
- * @see ItemFactory
+ * @see ItemFactory, IntentFactory
  */
 export default {
     JEWELRY    : 0,
