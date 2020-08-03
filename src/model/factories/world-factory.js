@@ -1,12 +1,12 @@
-import { Map }            from 'rot-js';
-import Bowser             from 'bowser';
-import MD5                from 'MD5';
-import HashUtil           from '@/utils/hash-util';
-import WorldCache         from '@/utils/world-cache';
-import BuildingFactory    from './building-factory';
-import CharacterFactory   from './character-factory';
-import EnvironmentFactory from './environment-factory';
-import ShopFactory        from './shop-factory';
+import { Map }                     from 'rot-js';
+import Bowser                      from 'bowser';
+import MD5                         from 'MD5';
+import HashUtil                    from '@/utils/hash-util';
+import WorldCache                  from '@/utils/world-cache';
+import BuildingFactory             from './building-factory';
+import CharacterFactory            from './character-factory';
+import EnvironmentFactory          from './environment-factory';
+import ShopFactory, { SHOP_TYPES } from './shop-factory';
 import {
     growTerrain, getSurroundingIndices, getSurroundingTiles, coordinateToIndex, distance
 } from '@/utils/terrain-util';
@@ -83,8 +83,17 @@ const WorldFactory =
         const shopHash      = hash.substr( 4, 2 );
         const amountOfShops = HashUtil.charsToNum( shopHash );
 
+        // ensure we create them for each available type
+
+        const types         = Object.values( SHOP_TYPES );
+        let createdShops    = 0;
+
         world.shops = generateGroup(
-            centerX, centerY, world, amountOfShops, ShopFactory.create, 4, .6
+            centerX, centerY, world, amountOfShops, ( x, y, ) => {
+                const shop = ShopFactory.create( x, y, types[ createdShops % types.length ]);
+                ++createdShops;
+                return shop;
+            }, 4, .6
         );
 
         // generate some buildings
@@ -96,14 +105,17 @@ const WorldFactory =
             centerX, centerY, world, amountOfBuildings, BuildingFactory.create, 4, .33
         );
 
-        // generate some characters
+        // generate some characters that occupy some of the building entrances
 
         const characterHash      = hash.substr( 8, 8 );
-        const amountOfCharacters = HashUtil.charsToNum( characterHash ) * 4;
-
-        world.characters = generateGroup(
-            centerX, centerY, world, amountOfCharacters, CharacterFactory.create, 4, .25
+        const amountOfCharacters = Math.round(
+            Math.min( world.buildings.length * .75, HashUtil.charsToNum( characterHash ) * Math.random() )
         );
+
+        for ( let i = 0; i < amountOfCharacters; ++i ) {
+            const { x, y } = world.buildings[ i ];
+            world.characters.push( CharacterFactory.create( x, y + 1 ));
+        }
 
         // center player within world
 
@@ -352,7 +364,8 @@ function generateGroup( startX, startY, world, amountToCreate, typeFactoryCreate
         const groupItem = typeFactoryCreateFn( targetX, targetY );
 
         // reserve object at position nearest to targetX and targetY
-        const reservedPosition = reserveObject( groupItem, world, out );
+        // note we increase the height by one tile to ensure we have a walkway towards the object
+        const reservedPosition = reserveObject({ ...groupItem, height: groupItem.height + 1 }, world, out );
 
         if ( reservedPosition !== null ) {
             // Object has been placed, set its final position

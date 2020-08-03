@@ -67,18 +67,12 @@ npm run test
 ## TODO
 
 * Create fast travel by introducing subway
-* All successful hitTests must reset player to previous position to prevent getting stuck
-* When generating shops ensure we generate them for each type
-* Characters should be blocking entrances, requiring a bribe to move
-* Ensure all generated building have an accessible doorway
-* Ensure you can take stairs back to previous floor when inside a building
+* Ensure you can take stairs back to previous floor when inside a building, (last floor has no stairway up!)
 * Allow to buy on credit, starts action by which you need to have repaid the person!
 * Environments should not have an x, y for the player, but its Character should!
 * Show navigation icon
 * When player clicks on non-navigate-able tile, navigate as close to the tile as possible (take dominant distance on x-y coordinate and keep reducing until path is found)
-* Building floors should have two stairs, to go up but also down! (last floor has no up, player should go back down!!)
 * Buildings should occupy their full size on sidewalk/sand-only tiles?
-* Sometimes building start offset is not inside walkable ground ?
 * Buildings should close in the morning! (unless you have a place to sleep inside)
 * Kick people out of shop after 30 game minutes have passed
 * Serialize Effects into saved game (subtract elapsed and set current value as start)

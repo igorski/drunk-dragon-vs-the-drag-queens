@@ -13,22 +13,25 @@ export default {
 
         if ( hit = internalHitTest( x, y, characters )) {
             // hit an character, do something!!!
-            console.warn("HIT AN CHARACTER!");
+            dispatch( 'interactWithCharacter', hit );
         } else if ( environment.type === WORLD_TYPE ) {
             if ( hit = internalHitTest( x, y, shops )) {
                 // entered shop, open the shop page
-                commit( 'setYPosition', y + 1 ); // ensures when we leave we don't collide with entrance
-                dispatch('enterShop', hit );
+                dispatch( 'enterShop', hit );
             }
             else if ( hit = internalHitTest( x, y, buildings )) {
                 // entered building
-                commit( 'setYPosition', y + 1 ); // ensures when we leave we don't collide with entrance
-                dispatch('enterBuilding', hit );
+                dispatch( 'enterBuilding', hit );
             }
         } else if ( environment.type === BUILDING_TYPE ) {
             if ( hit = internalHitTest( x, y, environment.exits )) {
-                dispatch('changeFloor', getters.floor + 1 );
+                dispatch( 'changeFloor', getters.floor + 1 );
             }
+        }
+        if ( hit ) {
+            // here we ensures that when we're done with the action (e.g. leaving
+            // a building) we don't collide with the same object (re-entering the building again)
+            commit( 'setYPosition', y + 1 );
         }
         return hit !== null;
     },

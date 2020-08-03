@@ -3,6 +3,7 @@
         "status": "Status",
         "map": "Map",
         "time": "Time",
-        "date": "Date"
+        "date": "Date",
+        "cash": "Cash"
     }
 }
