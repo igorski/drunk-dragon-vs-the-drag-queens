@@ -244,8 +244,8 @@ describe('Vuex game module', () => {
                 expect( mockUpdateFn ).toHaveBeenNthCalledWith( 1, 'get', 'rpg' );
                 expect( commit ).toHaveBeenNthCalledWith( 1, 'setGame', game );
                 expect( commit ).toHaveBeenNthCalledWith( 2, 'setPlayer', player );
+                expect( commit ).toHaveBeenNthCalledWith( 3, 'setLastRender', expect.any( Number ));
                 expect( dispatch ).toHaveBeenCalledWith( 'changeActiveEnvironment', game.world );
-                //expect( commit ).toHaveBeenNthCalledWith( 4, 'setLastRender', Date.now() );
             });
 
             it('should reset the game state if the save is corrupted', async () => {
@@ -399,14 +399,15 @@ describe('Vuex game module', () => {
         describe('when updating the game properties', () => {
             it('should be able to update the effects', () => {
                 const timestamp = Date.now();
-                const commit = jest.fn();
+                const commit    = jest.fn();
+                const dispatch  = jest.fn();
                 const mockedGetters = {
                     gameTime: timestamp,
                 };
-                const effect1 = EffectFactory.create( jest.fn() );
-                const effect2 = EffectFactory.create( jest.fn() );
+                const effect1 = EffectFactory.create();
+                const effect2 = EffectFactory.create();
 
-                mockUpdateFn = jest.fn(effect => {
+                mockUpdateFn = jest.fn(({ commit, dispatch }, effect ) => {
                     // note that effect 2 we want to remove (by returning true)
                     if ( effect === effect2 ) return true;
                     return false;
@@ -414,6 +415,7 @@ describe('Vuex game module', () => {
 
                 actions.updateGame({
                     commit,
+                    dispatch,
                     getters: mockedGetters,
                     state: {
                         effects: [ effect1, effect2 ],
@@ -421,8 +423,8 @@ describe('Vuex game module', () => {
                 }, timestamp );
 
                 // assert Effects have been updated
-                expect( mockUpdateFn ).toHaveBeenNthCalledWith( 1, effect1, timestamp );
-                expect( mockUpdateFn ).toHaveBeenNthCalledWith( 2, effect2, timestamp );
+                expect( mockUpdateFn ).toHaveBeenNthCalledWith( 1, { commit, dispatch }, effect1, timestamp );
+                expect( mockUpdateFn ).toHaveBeenNthCalledWith( 2, { commit, dispatch }, effect2, timestamp );
 
                 // assert secondary effect has been requested to be removed (as its update returned true)
                 expect( commit ).toHaveBeenCalledWith( 'removeEffect', effect2 );

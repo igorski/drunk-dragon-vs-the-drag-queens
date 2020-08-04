@@ -51,9 +51,11 @@ describe('Vuex player module', () => {
 
             // expect cancellation of existing movement effects
             expect( commit ).toHaveBeenNthCalledWith( 1, 'removeEffectsByAction', [ 'setXPosition', 'setYPosition' ]);
+            // expect registration of update handler
+            expect( commit ).toHaveBeenNthCalledWith( 2, 'setOnMovementUpdate', onProgress );
             // expect individual addition of each waypoint as an effect
-            expect( commit ).toHaveBeenNthCalledWith( 2, 'addEffect', expect.any( Object ));
             expect( commit ).toHaveBeenNthCalledWith( 3, 'addEffect', expect.any( Object ));
+            expect( commit ).toHaveBeenNthCalledWith( 4, 'addEffect', expect.any( Object ));
         });
 
         describe('when buying an item from a shop', () => {

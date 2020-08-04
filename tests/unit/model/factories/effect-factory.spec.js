@@ -1,28 +1,20 @@
 import EffectFactory from '@/model/factories/effect-factory';
 
 describe('Effect factory', () => {
-    it('should throw an Error when creating a structure without commit function', () => {
-        expect(() => {
-            const effect = EffectFactory.create();
-        }).toThrow();
-    });
-
     it('should be able to create a new effect structure with precalculated increment', () => {
-        const commit     = jest.fn();
-        const action     = 'someMutation';
+        const mutation   = 'someMutation';
         const startTime  = Date.now();
         const duration   = 1000;
         const startValue = 2000;
         const endValue   = 5000;
-        const callback   = jest.fn();
-        
+        const callback   = 'someAction';
+
         const effect = EffectFactory.create(
-            commit, action, startTime, duration, startValue, endValue, callback
+            mutation, startTime, duration, startValue, endValue, callback
         );
 
         expect( effect ).toEqual({
-            commit,
-            action,
+            mutation,
             startTime,
             duration,
             startValue,
@@ -30,5 +22,20 @@ describe('Effect factory', () => {
             callback,
             increment: ( endValue - startValue ) / duration
         });
+    });
+
+    it('should be able to assemble and disassemble a serialized effect without loss of data', () => {
+        const mutation   = 'someMutation';
+        const startTime  = Date.now();
+        const duration   = 1000;
+        const startValue = 2000;
+        const endValue   = 5000;
+        const callback   = 'someAction';
+
+        const effect = EffectFactory.create(
+            mutation, startTime, duration, startValue, endValue, callback
+        );
+        const disassembled = EffectFactory.disassemble( effect );
+        expect( EffectFactory.assemble( disassembled )).toEqual( effect );
     });
 });

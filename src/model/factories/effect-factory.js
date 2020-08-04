@@ -1,4 +1,4 @@
-export default
+const EffectFactory =
 {
     /**
      * An effect is a state that wears off after times passes
@@ -6,22 +6,17 @@ export default
      * on a single property. If more than one effect applies to the same
      * property this should be recalculated into a new duration and value range.
      *
-     * @param {Function} commit Vuex store commit action
-     * @param {String} action the name of the mutation to invoke on change
+     * @param {String} mutation the name of the Vuex mutation to commit to on change
      * @param {Number} startTime time offset (e.g. current game time in milliseconds)
      * @param {Number} duration total effect duration in milliseconds
      * @param {Number} startValue the value when the effect starts
      * @param {Number} endValue the value when the effect ends
-     * @param {Function=} callback optional callback to call when effect is completed
+     * @param {String=} callback optional Vuex action to dispatch when effect is completed
      * @return {Object}
      */
-    create( commit, action, startTime, duration, startValue, endValue, callback = null ) {
-        if ( typeof commit !== 'function' ) {
-            throw new Error ( 'Cannot create an Effect without a commit fn()' );
-        }
+    create( mutation, startTime, duration, startValue, endValue, callback = null ) {
         return {
-            commit,
-            action,
+            mutation,
             startTime,
             duration,
             startValue,
@@ -29,5 +24,28 @@ export default
             callback,
             increment: ( endValue - startValue ) / duration
         };
+    },
+
+    /**
+     * assemble a serialized JSON structure
+     * back into a Effect instance
+     */
+    assemble( data ) {
+        return EffectFactory.create( data.m, data.s, data.d, data.sv, data.ev, data.c );
+    },
+
+    /**
+     * serializes a Effect instance into a JSON structure
+     */
+    disassemble( effect ) {
+        return {
+            m: effect.mutation,
+            s: effect.startTime,
+            d: effect.duration,
+            sv: effect.startValue,
+            ev: effect.endValue,
+            c: effect.callback
+        };
     }
 };
+export default EffectFactory;

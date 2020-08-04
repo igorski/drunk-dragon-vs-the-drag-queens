@@ -51,6 +51,7 @@ export default {
             state.gameTime      = value.gameTime;
             state.building      = value.building;
             state.world         = value.world;
+            state.effects       = value.effects;
         },
         advanceGameTime( state, valueInMilliseconds ) {
             state.gameTime += valueInMilliseconds;
@@ -128,6 +129,7 @@ export default {
                 lastSavedTime: -1,
                 gameTime: new Date( GAME_START_TIME ).getTime(),
                 building: null,
+                effects: [],
                 world,
                 hash,
             });
@@ -251,7 +253,7 @@ export default {
          * prior to each render cycle. Given timestamp is the renderers timestamp
          * which relative to the renderStart timestamp defines the relative time.
          */
-        updateGame({ state, getters, commit }, timestamp ) {
+        updateGame({ state, getters, commit, dispatch }, timestamp ) {
             // advance game time (values in milliseconds)
             const delta = ( timestamp - state.lastRender ) * GAME_TIME_RATIO;
             commit( 'advanceGameTime', delta );
@@ -259,12 +261,13 @@ export default {
             const gameTimestamp = getters.gameTime;
 
             // update the effects
+            const updateFns = { commit, dispatch };
             state.effects.forEach( effect => {
-                if ( EffectActions.update( effect, gameTimestamp )) {
+                if ( EffectActions.update( updateFns, effect, gameTimestamp )) {
                     commit( 'removeEffect', effect );
                 }
             });
-
+            // update last render timestamp
             commit( 'setLastRender', timestamp );
         },
     },

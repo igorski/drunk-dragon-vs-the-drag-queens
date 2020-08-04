@@ -18,6 +18,7 @@ export default
 {
     state: {
         player: null,
+        onMoveUpdate: null,
     },
     getters: {
         player: state => state.player,
@@ -38,10 +39,14 @@ export default
                 items.push( item );
             }
         },
+        setOnMovementUpdate( state, fn ) {
+            state.onMoveUpdate = fn;
+        },
     },
     actions: {
         moveToDestination({ state, getters, commit, dispatch }, { waypoints = [], onProgress = null }) {
             cancelPendingMovement( commit );
+            commit( 'setOnMovementUpdate', onProgress );
 
             const { activeEnvironment, gameTime } = getters;
             let startTime  = gameTime;
@@ -50,27 +55,27 @@ export default
             let lastY      = activeEnvironment.y;
 
             waypoints.forEach(({ x, y }, index ) => {
-                const callback = () => {
-                    if ( EnvironmentActions.hitTest({ dispatch, commit, getters }, activeEnvironment )) {
-                        cancelPendingMovement( commit );
-                    }
-                    typeof onProgress === 'function' && onProgress();
-                };
                 // waypoints can move between two axes at a time
                 if ( x !== lastX ) {
                     commit( 'addEffect', EffectFactory.create(
-                        commit, 'setXPosition', startTime, duration, lastX, x, callback
+                        'setXPosition', startTime, duration, lastX, x, 'handleMoveUpdate'
                     ));
                     lastX = x;
                 }
                 if ( y !== lastY ) {
                     commit( 'addEffect', EffectFactory.create(
-                        commit, 'setYPosition', startTime, duration, lastY, y, callback
+                        'setYPosition', startTime, duration, lastY, y, 'handleMoveUpdate'
                     ));
                     lastY = y;
                 }
                 startTime += duration;
             });
+        },
+        handleMoveUpdate({ state, dispatch, commit, getters }) {
+            if ( EnvironmentActions.hitTest({ dispatch, commit, getters }, getters.activeEnvironment )) {
+                cancelPendingMovement( commit );
+            }
+            typeof state.onMoveUpdate === 'function' && state.onMoveUpdate();
         },
         buyItem({ state, commit }, item ) {
             if ( state.player.inventory.cash < item.price ) {

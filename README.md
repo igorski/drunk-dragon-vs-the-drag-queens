@@ -3,14 +3,13 @@
 ## Game concepts
 
 The game is time bound and takes place in the 1980's. Each new game starts at
-the same date (see _time-util.js_). While the clock increments at a higher speed than
-in actual life, to make things easier think of time related operations (such as _Effects_)
-in _game time_, e.g. _how the character would experience it_ (e.g. _"this should last for two hours"_).
+the same date (see _time-util.js_). While the game clock increments at a higher speed than
+in actual life, think of all time related operations (such as _Effects_
+_how the character would experience it_ (e.g. _"this should last for two hours"_).
 The unit used is the _millisecond_.
 
-The game is also unique in that upon creation, the world is generated uniquely
-to the game's hash. As such, no two games are the same. The generation is however
-_deterministic_, as such loading a saved game restores the world as you left it.
+Each game is also unique in that upon creation, the world is generated uniquely
+to the game's randomly generated creation hash. As such, no two games are the same.
 
 ## Game model
 
@@ -66,16 +65,14 @@ npm run test
 ```
 ## TODO
 
-* Create fast travel by introducing subway
+* Create fast travel by introducing subway (can only travel to visited areas!)
 * Ensure you can take stairs back to previous floor when inside a building, (last floor has no stairway up!)
 * Allow to buy on credit, starts action by which you need to have repaid the person!
-* Environments should not have an x, y for the player, but its Character should!
-* Show navigation icon
+* Show navigation icon in interface (when showing target, but also as mouse cursor?)
 * When player clicks on non-navigate-able tile, navigate as close to the tile as possible (take dominant distance on x-y coordinate and keep reducing until path is found)
 * Buildings should occupy their full size on sidewalk/sand-only tiles?
 * Buildings should close in the morning! (unless you have a place to sleep inside)
 * Kick people out of shop after 30 game minutes have passed
-* Serialize Effects into saved game (subtract elapsed and set current value as start)
 * Don't spawn/generate actionable object in empty tile surrounded by a closed path
 * Make menu collapsable
 * World must become lighter when morning comes
@@ -83,7 +80,3 @@ npm run test
 * When a new waypoint is set and its first tile(s) is equal to the existing waypoint, keep momentum going?
 * Time should be able to speed up (when sleeping for instance)
 * When drunk shuffle letters in sentences randomly =D
-* Add a timer to GameModel that runs periodic updates:
-
- every now and then re-generate all characters (if none is currently in the range of the player 20 tiles)
- if characters share their new position with another character, halt movement

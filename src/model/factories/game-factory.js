@@ -1,6 +1,7 @@
 import LZString         from 'lz-string';
 import BuildingFactory  from './building-factory';
 import CharacterFactory from './character-factory';
+import EffectFactory    from './effect-factory';
 import WorldFactory     from './world-factory';
 
 export default
@@ -23,6 +24,7 @@ export default
             p: CharacterFactory.disassemble( player ),
             w: WorldFactory.disassemble( game.world, game.hash ),
             b: game.building ? BuildingFactory.disassemble( game.building ) : null,
+            e: game.effects ? game.effects.map( e => EffectFactory.disassemble( e )) : [],
         };
         const json = JSON.stringify( out );
         try {
@@ -63,7 +65,8 @@ export default
             gameStart: data.gs,
             gameTime: data.gt,
             world: WorldFactory.assemble( data.w, data.h ),
-            building: data.b ? BuildingFactory.assemble( data.b ) : null
+            building: data.b ? BuildingFactory.assemble( data.b ) : null,
+            effects: data.e.map( e => EffectFactory.assemble( e )),
         };
         return { game, player: CharacterFactory.assemble( data.p ) };
     }
