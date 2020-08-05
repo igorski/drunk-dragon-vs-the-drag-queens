@@ -4,6 +4,7 @@ import Vue                   from 'vue';
 import AudioTracks           from '@/definitions/audio-tracks';
 import BuildingFactory       from '@/model/factories/building-factory';
 import CharacterFactory      from '@/model/factories/character-factory';
+import EffectFactory         from '@/model/factories/effect-factory';
 import GameFactory           from '@/model/factories/game-factory';
 import IntentFactory         from '@/model/factories/intent-factory';
 import WorldFactory          from '@/model/factories/world-factory';
@@ -13,7 +14,7 @@ import SpriteCache           from '@/utils/sprite-cache';
 import EffectActions         from '@/model/actions/effect-actions';
 import { GAME_START_TIME, GAME_TIME_RATIO } from '@/utils/time-util';
 import {
-    SCREEN_CHARACTER_CREATE, SCREEN_SHOP, SCREEN_CHARACTER_INTERACTION
+    SCREEN_CHARACTER_CREATE, SCREEN_GAME, SCREEN_SHOP, SCREEN_CHARACTER_INTERACTION
 } from '@/definitions/screens';
 
 const STORAGE_KEY = 'rpg';
@@ -89,8 +90,11 @@ export default {
             const idx = state.effects.indexOf( value );
             if ( idx >= 0 ) state.effects.splice( idx, 1 );
         },
-        removeEffectsByAction( state, types = [] ) {
-            Vue.set( state, 'effects', state.effects.filter(({ action }) => !types.includes( action )));
+        removeEffectsByMutation( state, types = [] ) {
+            Vue.set( state, 'effects', state.effects.filter(({ mutation }) => !types.includes( mutation )));
+        },
+        removeEffectsByCallback( state, callbacks = [] ) {
+            Vue.set( state, 'effects', state.effects.filter(({ callback }) => !callbacks.includes( callback )));
         },
         removeItemFromShop( state, item ) {
             const index = state.shop.items.indexOf( item );
@@ -194,12 +198,23 @@ export default {
             commit( 'setCharacter', character );
             commit( 'setScreen', SCREEN_CHARACTER_INTERACTION );
         },
-        enterShop({ state, commit }, shop ) {
+        enterShop({ state, getters, commit }, shop ) {
             if ( !shop.items.length ) {
                 ShopFactory.generateItems( shop, 5 );
             }
             commit( 'setShop', shop );
             commit( 'setScreen', SCREEN_SHOP );
+            commit( 'addEffect', EffectFactory.create(
+                null, getters.gameTime, 30000, 0, 1, 'handleShopTimeout'
+            ));
+        },
+        leaveShop({ commit }) {
+            commit( 'removeEffectsByCallback', [ 'handleShopTimeout' ]);
+        },
+        handleShopTimeout({ commit, getters, dispatch }) {
+            commit( 'openDialog', { message: getters.translate('timeouts.shop') });
+            commit( 'setScreen', SCREEN_GAME );
+            dispatch( 'leaveShop' );
         },
         async enterBuilding({ state, getters, commit, dispatch }, building ) {
             // generate levels, terrains and characters inside the building

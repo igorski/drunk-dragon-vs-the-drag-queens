@@ -53,6 +53,9 @@ export default {
             return sortBy( this.shop.items, [ 'price' ]);
         },
     },
+    beforeDestroy() {
+        this.leaveShop();
+    },
     methods: {
         ...mapMutations([
             'openDialog',
@@ -60,6 +63,7 @@ export default {
         ]),
         ...mapActions([
             'buyItem',
+            'leaveShop',
         ]),
         itemTitle({ name, price }) {
             let i18n = '';

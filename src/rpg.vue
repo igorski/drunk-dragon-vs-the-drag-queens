@@ -106,6 +106,7 @@ export default {
         },
     },
     async created() {
+        this.setI18n( i18n );
         this.setLoading( true );
 
         window.addEventListener( 'resize', this.handleResize );
@@ -125,6 +126,7 @@ export default {
     },
     methods: {
         ...mapMutations([
+            'setI18n',
             'setLoading',
             'setDimensions',
             'setScreen',

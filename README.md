@@ -3,10 +3,7 @@
 ## Game concepts
 
 The game is time bound and takes place in the 1980's. Each new game starts at
-the same date (see _time-util.js_). While the game clock increments at a higher speed than
-in actual life, think of all time related operations (such as _Effects_
-_how the character would experience it_ (e.g. _"this should last for two hours"_).
-The unit used is the _millisecond_.
+the same date (see _time-util.js_).
 
 Each game is also unique in that upon creation, the world is generated uniquely
 to the game's randomly generated creation hash. As such, no two games are the same.
@@ -25,6 +22,10 @@ create your own Object structure but use a factory instead.
 Operations on structures are done using the action modules (see _./src/model/actions/_).
 A lot of structures specify their own getters as well as mutations (remember when changing values
 of a Vuex state object that these should be called from a Vuex store mutation-method).
+
+While the game clock increments at a higher speed than in actual life, think of all time related
+operations (e.g. _Effects_) as if they were actual time (e.g. _"the effect of this item should last for two hours in the perception of the player character"_). The unit used is the _millisecond_ and is automatically
+scaled to the game/real life ratio when creating a new Effect using the EffectFactory.
 
 ## Application source outline
 
@@ -63,8 +64,11 @@ Running unit tests:
 ```
 npm run test
 ```
+
 ## TODO
 
+* When screen becomes game check current time (to verify game over during daylight)
+* Show inventory on status screen
 * Create fast travel by introducing subway (can only travel to visited areas!)
 * Ensure you can take stairs back to previous floor when inside a building, (last floor has no stairway up!)
 * Allow to buy on credit, starts action by which you need to have repaid the person!
@@ -72,7 +76,6 @@ npm run test
 * When player clicks on non-navigate-able tile, navigate as close to the tile as possible (take dominant distance on x-y coordinate and keep reducing until path is found)
 * Buildings should occupy their full size on sidewalk/sand-only tiles?
 * Buildings should close in the morning! (unless you have a place to sleep inside)
-* Kick people out of shop after 30 game minutes have passed
 * Don't spawn/generate actionable object in empty tile surrounded by a closed path
 * Make menu collapsable
 * World must become lighter when morning comes

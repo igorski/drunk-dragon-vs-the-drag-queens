@@ -39,7 +39,13 @@ export default {
             height: 0,
         },
     },
+    getters: {
+        translate: state => translate, // convenience method to access i18n in modules
+    },
     mutations: {
+        setI18n( state, i18nReference ) {
+            i18n = i18nReference;
+        },
         setLoading( state, value ) {
             state.loading = !!value;
         },

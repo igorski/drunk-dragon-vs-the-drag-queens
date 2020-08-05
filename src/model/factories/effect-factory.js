@@ -1,3 +1,5 @@
+import { GAME_TIME_RATIO } from '@/utils/time-util';
+
 const EffectFactory =
 {
     /**
@@ -6,23 +8,28 @@ const EffectFactory =
      * on a single property. If more than one effect applies to the same
      * property this should be recalculated into a new duration and value range.
      *
-     * @param {String} mutation the name of the Vuex mutation to commit to on change
+     * @param {String} mutation the name of the Vuex mutation to commit to on change, nullable
      * @param {Number} startTime time offset (e.g. current game time in milliseconds)
-     * @param {Number} duration total effect duration in milliseconds
+     * @param {Number} duration total effect duration in milliseconds, this is
+     *                          automatically scaled against the game/real life time ratio
      * @param {Number} startValue the value when the effect starts
      * @param {Number} endValue the value when the effect ends
      * @param {String=} callback optional Vuex action to dispatch when effect is completed
      * @return {Object}
      */
     create( mutation, startTime, duration, startValue, endValue, callback = null ) {
+        if ( !mutation && !callback ) {
+            throw new Error( 'cannot instantiate an Effect without either a mutation or callback' );
+        }
+        const scaledDuration = duration * GAME_TIME_RATIO;
         return {
             mutation,
             startTime,
-            duration,
+            duration: scaledDuration,
             startValue,
             endValue,
             callback,
-            increment: ( endValue - startValue ) / duration
+            increment: ( endValue - startValue ) / scaledDuration
         };
     },
 
@@ -41,7 +48,7 @@ const EffectFactory =
         return {
             m: effect.mutation,
             s: effect.startTime,
-            d: effect.duration,
+            d: effect.duration / GAME_TIME_RATIO,
             sv: effect.startValue,
             ev: effect.endValue,
             c: effect.callback

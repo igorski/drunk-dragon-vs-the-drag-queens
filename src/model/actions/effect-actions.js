@@ -17,13 +17,13 @@ export default
         }
 
         if ( elapsed >= effect.duration ) {
-            commit( mutation, effect.endValue );
-            if ( typeof effect.callback === 'string' ) {
-                dispatch( effect.callback );
-            }
+            typeof mutation === 'string' && commit( mutation, effect.endValue );
+            typeof effect.callback === 'string' && dispatch( effect.callback );
+
             return true;
         }
-        commit( mutation, effect.startValue + ( increment * elapsed ));
+        typeof mutation === 'string' && commit( mutation, effect.startValue + ( increment * elapsed ));
+
         return false;
     }
 };

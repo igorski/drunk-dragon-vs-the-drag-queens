@@ -1,11 +1,10 @@
-import EffectFactory       from '@/model/factories/effect-factory';
-import EnvironmentActions  from '@/model/actions/environment-actions';
-import CharacterActions    from '@/model/actions/character-actions';
-import { GAME_TIME_RATIO } from '@/utils/time-util';
+import EffectFactory      from '@/model/factories/effect-factory';
+import EnvironmentActions from '@/model/actions/environment-actions';
+import CharacterActions   from '@/model/actions/character-actions';
 
 // cancel the pending movements TODO: this should target the effect "owner"!
 const cancelPendingMovement = commit => {
-    commit( 'removeEffectsByAction', [ 'setXPosition', 'setYPosition' ]);
+    commit( 'removeEffectsByMutation', [ 'setXPosition', 'setYPosition' ]);
 };
 const DEFAULT_WALK_SPEED = 400; // ms for a single step
 
@@ -50,25 +49,30 @@ export default
 
             const { activeEnvironment, gameTime } = getters;
             let startTime  = gameTime;
-            const duration = ( DEFAULT_WALK_SPEED * CharacterActions.getSpeed( state.player )) * GAME_TIME_RATIO;
+            const duration = DEFAULT_WALK_SPEED * CharacterActions.getSpeed( state.player );
             let lastX      = activeEnvironment.x;
             let lastY      = activeEnvironment.y;
+            let effect;
 
             waypoints.forEach(({ x, y }, index ) => {
                 // waypoints can move between two axes at a time
                 if ( x !== lastX ) {
-                    commit( 'addEffect', EffectFactory.create(
+                    effect = EffectFactory.create(
                         'setXPosition', startTime, duration, lastX, x, 'handleMoveUpdate'
-                    ));
+                    );
+                    commit( 'addEffect', effect );
                     lastX = x;
                 }
                 if ( y !== lastY ) {
-                    commit( 'addEffect', EffectFactory.create(
+                    effect = EffectFactory.create(
                         'setYPosition', startTime, duration, lastY, y, 'handleMoveUpdate'
-                    ));
+                    );
+                    commit( 'addEffect', effect );
                     lastY = y;
                 }
-                startTime += duration;
+                if ( effect ) {
+                    startTime += effect.duration; // add effects scaled duration to next start time
+                }
             });
         },
         handleMoveUpdate({ state, dispatch, commit, getters }) {

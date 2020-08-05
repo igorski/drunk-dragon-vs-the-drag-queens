@@ -1,7 +1,8 @@
-import store            from '@/store/modules/game-module';
-import CharacterFactory from '@/model/factories/character-factory';
-import EffectFactory    from '@/model/factories/effect-factory';
-import { SCREEN_SHOP, SCREEN_CHARACTER_INTERACTION } from '@/definitions/screens';
+import store               from '@/store/modules/game-module';
+import CharacterFactory    from '@/model/factories/character-factory';
+import EffectFactory       from '@/model/factories/effect-factory';
+import { GAME_TIME_RATIO } from '@/utils/time-util';
+import { SCREEN_SHOP, SCREEN_GAME, SCREEN_CHARACTER_INTERACTION } from '@/definitions/screens';
 
 const { getters, mutations, actions } = store;
 
@@ -69,6 +70,7 @@ describe('Vuex game module', () => {
                 building: { baz: 'qux' },
                 world: { quux: 'quuz' },
                 hash: 'corge',
+                effects: [{ foo: 'bar' }]
             };
             mutations.setGame( state, game );
             expect( state ).toEqual( game );
@@ -174,23 +176,44 @@ describe('Vuex game module', () => {
                 expect( state.effects ).toEqual([{ baz: 'qux' }]);
             });
 
-            it('should be able to remove effects of specific action types', () => {
+            it('should be able to remove effects of specific mutation types', () => {
                 const state = {
                     effects: [
-                        { id: 1, action: 'foo' },
-                        { id: 2, action: 'bar' }, { id: 3, action: 'bar' },
-                        { id: 4, action: 'baz' },
-                        { id: 5, action: 'qux' },
+                        { id: 1, mutation: 'foo' },
+                        { id: 2, mutation: 'bar' },
+                        { id: 3, mutation: 'bar' },
+                        { id: 4, mutation: 'baz' },
+                        { id: 5, mutation: 'qux' },
                     ]
                 };
-                mutations.removeEffectsByAction( state, [ 'bar' ]);
+                mutations.removeEffectsByMutation( state, [ 'bar' ]);
                 expect( state.effects ).toEqual([
-                    { id: 1, action: 'foo' },
-                    { id: 4, action: 'baz' },
-                    { id: 5, action: 'qux' }
+                    { id: 1, mutation: 'foo' },
+                    { id: 4, mutation: 'baz' },
+                    { id: 5, mutation: 'qux' }
                 ]);
-                mutations.removeEffectsByAction( state, [ 'foo', 'qux' ]);
-                expect( state.effects ).toEqual([ { id: 4, action: 'baz' } ]);
+                mutations.removeEffectsByMutation( state, [ 'foo', 'qux' ]);
+                expect( state.effects ).toEqual([ { id: 4, mutation: 'baz' } ]);
+            });
+
+            it('should be able to remove effects with specific callback actions', () => {
+                const state = {
+                    effects: [
+                        { id: 1, callback: 'foo' },
+                        { id: 2, callback: 'bar' },
+                        { id: 3, callback: 'bar' },
+                        { id: 4, callback: 'baz' },
+                        { id: 5, callback: 'qux' },
+                    ]
+                };
+                mutations.removeEffectsByCallback( state, [ 'bar' ]);
+                expect( state.effects ).toEqual([
+                    { id: 1, callback: 'foo' },
+                    { id: 4, callback: 'baz' },
+                    { id: 5, callback: 'qux' }
+                ]);
+                mutations.removeEffectsByCallback( state, [ 'foo', 'qux' ]);
+                expect( state.effects ).toEqual([ { id: 4, callback: 'baz' } ]);
             });
 
             it('should be able to remover a specific item from the currently visited shop', () => {
@@ -288,29 +311,55 @@ describe('Vuex game module', () => {
         });
 
         describe('when navigating through the game world', () => {
-            describe('and entering a shop', () => {
+            describe('and entering/leaving a shop', () => {
                 it('should be able to enter a shop, generating stock when it has no items upon entry', () => {
                     const shop = { foo: 'bar', items: [] };
                     const state = { player: { baz: 'qux' } };
                     const commit = jest.fn();
+                    const mockedGetters = { gameTime: 1000 };
                     mockUpdateFn = jest.fn();
-                    actions.enterShop({ state, commit }, shop );
+                    actions.enterShop({ state, getters: mockedGetters, commit }, shop );
 
                     expect( mockUpdateFn ).toHaveBeenCalledWith( 'generateItems', shop, expect.any( Number ));
                     expect( commit ).toHaveBeenNthCalledWith( 1, 'setShop', shop );
                     expect( commit ).toHaveBeenNthCalledWith( 2, 'setScreen', SCREEN_SHOP );
+                    expect( commit ).toHaveBeenNthCalledWith( 3, 'addEffect', {
+                        mutation: null, startTime: mockedGetters.gameTime, duration: 30000 * GAME_TIME_RATIO,
+                        startValue: expect.any( Number ), endValue: expect.any( Number ),
+                        increment: expect.any( Number ), callback: 'handleShopTimeout'
+                    });
                 });
 
                 it('should be able to enter a shop, not generating new items when there are stil in stock', () => {
-                    const shop = { foo: 'bar', items: [{ baz: 'qux' }]};
-                    const state = { player: { baz: 'qux' } };
-                    const commit = jest.fn();
-                    mockUpdateFn = jest.fn();
-                    actions.enterShop({ state, commit }, shop );
+                    const shop          = { foo: 'bar', items: [{ baz: 'qux' }]};
+                    const state         = { player: { baz: 'qux' } };
+                    const commit        = jest.fn();
+                    const mockedGetters = { gameTime: 1000 };
+                    mockUpdateFn        = jest.fn();
+                    actions.enterShop({ state, commit, getters: mockedGetters }, shop );
 
                     expect( mockUpdateFn ).not.toHaveBeenCalledWith( 'generateItems', shop, expect.any( Number ));
                     expect( commit ).toHaveBeenNthCalledWith( 1, 'setShop', shop );
                     expect( commit ).toHaveBeenNthCalledWith( 2, 'setScreen', SCREEN_SHOP );
+                    expect( commit ).toHaveBeenNthCalledWith( 3, 'addEffect', expect.any( Object ));
+                });
+
+                it('should be able to remove the pending callback effect when leaving the shop', () => {
+                    const commit = jest.fn();
+                    actions.leaveShop({ commit });
+                    expect( commit ).toHaveBeenCalledWith( 'removeEffectsByCallback', [ 'handleShopTimeout' ]);
+                });
+
+                it('should be able to handle the timeout when staying in the shop for too long', () => {
+                    const commit        = jest.fn();
+                    const dispatch      = jest.fn();
+                    const mockedGetters = { translate: jest.fn() };
+
+                    actions.handleShopTimeout({ commit, dispatch, getters: mockedGetters });
+
+                    expect( commit ).toHaveBeenNthCalledWith( 1, 'openDialog', expect.any( Object ));
+                    expect( commit ).toHaveBeenNthCalledWith( 2, 'setScreen', SCREEN_GAME );
+                    expect( dispatch ).toHaveBeenCalledWith( 'leaveShop' );
                 });
             });
 
@@ -404,8 +453,8 @@ describe('Vuex game module', () => {
                 const mockedGetters = {
                     gameTime: timestamp,
                 };
-                const effect1 = EffectFactory.create();
-                const effect2 = EffectFactory.create();
+                const effect1 = EffectFactory.create( 'mutation1');
+                const effect2 = EffectFactory.create( 'mutation2');
 
                 mockUpdateFn = jest.fn(({ commit, dispatch }, effect ) => {
                     // note that effect 2 we want to remove (by returning true)

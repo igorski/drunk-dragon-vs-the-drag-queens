@@ -14,7 +14,7 @@ describe('Game factory', () => {
             gameTime: Date.now() - 1000,
             world: WorldFactory.create(),
             building: BuildingFactory.create(),
-            effects: [ EffectFactory.create() ],
+            effects: [ EffectFactory.create( 'mutationName', 500, 1000, 0, 1 ) ],
         };
         const player = CharacterFactory.create();
 

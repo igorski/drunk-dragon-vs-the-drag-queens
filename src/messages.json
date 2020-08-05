@@ -6,6 +6,9 @@
         "title": {
             "error": "Error",
             "success": "Operation completed"
+        },
+        "timeouts": {
+            "shop": "You have been hanging around my shop not buying anything for long enough, scram!"
         }
     }
 }
