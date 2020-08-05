@@ -1,6 +1,6 @@
-import Random     from 'random-seed';
-import ItemTypes  from '@/definitions/item-types';
-import PriceTypes from '@/definitions/price-types';
+import ItemTypes          from '@/definitions/item-types';
+import PriceTypes         from '@/definitions/price-types';
+import { randomFromList } from '@/utils/random-util';
 
 const IntentFactory = {
     create( type, price ) {
@@ -29,10 +29,3 @@ const IntentFactory = {
     }
 };
 export default IntentFactory;
-
-/* internal methods */
-
-function randomFromList( list ) {
-    const rand = Random.create();
-    return list[ rand.intBetween( 0, list.length - 1 )];
-}

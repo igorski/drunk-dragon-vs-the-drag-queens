@@ -1,5 +1,19 @@
 # rpg
 
+NAME IDAES:
+
+Nocturbulent
+Nocturin
+Nocturmoil
+Nocturnopoly
+Ypnopoly / ypnopolio
+nykterinos
+
+A browser based adventure game in which the player should at all costs prevent
+seeing daylight. Instead the player is destined to forever live a hedonistic
+lifestyle during endless summer nights, looking for ways to keep a low profile
+during the day.
+
 ## Game concepts
 
 The game is time bound and takes place in the 1980's. Each new game starts at
@@ -68,6 +82,7 @@ npm run test
 ## TODO
 
 * When screen becomes game check current time (to verify game over during daylight)
+* Implement game over screen showing overall game duration
 * Show inventory on status screen
 * Create fast travel by introducing subway (can only travel to visited areas!)
 * Ensure you can take stairs back to previous floor when inside a building, (last floor has no stairway up!)

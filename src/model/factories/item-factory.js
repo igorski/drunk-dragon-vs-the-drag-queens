@@ -1,16 +1,15 @@
-import Random     from 'random-seed';
 import PriceTypes from '@/definitions/price-types';
+import { randomBool, randomFromList } from '@/utils/random-util';
 import ItemTypes, { JEWELRY_TYPES, LIQUOR_TYPES, HEALTHCARE_TYPES } from '@/definitions/item-types';
 
 const ItemFactory =
 {
     create( type, optName = '' ) {
-        const rand      = Random.create();
         const prices    = Object.values( PriceTypes );
         const basePrice = randomFromList( prices );
 
         let price = basePrice;
-        if ( rand.intBetween( 0, 1 ) === 0 ) {
+        if ( randomBool() ) {
             price *= ( Math.random() + 1 )
             price = parseFloat( price.toFixed( 2 ));
         }
@@ -70,11 +69,6 @@ const ItemFactory =
 export default ItemFactory;
 
 /* internal methods */
-
-function randomFromList( list ) {
-    const rand = Random.create();
-    return list[ rand.intBetween( 0, list.length - 1 )];
-}
 
 function namesForType( type ) {
     switch ( type ) {
