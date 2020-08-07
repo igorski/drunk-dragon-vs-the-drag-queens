@@ -35,6 +35,14 @@ describe('Vuex player module', () => {
             mutations.addItemToInventory( state, item );
             expect( state.player.inventory.items ).toEqual([{ foo: 'bar'}, { baz: 'qux' }]);
         });
+
+        it('should be able to remove an item from the players inventory', () => {
+            const state = { player: { inventory: {
+                cash: 50, items: [{ foo: 'bar' }, { baz: 'qux' }] } }
+            };
+            mutations.removeItemFromInventory( state, state.player.inventory.items[1] );
+            expect( state.player.inventory.items ).toEqual([{ foo: 'bar'}]);
+        });
     });
 
     describe('actions', () => {
@@ -75,6 +83,36 @@ describe('Vuex player module', () => {
                 expect( commit ).toHaveBeenNthCalledWith( 1, 'deductCash', item.price );
                 expect( commit ).toHaveBeenNthCalledWith( 2, 'removeItemFromShop', item );
                 expect( commit ).toHaveBeenNthCalledWith( 3, 'addItemToInventory', item );
+            });
+        });
+
+        describe('when giving an inventory item to another Character', () => {
+            const character = {
+                properties: {
+                    intent: {
+                        type: 1,
+                        price: 10
+                    }
+                }
+            };
+
+            if('should not give the item when it does not meet the Characters intent', () => {
+                const item = { type: 0, price: 1 };
+                const commit = jest.fn();
+
+                expect( actions.giveItemToCharacter({ commit }, { item, character })).toBe( false );
+                item.type = 1; // type is equal to intent, but price isn't
+                expect( actions.giveItemToCharacter({ commit }, { item, character })).toBe( false );
+                expect( commit ).not.toHaveBeenCalled();
+            });
+
+            it('should give the item when it meets the Characters intent', () => {
+                const item = { type: 1, price: 10 };
+                const commit = jest.fn();
+
+                expect( actions.giveItemToCharacter({ commit }, { item, character })).toBe( true );
+                expect( commit ).toHaveBeenNthCalledWith( 1, 'addItemToCharacterInventory', { item, character });
+                expect( commit ).toHaveBeenNthCalledWith( 2, 'removeItemFromInventory', item);
             });
         });
     });

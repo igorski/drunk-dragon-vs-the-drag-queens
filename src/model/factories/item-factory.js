@@ -4,16 +4,18 @@ import ItemTypes, { JEWELRY_TYPES, LIQUOR_TYPES, HEALTHCARE_TYPES } from '@/defi
 
 const ItemFactory =
 {
-    create( type, optName = '' ) {
-        const prices    = Object.values( PriceTypes );
-        const basePrice = randomFromList( prices );
+    create( type, optName = '', optPrice = -1 ) {
+        let price = optPrice;
+        if ( price === -1 ) {
+            const prices    = Object.values( PriceTypes );
+            const basePrice = randomFromList( prices );
+            price = basePrice;
 
-        let price = basePrice;
-        if ( randomBool() ) {
-            price *= ( Math.random() + 1 )
-            price = parseFloat( price.toFixed( 2 ));
+            if ( randomBool() ) {
+                price *= ( Math.random() + 1 )
+                price = parseFloat( price.toFixed( 2 ));
+            }
         }
-
         let name = optName;
         if ( !optName ) {
             switch ( type ) {
@@ -48,11 +50,7 @@ const ItemFactory =
      * back into an Item instance
      */
     assemble( data ) {
-        return {
-            name: data.n,
-            price: data.p,
-            type: data.t
-        };
+        return ItemFactory.create( data.t, data.n, data.p );
     },
 
     /**

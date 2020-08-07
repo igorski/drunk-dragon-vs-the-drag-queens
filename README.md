@@ -84,6 +84,7 @@ npm run test
 * When screen becomes game check current time (to verify game over during daylight)
 * Implement game over screen showing overall game duration
 * Show inventory on status screen
+* Create pawn shop
 * Create fast travel by introducing subway (can only travel to visited areas!)
 * Ensure you can take stairs back to previous floor when inside a building, (last floor has no stairway up!)
 * Allow to buy on credit, starts action by which you need to have repaid the person!

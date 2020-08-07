@@ -102,6 +102,22 @@ export default {
                 state.shop.items.splice( index, 1 );
             }
         },
+        removeCharacter( state, character ) {
+            if ( state.character === character ) {
+                state.character = null;
+            }
+            const { characters } = state.activeEnvironment;
+            const index = characters.indexOf( character );
+            if ( index > -1 ) {
+                characters.splice( index, 1 );
+            }
+        },
+        addItemToCharacterInventory( state, { item, character }) {
+            const char = state.activeEnvironment.characters.find( c => character );
+            if ( char ) {
+                char.inventory.items.push( item );
+            }
+        },
         markVisitedTerrain( state, visitedTerrainIndices = [] ) {
             const { visitedTerrain } = state.activeEnvironment;
             visitedTerrainIndices.forEach( index => {

@@ -22,10 +22,11 @@ import sortBy         from 'lodash/sortBy';
 import Modal          from '@/components/modal/modal';
 import PriceTypes     from '@/definitions/price-types';
 import { SHOP_TYPES } from '@/model/factories/shop-factory';
+import sharedMessages from '@/i18n/items.json';
 import messages       from './messages.json';
 
 export default {
-    i18n: { messages },
+    i18n: { messages, sharedMessages },
     components: {
         Modal,
     },

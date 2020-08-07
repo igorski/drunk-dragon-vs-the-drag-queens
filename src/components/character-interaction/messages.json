@@ -3,6 +3,7 @@
         "conversation": "Conversation",
         "askQuestion": "Ask question",
         "giveItem": "Give item",
+        "findItemByName": "Find item by name",
         "hi": "Hi",
         "whatsInHere": "What's in here?",
         "canIEnter": "Can I enter?",
@@ -26,7 +27,10 @@
             ]
         },
         "convinceMeWithAPresent": "Still here, huh ? Well maybe you can convince me to step aside if you bring me something nice. Surprise me.",
-        "couldUseADrink": "**mumbling** Geez, always the same with these characters. This is exactly what drives me to drink.",
-        "feelingSick": "**mumbling** I'm feeling sick to my stomach."
+        "couldUseADrink": "Geez, always the same with these characters. This is exactly what drives me to drink.",
+        "feelingSick": "Ungh, I'm feeling sick to my stomach.",
+        "noThankYou": "No thank you.",
+        "tooCheap": "I do have slightly higher standards than that.",
+        "justWhatINeeded": "Oh wow, just what I needed! Thank you!"
     }
 }

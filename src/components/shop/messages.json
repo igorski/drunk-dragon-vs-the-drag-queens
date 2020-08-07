@@ -13,14 +13,6 @@
         "confirmPurchase": "Confirm your purchase",
         "buyItemForPrice": "Buy {name} for {price} ?",
         "insufficientFunds": "It seems you have insufficient funds to buy this item.",
-        "thanksForPurchase": "Thank you for your business!",
-        "necklace": "Necklace",
-        "bracelet": "Bracelet",
-        "ring": "Ring",
-        "wine": "Bottle of wine",
-        "gin": "Bottle of gin",
-        "cognac": "Bottle of cognac",
-        "bandaid": "Package of bandaid",
-        "aspirin": "Aspirin"
+        "thanksForPurchase": "Thank you for your business!"
     }
 }

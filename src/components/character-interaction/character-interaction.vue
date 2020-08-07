@@ -1,11 +1,11 @@
 <template>
     <modal :title="$t('conversation')"
            class="interaction-modal"
-           @close="$emit('close')"
+           @close="close()"
     >
         <div class="interactions">
+            <h3 v-t="'askQuestion'"></h3>
             <div class="questions">
-                <h3 v-t="'askQuestion'"></h3>
                 <button v-t="'hi'"
                         type="button"
                         class="rpg-button"
@@ -25,19 +25,33 @@
                         @click="interact(2)"
                 ></button>
             </div>
+            <h3 v-t="'giveItem'"></h3>
             <div class="actions">
-                <h3 v-t="'giveItem'"></h3>
+                <model-select
+                    v-model="selectedItem"
+                    :options="playerInventory"
+                    :placeholder="$t('findItemByName')"
+                    class="inventory-list"
+                />
                 <button v-t="'give'"
                         type="button"
-                        class="rpg-button"
+                        class="rpg-button give-button"
                         :title="$t('give')"
+                        :disabled="!selectedItem"
                         @click="giveItem()"
                 ></button>
             </div>
         </div>
         <div class="character">
-            <div v-if="message" class="speech-bubble speech-bubble__bottom-left">{{ message }}</div>
-            <component
+            <div v-if="message"
+                 class="speech-bubble"
+                 @click="message = null"
+             >{{ message }}</div>
+             <div v-if="thought"
+                  class="thought-bubble"
+                  @click="thought = null"
+             >{{ thought }}</div>
+             <component
                 class="character-preview"
                 :is="characterComponent"
                 :character="character"
@@ -49,23 +63,31 @@
 
 <script>
 import { mapState, mapGetters, mapMutations, mapActions } from 'vuex';
+import { ModelSelect }    from 'vue-search-select';
 import sortBy             from 'lodash/sortBy';
 import Modal              from '@/components/modal/modal';
 import ItemTypes          from '@/definitions/item-types';
 import PriceTypes         from '@/definitions/price-types';
 import { SHOP_TYPES }     from '@/model/factories/shop-factory';
 import { randomFromList } from '@/utils/random-util';
+import sharedMessages     from '@/i18n/items.json';
 import messages           from './messages.json';
 
+import 'semantic-ui-css/components/dropdown.min.css'
+import 'vue-search-select/dist/VueSearchSelect.css';
+
 export default {
-    i18n: { messages },
+    i18n: { messages, sharedMessages },
     components: {
         Modal,
+        ModelSelect,
     },
     data: () => ({
-        message: '',
         askedQuestions: 0,
         intentTimeout: null,
+        message: '',
+        thought: '',
+        selectedItem: null,
     }),
     computed: {
         ...mapState([
@@ -88,6 +110,9 @@ export default {
             const { width } = this.dimensions;
             return Math.min( ideal, width * .9 );
         },
+        playerInventory() {
+            return this.player.inventory.items.map( value => ({ text: this.$t( value.name ), value }));
+        }
     },
     beforeDestroy() {
         this.clearIntentTimeout();
@@ -96,19 +121,12 @@ export default {
         ...mapMutations([
             'openDialog',
             'showNotification',
+            'removeCharacter',
         ]),
         ...mapActions([
             'buyItem',
+            'giveItemToCharacter',
         ]),
-        showIntent({ name, price }) {
-            let i18n = '';
-            if ( price >= PriceTypes.LUXURY ) {
-                i18n = `${this.$t( 'luxury' )} `;
-            } else if ( price >= PriceTypes.EXPENSIVE ) {
-                i18n = `${this.$t( 'quality' )} `;
-            }
-            this.message = `${i18n}${this.$t( name )}`;
-        },
         interact( type ) {
             let list;
             this.clearIntentTimeout();
@@ -125,29 +143,45 @@ export default {
             }
             this.message = randomFromList( list );
 
-            // persistent bugging shows the Characters intent
-            if ( ++this.askedQuestions > 3 ) {
+            // persistent bugging shows the Characters intent in a thought balloon
+            if ( ++this.askedQuestions > 2 && this.intentTimeout === null ) {
                 this.intentTimeout = window.setTimeout(() => {
                     switch ( this.intent.type ) {
                         case ItemTypes.JEWELRY:
-                            this.message = this.$t('convinceMeWithAPresent');
+                            this.thought = this.$t('convinceMeWithAPresent');
                             break;
                         case ItemTypes.LIQUOR:
-                            this.message = this.$t('couldUseADrink');
+                            this.thought = this.$t('couldUseADrink');
                             break;
                         case ItemTypes.HEALTHCARE:
-                            this.message = this.$t('feelingSick');
+                            this.thought = this.$t('feelingSick');
                             break;
                     }
-                }, 7500 );
+                }, 5000 );
             }
         },
         clearIntentTimeout() {
             window.clearTimeout( this.intentTimeout );
         },
-        giveItem( item ) {
-            console.warn(item);
+        async giveItem() {
+            if ( this.intent.type !== this.selectedItem.type ) {
+                this.message = this.$t('noThankYou');
+                return;
+            }
+            if ( await this.giveItemToCharacter({ item: this.selectedItem, character: this.character }) ) {
+                this.message = this.$t('justWhatINeeded');
+                window.setTimeout(() => {
+                    this.close();
+                    this.removeCharacter( this.character );
+                }, 5000 );
+            } else {
+                this.message = this.$t('tooCheap');
+            }
+            this.selectedItem = null;
         },
+        close() {
+            this.$emit('close');
+        }
     },
 };
 </script>
@@ -157,6 +191,9 @@ export default {
 
     .interaction-modal {
         overflow: visible; // speech bubble
+        /deep/ .modal__content {
+            overflow: visible !important;
+        }
     }
 
     .interactions, .character {
@@ -165,21 +202,25 @@ export default {
         vertical-align: top;
     }
 
-    .speech-bubble {
+    @mixin bubble() {
         position: absolute;
         z-index: 1;
         top: -$spacing-xlarge;
         font-family: sans-serif;
         font-size: 18px;
         line-height: 24px;
-        width: 300px;
         background: #fff;
+        text-align: center;
+    }
+
+    .speech-bubble {
+        @include bubble();
+        width: 300px;
         border-radius: 40px;
         padding: 24px;
-        text-align: center;
         color: #000;
 
-        &__bottom-left:before {
+        &:before {
             content: "";
             width: 0;
             height: 0;
@@ -191,5 +232,51 @@ export default {
             left: 32px;
             bottom: -24px;
         }
+    }
+
+    .thought-bubble {
+        @include bubble();
+        z-index: 2;
+        display: flex;
+        padding: 20px;
+        border-radius: 30px;
+        min-width: 40px;
+        max-width: 220px;
+        min-height: 40px;
+        align-items: center;
+        justify-content: center;
+
+        &:before,
+        &:after {
+            content: "";
+            background-color: #fff;
+            border-radius: 50%;
+            display: block;
+            position: absolute;
+            z-index: -1;
+        }
+
+        &:before {
+            width: 44px;
+            height: 44px;
+            top: -12px;
+            left: 28px;
+            box-shadow: -50px 30px 0 -12px #fff;
+        }
+        &:after {
+            bottom: -10px;
+            right: 26px;
+            width: 30px;
+            height: 30px;
+            box-shadow: 40px -34px 0 0 #fff,
+                        -28px -6px 0 -2px #fff,
+                        -24px 17px 0 -6px #fff,
+                        -5px 25px 0 -10px #fff;
+        }
+    }
+
+    .inventory-list,
+    .give-button {
+        display: inline !important;
     }
 </style>

@@ -137,6 +137,34 @@ describe('Vuex game module', () => {
                 expect( state.character ).toEqual( character );
             });
 
+            it('should be able to remove a Character from the currently active environment', () => {
+                const state = {
+                    activeEnvironment: {
+                        characters: [{ foo: 'bar' }, { baz: 'qux' }]
+                    }
+                };
+                mutations.removeCharacter( state, state.activeEnvironment.characters[1] );
+                expect( state.activeEnvironment.characters ).toEqual([ { foo: 'bar' }]);
+            });
+
+            it('should be able to add an item to the inventory of a Character in the currently active environment', () => {
+                const state = {
+                    activeEnvironment: {
+                        characters: [
+                            { foo: 'bar', inventory: { items: [{ quz: 'quuz' }] } },
+                            { baz: 'qux', inventory: { items: [] } }
+                        ]
+                    }
+                };
+                const item = { quux: 'corge' };
+                const character = state.activeEnvironment.characters[ 0 ];
+                mutations.addItemToCharacterInventory( state, { item, character });
+                expect(state.activeEnvironment.characters).toEqual([
+                    { foo: 'bar', inventory: { items: [{ quz: 'quuz' }, item ] } },
+                    { baz: 'qux', inventory: { items: [] }}
+                ]);
+            });
+
             it('should be able to mark the visited terrain for the current environment with deduplication', () => {
                 const state = {
                     activeEnvironment: {

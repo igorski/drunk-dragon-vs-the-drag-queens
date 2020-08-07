@@ -38,6 +38,13 @@ export default
                 items.push( item );
             }
         },
+        removeItemFromInventory( state, item ) {
+            const { items } = state.player.inventory;
+            const index = items.indexOf( item );
+            if ( index > -1 ) {
+                items.splice( index, 1 );
+            }
+        },
         setOnMovementUpdate( state, fn ) {
             state.onMoveUpdate = fn;
         },
@@ -89,6 +96,15 @@ export default
             commit( 'removeItemFromShop', item );
             commit( 'addItemToInventory', item );
 
+            return true;
+        },
+        giveItemToCharacter({ commit }, { item, character }) {
+            const { intent } = character.properties;
+            if ( intent.type !== item.type || intent.price > item.price ) {
+                return false;
+            }
+            commit( 'addItemToCharacterInventory', { item, character });
+            commit( 'removeItemFromInventory', item );
             return true;
         }
     },
