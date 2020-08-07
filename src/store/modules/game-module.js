@@ -212,7 +212,7 @@ export default {
             await dispatch( 'saveGame' );
             await dispatch( 'loadGame' );
         },
-        async exportGame({ state }) {
+        async exportGame({ state, getters }) {
             const data = GameFactory.disassemble( state, getters.player );
             const pom = document.createElement( 'a' );
             pom.setAttribute( 'href', `data:text/plain;charset=utf-8,${encodeURIComponent( data )}`);
