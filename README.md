@@ -81,8 +81,6 @@ npm run test
 
 ## TODO
 
-* When screen becomes game check current time (to verify game over during daylight)
-* Implement game over screen showing overall game duration
 * Show inventory on status screen
 * Create pawn shop
 * Create fast travel by introducing subway (can only travel to visited areas!)

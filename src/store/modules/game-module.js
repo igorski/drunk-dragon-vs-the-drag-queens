@@ -12,7 +12,12 @@ import ShopFactory           from '@/model/factories/shop-factory';
 import { renderEnvironment } from '@/services/environment-bitmap-cacher';
 import SpriteCache           from '@/utils/sprite-cache';
 import EffectActions         from '@/model/actions/effect-actions';
-import { GAME_START_TIME, GAME_TIME_RATIO } from '@/utils/time-util';
+import {
+    GAME_ACTIVE, GAME_PAUSED, GAME_OVER
+} from '@/definitions/game-states';
+import {
+    GAME_START_TIME, GAME_TIME_RATIO, VALIDITY_CHECK_INTERVAL, isValidHourToBeOutside
+} from '@/utils/time-util';
 import {
     SCREEN_CHARACTER_CREATE, SCREEN_GAME, SCREEN_SHOP, SCREEN_CHARACTER_INTERACTION
 } from '@/definitions/screens';
@@ -29,33 +34,45 @@ export default {
         shop: null,              // currently entered shop
         created: 0,
         modified: 0,
-        gameStart: 0,   // timestamp at which the game was originally created
-        gameTime: 0,    // timestamp of in-game Date (games always start at GAME_START_TIME)
-        lastRender: 0,  // last render timestamp, see zCanvas
+        gameStart: 0,    // timestamp at which the game was originally created
+        gameTime: 0,     // timestamp of in-game Date (games always start at GAME_START_TIME)
+        lastRender: 0,   // last render timestamp, see zCanvas
+        lastValidGameTime: 0, // timestamp of the last game time update
+        gameState: GAME_PAUSED,
         effects: [],
     },
     getters: {
+        gameState: state => state.gameState,
         gameTime: state => state.gameTime,
         activeEnvironment: state => state.activeEnvironment,
         floor: state => state.building?.floor ?? NaN,
         shop: state => state.shop,
         character: state => state.character,
         hasSavedGame: state => () => !!storage.get( STORAGE_KEY ),
+        isOutside: state => !state.building && !state.shop,
     },
     mutations: {
         setGame( state, value ) {
-            state.created       = value.created;
-            state.modified      = value.modified;
-            state.gameStart     = value.gameStart;
-            state.hash          = value.hash;
-            state.lastSavedTime = value.lastSavedTime;
-            state.gameTime      = value.gameTime;
-            state.building      = value.building;
-            state.world         = value.world;
-            state.effects       = value.effects;
+            state.created           = value.created;
+            state.modified          = value.modified;
+            state.gameStart         = value.gameStart;
+            state.hash              = value.hash;
+            state.lastSavedTime     = value.lastSavedTime;
+            state.gameTime          = value.gameTime;
+            state.lastValidGameTime = value.gameTime;
+            state.building          = value.building;
+            state.world             = value.world;
+            state.effects           = value.effects;
+            state.gameState         = GAME_ACTIVE;
+        },
+        setGameState( state, value ) {
+            state.gameState = value;
         },
         advanceGameTime( state, valueInMilliseconds ) {
             state.gameTime += valueInMilliseconds;
+        },
+        setLastValidGameTime( state, value ) {
+            state.lastValidGameTime = value;
         },
         setLastRender( state, value ) {
             state.lastRender = value;
@@ -285,11 +302,22 @@ export default {
          * which relative to the renderStart timestamp defines the relative time.
          */
         updateGame({ state, getters, commit, dispatch }, timestamp ) {
+            if ( state.gameState !== GAME_ACTIVE ) {
+                return;
+            }
             // advance game time (values in milliseconds)
             const delta = ( timestamp - state.lastRender ) * GAME_TIME_RATIO;
             commit( 'advanceGameTime', delta );
 
             const gameTimestamp = getters.gameTime;
+
+            if (( gameTimestamp - state.lastValidGameTime ) >= VALIDITY_CHECK_INTERVAL ) {
+                if ( getters.isOutside && !isValidHourToBeOutside( gameTimestamp )) {
+                    commit( 'setGameState', GAME_OVER );
+                } else {
+                    commit( 'setLastValidGameTime', gameTimestamp );
+                }
+            }
 
             // update the effects
             const updateFns = { commit, dispatch };

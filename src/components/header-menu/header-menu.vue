@@ -17,7 +17,7 @@
                         <li>
                             <button v-t="'saveGame'"
                                     type="button"
-                                    :disabled="!hasActiveGame"
+                                    :disabled="!hasActiveGame || isGameOver"
                                     :title="$t('saveGame')"
                                     @click="handleSave"
                             ></button>
@@ -25,7 +25,7 @@
                         <li>
                             <button v-t="'exportGame'"
                                     type="button"
-                                    :disabled="!hasActiveGame"
+                                    :disabled="!hasActiveGame || isGameOver"
                                     :title="$t('exportGame')"
                                     @click="handleExport"
                             ></button>
@@ -73,6 +73,7 @@
 
 <script>
 import { mapGetters, mapMutations, mapActions } from 'vuex';
+import { GAME_OVER } from '@/definitions/game-states';
 import { SCREEN_GAME, SCREEN_OPTIONS, SCREEN_STATUS, SCREEN_CREDITS } from '@/definitions/screens';
 import messages from './messages.json';
 
@@ -83,10 +84,14 @@ export default {
     }),
     computed: {
         ...mapGetters([
+            'gameState',
             'player',
         ]),
         hasActiveGame() {
             return !!this.player; // e.g. creating new character/restart
+        },
+        isGameOver() {
+            return this.gameState === GAME_OVER;
         },
     },
     methods: {

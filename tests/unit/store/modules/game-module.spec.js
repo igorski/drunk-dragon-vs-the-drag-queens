@@ -1,7 +1,8 @@
 import store               from '@/store/modules/game-module';
 import CharacterFactory    from '@/model/factories/character-factory';
 import EffectFactory       from '@/model/factories/effect-factory';
-import { GAME_TIME_RATIO } from '@/utils/time-util';
+import { GAME_ACTIVE, GAME_OVER } from '@/definitions/game-states';
+import { GAME_START_TIME, GAME_TIME_RATIO, VALIDITY_CHECK_INTERVAL } from '@/utils/time-util';
 import { SCREEN_SHOP, SCREEN_GAME, SCREEN_CHARACTER_INTERACTION } from '@/definitions/screens';
 
 const { getters, mutations, actions } = store;
@@ -40,6 +41,11 @@ jest.mock('store/dist/store.modern', () => ({
 
 describe('Vuex game module', () => {
     describe('getters', () => {
+        it('should return the active game state', () => {
+            const state = { gameState: 2 };
+            expect( getters.gameState( state )).toEqual( 2 );
+        });
+
         it('should return the active environment', () => {
             const state = { activeEnvironment: { foo: 'bar' } };
             expect( getters.activeEnvironment( state )).toEqual( state.activeEnvironment );
@@ -55,6 +61,23 @@ describe('Vuex game module', () => {
         it('should return the character the player is currently interacting with', () => {
             const state = { character: { foo: 'bar' } };
             expect( getters.character( state )).toEqual( state.character );
+        });
+
+        describe('when determining whether the player is outside', () => {
+            it('should know when the player is inside a building', () => {
+                const state = { building: { foo: 'bar '} };
+                expect( getters.isOutside( state )).toBe( false );
+            });
+
+            it('should know when the player is inside a shop', () => {
+                const state = { building: { shop: 'bar '} };
+                expect( getters.isOutside( state )).toBe( false );
+            });
+
+            it('should know when the player is not inside a building or shop', () => {
+                const state = { building: null, shop: null };
+                expect( getters.isOutside( state )).toBe( true );
+            });
         });
     });
 
@@ -73,7 +96,17 @@ describe('Vuex game module', () => {
                 effects: [{ foo: 'bar' }]
             };
             mutations.setGame( state, game );
-            expect( state ).toEqual( game );
+            expect( state ).toEqual({
+                ...game,
+                gameState: GAME_ACTIVE,
+                lastValidGameTime: game.gameTime
+            });
+        });
+
+        it('should be able to set the game state', () => {
+            const state = { gameState: 0 };
+            mutations.setGameState( state, 2 );
+            expect( state.gameState ).toEqual( 2 );
         });
 
         it('should be able to set the last game render time', () => {
@@ -88,6 +121,12 @@ describe('Vuex game module', () => {
             const delta = 1000;
             mutations.advanceGameTime( state, delta );
             expect( state.gameTime ).toEqual( now + delta );
+        });
+
+        it('should be able to set the last valid game time', () => {
+            const state = { lastValidGameTime: 0 };
+            mutations.setLastValidGameTime( state, 2000 );
+            expect( state.lastValidGameTime ).toEqual( 2000 );
         });
 
         describe('when changing player position', () => {
@@ -474,13 +513,24 @@ describe('Vuex game module', () => {
         });
 
         describe('when updating the game properties', () => {
-            it('should be able to update the effects', () => {
-                const timestamp = Date.now();
+            const timestamp = Date.now();
+            const mockedGetters = {
+                gameTime: timestamp,
+            };
+
+            it('should not do anything when the game state is not active', () => {
+                const state = { gameState: GAME_OVER };
+                const commit = jest.fn();
+                const dispatch = jest.fn();
+
+                actions.updateGame({ commit, dispatch, getters: mockedGetters, state }, timestamp );
+                expect( commit ).not.toHaveBeenCalled();
+                expect( dispatch ).not.toHaveBeenCalled();
+            });
+
+            it('should be able to update the effects for an active game', () => {
                 const commit    = jest.fn();
                 const dispatch  = jest.fn();
-                const mockedGetters = {
-                    gameTime: timestamp,
-                };
                 const effect1 = EffectFactory.create( 'mutation1');
                 const effect2 = EffectFactory.create( 'mutation2');
 
@@ -495,6 +545,7 @@ describe('Vuex game module', () => {
                     dispatch,
                     getters: mockedGetters,
                     state: {
+                        gameState: GAME_ACTIVE,
                         effects: [ effect1, effect2 ],
                     },
                 }, timestamp );
@@ -505,6 +556,35 @@ describe('Vuex game module', () => {
 
                 // assert secondary effect has been requested to be removed (as its update returned true)
                 expect( commit ).toHaveBeenCalledWith( 'removeEffect', effect2 );
+            });
+
+            it('should be able to verify the game validity periodically', () => {
+                const commit    = jest.fn();
+                const dispatch  = jest.fn();
+                mockedGetters.isOutside = false;
+
+                const state = {
+                    gameState: GAME_ACTIVE,
+                    lastValidGameTime: timestamp - VALIDITY_CHECK_INTERVAL,
+                    effects: []
+                };
+                actions.updateGame({ commit, dispatch, getters: mockedGetters, state }, timestamp );
+                expect( commit ).toHaveBeenNthCalledWith( 2, 'setLastValidGameTime', timestamp );
+            });
+
+            it('should end the game when the player is caught outside outside at an invalid hour', () => {
+                const commit    = jest.fn();
+                const dispatch  = jest.fn();
+                mockedGetters.isOutside = true;
+                mockedGetters.timestamp = new Date( GAME_START_TIME ) - (8 * 60 * 60 * 1000);
+
+                const state = {
+                    gameState: GAME_ACTIVE,
+                    lastValidGameTime: timestamp - VALIDITY_CHECK_INTERVAL,
+                    effects: []
+                };
+                actions.updateGame({ commit, dispatch, getters: mockedGetters, state }, timestamp );
+                expect( commit ).toHaveBeenNthCalledWith( 2, 'setGameState', GAME_OVER );
             });
         });
     });

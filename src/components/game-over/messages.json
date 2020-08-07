@@ -1,0 +1,7 @@
+{
+    "en-US": {
+        "gameOver": "Game over",
+        "alasTheDaylightHasOverwhelmedYou": "Alas, the daylight has overwhelmed you. You should have tried harder to find shelter.",
+        "youHavePlayedFor": "You managed to stay safe from the daylight for {days} days and {hours} hours."
+    }
+}
