@@ -41,6 +41,10 @@ While the game clock increments at a higher speed than in actual life, think of 
 operations (e.g. _Effects_) as if they were actual time (e.g. _"the effect of this item should last for two hours in the perception of the player character"_). The unit used is the _millisecond_ and is automatically
 scaled to the game/real life ratio when creating a new Effect using the EffectFactory.
 
+All of the games behaviour and time bound effects update in the same place: the _updateGame()_-handler
+in the _game-module_. This is bound to the render cycle of the game world (and deferred to animationFrame
+so the game is effectively paused when the browser/tab isn't focused).
+
 ## Application source outline
 
  * _./assets/_ resources referenced by the application e.g. images, fonts and spritesheets
@@ -81,7 +85,7 @@ npm run test
 
 ## TODO
 
-* Show inventory on status screen
+* When navigating by the world edge, tiles on the opposite end are also marked as visited
 * Create pawn shop
 * Create fast travel by introducing subway (can only travel to visited areas!)
 * Ensure you can take stairs back to previous floor when inside a building, (last floor has no stairway up!)

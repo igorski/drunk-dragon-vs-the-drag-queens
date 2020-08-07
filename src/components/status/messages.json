@@ -4,6 +4,8 @@
         "map": "Map",
         "time": "Time",
         "date": "Date",
-        "cash": "Cash"
+        "cash": "Cash",
+        "inventory": "Inventory",
+        "youHaveNoItems": "You currently have no items in your inventory."
     }
 }

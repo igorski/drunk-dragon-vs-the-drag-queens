@@ -572,10 +572,10 @@ describe('Vuex game module', () => {
                 expect( commit ).toHaveBeenNthCalledWith( 2, 'setLastValidGameTime', timestamp );
             });
 
-            it('should end the game when the player is caught outside outside at an invalid hour', () => {
-                const commit    = jest.fn();
-                const dispatch  = jest.fn();
-                mockedGetters.isOutside = true;
+            it('should end the game when the player is caught outside at an invalid hour', () => {
+                let commit    = jest.fn();
+                let dispatch  = jest.fn();
+                mockedGetters.isOutside = false;
                 mockedGetters.timestamp = new Date( GAME_START_TIME ) - (8 * 60 * 60 * 1000);
 
                 const state = {
@@ -583,6 +583,11 @@ describe('Vuex game module', () => {
                     lastValidGameTime: timestamp - VALIDITY_CHECK_INTERVAL,
                     effects: []
                 };
+                actions.updateGame({ commit, dispatch, getters: mockedGetters, state }, timestamp );
+                expect( commit ).not.toHaveBeenNthCalledWith( 2, 'setGameState', GAME_OVER );
+
+                commit = jest.fn();
+                mockedGetters.isOutside = true;
                 actions.updateGame({ commit, dispatch, getters: mockedGetters, state }, timestamp );
                 expect( commit ).toHaveBeenNthCalledWith( 2, 'setGameState', GAME_OVER );
             });
