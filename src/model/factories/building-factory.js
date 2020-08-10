@@ -168,6 +168,9 @@ function createFloor( width, height, terrain = [] ) {
             break;
         }
     }
+
+console.warn('set player coordinates to ' + out.x + ' x ' + out.y + ' for dimensions ' + out.width + ' x ' + out.height);
+
     return out;
 };
 

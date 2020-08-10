@@ -85,6 +85,8 @@ npm run test
 
 ## TODO
 
+* Intro text when starting a new game
+* Don't generate scenery (trees) in front of doors!
 * When navigating by the world edge, tiles on the opposite end are also marked as visited
 * Create pawn shop
 * Create fast travel by introducing subway (can only travel to visited areas!)

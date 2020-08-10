@@ -9,29 +9,32 @@ export default {
      */
     hitTest({ dispatch, commit, getters }, environment ) {
         const { characters, shops, buildings, x, y } = environment;
-        let hit;
+        let hit, dispatchFn, dispatchValue;
 
         if ( hit = internalHitTest( x, y, characters )) {
             // hit an character, do something!!!
-            dispatch( 'interactWithCharacter', hit );
+            dispatchFn = 'interactWithCharacter';
         } else if ( environment.type === WORLD_TYPE ) {
             if ( hit = internalHitTest( x, y, shops )) {
                 // entered shop, open the shop page
-                dispatch( 'enterShop', hit );
+                dispatchFn = 'enterShop';
             }
             else if ( hit = internalHitTest( x, y, buildings )) {
                 // entered building
-                dispatch( 'enterBuilding', hit );
+                dispatchFn = 'enterBuilding';
             }
         } else if ( environment.type === BUILDING_TYPE ) {
             if ( hit = internalHitTest( x, y, environment.exits )) {
-                dispatch( 'changeFloor', getters.floor + 1 );
+                dispatchFn = 'changeFloor';
+                dispatchValue = getters.floor + 1;
             }
         }
         if ( hit ) {
             // here we ensures that when we're done with the action (e.g. leaving
             // a building) we don't collide with the same object (re-entering the building again)
             commit( 'setYPosition', y + 1 );
+            // dispatch after updating position (otherwise y is changed for new environment)
+            dispatch( dispatchFn, dispatchValue ?? hit );
         }
         return hit !== null;
     },
