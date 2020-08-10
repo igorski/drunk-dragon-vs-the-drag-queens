@@ -1,5 +1,5 @@
 import { loader } from 'zcanvas';
-import { createPixelCanvas } from '@/utils/canvas-util';
+import { createPixelCanvas, changeImageColor } from '@/utils/canvas-util';
 import {
     ASSET_PATH, CHARACTER_SIZE, BODY_SIZE, BODY_PARTS, fileSuffix
 } from '@/definitions/character-female';
@@ -10,6 +10,7 @@ export const generateBitmap = async femaleCharacterToRender => {
     const scale = TARGET_SIZE / CHARACTER_SIZE.width;
     const { appearance } = femaleCharacterToRender;
 
+    const bodySvg = { src: `${ASSET_PATH}body.svg` };
     const shadows = { src: `${ASSET_PATH}shadows.png` };
     const nose    = { src: `${ASSET_PATH}nose_${fileSuffix(appearance.nose)}.png` };
     const eyes    = { src: `${ASSET_PATH}eyes_${fileSuffix(appearance.eyes)}.png` };
@@ -18,7 +19,7 @@ export const generateBitmap = async femaleCharacterToRender => {
     const clothes = { src: `${ASSET_PATH}clothes_${fileSuffix(appearance.clothes)}.png` };
     const jewelry = { src: `${ASSET_PATH}jewelry_${fileSuffix(appearance.jewelry)}.png` };
 
-    const imagesToLoad = [ shadows, nose, eyes, hair, mouth, clothes, jewelry ];
+    const imagesToLoad = [ bodySvg, shadows, nose, eyes, hair, mouth, clothes, jewelry ];
 
     for ( let i = 0; i < imagesToLoad.length; ++i ) {
         const itl = imagesToLoad[ i ];
@@ -29,15 +30,23 @@ export const generateBitmap = async femaleCharacterToRender => {
 
     const { cvs, ctx } = createPixelCanvas( TARGET_SIZE, CHARACTER_SIZE.height * scale );
 
+    // body is SVG and requires custom coloring
+
+    bodySvg.img = changeImageColor( bodySvg.img, appearance.skin );
+
+    // overlay all individual body parts
+
+    renderBodyPart( ctx, bodySvg, scale, BODY_SIZE );
     renderBodyPart( ctx, shadows, scale, BODY_PARTS.shadows );
     renderBodyPart( ctx, nose,    scale, BODY_PARTS.nose );
     renderBodyPart( ctx, eyes,    scale, BODY_PARTS.eyes );
     renderBodyPart( ctx, hair,    scale, BODY_PARTS.hair );
     renderBodyPart( ctx, mouth,   scale, BODY_PARTS.mouth );
+    renderBodyPart( ctx, clothes, scale, BODY_PARTS.clothes );
     renderBodyPart( ctx, jewelry, scale, BODY_PARTS.jewelry );
 
     const out = new Image();
-    out.src   = cvs.toDataURL( 'image/png' );
+    out.src   = cvs.toDataURL();
 
     return out;
 };

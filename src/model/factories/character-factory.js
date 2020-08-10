@@ -2,6 +2,7 @@ import Random           from 'random-seed';
 import IntentFactory    from '@/model/factories/intent-factory';
 import InventoryFactory from '@/model/factories/inventory-factory';
 import { validateAppearance, validateProperties } from '../validator';
+import { randomInRange, randomFromList } from '@/utils/random-util';
 
 const FEMALE_HAIR_TOTAL    = 8;
 const FEMALE_JEWELRY_TOTAL = 5;
@@ -12,18 +13,13 @@ const FEMALE_CLOTHES_TOTAL = 5;
 
 export const SKIN_COLORS = [ /*'#FFDBAC',*/ '#F1C27D', '#E0AC69', '#C68642', '#8D5524' ];
 export const FEMALE_APPEARANCE = {
-    skin: SKIN_COLORS.length,
+    skin: 0,
     hair: FEMALE_HAIR_TOTAL,
     jewelry: FEMALE_JEWELRY_TOTAL,
     eyes: FEMALE_EYE_TOTAL,
     mouth: FEMALE_MOUTH_TOTAL,
     nose: FEMALE_NOSE_TOTAL,
     clothes: FEMALE_CLOTHES_TOTAL,
-};
-
-const randomValue = total => {
-    const rand = Random.create();
-    return rand.intBetween( 0, total - 1 );
 };
 
 const CharacterFactory =
@@ -65,13 +61,13 @@ const CharacterFactory =
     generateAppearance( sex = 'F' ) {
         // TODO: currently F only
         return {
-            skin: SKIN_COLORS[ randomValue( SKIN_COLORS.length )],
-            hair: randomValue( FEMALE_HAIR_TOTAL ),
-            jewelry: randomValue( FEMALE_JEWELRY_TOTAL ),
-            eyes: randomValue( FEMALE_EYE_TOTAL ),
-            mouth: randomValue( FEMALE_MOUTH_TOTAL ),
-            nose: randomValue( FEMALE_NOSE_TOTAL ),
-            clothes: randomValue( FEMALE_CLOTHES_TOTAL ),
+            skin: randomFromList( SKIN_COLORS ),
+            hair: randomInRange( 0, FEMALE_HAIR_TOTAL - 1 ),
+            jewelry: randomInRange( 0, FEMALE_JEWELRY_TOTAL - 1 ),
+            eyes: randomInRange( 0, FEMALE_EYE_TOTAL - 1 ),
+            mouth: randomInRange( 0, FEMALE_MOUTH_TOTAL - 1 ),
+            nose: randomInRange( 0, FEMALE_NOSE_TOTAL - 1 ),
+            clothes: randomInRange( 0, FEMALE_CLOTHES_TOTAL - 1 ),
         };
     },
 
