@@ -85,12 +85,12 @@ npm run test
 
 ## TODO
 
+* Ensure you can take stairs back to previous floor when inside a building, (last floor has no stairway up!)
+* Identify shop types by their exterior
 * Intro text when starting a new game
 * Don't generate scenery (trees) in front of doors!
 * When navigating by the world edge, tiles on the opposite end are also marked as visited
-* Create pawn shop
 * Create fast travel by introducing subway (can only travel to visited areas!)
-* Ensure you can take stairs back to previous floor when inside a building, (last floor has no stairway up!)
 * Allow to buy on credit, starts action by which you need to have repaid the person!
 * Show navigation icon in interface (when showing target, but also as mouse cursor?)
 * When player clicks on non-navigate-able tile, navigate as close to the tile as possible (take dominant distance on x-y coordinate and keep reducing until path is found)

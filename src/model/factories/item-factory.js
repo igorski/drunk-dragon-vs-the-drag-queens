@@ -31,7 +31,7 @@ const ItemFactory =
             }
         }
         return {
-            name, price, type
+            type, name, price
         };
     },
 

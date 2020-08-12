@@ -78,10 +78,10 @@ const WorldFactory =
 
         generateTerrain( hash, world );
 
-        // generate some shops
+        // generate some buildings and shops
 
-        const shopHash      = hash.substr( 4, 2 );
-        const amountOfShops = HashUtil.charsToNum( shopHash );
+        const buildingHash   = hash.substr( 6, 8 );
+        const amountToCreate = HashUtil.charsToNum( buildingHash );
 
         // ensure we create them for each available type
 
@@ -89,20 +89,15 @@ const WorldFactory =
         let createdShops    = 0;
 
         world.shops = generateGroup(
-            centerX, centerY, world, amountOfShops, ( x, y, ) => {
+            centerX, centerY, world, amountToCreate, ( x, y, ) => {
                 const shop = ShopFactory.create( x, y, types[ createdShops % types.length ]);
                 ++createdShops;
                 return shop;
             }, 4, .6
         );
 
-        // generate some buildings
-
-        const buildingHash      = hash.substr( 6, 8 );
-        const amountOfBuildings = HashUtil.charsToNum( buildingHash );
-
         world.buildings = generateGroup(
-            centerX, centerY, world, amountOfBuildings, BuildingFactory.create, 4, .33
+            centerX, centerY, world, amountToCreate, BuildingFactory.create, 4, .33
         );
 
         // generate some characters that occupy some of the building entrances

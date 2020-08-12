@@ -2,17 +2,23 @@
     "en-US": {
         "shop": "Shop",
         "welcomeToOur": "Welcome to our {type}",
+        "somethingToSell": "Have you got something good for sale ? We also buy not-so-good stuff, but will give you not-so-good prices for those, har! Har! Har!",
+        "illGiveYouPrice": "I'll give you ${price} for {name}.",
         "pharmacy": "Pharmacy",
         "jewelryStore": "Jewelry store",
         "liquorStore": "Liquor store",
+        "pawnShop": "Pawn shop",
         "itemsForSale": "Right now, we have the following items for sale:",
         "noItemsForSale": "Right now we are completely out of stock.",
         "buy": "Buy",
+        "sell": "Sell",
         "quality": "Quality",
         "luxury": "Luxury",
         "confirmPurchase": "Confirm your purchase",
-        "buyItemForPrice": "Buy {name} for {price} ?",
+        "buyItemForPrice": "Buy {name} for ${price} ?",
         "insufficientFunds": "It seems you have insufficient funds to buy this item.",
-        "thanksForPurchase": "Thank you for your business!"
+        "thanksForTransaction": "Thank you for your business!",
+        "confirmSale": "Confirm your sale",
+        "sellItemForPrice": "I'll give you {price} for {name}."
     }
 }

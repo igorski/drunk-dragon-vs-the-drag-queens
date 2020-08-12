@@ -1,4 +1,5 @@
 import InventoryFactory from '@/model/factories/inventory-factory';
+import ItemFactory      from '@/model/factories/item-factory';
 
 describe('Inventory factory', () => {
     it('should be able to create an inventory structure', () => {
@@ -10,7 +11,9 @@ describe('Inventory factory', () => {
     });
 
     it('should be able to assemble and disassemble a serialized inventory without loss of data', () => {
-        const inventory = InventoryFactory.create( 50, [{ foo: 'bar', baz: 'qux' }]);
+        const inventory = InventoryFactory.create( 50, [
+            ItemFactory.create( 0 ), ItemFactory.create( 1 )
+        ]);
         const disassembled = InventoryFactory.disassemble( inventory );
         expect( InventoryFactory.assemble( disassembled )).toEqual( inventory );
     });

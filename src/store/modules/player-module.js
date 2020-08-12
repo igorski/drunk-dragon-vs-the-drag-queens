@@ -1,6 +1,7 @@
 import EffectFactory      from '@/model/factories/effect-factory';
 import EnvironmentActions from '@/model/actions/environment-actions';
 import CharacterActions   from '@/model/actions/character-actions';
+import InventoryActions   from '@/model/actions/inventory-actions';
 
 // cancel the pending movements TODO: this should target the effect "owner"!
 const cancelPendingMovement = commit => {
@@ -97,6 +98,13 @@ export default
             commit( 'addItemToInventory', item );
 
             return true;
+        },
+        sellItem({ state, commit }, { item, price }) {
+            commit( 'awardCash', price );
+            // make item more expensive to buy back ;)
+            item.price = InventoryActions.getPriceForItemSale({ ...item, price }, 1, 1.5 );
+            commit( 'addItemToShop', item );
+            commit( 'removeItemFromInventory', item );
         },
         giveItemToCharacter({ commit }, { item, character }) {
             const { intent } = character.properties;

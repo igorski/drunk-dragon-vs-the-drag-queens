@@ -1,3 +1,4 @@
+import ItemFactory from '@/model/factories/item-factory';
 import { validateInventory } from '../validator';
 
 const InventoryFactory =
@@ -20,7 +21,10 @@ const InventoryFactory =
      * back into a Inventory instance
      */
     assemble( data ) {
-        return InventoryFactory.create( data.c, data.i );
+        return InventoryFactory.create(
+            data.c,
+            data.i.map( item => ItemFactory.assemble( item ))
+        );
     },
 
     /**
@@ -29,7 +33,7 @@ const InventoryFactory =
      disassemble( inventory ) {
          return {
              c: inventory.cash,
-             i: inventory.items
+             i: inventory.items.map( item => ItemFactory.disassemble( item ))
          };
      }
 };

@@ -27,10 +27,8 @@
             </div>
             <h3 v-t="'giveItem'"></h3>
             <div class="actions">
-                <model-select
+                <inventory-list
                     v-model="selectedItem"
-                    :options="playerInventory"
-                    :placeholder="$t('findItemByName')"
                     class="inventory-list"
                 />
                 <button v-t="'give'"
@@ -63,24 +61,20 @@
 
 <script>
 import { mapState, mapGetters, mapMutations, mapActions } from 'vuex';
-import { ModelSelect }    from 'vue-search-select';
 import sortBy             from 'lodash/sortBy';
 import Modal              from '@/components/modal/modal';
+import InventoryList      from '@/components/shared/inventory-list/inventory-list';
 import ItemTypes          from '@/definitions/item-types';
 import PriceTypes         from '@/definitions/price-types';
 import { SHOP_TYPES }     from '@/model/factories/shop-factory';
 import { randomFromList } from '@/utils/random-util';
-import sharedMessages     from '@/i18n/items.json';
 import messages           from './messages.json';
 
-import 'semantic-ui-css/components/dropdown.min.css'
-import 'vue-search-select/dist/VueSearchSelect.css';
-
 export default {
-    i18n: { messages, sharedMessages },
+    i18n: { messages },
     components: {
         Modal,
-        ModelSelect,
+        InventoryList,
     },
     data: () => ({
         askedQuestions: 0,
@@ -95,7 +89,6 @@ export default {
         ]),
         ...mapGetters([
             'character',
-            'player',
         ]),
         intent() {
             return this.character.properties.intent;
@@ -110,9 +103,6 @@ export default {
             const { width } = this.dimensions;
             return Math.min( ideal, width * .9 );
         },
-        playerInventory() {
-            return this.player.inventory.items.map( value => ({ text: this.$t( value.name ), value }));
-        }
     },
     beforeDestroy() {
         this.clearIntentTimeout();

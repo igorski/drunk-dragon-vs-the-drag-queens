@@ -1,5 +1,19 @@
 <template>
     <modal :title="shopTitle" @close="$emit('close')">
+        <template v-if="canSell">
+            <p v-t="'somethingToSell'"></p>
+            <inventory-list
+                v-model="selectedItem"
+                class="inventory-list"
+            />
+            <button type="button"
+                    v-t="'sell'"
+                    class="rpg-button sell-button"
+                    :title="$t('sell')"
+                    :disabled="!selectedItem"
+                    @click="handleSellClick( selectedItem )"
+            ></button>
+        </template>
         <p v-t="shop.items.length ? 'itemsForSale' : 'noItemsForSale'"></p>
         <div v-for="(item, index) in sortedItems"
              :key="`${index}`"
@@ -18,18 +32,25 @@
 
 <script>
 import { mapGetters, mapMutations, mapActions } from 'vuex';
-import sortBy         from 'lodash/sortBy';
-import Modal          from '@/components/modal/modal';
-import PriceTypes     from '@/definitions/price-types';
-import { SHOP_TYPES } from '@/model/factories/shop-factory';
-import sharedMessages from '@/i18n/items.json';
-import messages       from './messages.json';
+import sortBy           from 'lodash/sortBy';
+import Modal            from '@/components/modal/modal';
+import InventoryList    from '@/components/shared/inventory-list/inventory-list';
+import PriceTypes       from '@/definitions/price-types';
+import { SHOP_TYPES }   from '@/model/factories/shop-factory';
+import InventoryActions from '@/model/actions/inventory-actions';
+import sharedMessages   from '@/i18n/items.json';
+import messages         from './messages.json';
 
 export default {
     i18n: { messages, sharedMessages },
     components: {
         Modal,
+        InventoryList,
     },
+    data: () => ({
+        selectedItem: null,
+        salePrices: new Map(), // keeps track of the prices of inventory items for sale
+    }),
     computed: {
         ...mapGetters([
             'shop',
@@ -47,11 +68,20 @@ export default {
                 case SHOP_TYPES.LIQUOR:
                     type = 'liquorStore';
                     break;
+                case SHOP_TYPES.PAWN:
+                    type = 'pawnShop';
+                    break;
             }
             return this.$t('welcomeToOur', { type: this.$t( type ) });
         },
         sortedItems() {
             return sortBy( this.shop.items, [ 'price' ]);
+        },
+        canSell() {
+            return this.shop.type === SHOP_TYPES.PAWN;
+        },
+        inventoryItems() {
+            return this.player.inventory.items;
         },
     },
     beforeDestroy() {
@@ -64,6 +94,7 @@ export default {
         ]),
         ...mapActions([
             'buyItem',
+            'sellItem',
             'leaveShop',
         ]),
         itemTitle({ name, price }) {
@@ -85,7 +116,22 @@ export default {
                 message: this.$t( 'buyItemForPrice', { name: this.itemTitle( item ), price: item.price }),
                 confirm: async () => {
                     const success = await this.buyItem( item );
-                    this.showNotification({ message: this.$t( success ? 'thanksForPurchase' : 'insufficientFunds' ) });
+                    this.showNotification({ message: this.$t( success ? 'thanksForTransaction' : 'insufficientFunds' ) });
+                },
+            });
+        },
+        handleSellClick( item ) {
+            if ( !this.salePrices.has( item )) {
+                this.salePrices.set( item, InventoryActions.getPriceForItemSale( item ));
+            }
+            const price = this.salePrices.get( item );
+            this.openDialog({
+                type: 'confirm',
+                title: this.$t( 'confirmSale' ),
+                message: this.$t( 'sellItemForPrice', { name: this.itemTitle( item ), price }),
+                confirm: async () => {
+                    await this.sellItem({ item, price });
+                    this.showNotification({ message: this.$t( 'thanksForTransaction' ) });
                 },
             });
         },
@@ -104,5 +150,10 @@ export default {
         &--price {
             width: 80px;
         }
+    }
+
+    .inventory-list,
+    .sell-button {
+        display: inline !important;
     }
 </style>

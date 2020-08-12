@@ -1,4 +1,5 @@
-import ItemFactory from '@/model/factories/item-factory';
+import ItemFactory       from '@/model/factories/item-factory';
+import { randomInRange } from '@/utils/random-util';
 
 export default
 {
@@ -36,5 +37,18 @@ export default
         inventoryToMergeWith.items.splice( 0, inventoryToMergeWith.items.length );
 
         return out.length > 0 ? out : null;
+    },
+
+    /**
+     * generates a price for given item when selling these to a shop
+     *
+     * @param {Object} item
+     * @param {Number=} min minimum percentile value to multiply price with
+     * @param {Number=} max maximum percentile value to multiple price with
+     * @return {Number}
+     */
+    getPriceForItemSale( item, min = .4, max = .8 ) {
+        const multiplier = randomInRange( min, max );
+        return Math.ceil( item.price * multiplier );
     }
 };

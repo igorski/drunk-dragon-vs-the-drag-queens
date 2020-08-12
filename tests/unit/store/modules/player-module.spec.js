@@ -1,4 +1,4 @@
-import store            from '@/store/modules/player-module';
+import store from '@/store/modules/player-module';
 const { getters, mutations, actions } = store;
 
 describe('Vuex player module', () => {
@@ -84,6 +84,21 @@ describe('Vuex player module', () => {
                 expect( commit ).toHaveBeenNthCalledWith( 2, 'removeItemFromShop', item );
                 expect( commit ).toHaveBeenNthCalledWith( 3, 'addItemToInventory', item );
             });
+        });
+
+        it('should be able to sell an item to a shop', () => {
+            const orgPrice = 12;
+            const item     = { price: orgPrice };
+            const price    = 5;
+            const commit   = jest.fn();
+
+            actions.sellItem({ commit }, { item, price });
+
+            expect( commit ).toHaveBeenNthCalledWith( 1, 'awardCash', price );
+            expect( commit ).toHaveBeenNthCalledWith( 2, 'addItemToShop', item );
+            expect( commit ).toHaveBeenNthCalledWith( 3, 'removeItemFromInventory', item );
+
+            expect( item.price ).not.toEqual( orgPrice ); // price has been updated
         });
 
         describe('when giving an inventory item to another Character', () => {

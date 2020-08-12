@@ -283,7 +283,14 @@ describe('Vuex game module', () => {
                 expect( state.effects ).toEqual([ { id: 4, callback: 'baz' } ]);
             });
 
-            it('should be able to remover a specific item from the currently visited shop', () => {
+            it('should be able to add a specific item to the currently visited shop', () => {
+                const state = { shop: { items: [{ foo: 'bar' }] } };
+                const item = { baz: 'qux' };
+                mutations.addItemToShop( state, item );
+                expect( state.shop.items ).toEqual([{ foo: 'bar' }, { baz: 'qux' }])
+            });
+
+            it('should be able to remove a specific item from the currently visited shop', () => {
                 const item  = { foo: 'bar' };
                 const state = { shop: { items: [{ baz: 'qux' }, item ] } };
                 mutations.removeItemFromShop( state, item );

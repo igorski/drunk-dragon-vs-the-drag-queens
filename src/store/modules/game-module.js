@@ -113,6 +113,12 @@ export default {
         removeEffectsByCallback( state, callbacks = [] ) {
             Vue.set( state, 'effects', state.effects.filter(({ callback }) => !callbacks.includes( callback )));
         },
+        addItemToShop( state, item ) {
+            const { items } = state.shop;
+            if ( !items.includes( item )) {
+                items.push( item );
+            }
+        },
         removeItemFromShop( state, item ) {
             const index = state.shop.items.indexOf( item );
             if ( index > -1 ) {

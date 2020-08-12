@@ -19,8 +19,6 @@ const NONE = undefined;
  */
 export const renderEnvironment = ( environment, player ) =>
 {
-    console.log( 'CACHE BITMAP FOR ENVIRONMENT' );
-
     const { width, height, terrain, type, characters } = environment;
 
     return new Promise(( resolve, reject ) => {
