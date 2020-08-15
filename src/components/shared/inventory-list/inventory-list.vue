@@ -3,6 +3,7 @@
         :value.sync="value"
         :options="inventory"
         :placeholder="$t('findItemByName')"
+        :is-disabled="!inventory.length"
         @select="updateValue"
     />
 </template>
