@@ -34,15 +34,32 @@ export const generateBitmap = async femaleCharacterToRender => {
 
     bodySvg.img = changeImageColor( bodySvg.img, appearance.skin );
 
-    // overlay all individual body parts
+    // render base body parts
 
     renderBodyPart( ctx, bodySvg, scale, BODY_SIZE );
     renderBodyPart( ctx, shadows, scale, BODY_PARTS.shadows );
+    renderBodyPart( ctx, clothes, scale, BODY_PARTS.clothes );
+
+    // apply circular mask to body and clothes
+
+    ctx.globalCompositeOperation = 'destination-in';
+    ctx.fillStyle = '#000';
+    ctx.beginPath();
+    ctx.arc(
+        cvs.width * .5,
+        cvs.height * .5,
+        cvs.width * .5,
+        0, 2 * Math.PI
+    );
+    ctx.fill();
+    ctx.globalCompositeOperation = 'source-over';
+
+    // overlay remaining body parts
+
     renderBodyPart( ctx, nose,    scale, BODY_PARTS.nose );
     renderBodyPart( ctx, eyes,    scale, BODY_PARTS.eyes );
     renderBodyPart( ctx, hair,    scale, BODY_PARTS.hair );
     renderBodyPart( ctx, mouth,   scale, BODY_PARTS.mouth );
-    renderBodyPart( ctx, clothes, scale, BODY_PARTS.clothes );
     renderBodyPart( ctx, jewelry, scale, BODY_PARTS.jewelry );
 
     const out = new Image();
