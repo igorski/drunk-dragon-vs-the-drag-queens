@@ -13,7 +13,7 @@ const FEMALE_CLOTHES_TOTAL = 5;
 
 export const SKIN_COLORS = [ /*'#FFDBAC',*/ '#F1C27D', '#E0AC69', '#C68642', '#8D5524' ];
 export const FEMALE_APPEARANCE = {
-    skin: 0,
+    skin: SKIN_COLORS.length,
     hair: FEMALE_HAIR_TOTAL,
     jewelry: FEMALE_JEWELRY_TOTAL,
     eyes: FEMALE_EYE_TOTAL,
