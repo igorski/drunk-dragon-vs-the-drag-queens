@@ -2,7 +2,7 @@ import MD5                   from 'MD5';
 import storage               from 'store/dist/store.modern';
 import Vue                   from 'vue';
 import AudioTracks           from '@/definitions/audio-tracks';
-import BuildingFactory       from '@/model/factories/building-factory';
+import BuildingFactory, { BUILDING_TILES } from '@/model/factories/building-factory';
 import CharacterFactory      from '@/model/factories/character-factory';
 import EffectFactory         from '@/model/factories/effect-factory';
 import GameFactory           from '@/model/factories/game-factory';
@@ -12,6 +12,7 @@ import ShopFactory           from '@/model/factories/shop-factory';
 import { renderEnvironment } from '@/services/environment-bitmap-cacher';
 import SpriteCache           from '@/utils/sprite-cache';
 import EffectActions         from '@/model/actions/effect-actions';
+import { getFirstFreeTileOfTypeAroundPoint } from '@/utils/terrain-util';
 import {
     GAME_ACTIVE, GAME_PAUSED, GAME_OVER
 } from '@/definitions/game-states';
@@ -267,17 +268,24 @@ export default {
             dispatch( 'playSound', AudioTracks.BUILDING_THEME );
         },
         // change floor inside building
-        async changeFloor({ state, commit, dispatch }, floor ) {
+        async changeFloor({ state, getters, commit, dispatch }, floor ) {
             const { floors } = state.building;
             const maxFloors  = floors.length;
+            const isDown     = floor < state.building.floor;
 
-            if ( floor >= maxFloors ) {
-                // was final stair (elevator), go back down to overground
+            if ( floor < 0 ) {
+                // was first stairway, go back to outside world
                 dispatch( 'leaveBuilding' );
             } else {
                 // ascend/descend to requested level
                 commit( 'setFloor', floor );
                 await dispatch( 'changeActiveEnvironment', floors[ floor ]);
+                // position player next to stairway
+                const environment = getters.activeEnvironment;
+                const firstExit   = environment.exits[ isDown ? 1 : 0 ];
+                const startCoordinates = getFirstFreeTileOfTypeAroundPoint( firstExit.x, firstExit.y, environment, BUILDING_TILES.GROUND );
+                commit( 'setXPosition', startCoordinates.x );
+                commit( 'setYPosition', startCoordinates.y );
             }
         },
         async leaveBuilding({ state, commit, dispatch }) {

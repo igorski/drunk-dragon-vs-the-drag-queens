@@ -2,7 +2,9 @@ import { Map }            from 'rot-js';
 import HashUtil           from '@/utils/hash-util';
 import WorldCache         from '@/utils/world-cache';
 import EnvironmentFactory from './environment-factory';
-import { positionAtRandomFreeTileType, coordinateToIndex } from '@/utils/terrain-util';
+import {
+    positionAtFirstFreeTileType, positionAtLastFreeTileType, coordinateToIndex
+} from '@/utils/terrain-util';
 
 export const BUILDING_TYPE = 'Building';
 
@@ -86,16 +88,14 @@ const BuildingFactory =
                 );
             }
 
+            // create the exit to the previous floor/outside world
+
+            terrain[ positionAtFirstFreeTileType( terrain, BUILDING_TILES.GROUND ) ] = BUILDING_TILES.STAIRS;
+
             // create the exit to the next floor
 
             if ( i !== maxFloor ) {
-                terrain[ positionAtRandomFreeTileType( terrain, BUILDING_TILES.GROUND ) ] = BUILDING_TILES.STAIRS;
-            }
-            else {
-                // or the treasure that leads to the outside
-                // TODO ... make treasure for now we just add another STAIRS
-                terrain[ positionAtRandomFreeTileType( terrain, BUILDING_TILES.GROUND ) ] = BUILDING_TILES.STAIRS;
-                // E.O .TODO
+                terrain[ positionAtLastFreeTileType( terrain, BUILDING_TILES.GROUND ) ] = BUILDING_TILES.STAIRS;
             }
             floors.push( createFloor( floorWidth, floorHeight, terrain ));
         }
@@ -147,10 +147,9 @@ function createFloor( width, height, terrain = [] ) {
         treasures: []
     };
 
-    // create exit
+    // create exits
 
     for ( let x = 0, y = 0; y < height; x = ( ++x === width ? ( x % width + ( ++y & 0 ) ) : x )) {
-        // found the exit ?
         if ( terrain[ coordinateToIndex( x, y, { width }) ] === BUILDING_TILES.STAIRS ) {
             out.exits.push({ x, y });
         }
@@ -168,9 +167,6 @@ function createFloor( width, height, terrain = [] ) {
             break;
         }
     }
-
-console.warn('set player coordinates to ' + out.x + ' x ' + out.y + ' for dimensions ' + out.width + ' x ' + out.height);
-
     return out;
 };
 

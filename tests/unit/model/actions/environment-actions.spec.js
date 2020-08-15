@@ -72,7 +72,7 @@ describe('Environment actions', () => {
             expect( commit ).toHaveBeenCalledWith( 'setYPosition', environment.y + 1 );
         });
 
-        it('should move to another floor when the player collides with an exit inside a building', () => {
+        it('should move to a lower floor when the player collides with the first exit inside a building', () => {
             const dispatch    = jest.fn();
             const commit      = jest.fn();
             const getters     = { floor : 1 };
@@ -82,7 +82,24 @@ describe('Environment actions', () => {
                 type: BUILDING_TYPE,
                 characters: [],
                 shops: [],
-                exits: [{ x: 10, y: 10 }]
+                exits: [{ x: 10, y: 10 }, { x: 12, y: 12 }]
+            };
+            expect( EnvironmentActions.hitTest({ commit, dispatch, getters }, environment )).toBe( true );
+            expect( dispatch ).toHaveBeenCalledWith( 'changeFloor', getters.floor - 1 );
+            expect( commit ).toHaveBeenCalledWith( 'setYPosition', environment.y + 1 );
+        });
+
+        it('should move to a higher floor when the player collides with the last exit inside a building', () => {
+            const dispatch    = jest.fn();
+            const commit      = jest.fn();
+            const getters     = { floor : 1 };
+            const environment = {
+                x: 10,
+                y: 10,
+                type: BUILDING_TYPE,
+                characters: [],
+                shops: [],
+                exits: [{ x: 8, y: 8 }, { x: 10, y: 10 }]
             };
             expect( EnvironmentActions.hitTest({ commit, dispatch, getters }, environment )).toBe( true );
             expect( dispatch ).toHaveBeenCalledWith( 'changeFloor', getters.floor + 1 );

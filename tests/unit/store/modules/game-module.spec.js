@@ -13,6 +13,7 @@ jest.mock('@/model/actions/effect-actions', () => ({
 }));
 jest.mock('@/model/factories/building-factory', () => ({
     generateFloors: (...args) => mockUpdateFn('generateFloors', ...args),
+    BUILDING_TILES: { GROUND: 0 },
 }));
 jest.mock('@/model/factories/game-factory', () => ({
     assemble: (...args) => mockUpdateFn('assemble', ...args),
@@ -32,6 +33,9 @@ jest.mock('@/services/environment-bitmap-cacher', () => ({
     renderEnvironment: async (...args) => {
         return mockUpdateFn('renderEnvironment', ...args);
     }
+}));
+jest.mock('@/utils/terrain-util', () => ({
+    getFirstFreeTileOfTypeAroundPoint: () => ({ x: 0, y: 0 }),
 }));
 jest.mock('store/dist/store.modern', () => ({
     get: (...args) => mockUpdateFn('get', ...args),
@@ -475,20 +479,21 @@ describe('Vuex game module', () => {
                     building: { baz: 'qux', floors: [{ quux: 'quz' }, { corge: 'grault' }] }
                 };
 
-                it('should leave the building when having reached the final floor (elevator)', () => {
+                it('should leave the building when going back up the first stairway', () => {
                     const commit   = jest.fn();
                     const dispatch = jest.fn();
 
-                    actions.changeFloor({ state, commit, dispatch }, 2 );
+                    actions.changeFloor({ state, commit, dispatch }, -1 );
 
                     expect( dispatch ).toHaveBeenCalledWith( 'leaveBuilding' );
                 });
 
                 it('should be able to change floors within a building', async () => {
-                    const commit   = jest.fn();
-                    const dispatch = jest.fn();
+                    const commit        = jest.fn();
+                    const dispatch      = jest.fn();
+                    const mockedGetters = { activeEnvironment: { exits: [{ x: 0 }, { y: 0 }] } };
 
-                    await actions.changeFloor({ state, commit, dispatch }, 1 );
+                    await actions.changeFloor({ state, getters: mockedGetters, commit, dispatch }, 1 );
 
                     expect( commit ).toHaveBeenCalledWith( 'setFloor', 1 );
                     expect( dispatch ).toHaveBeenCalledWith( 'changeActiveEnvironment', expect.any( Object ));

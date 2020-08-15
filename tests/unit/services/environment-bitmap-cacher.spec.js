@@ -73,7 +73,7 @@ describe('Environment bitmap cacher', () => {
         const areas = [];
         for ( let x = 0; x < floor.width; ++x ) { // rows
             for ( let y = 0; y < floor.height; ++y ) { // columns
-                const desc = getTileDescription( x, y, floor.terrain, floor );
+                const desc = getTileDescription( x, y, floor );
                 // only push the wall types as we only want to assert these
                 if ([ BUILDING_TILES.WALL ].includes( desc.type )) {
                     areas[ coordinateToIndex( x, y, floor )] = desc.area;

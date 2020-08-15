@@ -81,7 +81,7 @@ export const renderEnvironment = ( environment, player ) =>
                 for ( j = rl; j < rr; ++j ) { // columns
                     x = j * tileWidth;
                     y = i * tileHeight;
-                    drawTileForSurroundings( ctx, j, i, x, y, environment, terrain, finalRenders );
+                    drawTileForSurroundings( ctx, j, i, x, y, environment, finalRenders );
                 }
             }
         }
@@ -130,11 +130,10 @@ export const renderEnvironment = ( environment, player ) =>
  * @param {number} x targetX to draw the tile at on the ctx
  * @param {number} y targetY to draw the tile at on the ctx
  * @param {Object} environment the environment we're rendering
- * @param {Array<Number>} terrain the terrain we're drawing from
  * @param {Array<Function>} finalRenders list of items to render last (above everything else)
  */
-function drawTileForSurroundings( ctx, tx, ty, x, y, environment, terrain, finalRenders ) {
-    const tile     = getTileDescription( tx, ty, terrain, environment );
+function drawTileForSurroundings( ctx, tx, ty, x, y, environment, finalRenders ) {
+    const tile     = getTileDescription( tx, ty, environment );
     const tileType = tile.type;
 
     // TODO : can we make this more generic ?
@@ -153,7 +152,7 @@ function drawTileForSurroundings( ctx, tx, ty, x, y, environment, terrain, final
             case WORLD_TILES.WATER:
             case WORLD_TILES.MOUNTAIN:
                 drawTile( ctx, getSheet( environment, tile ), 0, x, y ); // draw tile underground first
-                drawAdjacentTiles( tile, tx, ty, x, y, environment, terrain, ctx );
+                drawAdjacentTiles( tile, tx, ty, x, y, environment, ctx );
                 break;
 
             case WORLD_TILES.TREE:
@@ -169,7 +168,7 @@ function drawTileForSurroundings( ctx, tx, ty, x, y, environment, terrain, final
         const {
             tileLeft, tileRight, tileAbove, tileAboveLeft, tileAboveRight,
             tileBelow, tileBelowLeft, tileBelowRight,
-        } = getSurroundingTiles( tileType, tx, ty, environment, terrain );
+        } = getSurroundingTiles( tileType, tx, ty, environment );
 
         if ( tileType === SIDEWALK_TYPE ) return; // only draw when surrounding tiles are sidewalks
         if ( tileAbove === SIDEWALK_TYPE ) {
@@ -191,7 +190,7 @@ function drawTileForSurroundings( ctx, tx, ty, x, y, environment, terrain, final
                 return drawTile( ctx, SpriteCache.FLOOR, 0, x, y );
 
             case BUILDING_TILES.WALL:
-                drawAdjacentTiles( tile, tx, ty, x, y, environment, terrain, ctx  );
+                drawAdjacentTiles( tile, tx, ty, x, y, environment, ctx  );
                 break;
 
             case BUILDING_TILES.STAIRS:
@@ -225,8 +224,8 @@ function drawTile( aCanvasContext, aBitmap, tileSourceX, targetX, targetY ) {
                               targetX, targetY, TILE_SIZE, TILE_SIZE );
 }
 
-function getSurroundingTiles( tile, tx, ty, environment, terrain ) {
-    const { width, height } = environment;
+function getSurroundingTiles( tile, tx, ty, environment ) {
+    const { width, height, terrain } = environment;
     const maxX = width - 1, maxY = environment.height - 1;
 
     // whether there are tiles surrounding this tile
@@ -262,20 +261,20 @@ function getSurroundingTiles( tile, tx, ty, environment, terrain ) {
  *
  * @param {number} tx x-coordinate of the tile
  * @param {number} ty y-coordinate of the tile
- * @param {Array<Number>} terrain the terrain the tile resides in
- * @param {Object} environment the environment the terrain belongs to
+ * @param {Object} environment the environment owning the tiles terrain
  * @param {boolean=} blockRecursion optionally block recursion, defaults to false
  *
  * @return {{ type: number, area: number }}
  */
-export function getTileDescription( tx, ty, terrain, environment, blockRecursion ) {
+export function getTileDescription( tx, ty, environment, blockRecursion ) {
+    const { terrain } = environment;
     const tile  = terrain[ ty * environment.width + tx ];
     const out   = { type : tile, area : FULL_SIZE };
 
     const {
         tileLeft, tileRight, tileAbove, tileAboveLeft, tileAboveRight,
         tileBelow, tileBelowLeft, tileBelowRight,
-    } = getSurroundingTiles( tile, tx, ty, environment, terrain );
+    } = getSurroundingTiles( tile, tx, ty, environment );
 
     // TODO: make a generic tile index for 'nothing' (e.g. -1)
     const empty = (ct) => environment.type === BUILDING_TYPE && ct === BUILDING_TILES.NOTHING;
@@ -350,20 +349,21 @@ export function getTileDescription( tx, ty, terrain, environment, blockRecursion
     return out;
 }
 
-function drawAdjacentTiles( tile, tx, ty, x, y, env, terrain, ctx ) {
+function drawAdjacentTiles( tile, tx, ty, x, y, env, ctx ) {
+    const { terrain }    = env;
     const { type, area } = tile;
 
     const {
         width, height, maxX, maxY,
         hasLeft, hasRight, hasAbove, hasBelow
-    } = getSurroundingTiles( tile, tx, ty, env, terrain );
+    } = getSurroundingTiles( tile, tx, ty, env );
 
-    const tileLeft       = hasLeft              ? getTileDescription( tx - 1, ty,     terrain, env ) : NONE;
-    const tileRight      = hasRight             ? getTileDescription( tx + 1, ty,     terrain, env ) : NONE;
-    const tileAbove      = hasAbove             ? getTileDescription( tx,     ty - 1, terrain, env ) : NONE;
-    const tileBelow      = hasBelow             ? getTileDescription( tx,     ty + 1, terrain, env ) : NONE;
-    const tileBelowLeft  = hasLeft  && hasBelow ? getTileDescription( tx - 1, ty + 1, terrain, env ) : NONE;
-    const tileBelowRight = hasRight && hasBelow ? getTileDescription( tx + 1, ty + 1, terrain, env ) : NONE;
+    const tileLeft       = hasLeft              ? getTileDescription( tx - 1, ty,     env ) : NONE;
+    const tileRight      = hasRight             ? getTileDescription( tx + 1, ty,     env ) : NONE;
+    const tileAbove      = hasAbove             ? getTileDescription( tx,     ty - 1, env ) : NONE;
+    const tileBelow      = hasBelow             ? getTileDescription( tx,     ty + 1, env ) : NONE;
+    const tileBelowLeft  = hasLeft  && hasBelow ? getTileDescription( tx - 1, ty + 1, env ) : NONE;
+    const tileBelowRight = hasRight && hasBelow ? getTileDescription( tx + 1, ty + 1, env ) : NONE;
 
     if ( env.type === WORLD_TYPE ) {
         // alters the input tile t depending on its surroundings

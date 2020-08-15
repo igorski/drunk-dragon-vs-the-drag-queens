@@ -85,8 +85,8 @@ npm run test
 
 ## TODO
 
-* Ensure you can take stairs back to previous floor when inside a building, (last floor has no stairway up!)
 * Identify shop types by their exterior
+* Item type elevator key to allow instant access to any floor
 * Intro text when starting a new game
 * Don't generate scenery (trees) in front of doors!
 * When navigating by the world edge, tiles on the opposite end are also marked as visited

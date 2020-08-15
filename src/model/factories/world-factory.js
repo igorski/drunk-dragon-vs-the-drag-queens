@@ -169,7 +169,7 @@ function generateTerrain( hash, world ) {
 
     // first create the GROUND
 
-    const map = new Array( MAP_WIDTH * MAP_HEIGHT ).fill( WORLD_TILES.GROUND );
+    world.terrain = new Array( MAP_WIDTH * MAP_HEIGHT ).fill( WORLD_TILES.GROUND );
 
     // create some roads
 /*
@@ -177,7 +177,7 @@ function generateTerrain( hash, world ) {
         const roadMap = digRoads( MAP_WIDTH, MAP_HEIGHT );
         roadMap.forEach(( tile, index ) => {
             if ( tile !== WORLD_TILES.NOTHING ) {
-                map[ index ] = tile;
+                world.terrain[ index ] = tile;
             }
         });
     } catch {
@@ -192,10 +192,10 @@ function generateTerrain( hash, world ) {
             x = Math.floor( Math.random() * MAP_WIDTH );
             y = Math.floor( Math.random() * MAP_HEIGHT );
             index = coordinateToIndex( x, y, world );
-            map[ index ] = type;
+            world.terrain[ index ] = type;
         }
         for ( i = 0; i < size; i++ ) {
-            growTerrain( map, MAP_WIDTH, MAP_HEIGHT, type );
+            growTerrain( world.terrain, MAP_WIDTH, MAP_HEIGHT, type );
         }
     }
 
@@ -210,17 +210,17 @@ function generateTerrain( hash, world ) {
 
     for ( x = 0, y = 0; y < MAP_HEIGHT; x = ( ++x === MAP_WIDTH ? ( x % MAP_WIDTH + ( ++y & 0 )) : x )) {
         const index = coordinateToIndex( x, y, world );
-        if ( map[ index ] === WORLD_TILES.GROUND ) {
+        if ( world.terrain[ index ] === WORLD_TILES.GROUND ) {
             const around = getSurroundingIndices( x, y, MAP_WIDTH, MAP_HEIGHT, true, beachSize );
             for ( i = 0; i < around.length; i++ ) {
-                if ( map[ around[ i ]] === WORLD_TILES.WATER && Math.random() > .7 ) {
-                    map[ index ] = WORLD_TILES.SAND;
+                if ( world.terrain[ around[ i ]] === WORLD_TILES.WATER && Math.random() > .7 ) {
+                    world.terrain[ index ] = WORLD_TILES.SAND;
                     break;
                 }
             }
         }
     }
-    growTerrain( map, MAP_WIDTH, MAP_HEIGHT, WORLD_TILES.SAND, 0.9 );
+    growTerrain( world.terrain, MAP_WIDTH, MAP_HEIGHT, WORLD_TILES.SAND, 0.9 );
 
     // plant some trees in the parks
 
@@ -231,8 +231,8 @@ function generateTerrain( hash, world ) {
         y     = Math.floor( Math.random() * MAP_HEIGHT );
         index = coordinateToIndex( x, y, world );
 
-        if ( map[ index ] === WORLD_TILES.GRASS ) {
-            map[ index ] = WORLD_TILES.TREE;
+        if ( world.terrain[ index ] === WORLD_TILES.GRASS ) {
+            world.terrain[ index ] = WORLD_TILES.TREE;
         }
     }
 
@@ -243,19 +243,18 @@ function generateTerrain( hash, world ) {
             continue; // ignore tiles at world edges
         }
         const tileIndex = coordinateToIndex( x, y, world );
-        const tile = map[ tileIndex ];
-        const surroundingTiles = getSurroundingTiles( x, y, world, map );
+        const tile = world.terrain[ tileIndex ];
+        const surroundingTiles = getSurroundingTiles( x, y, world );
         // get rid of tiles that are surrounded by completely different tiles
         if ( !Object.values( surroundingTiles ).includes( tile )) {
             if ( tile === WORLD_TILES.GRASS ) {
                 // if the tile was grass, just plant a tree, it probably looks cute!
-                map[ tileIndex ] = WORLD_TILES.TREE;
+                world.terrain[ tileIndex ] = WORLD_TILES.TREE;
             } else {
-                map[ tileIndex ] = surroundingTiles.left;
+                world.terrain[ tileIndex ] = surroundingTiles.left;
             }
         }
     }
-    world.terrain = map;
 }
 
 /**

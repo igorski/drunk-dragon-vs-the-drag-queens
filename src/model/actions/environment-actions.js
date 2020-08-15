@@ -26,7 +26,8 @@ export default {
         } else if ( environment.type === BUILDING_TYPE ) {
             if ( hit = internalHitTest( x, y, environment.exits )) {
                 dispatchFn = 'changeFloor';
-                dispatchValue = getters.floor + 1;
+                const isDown = environment.exits.indexOf( hit ) === 0;
+                dispatchValue = isDown ? getters.floor - 1 : getters.floor + 1;
             }
         }
         if ( hit ) {
