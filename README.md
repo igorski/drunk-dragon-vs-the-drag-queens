@@ -85,6 +85,7 @@ npm run test
 
 ## TODO
 
+* Weird bug where leaving a building sets you in the middle of nowhere?? (spotted by taking first exit/entrance)
 * Identify shop types by their exterior
 * Item type elevator key to allow instant access to any floor
 * Intro text when starting a new game
@@ -95,7 +96,6 @@ npm run test
 * Show navigation icon in interface (when showing target, but also as mouse cursor?)
 * When player clicks on non-navigate-able tile, navigate as close to the tile as possible (take dominant distance on x-y coordinate and keep reducing until path is found)
 * Buildings should occupy their full size on sidewalk/sand-only tiles?
-* Buildings should close in the morning! (unless you have a place to sleep inside)
 * Don't spawn/generate actionable object in empty tile surrounded by a closed path
 * Make menu collapsable
 * World must become lighter when morning comes

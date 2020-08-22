@@ -2,8 +2,10 @@ import store               from '@/store/modules/game-module';
 import CharacterFactory    from '@/model/factories/character-factory';
 import EffectFactory       from '@/model/factories/effect-factory';
 import { GAME_ACTIVE, GAME_OVER } from '@/definitions/game-states';
-import { GAME_START_TIME, GAME_TIME_RATIO, VALIDITY_CHECK_INTERVAL } from '@/utils/time-util';
 import { SCREEN_SHOP, SCREEN_GAME, SCREEN_CHARACTER_INTERACTION } from '@/definitions/screens';
+import {
+    GAME_START_TIME, GAME_TIME_RATIO, VALIDITY_CHECK_INTERVAL
+} from '@/utils/time-util';
 
 const { getters, mutations, actions } = store;
 
@@ -402,7 +404,7 @@ describe('Vuex game module', () => {
                     expect( commit ).toHaveBeenNthCalledWith( 1, 'setShop', shop );
                     expect( commit ).toHaveBeenNthCalledWith( 2, 'setScreen', SCREEN_SHOP );
                     expect( commit ).toHaveBeenNthCalledWith( 3, 'addEffect', {
-                        mutation: null, startTime: mockedGetters.gameTime, duration: 30000 * GAME_TIME_RATIO,
+                        mutation: null, startTime: mockedGetters.gameTime, duration: 60000 * GAME_TIME_RATIO,
                         startValue: expect.any( Number ), endValue: expect.any( Number ),
                         increment: expect.any( Number ), callback: 'handleShopTimeout'
                     });
@@ -525,9 +527,10 @@ describe('Vuex game module', () => {
         });
 
         describe('when updating the game properties', () => {
-            const timestamp = Date.now();
+            const timestamp = new Date( GAME_START_TIME ).getTime();
             const mockedGetters = {
                 gameTime: timestamp,
+                translate: jest.fn(),
             };
 
             it('should not do anything when the game state is not active', () => {
@@ -573,7 +576,7 @@ describe('Vuex game module', () => {
             it('should be able to verify the game validity periodically', () => {
                 const commit    = jest.fn();
                 const dispatch  = jest.fn();
-                mockedGetters.isOutside = false;
+                mockedGetters.isOutside = true;
 
                 const state = {
                     gameState: GAME_ACTIVE,
@@ -587,8 +590,8 @@ describe('Vuex game module', () => {
             it('should end the game when the player is caught outside at an invalid hour', () => {
                 let commit    = jest.fn();
                 let dispatch  = jest.fn();
-                mockedGetters.isOutside = false;
-                mockedGetters.timestamp = new Date( GAME_START_TIME ) - (8 * 60 * 60 * 1000);
+                mockedGetters.isOutside = true;
+                mockedGetters.gameTime  = timestamp + ( 7 * 60 * 60 * 1000 );
 
                 const state = {
                     gameState: GAME_ACTIVE,
@@ -599,9 +602,29 @@ describe('Vuex game module', () => {
                 expect( commit ).not.toHaveBeenNthCalledWith( 2, 'setGameState', GAME_OVER );
 
                 commit = jest.fn();
-                mockedGetters.isOutside = true;
+                mockedGetters.gameTime = timestamp + ( 8 * 60 * 60 * 1000 );
                 actions.updateGame({ commit, dispatch, getters: mockedGetters, state }, timestamp );
                 expect( commit ).toHaveBeenNthCalledWith( 2, 'setGameState', GAME_OVER );
+            });
+
+            it('should end the game when the player is inside a building after closing time', () => {
+                let commit    = jest.fn();
+                let dispatch  = jest.fn();
+                mockedGetters.isOutside = false;
+                mockedGetters.gameTime  = timestamp + ( 6 * 60 * 60 * 1000 );
+
+                const state = {
+                    gameState: GAME_ACTIVE,
+                    lastValidGameTime: timestamp - VALIDITY_CHECK_INTERVAL,
+                    effects: []
+                };
+                actions.updateGame({ commit, dispatch, getters: mockedGetters, state }, timestamp );
+                expect( dispatch ).not.toHaveBeenNthCalledWith( 1, 'leaveBuilding' );
+
+                commit = jest.fn();
+                mockedGetters.gameTime = timestamp + ( 7 * 60 * 60 * 1000 );
+                actions.updateGame({ commit, dispatch, getters: mockedGetters, state }, timestamp );
+                expect( dispatch ).toHaveBeenNthCalledWith( 1, 'leaveBuilding' );
             });
         });
     });

@@ -17,7 +17,7 @@ import {
     GAME_ACTIVE, GAME_PAUSED, GAME_OVER
 } from '@/definitions/game-states';
 import {
-    GAME_START_TIME, GAME_TIME_RATIO, VALIDITY_CHECK_INTERVAL, isValidHourToBeOutside
+    GAME_START_TIME, GAME_TIME_RATIO, VALIDITY_CHECK_INTERVAL, isValidHourToBeOutside, isValidHourToBeInside
 } from '@/utils/time-util';
 import {
     SCREEN_CHARACTER_CREATE, SCREEN_GAME, SCREEN_SHOP, SCREEN_CHARACTER_INTERACTION
@@ -245,7 +245,7 @@ export default {
             commit( 'setShop', shop );
             commit( 'setScreen', SCREEN_SHOP );
             commit( 'addEffect', EffectFactory.create(
-                null, getters.gameTime, 30000, 0, 1, 'handleShopTimeout'
+                null, getters.gameTime, 60000, 0, 1, 'handleShopTimeout'
             ));
         },
         leaveShop({ commit }) {
@@ -326,8 +326,12 @@ export default {
             const gameTimestamp = getters.gameTime;
 
             if (( gameTimestamp - state.lastValidGameTime ) >= VALIDITY_CHECK_INTERVAL ) {
-                if ( getters.isOutside && !isValidHourToBeOutside( gameTimestamp )) {
+                const date = new Date( gameTimestamp );
+                if ( getters.isOutside && !isValidHourToBeOutside( date )) {
                     commit( 'setGameState', GAME_OVER );
+                } else if ( !getters.isOutside && !isValidHourToBeInside( date )) {
+                    dispatch( 'leaveBuilding' );
+                    commit( 'openDialog', { message: getters.translate('timeouts.building') });
                 } else {
                     commit( 'setLastValidGameTime', gameTimestamp );
                 }

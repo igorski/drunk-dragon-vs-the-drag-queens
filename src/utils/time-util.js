@@ -2,8 +2,9 @@ export const GAME_START_TIME = '1986-08-29T20:00:00.000Z';
 export const GAME_TIME_RATIO = 20; // how much faster the clock ticks in game time vs real time
 export const VALIDITY_CHECK_INTERVAL = 10000 * GAME_TIME_RATIO;
 
-// the time of day the player is allowed to roam outside
-const VALID_HOURS = [ 22, 23, 0, 1, 2, 3, 4, 5 ];
+// the time of day the player is allowed to roam in- or outside
+const VALID_HOURS_OUTSIDE = [ 22, 23, 0, 1, 2, 3, 4, 5 ];
+const VALID_HOURS_INSIDE  = [ 22, 23, 0, 1, 2, 3, 4 ];
 
 export const dateToTimeString = date => {
     // hours part from the timestamp
@@ -21,10 +22,8 @@ export const dateToTimeString = date => {
 
 export const timestampToTimeString = timestamp => dateToTimeString( new Date( timestamp ));
 
-export const isValidHourToBeOutside = timestamp => {
-    const date = new Date( timestamp );
-    return VALID_HOURS.includes( date.getHours() );
-};
+export const isValidHourToBeOutside = gameDate => VALID_HOURS_OUTSIDE.includes( gameDate.getHours() );
+export const isValidHourToBeInside = gameDate => VALID_HOURS_INSIDE.includes( gameDate.getHours() );
 
 export const timestampToFormattedDate = timestamp => {
     const dateTimeFormat = new Intl.DateTimeFormat( 'en', { year: 'numeric', month: 'short', day: '2-digit' });
