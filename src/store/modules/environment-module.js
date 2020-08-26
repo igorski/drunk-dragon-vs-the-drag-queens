@@ -115,9 +115,11 @@ export default {
             dispatch( 'leaveShop' );
         },
         async enterBuilding({ state, getters, commit, dispatch }, building ) {
-            // generate levels, terrains and characters inside the building
-            BuildingFactory.generateFloors( state.hash, building, getters.player );
-
+            // generate levels, terrains and characters inside the building if they
+            // weren't generated yet.
+            if ( !building.floors?.length ) {
+                BuildingFactory.generateFloors( state.hash, building, getters.player );
+            }
             commit( 'setBuilding', building );
 
             // enter building at the first floor

@@ -1,6 +1,6 @@
 # rpg
 
-NAME IDAES:
+NAME IDEAS:
 
 Nocturbulent
 Nocturin
@@ -85,6 +85,7 @@ npm run test
 
 ## TODO
 
+* Don't enter exit unless path ends at its exact coordinate
 * Can we give announcement of closing time when entering building?
 * Create floors that are bars chockfull of people!
 * Create hotels inside buildings

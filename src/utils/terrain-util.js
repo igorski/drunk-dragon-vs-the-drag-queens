@@ -27,7 +27,7 @@ export const growTerrain = ( map, mapWidth, mapHeight, type, optChanceThreshhold
 
 /**
  * collect surrounding indices for a given coordinate
- * blatantly stolen from code by Igor Kogan
+ * (blatantly stolen from code by Igor Kogan)
  *
  * @param {number} x coordinate of the start point
  * @param {number} y coordinate of the point point
@@ -123,6 +123,16 @@ export const getSurroundingTiles = ( x, y, environment ) => {
         out[ key ] = terrain[ value ];
     });
     return out;
+};
+
+/**
+ * Asserts whether the tiles surrounding given coordinate for given environment
+ * are all of the given tileType
+ */
+export const assertSurroundingTilesOfTypeAroundPoint = ( x, y, environment, tileType ) => {
+    const { terrain } = environment;
+    const surrounding = Object.values( getSurroundingIndicesForPoint( x, y, environment ));
+    return !surrounding.some( tile => terrain[ tile ] !== tileType );
 };
 
 /**
