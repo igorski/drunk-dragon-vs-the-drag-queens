@@ -12,9 +12,11 @@ export default
      *
      * @param {Object} game state
      * @param {Object} player state
+     * @param {Object} world state
+     * @param {Object=} building optional entered building state
      * @return {string} compressed JSON String
      */
-    disassemble( game, player ) {
+    disassemble( game, player, world, building ) {
         const out = {
             h: game.hash,
             c: game.created,
@@ -22,17 +24,19 @@ export default
             gs: game.gameStart,
             gt: game.gameTime,
             p: CharacterFactory.disassemble( player ),
-            w: WorldFactory.disassemble( game.world, game.hash ),
-            b: game.building ? BuildingFactory.disassemble( game.building ) : null,
+            w: WorldFactory.disassemble( world, game.hash ),
+            b: building ? BuildingFactory.disassemble( building ) : null,
             e: game.effects ? game.effects.map( e => EffectFactory.disassemble( e )) : [],
         };
         const json = JSON.stringify( out );
         try {
             const compressed = LZString.compressToUTF16( json );
-            console.log(
-                `Compressed ${json.length} to ${compressed.length}
-                (${(( compressed.length / json.length ) * 100 ).toFixed( 2 )}% of original size)`
-            );
+            if ( process.env.NODE_ENV === 'development' ) {
+                console.log(
+                    `Compressed ${json.length} to ${compressed.length}
+                    (${(( compressed.length / json.length ) * 100 ).toFixed( 2 )}% of original size)`
+                );
+            }
             return compressed;
         }
         catch ( e ) {
@@ -64,10 +68,13 @@ export default
             modified: data.m,
             gameStart: data.gs,
             gameTime: data.gt,
-            world: WorldFactory.assemble( data.w, data.h ),
-            building: data.b ? BuildingFactory.assemble( data.b ) : null,
             effects: data.e.map( e => EffectFactory.assemble( e )),
         };
-        return { game, player: CharacterFactory.assemble( data.p ) };
+        return {
+            game,
+            world: WorldFactory.assemble( data.w, data.h ),
+            building: data.b ? BuildingFactory.assemble( data.b ) : null,
+            player: CharacterFactory.assemble( data.p )
+        };
     }
 };

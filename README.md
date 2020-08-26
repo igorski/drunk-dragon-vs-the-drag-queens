@@ -85,12 +85,15 @@ npm run test
 
 ## TODO
 
+* Can we give announcement of closing time when entering building?
+* Create floors that are bars chockfull of people!
+* Create hotels inside buildings
 * Weird bug where leaving a building sets you in the middle of nowhere?? (spotted by taking first exit/entrance)
 * Identify shop types by their exterior
 * Item type elevator key to allow instant access to any floor
 * Intro text when starting a new game
 * Don't generate scenery (trees) in front of doors!
-* When navigating by the world edge, tiles on the opposite end are also marked as visited
+* Bug: When navigating by the world edge, tiles on the opposite end are also marked as visited
 * Create fast travel by introducing subway (can only travel to visited areas!)
 * Allow to buy on credit, starts action by which you need to have repaid the person!
 * Show navigation icon in interface (when showing target, but also as mouse cursor?)

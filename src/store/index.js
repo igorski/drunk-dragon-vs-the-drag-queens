@@ -1,7 +1,8 @@
-import storage from 'store/dist/store.modern';
-import audio   from './modules/audio-module';
-import game    from './modules/game-module';
-import player  from './modules/player-module';
+import storage     from 'store/dist/store.modern';
+import audio       from './modules/audio-module';
+import environment from './modules/environment-module';
+import game        from './modules/game-module';
+import player      from './modules/player-module';
 
 const STORAGE_KEY = 'rpg_settings';
 
@@ -23,6 +24,7 @@ let _saveTimer;
 export default {
     modules: {
         audio,
+        environment,
         game,
         player
     },

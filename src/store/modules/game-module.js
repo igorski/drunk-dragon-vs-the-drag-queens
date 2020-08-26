@@ -1,18 +1,10 @@
-import MD5                   from 'MD5';
-import storage               from 'store/dist/store.modern';
-import Vue                   from 'vue';
-import AudioTracks           from '@/definitions/audio-tracks';
-import BuildingFactory, { BUILDING_TILES } from '@/model/factories/building-factory';
-import CharacterFactory      from '@/model/factories/character-factory';
-import EffectFactory         from '@/model/factories/effect-factory';
-import GameFactory           from '@/model/factories/game-factory';
-import IntentFactory         from '@/model/factories/intent-factory';
-import WorldFactory          from '@/model/factories/world-factory';
-import ShopFactory           from '@/model/factories/shop-factory';
-import { renderEnvironment } from '@/services/environment-bitmap-cacher';
-import SpriteCache           from '@/utils/sprite-cache';
-import EffectActions         from '@/model/actions/effect-actions';
-import { getFirstFreeTileOfTypeAroundPoint } from '@/utils/terrain-util';
+import MD5              from 'MD5';
+import storage          from 'store/dist/store.modern';
+import Vue              from 'vue';
+import CharacterFactory from '@/model/factories/character-factory';
+import GameFactory      from '@/model/factories/game-factory';
+import WorldFactory     from '@/model/factories/world-factory';
+import EffectActions    from '@/model/actions/effect-actions';
 import {
     GAME_ACTIVE, GAME_PAUSED, GAME_OVER
 } from '@/definitions/game-states';
@@ -20,7 +12,7 @@ import {
     GAME_START_TIME, GAME_TIME_RATIO, VALIDITY_CHECK_INTERVAL, isValidHourToBeOutside, isValidHourToBeInside
 } from '@/utils/time-util';
 import {
-    SCREEN_CHARACTER_CREATE, SCREEN_GAME, SCREEN_SHOP, SCREEN_CHARACTER_INTERACTION
+    SCREEN_CHARACTER_CREATE
 } from '@/definitions/screens';
 
 const STORAGE_KEY = 'rpg';
@@ -28,11 +20,6 @@ const STORAGE_KEY = 'rpg';
 export default {
     state: {
         hash: '',
-        world: null,
-        activeEnvironment: null, // environment player is currently navigating
-        building: null,          // currently entered building
-        character: null,         // character currently interacting with
-        shop: null,              // currently entered shop
         created: 0,
         modified: 0,
         gameStart: 0,    // timestamp at which the game was originally created
@@ -45,12 +32,7 @@ export default {
     getters: {
         gameState: state => state.gameState,
         gameTime: state => state.gameTime,
-        activeEnvironment: state => state.activeEnvironment,
-        floor: state => state.building?.floor ?? NaN,
-        shop: state => state.shop,
-        character: state => state.character,
         hasSavedGame: state => () => !!storage.get( STORAGE_KEY ),
-        isOutside: state => !state.building && !state.shop,
     },
     mutations: {
         setGame( state, value ) {
@@ -61,8 +43,6 @@ export default {
             state.lastSavedTime     = value.lastSavedTime;
             state.gameTime          = value.gameTime;
             state.lastValidGameTime = value.gameTime;
-            state.building          = value.building;
-            state.world             = value.world;
             state.effects           = value.effects;
             state.gameState         = GAME_ACTIVE;
         },
@@ -78,27 +58,6 @@ export default {
         setLastRender( state, value ) {
             state.lastRender = value;
         },
-        setXPosition( state, value ) {
-            state.activeEnvironment.x = value;
-        },
-        setYPosition( state, value ) {
-            state.activeEnvironment.y = value;
-        },
-        setActiveEnvironment( state, environment ) {
-            state.activeEnvironment = environment;
-        },
-        setCharacter( state, character ) {
-            state.character = character;
-        },
-        setShop( state, shop ) {
-            state.shop = shop;
-        },
-        setBuilding( state, building ) {
-            state.building = building;
-        },
-        setFloor( state, floor ) {
-            state.building.floor = floor;
-        },
         addEffect( state, value ) {
             if ( !state.effects.includes( value )) {
                 state.effects.push( value );
@@ -113,47 +72,6 @@ export default {
         },
         removeEffectsByCallback( state, callbacks = [] ) {
             Vue.set( state, 'effects', state.effects.filter(({ callback }) => !callbacks.includes( callback )));
-        },
-        addItemToShop( state, item ) {
-            const { items } = state.shop;
-            if ( !items.includes( item )) {
-                items.push( item );
-            }
-        },
-        removeItemFromShop( state, item ) {
-            const index = state.shop.items.indexOf( item );
-            if ( index > -1 ) {
-                state.shop.items.splice( index, 1 );
-            }
-        },
-        removeCharacter( state, character ) {
-            if ( state.character === character ) {
-                state.character = null;
-            }
-            const { characters } = state.activeEnvironment;
-            const index = characters.indexOf( character );
-            if ( index > -1 ) {
-                characters.splice( index, 1 );
-            }
-        },
-        addItemToCharacterInventory( state, { item, character }) {
-            const char = state.activeEnvironment.characters.find( c => character );
-            if ( char ) {
-                char.inventory.items.push( item );
-            }
-        },
-        markVisitedTerrain( state, visitedTerrainIndices = [] ) {
-            const { visitedTerrain } = state.activeEnvironment;
-            visitedTerrainIndices.forEach( index => {
-                if ( !visitedTerrain.includes( index )) {
-                    visitedTerrain.push( index );
-                }
-            });
-        },
-        flushBitmaps( state ) {
-            state.activeEnvironment.characters.forEach( character => {
-                delete character.bitmap;
-            });
         },
     },
     actions: {
@@ -177,6 +95,8 @@ export default {
                 world,
                 hash,
             });
+            commit( 'setBuilding', null);
+            commit( 'setWorld', world );
             commit( 'setPlayer', player );
             commit( 'setLastRender', Date.now() );
             await dispatch( 'changeActiveEnvironment', world );
@@ -184,21 +104,18 @@ export default {
         async loadGame({ state, commit, dispatch }) {
             const data = storage.get( STORAGE_KEY );
             try {
-                const { game, player } = GameFactory.assemble( data );
-                if ( data && ( !player || !game?.world )) {
+                const { game, world, building, player } = GameFactory.assemble( data );
+                if ( !player || !world ) {
                     // corrupted or outdated format
                     dispatch( 'resetGame' );
                     commit( 'setScreen', SCREEN_CHARACTER_CREATE );
                     return false;
                 }
                 commit( 'setGame', game );
+                commit( 'setBuilding', building );
+                commit( 'setWorld', world );
                 commit( 'setPlayer', player );
-                let activeEnvironmentToSet = game.world;
-                const { building } = game;
-                if ( building ) {
-                    // game was saved inside a building
-                    activeEnvironmentToSet = building.floors[ building.floor ];
-                }
+                const activeEnvironmentToSet = building?.floors[ building.floor ] ?? world;
                 commit( 'setLastRender', Date.now() );
                 await dispatch( 'changeActiveEnvironment', activeEnvironmentToSet );
             } catch {
@@ -208,19 +125,21 @@ export default {
             return true;
         },
         async saveGame({ state, getters }) {
-            const data = GameFactory.disassemble( state, getters.player );
+            const data = GameFactory.disassemble( state, getters.player, getters.world, getters.building );
             storage.set( STORAGE_KEY, data );
         },
         async importGame({ commit, dispatch }, data ) {
-            const { game, player } = GameFactory.assemble( data );
+            const { game, world, building, player } = GameFactory.assemble( data );
             if ( game === null ) throw new Error(); // catch in calling component
             commit( 'setGame', game );
+            commit( 'setBuilding', building );
+            commit( 'setWorld', world );
             commit( 'setPlayer', player );
             await dispatch( 'saveGame' );
             await dispatch( 'loadGame' );
         },
         async exportGame({ state, getters }) {
-            const data = GameFactory.disassemble( state, getters.player );
+            const data = GameFactory.disassemble( state, getters.player, getters.world, getters.building );
             const pom = document.createElement( 'a' );
             pom.setAttribute( 'href', `data:text/plain;charset=utf-8,${encodeURIComponent( data )}`);
             pom.setAttribute( 'download', 'savegame.rpg' );
@@ -228,86 +147,6 @@ export default {
         },
         resetGame() {
             storage.remove( STORAGE_KEY );
-        },
-        /* navigation actions */
-        interactWithCharacter({ state, commit }, character ) {
-            let { intent } = character.properties;
-            if ( !intent ) {
-                character.properties.intent = IntentFactory.create();
-            }
-            commit( 'setCharacter', character );
-            commit( 'setScreen', SCREEN_CHARACTER_INTERACTION );
-        },
-        enterShop({ state, getters, commit }, shop ) {
-            if ( !shop.items.length ) {
-                ShopFactory.generateItems( shop, 5 );
-            }
-            commit( 'setShop', shop );
-            commit( 'setScreen', SCREEN_SHOP );
-            commit( 'addEffect', EffectFactory.create(
-                null, getters.gameTime, 60000, 0, 1, 'handleShopTimeout'
-            ));
-        },
-        leaveShop({ commit }) {
-            commit( 'removeEffectsByCallback', [ 'handleShopTimeout' ]);
-        },
-        handleShopTimeout({ commit, getters, dispatch }) {
-            commit( 'openDialog', { message: getters.translate('timeouts.shop') });
-            commit( 'setScreen', SCREEN_GAME );
-            dispatch( 'leaveShop' );
-        },
-        async enterBuilding({ state, getters, commit, dispatch }, building ) {
-            // generate levels, terrains and characters inside the building
-            BuildingFactory.generateFloors( state.hash, building, getters.player );
-
-            commit( 'setBuilding', building );
-
-            // enter building at the first floor
-            await dispatch( 'changeFloor', 0 );
-            // change music to building theme
-            dispatch( 'playSound', AudioTracks.BUILDING_THEME );
-        },
-        // change floor inside building
-        async changeFloor({ state, getters, commit, dispatch }, floor ) {
-            const { floors } = state.building;
-            const maxFloors  = floors.length;
-            const isDown     = floor < state.building.floor;
-
-            if ( floor < 0 ) {
-                // was first stairway, go back to outside world
-                dispatch( 'leaveBuilding' );
-            } else {
-                // ascend/descend to requested level
-                commit( 'setFloor', floor );
-                await dispatch( 'changeActiveEnvironment', floors[ floor ]);
-                // position player next to stairway
-                const environment = getters.activeEnvironment;
-                const firstExit   = environment.exits[ isDown ? 1 : 0 ];
-                const startCoordinates = getFirstFreeTileOfTypeAroundPoint( firstExit.x, firstExit.y, environment, BUILDING_TILES.GROUND );
-                commit( 'setXPosition', startCoordinates.x );
-                commit( 'setYPosition', startCoordinates.y );
-            }
-        },
-        async leaveBuilding({ state, commit, dispatch }) {
-            commit( 'setBuilding', null );
-            SpriteCache.ENV_BUILDING.src = ''; // reset building level cache
-
-            await dispatch( 'changeActiveEnvironment', state.world );
-
-            // change music to overground theme
-            dispatch( 'playSound', AudioTracks.OVERGROUND_THEME );
-        },
-        async changeActiveEnvironment({ state, getters, commit }, environment ) {
-            if ( !!state.activeEnvironment ) {
-                // free memory allocated to Bitmaps
-                commit( 'flushBitmaps' );
-            }
-            commit( 'setActiveEnvironment', environment );
-            commit( 'setLoading', true );
-            await renderEnvironment( environment, getters.player );
-            commit( 'setLoading', false );
-
-            console.warn('TODO: WHEN CHANGING ACTIVE ENVIRONMENT RESET AI BEHAVIOUR');
         },
         /* game updates */
         /**

@@ -12,16 +12,18 @@ describe('Game factory', () => {
             modified: Date.now() - 50,
             gameStart: Date.now() - 90,
             gameTime: Date.now() - 1000,
-            world: WorldFactory.create(),
-            building: BuildingFactory.create(),
             effects: [ EffectFactory.create( 'mutationName', 500, 1000, 0, 1 ) ],
         };
-        const player = CharacterFactory.create();
+        const player   = CharacterFactory.create();
+        const world    = WorldFactory.create();
+        const building = BuildingFactory.create();
 
-        const disassembled = GameFactory.disassemble( game, player );
+        const disassembled = GameFactory.disassemble( game, player, world, building );
         const reassembled  = GameFactory.assemble( disassembled );
 
         expect( reassembled.game ).toEqual( game );
         expect( reassembled.player ).toEqual( player );
+        expect( reassembled.world ).toEqual( world );
+        expect( reassembled.building ).toEqual( building );
     });
 });
