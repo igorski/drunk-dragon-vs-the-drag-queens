@@ -10,7 +10,7 @@ import { findPath } from '@/utils/path-finder';
 let commit, dispatch; // Vuex store hooks
 
 const DEBUG          = process.env.NODE_ENV !== 'production';
-const CHARACTER_SIZE = 55;
+const CHARACTER_SIZE = 40;
 
 const { tileWidth, tileHeight, sizeBuilding, sizeShop } = WorldCache;
 
