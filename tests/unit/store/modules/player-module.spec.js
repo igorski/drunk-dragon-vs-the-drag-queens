@@ -1,4 +1,4 @@
-import store            from '@/store/modules/player-module';
+import store from '@/store/modules/player-module';
 const { getters, mutations, actions } = store;
 
 describe('Vuex player module', () => {
@@ -35,6 +35,14 @@ describe('Vuex player module', () => {
             mutations.addItemToInventory( state, item );
             expect( state.player.inventory.items ).toEqual([{ foo: 'bar'}, { baz: 'qux' }]);
         });
+
+        it('should be able to remove an item from the players inventory', () => {
+            const state = { player: { inventory: {
+                cash: 50, items: [{ foo: 'bar' }, { baz: 'qux' }] } }
+            };
+            mutations.removeItemFromInventory( state, state.player.inventory.items[1] );
+            expect( state.player.inventory.items ).toEqual([{ foo: 'bar'}]);
+        });
     });
 
     describe('actions', () => {
@@ -50,10 +58,12 @@ describe('Vuex player module', () => {
             actions.moveToDestination({ state, getters: mockedGetters, commit, dispatch }, { waypoints, onProgress });
 
             // expect cancellation of existing movement effects
-            expect( commit ).toHaveBeenNthCalledWith( 1, 'removeEffectsByAction', [ 'setXPosition', 'setYPosition' ]);
+            expect( commit ).toHaveBeenNthCalledWith( 1, 'removeEffectsByMutation', [ 'setXPosition', 'setYPosition' ]);
+            // expect registration of update handler
+            expect( commit ).toHaveBeenNthCalledWith( 2, 'setOnMovementUpdate', onProgress );
             // expect individual addition of each waypoint as an effect
-            expect( commit ).toHaveBeenNthCalledWith( 2, 'addEffect', expect.any( Object ));
             expect( commit ).toHaveBeenNthCalledWith( 3, 'addEffect', expect.any( Object ));
+            expect( commit ).toHaveBeenNthCalledWith( 4, 'addEffect', expect.any( Object ));
         });
 
         describe('when buying an item from a shop', () => {
@@ -73,6 +83,51 @@ describe('Vuex player module', () => {
                 expect( commit ).toHaveBeenNthCalledWith( 1, 'deductCash', item.price );
                 expect( commit ).toHaveBeenNthCalledWith( 2, 'removeItemFromShop', item );
                 expect( commit ).toHaveBeenNthCalledWith( 3, 'addItemToInventory', item );
+            });
+        });
+
+        it('should be able to sell an item to a shop', () => {
+            const orgPrice = 12;
+            const item     = { price: orgPrice };
+            const price    = 5;
+            const commit   = jest.fn();
+
+            actions.sellItem({ commit }, { item, price });
+
+            expect( commit ).toHaveBeenNthCalledWith( 1, 'awardCash', price );
+            expect( commit ).toHaveBeenNthCalledWith( 2, 'addItemToShop', item );
+            expect( commit ).toHaveBeenNthCalledWith( 3, 'removeItemFromInventory', item );
+
+            expect( item.price ).not.toEqual( orgPrice ); // price has been updated
+        });
+
+        describe('when giving an inventory item to another Character', () => {
+            const character = {
+                properties: {
+                    intent: {
+                        type: 1,
+                        price: 10
+                    }
+                }
+            };
+
+            if('should not give the item when it does not meet the Characters intent', () => {
+                const item = { type: 0, price: 1 };
+                const commit = jest.fn();
+
+                expect( actions.giveItemToCharacter({ commit }, { item, character })).toBe( false );
+                item.type = 1; // type is equal to intent, but price isn't
+                expect( actions.giveItemToCharacter({ commit }, { item, character })).toBe( false );
+                expect( commit ).not.toHaveBeenCalled();
+            });
+
+            it('should give the item when it meets the Characters intent', () => {
+                const item = { type: 1, price: 10 };
+                const commit = jest.fn();
+
+                expect( actions.giveItemToCharacter({ commit }, { item, character })).toBe( true );
+                expect( commit ).toHaveBeenNthCalledWith( 1, 'addItemToCharacterInventory', { item, character });
+                expect( commit ).toHaveBeenNthCalledWith( 2, 'removeItemFromInventory', item);
             });
         });
     });

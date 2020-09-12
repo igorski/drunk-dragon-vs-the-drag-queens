@@ -3,6 +3,9 @@
         "status": "Status",
         "map": "Map",
         "time": "Time",
-        "date": "Date"
+        "date": "Date",
+        "cash": "Cash",
+        "inventory": "Inventory",
+        "youHaveNoItems": "You currently have no items in your inventory."
     }
 }

@@ -1,4 +1,5 @@
 import CharacterFactory from '@/model/factories/character-factory';
+import IntentFactory    from '@/model/factories/intent-factory';
 import InventoryFactory from '@/model/factories/inventory-factory';
 
 describe('Character factory', () => {
@@ -32,7 +33,8 @@ describe('Character factory', () => {
             const properties = {
                 speed: 0.5,
                 intoxication: 0.4,
-                boost: 0.3
+                boost: 0.3,
+                intent: IntentFactory.create()
             };
             const inventory = InventoryFactory.create();
             const char = CharacterFactory.create( 0, 0, appearance, properties, inventory );
@@ -47,6 +49,7 @@ describe('Character factory', () => {
         const { appearance, properties, inventory } = character;
         appearance.sex = 'M';
         properties.speed = .7;
+        properties.intent = IntentFactory.create();
         properties.intoxication = .3;
         properties.boost = .2;
 

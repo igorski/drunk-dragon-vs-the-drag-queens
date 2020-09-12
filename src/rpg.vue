@@ -40,14 +40,16 @@ import VueI18n from 'vue-i18n';
 import VueRadioToggleButtons from 'vue-radio-toggle-buttons';
 import 'vue-radio-toggle-buttons/dist/vue-radio-toggle-buttons.css';
 import { preloadAssets } from '@/services/asset-preloader';
-import DialogWindow from '@/components/dialog-window/dialog-window';
-import HeaderMenu from '@/components/header-menu/header-menu';
-import Notifications from '@/components/notifications/notifications';
-import World from '@/components/world/world';
-import messages from './messages.json';
+import DialogWindow      from '@/components/dialog-window/dialog-window';
+import HeaderMenu        from '@/components/header-menu/header-menu';
+import Notifications     from '@/components/notifications/notifications';
+import World             from '@/components/world/world';
+import messages          from './messages.json';
 
+import { GAME_OVER } from '@/definitions/game-states';
 import {
-    SCREEN_GAME, SCREEN_CHARACTER_CREATE, SCREEN_OPTIONS, SCREEN_STATUS, SCREEN_SHOP, SCREEN_CREDITS
+    SCREEN_GAME, SCREEN_CHARACTER_CREATE, SCREEN_OPTIONS, SCREEN_STATUS,
+    SCREEN_CHARACTER_INTERACTION, SCREEN_SHOP, SCREEN_CREDITS, SCREEN_GAME_OVER
 } from '@/definitions/screens';
 
 Vue.use( VueI18n );
@@ -77,6 +79,7 @@ export default {
         ]),
         ...mapGetters([
             'hasSavedGame',
+            'gameState',
             'player',
         ]),
         activeScreen() {
@@ -85,6 +88,8 @@ export default {
                     return null;
                 case SCREEN_CHARACTER_CREATE:
                     return () => import('./components/character-creator/character-creator');
+                case SCREEN_CHARACTER_INTERACTION:
+                    return () => import('./components/character-interaction/character-interaction');
                 case SCREEN_OPTIONS:
                     return () => import('./components/options/options');
                 case SCREEN_STATUS:
@@ -93,6 +98,8 @@ export default {
                     return () => import('./components/shop/shop');
                 case SCREEN_CREDITS:
                     return () => import('./components/credits/credits');
+                case SCREEN_GAME_OVER:
+                    return () => import('./components/game-over/game-over');
             }
         },
         hasScreen() {
@@ -102,7 +109,15 @@ export default {
             return !!this.player;
         },
     },
+    watch: {
+        gameState( value ) {
+            if ( value === GAME_OVER ) {
+                this.setScreen( SCREEN_GAME_OVER );
+            }
+        },
+    },
     async created() {
+        this.setI18n( i18n );
         this.setLoading( true );
 
         window.addEventListener( 'resize', this.handleResize );
@@ -122,6 +137,7 @@ export default {
     },
     methods: {
         ...mapMutations([
+            'setI18n',
             'setLoading',
             'setDimensions',
             'setScreen',

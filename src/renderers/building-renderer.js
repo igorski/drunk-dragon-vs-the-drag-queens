@@ -61,8 +61,8 @@ BuildingRenderer.prototype.draw = function( aCanvasContext ) {
                               sourceX, sourceY, canvasWidth, canvasHeight,
                               targetX, targetY, canvasWidth, canvasHeight );
 
+    this.renderCharacters( aCanvasContext, floor.characters, visibleTiles );
     this.renderPlayer( aCanvasContext, left, top, halfHorizontalTileAmount, halfVerticalTileAmount );
-    this.renderCharacters( aCanvasContext, floor.characters, left, top );
 
     // draw path when walking to waypoint
 

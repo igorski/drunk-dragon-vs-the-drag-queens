@@ -9,6 +9,16 @@
             <span>{{ date }}</span>
             <h3 v-t="'cash'"></h3>
             <span>$ {{ player.inventory.cash.toFixed( 2 ) }}</span>
+            <h3 v-t="'inventory'"></h3>
+            <ul v-if="inventory.length">
+                <li v-for="(item, index) in inventory"
+                      :key="`item${index}`"
+                      class="inventory-item"
+                >
+                    {{ item.text }}
+                </li>
+            </ul>
+            <p v-else v-t="'youHaveNoItems'"></p>
             <component
                 class="character-preview"
                 :is="characterComponent"
@@ -26,11 +36,11 @@ import { BUILDING_TYPE } from '@/model/factories/building-factory';
 import { timestampToFormattedDate, timestampToTimeString } from '@/utils/time-util';
 import renderWorld from '@/renderers/world-map-renderer';
 import renderBuilding from '@/renderers/building-map-renderer';
-
+import sharedMessages from '@/i18n/items.json';
 import messages from './messages.json';
 
 export default {
-    i18n: { messages },
+    i18n: { messages, sharedMessages },
     components: {
         Modal,
     },
@@ -59,6 +69,9 @@ export default {
         time() {
             return timestampToTimeString( this.gameTime );
         },
+        inventory() {
+            return this.player.inventory.items.map( value => ({ text: this.$t( value.name ), value }));
+        },
     },
     async mounted() {
         let renderFn;
@@ -84,6 +97,10 @@ export default {
 
     .map-image {
         width: 210px;
+    }
+
+    .inventory-item {
+        display: block;
     }
 
     @include large() {

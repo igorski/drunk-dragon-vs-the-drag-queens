@@ -3,25 +3,27 @@ export default
     /**
      * Invoked by the game loop whenever time passes in the simulation.
      *
+     * @param {{ commit, dispatch }} Vuex store methods
+     * @param {Object} effect the Effect to process
      * @param {number} currentTime current game time in milliseconds
      * @return {boolean} whether the Effect has completed its total duration
      */
-    update( effect, currentTime ) {
+    update({ commit, dispatch }, effect, currentTime ) {
         const elapsed = currentTime - effect.startTime;
-        const { commit, action, increment } = effect;
+        const { mutation, increment } = effect;
 
         if ( elapsed < 0 ) {
-            return false; // action is scheduled ahead
+            return false; // Effect is scheduled ahead of start time
         }
 
         if ( elapsed >= effect.duration ) {
-            commit( action, effect.endValue );
-            if ( typeof effect.callback === 'function' ) {
-                effect.callback();
-            }
+            typeof mutation === 'string' && commit( mutation, effect.endValue );
+            typeof effect.callback === 'string' && dispatch( effect.callback );
+
             return true;
         }
-        commit( action, effect.startValue + ( increment * elapsed ));
+        typeof mutation === 'string' && commit( mutation, effect.startValue + ( increment * elapsed ));
+
         return false;
     }
 };

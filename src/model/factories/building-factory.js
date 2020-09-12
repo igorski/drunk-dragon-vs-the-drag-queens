@@ -1,10 +1,21 @@
 import { Map }            from 'rot-js';
 import HashUtil           from '@/utils/hash-util';
 import WorldCache         from '@/utils/world-cache';
+import CharacterFactory   from './character-factory';
 import EnvironmentFactory from './environment-factory';
-import { positionAtRandomFreeTileType, coordinateToIndex } from '@/utils/terrain-util';
+import {
+    random, randomInRange
+} from '@/utils/random-util';
+import {
+    positionAtFirstFreeTileType, positionAtLastFreeTileType, coordinateToIndex,
+    assertSurroundingTilesOfTypeAroundPoint
+} from '@/utils/terrain-util';
 
 export const BUILDING_TYPE = 'Building';
+export const FLOOR_TYPES = {
+    BAR: 0,
+    HOTEL: 1
+};
 
 /**
  * the tile types for rendering a Building
@@ -21,6 +32,11 @@ export const BUILDING_TILES = {
 */
 export const MAX_WALKABLE_TILE = BUILDING_TILES.STAIRS;
 
+const MIN_FLOOR_AMOUNT  = 3;
+const MIN_CORRIDOR_SIZE = 1;
+const MIN_ROOM_SIZE     = MIN_CORRIDOR_SIZE * 4;
+const MAX_ROOM_SIZE     = MIN_ROOM_SIZE * 3;
+
 const BuildingFactory =
 {
     create( x = 0, y = 0 ) {
@@ -35,43 +51,47 @@ const BuildingFactory =
     },
 
     /**
-     * generate the terrain for the given Building and game hash
+     * generate the terrain for the given building and game hash
+     * as separate floors
      *
-     * @param {string} aHash
-     * @param {Object} aBuilding
-     * @param {Object} aPlayer
+     * @param {string} hash
+     * @param {Object} building
+     * @param {Object} player
      */
-    generateFloors( aHash, aBuilding, aPlayer ) {
-        const playerLevel = aPlayer.level || 1; // TODO : how to increment player skill
-        const floorAmount = playerLevel % 30 + 1;
+    generateFloors( hash, building, player ) {
+        const playerLevel = player?.level ?? 1; // TODO : how to increment player skill
+        const floorAmount = playerLevel % 30 + MIN_FLOOR_AMOUNT;
         const floors      = [];
+        const floorTypes  = Object.values( FLOOR_TYPES );
 
         // generate terrain for each floor
 
         const maxFloor = floorAmount - 1;
-        let i, floorWidth, floorHeight, minFloorWidth, minFloorHeight, maxFloorWidth, maxFloorHeight;
+        let i, floorWidth, floorHeight, minRoomWidth, minRoomHeight, maxRoomWidth, maxRoomHeight;
 
         for ( i = 0; i < floorAmount; ++i ) {
-            floorWidth     = Math.round( Math.random() * 50 ) + 10;
-            floorHeight    = Math.round( Math.random() * 50 ) + 10;
-            minFloorWidth  = Math.min( Math.round( Math.random() * 10 ) + 2, floorWidth );
-            minFloorHeight = Math.min( Math.round( Math.random() * 10 ) + 2, floorHeight );
-            maxFloorWidth  = Math.min( Math.round( Math.random() * playerLevel * 10 ) + 2, floorWidth  );
-            maxFloorHeight = Math.min( Math.round( Math.random() * playerLevel * 10 ) + 2, floorHeight );
+            floorWidth    = Math.round( randomInRange( 0, 50 )) + 10;
+            floorHeight   = Math.round( randomInRange( 0, 50 )) + 10;
+            // size of the rooms / corridors within the floor
+            // the only thing that makes a room a corridor is when its size if belows the MIN_ROOM_SIZE
+            minRoomWidth  = Math.round( randomInRange( MIN_CORRIDOR_SIZE, MIN_ROOM_SIZE ));
+            minRoomHeight = Math.round( randomInRange( MIN_CORRIDOR_SIZE, MIN_ROOM_SIZE ));
+            maxRoomWidth  = Math.min( randomInRange( minRoomWidth, MAX_ROOM_SIZE ),  floorWidth  );
+            maxRoomHeight = Math.min( randomInRange( minRoomHeight, MAX_ROOM_SIZE ), floorHeight );
 
             // make sure the maximum dimensions exceed the minimum dimensions !
 
-            maxFloorWidth  = Math.max( minFloorWidth,  maxFloorWidth );
-            maxFloorHeight = Math.max( minFloorHeight, maxFloorHeight );
+            maxRoomWidth  = Math.max( minRoomWidth,  maxRoomWidth );
+            maxRoomHeight = Math.max( minRoomHeight, maxRoomHeight );
 
-            // a bit bruteforce sillyness every now and then ROT fails to create a terrain, just retry
+            // a bit bruteforce sillyness as every now and then ROT fails to create a terrain, just retry
             let tries = 255;
             const generate = (lastError = null) => {
                 if ( --tries === 0 ) {
                     return lastError;
                 }
                 try {
-                    return digger( floorWidth, floorHeight, minFloorWidth, minFloorHeight, maxFloorWidth, maxFloorHeight );
+                    return digger( floorWidth, floorHeight, minRoomWidth, minRoomHeight, maxRoomWidth, maxRoomHeight );
                 } catch ( e ) {
                     return generate( e );
                 }
@@ -80,26 +100,24 @@ const BuildingFactory =
             if ( terrain instanceof Error ) {
                 console.error(
                     `BuildingFactory::ERROR "${terrain.message}" occurred when generating for size:
-                    ${floorWidth} x ${floorHeight} with min floor size:
-                    ${minFloorWidth} x ${minFloorHeight} and max floor size:
-                    ${maxFloorWidth} x ${maxFloorHeight} with ${tries} left`
+                    ${floorWidth} x ${floorHeight} with min room size:
+                    ${minRoomWidth} x ${minRoomHeight} and max room size:
+                    ${maxRoomWidth} x ${maxRoomHeight} with ${tries} left`
                 );
             }
+
+            // create the exit to the previous floor/outside world
+
+            terrain[ positionAtFirstFreeTileType( terrain, BUILDING_TILES.GROUND ) ] = BUILDING_TILES.STAIRS;
 
             // create the exit to the next floor
 
             if ( i !== maxFloor ) {
-                terrain[ positionAtRandomFreeTileType( terrain, BUILDING_TILES.GROUND ) ] = BUILDING_TILES.STAIRS;
+                terrain[ positionAtLastFreeTileType( terrain, BUILDING_TILES.GROUND ) ] = BUILDING_TILES.STAIRS;
             }
-            else {
-                // or the treasure that leads to the outside
-                // TODO ... make treasure for now we just add another STAIRS
-                terrain[ positionAtRandomFreeTileType( terrain, BUILDING_TILES.GROUND ) ] = BUILDING_TILES.STAIRS;
-                // E.O .TODO
-            }
-            floors.push( createFloor( floorWidth, floorHeight, terrain ));
+            floors.push( createFloor( floorWidth, floorHeight, terrain, floorTypes[ i % floorTypes.length ] ));
         }
-        aBuilding.floors = floors; // commit the floors to the Building
+        building.floors = floors; // commit the floors to the Building
     },
 
     /**
@@ -110,8 +128,11 @@ const BuildingFactory =
         const out  = EnvironmentFactory.assemble( data );
 
         out.floor  = data.f ?? NaN,
-        out.floors = data.fs;
-
+        out.floors = ( data.fs ?? [] ).map( floor => ({
+            ...EnvironmentFactory.assemble( floor ),
+            floorType: floor.ft,
+            exits: floor.ex,
+        }));
         return out;
     },
 
@@ -122,8 +143,11 @@ const BuildingFactory =
          const out = EnvironmentFactory.disassemble( building );
 
          out.f  = building.floor;
-         out.fs = building.floors; // TODO: optimize floors
-
+         out.fs = building.floors.map( floor => ({
+             ...EnvironmentFactory.disassemble( floor ),
+             ft: floor.floorType,
+             ex: floor.exits,
+         }));
          return out;
      }
 };
@@ -137,32 +161,57 @@ export default BuildingFactory;
  * @param {number} width
  * @param {number} height
  * @param {Array<number>} terrain
+ * @param {number} floorType
  */
-function createFloor( width, height, terrain = [] ) {
-    const characters = [];
+function createFloor( width, height, terrain = [], floorType ) {
+    const environment = { width, height, terrain }; // temporarily used for Object positioning
+    const characters  = [];
     const out = {
         ...EnvironmentFactory.create( 0, 0, width, height, characters, terrain ),
         type: BUILDING_TYPE,
+        floorType,
         exits: [],
-        treasures: []
     };
 
-    // create exit
+    // create exits
 
     for ( let x = 0, y = 0; y < height; x = ( ++x === width ? ( x % width + ( ++y & 0 ) ) : x )) {
-        // found the exit ?
-        if ( terrain[ coordinateToIndex( x, y, { width }) ] === BUILDING_TILES.STAIRS ) {
+        if ( terrain[ coordinateToIndex( x, y, environment ) ] === BUILDING_TILES.STAIRS ) {
             out.exits.push({ x, y });
         }
     }
 
-    // TODO : no treasures yet
+    // create characters
+
+    const totalCharacters  = Math.round( terrain.filter( type => type === BUILDING_TILES.GROUND ).length / 50 );
+    const characterIndices = [];
+
+    for ( let i = 0; i < totalCharacters; ++i ) {
+        let x = randomInRange( 0, width - 1 );
+        let y = randomInRange( 0, height - 1 );
+        for ( ; y < height; x = ( ++x === width ? ( x % width + ( ++y & 0 ) ) : x )) {
+            const index = coordinateToIndex( x, y, environment );
+            if ( terrain[ index ] === BUILDING_TILES.GROUND ) {
+                if ( assertSurroundingTilesOfTypeAroundPoint( x, y, environment, BUILDING_TILES.GROUND )
+                     && !characterIndices.includes( index ))
+                 {
+                    out.characters.push( CharacterFactory.create( x, y ));
+                    characterIndices.push( index );
+                    break; // on to next character
+                }
+            }
+        }
+    }
+
+    if ( process.env.NODE_ENV === 'development' ) {
+        console.warn( `Generated ${characterIndices.length} characters for a possible max of ${totalCharacters}` );
+    }
 
     // determine Players begin offset
 
     for ( let x = 0, y = 0; y < height; x = ( ++x === width ? ( x % width + ( ++y & 0 ) ) : x )) {
         // use first instance of ground as the start offset
-        if ( terrain[ coordinateToIndex( x, y, { width }) ] === BUILDING_TILES.GROUND ) {
+        if ( terrain[ coordinateToIndex( x, y, environment ) ] === BUILDING_TILES.GROUND ) {
             out.x = x;
             out.y = y;
             break;

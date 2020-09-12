@@ -1,11 +1,11 @@
-import EffectFactory       from '@/model/factories/effect-factory';
-import EnvironmentActions  from '@/model/actions/environment-actions';
-import CharacterActions    from '@/model/actions/character-actions';
-import { GAME_TIME_RATIO } from '@/utils/time-util';
+import EffectFactory      from '@/model/factories/effect-factory';
+import EnvironmentActions from '@/model/actions/environment-actions';
+import CharacterActions   from '@/model/actions/character-actions';
+import InventoryActions   from '@/model/actions/inventory-actions';
 
 // cancel the pending movements TODO: this should target the effect "owner"!
 const cancelPendingMovement = commit => {
-    commit( 'removeEffectsByAction', [ 'setXPosition', 'setYPosition' ]);
+    commit( 'removeEffectsByMutation', [ 'setXPosition', 'setYPosition' ]);
 };
 const DEFAULT_WALK_SPEED = 400; // ms for a single step
 
@@ -18,6 +18,7 @@ export default
 {
     state: {
         player: null,
+        onMoveUpdate: null,
     },
     getters: {
         player: state => state.player,
@@ -38,39 +39,55 @@ export default
                 items.push( item );
             }
         },
+        removeItemFromInventory( state, item ) {
+            const { items } = state.player.inventory;
+            const index = items.indexOf( item );
+            if ( index > -1 ) {
+                items.splice( index, 1 );
+            }
+        },
+        setOnMovementUpdate( state, fn ) {
+            state.onMoveUpdate = fn;
+        },
     },
     actions: {
         moveToDestination({ state, getters, commit, dispatch }, { waypoints = [], onProgress = null }) {
             cancelPendingMovement( commit );
+            commit( 'setOnMovementUpdate', onProgress );
 
             const { activeEnvironment, gameTime } = getters;
             let startTime  = gameTime;
-            const duration = ( DEFAULT_WALK_SPEED * CharacterActions.getSpeed( state.player )) * GAME_TIME_RATIO;
+            const duration = DEFAULT_WALK_SPEED * CharacterActions.getSpeed( state.player );
             let lastX      = activeEnvironment.x;
             let lastY      = activeEnvironment.y;
+            let effect;
 
             waypoints.forEach(({ x, y }, index ) => {
-                const callback = () => {
-                    if ( EnvironmentActions.hitTest({ dispatch, commit, getters }, activeEnvironment )) {
-                        cancelPendingMovement( commit );
-                    }
-                    typeof onProgress === 'function' && onProgress();
-                };
                 // waypoints can move between two axes at a time
                 if ( x !== lastX ) {
-                    commit( 'addEffect', EffectFactory.create(
-                        commit, 'setXPosition', startTime, duration, lastX, x, callback
-                    ));
+                    effect = EffectFactory.create(
+                        'setXPosition', startTime, duration, lastX, x, 'handleMoveUpdate'
+                    );
+                    commit( 'addEffect', effect );
                     lastX = x;
                 }
                 if ( y !== lastY ) {
-                    commit( 'addEffect', EffectFactory.create(
-                        commit, 'setYPosition', startTime, duration, lastY, y, callback
-                    ));
+                    effect = EffectFactory.create(
+                        'setYPosition', startTime, duration, lastY, y, 'handleMoveUpdate'
+                    );
+                    commit( 'addEffect', effect );
                     lastY = y;
                 }
-                startTime += duration;
+                if ( effect ) {
+                    startTime += effect.duration; // add effects scaled duration to next start time
+                }
             });
+        },
+        handleMoveUpdate({ state, dispatch, commit, getters }) {
+            if ( EnvironmentActions.hitTest({ dispatch, commit, getters }, getters.activeEnvironment )) {
+                cancelPendingMovement( commit );
+            }
+            typeof state.onMoveUpdate === 'function' && state.onMoveUpdate();
         },
         buyItem({ state, commit }, item ) {
             if ( state.player.inventory.cash < item.price ) {
@@ -80,6 +97,22 @@ export default
             commit( 'removeItemFromShop', item );
             commit( 'addItemToInventory', item );
 
+            return true;
+        },
+        sellItem({ state, commit }, { item, price }) {
+            commit( 'awardCash', price );
+            // make item more expensive to buy back ;)
+            item.price = InventoryActions.getPriceForItemSale({ ...item, price }, 1, 1.5 );
+            commit( 'addItemToShop', item );
+            commit( 'removeItemFromInventory', item );
+        },
+        giveItemToCharacter({ commit }, { item, character }) {
+            const { intent } = character.properties;
+            if ( intent.type !== item.type || intent.price > item.price ) {
+                return false;
+            }
+            commit( 'addItemToCharacterInventory', { item, character });
+            commit( 'removeItemFromInventory', item );
             return true;
         }
     },

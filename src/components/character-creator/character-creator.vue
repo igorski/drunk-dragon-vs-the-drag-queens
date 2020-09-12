@@ -116,12 +116,14 @@
 
 <script>
 import { mapState } from 'vuex';
+import PriceTypes from '@/definitions/price-types';
 import CharacterFactory, { FEMALE_APPEARANCE, SKIN_COLORS } from '@/model/factories/character-factory';
 import InventoryFactory from '@/model/factories/inventory-factory';
 import Character from '@/renderers/character-female';
 import messages from './messages.json';
 
-const DEFAULT_CASH = 50;
+// a little pocket money to begin with
+const DEFAULT_CASH = PriceTypes.EXPENSIVE;
 
 const createCharacter = (sex, name) => CharacterFactory.create( 0, 0, { sex, name }, null, InventoryFactory.create( DEFAULT_CASH ));
 

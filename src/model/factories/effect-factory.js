@@ -1,4 +1,6 @@
-export default
+import { GAME_TIME_RATIO } from '@/utils/time-util';
+
+const EffectFactory =
 {
     /**
      * An effect is a state that wears off after times passes
@@ -6,28 +8,51 @@ export default
      * on a single property. If more than one effect applies to the same
      * property this should be recalculated into a new duration and value range.
      *
-     * @param {Function} commit Vuex store commit action
-     * @param {String} action the name of the mutation to invoke on change
+     * @param {String} mutation the name of the Vuex mutation to commit to on change, nullable
      * @param {Number} startTime time offset (e.g. current game time in milliseconds)
-     * @param {Number} duration total effect duration in milliseconds
+     * @param {Number} duration total effect duration in milliseconds, this is
+     *                          automatically scaled against the game/real life time ratio
      * @param {Number} startValue the value when the effect starts
      * @param {Number} endValue the value when the effect ends
-     * @param {Function=} callback optional callback to call when effect is completed
+     * @param {String=} callback optional Vuex action to dispatch when effect is completed
      * @return {Object}
      */
-    create( commit, action, startTime, duration, startValue, endValue, callback = null ) {
-        if ( typeof commit !== 'function' ) {
-            throw new Error ( 'Cannot create an Effect without a commit fn()' );
+    create( mutation, startTime, duration, startValue, endValue, callback = null ) {
+        if ( !mutation && !callback ) {
+            throw new Error( 'cannot instantiate an Effect without either a mutation or callback' );
         }
+        const scaledDuration = duration * GAME_TIME_RATIO;
         return {
-            commit,
-            action,
+            mutation,
             startTime,
-            duration,
+            duration: scaledDuration,
             startValue,
             endValue,
             callback,
-            increment: ( endValue - startValue ) / duration
+            increment: ( endValue - startValue ) / scaledDuration
+        };
+    },
+
+    /**
+     * assemble a serialized JSON structure
+     * back into a Effect instance
+     */
+    assemble( data ) {
+        return EffectFactory.create( data.m, data.s, data.d, data.sv, data.ev, data.c );
+    },
+
+    /**
+     * serializes a Effect instance into a JSON structure
+     */
+    disassemble( effect ) {
+        return {
+            m: effect.mutation,
+            s: effect.startTime,
+            d: effect.duration / GAME_TIME_RATIO,
+            sv: effect.startValue,
+            ev: effect.endValue,
+            c: effect.callback
         };
     }
 };
+export default EffectFactory;

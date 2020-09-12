@@ -38,4 +38,11 @@ describe('Inventory actions', () => {
             expect( inventoryToMergeWith.items ).toEqual( [] );
         });
     });
+
+    it('should be able to calculate a sale price for an item', () => {
+        const item      = { price: 10 };
+        const salePrice = InventoryActions.getPriceForItemSale( item, 2, 3 );
+        expect( salePrice ).not.toEqual( item.price );
+        expect( salePrice >= item.price * 2 ).toBe( true );
+    });
 });

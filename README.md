@@ -1,16 +1,26 @@
 # rpg
 
+NAME IDEAS:
+
+Nocturbulent
+Nocturin
+Nocturmoil
+Nocturnopoly
+Ypnopoly / ypnopolio
+nykterinos
+
+A browser based adventure game in which the player should at all costs prevent
+seeing daylight. Instead the player is destined to forever live a hedonistic
+lifestyle during endless summer nights, looking for ways to keep a low profile
+during the day.
+
 ## Game concepts
 
 The game is time bound and takes place in the 1980's. Each new game starts at
-the same date (see _time-util.js_). While the clock increments at a higher speed than
-in actual life, to make things easier think of time related operations (such as _Effects_)
-in _game time_, e.g. _how the character would experience it_ (e.g. _"this should last for two hours"_).
-The unit used is the _millisecond_.
+the same date (see _time-util.js_).
 
-The game is also unique in that upon creation, the world is generated uniquely
-to the game's hash. As such, no two games are the same. The generation is however
-_deterministic_, as such loading a saved game restores the world as you left it.
+Each game is also unique in that upon creation, the world is generated uniquely
+to the game's randomly generated creation hash. As such, no two games are the same.
 
 ## Game model
 
@@ -26,6 +36,14 @@ create your own Object structure but use a factory instead.
 Operations on structures are done using the action modules (see _./src/model/actions/_).
 A lot of structures specify their own getters as well as mutations (remember when changing values
 of a Vuex state object that these should be called from a Vuex store mutation-method).
+
+While the game clock increments at a higher speed than in actual life, think of all time related
+operations (e.g. _Effects_) as if they were actual time (e.g. _"the effect of this item should last for two hours in the perception of the player character"_). The unit used is the _millisecond_ and is automatically
+scaled to the game/real life ratio when creating a new Effect using the EffectFactory.
+
+All of the games behaviour and time bound effects update in the same place: the _updateGame()_-handler
+in the _game-module_. This is bound to the render cycle of the game world (and deferred to animationFrame
+so the game is effectively paused when the browser/tab isn't focused).
 
 ## Application source outline
 
@@ -64,18 +82,24 @@ Running unit tests:
 ```
 npm run test
 ```
+
 ## TODO
 
+* Don't enter exit unless path ends at its exact coordinate
+* Can we give announcement of closing time when entering building?
+* Create floors that are bars chockfull of people!
+* Create hotels inside buildings
+* Weird bug where leaving a building sets you in the middle of nowhere?? (spotted by taking first exit/entrance)
+* Identify shop types by their exterior
+* Item type elevator key to allow instant access to any floor
+* Intro text when starting a new game
+* Don't generate scenery (trees) in front of doors!
+* Bug: When navigating by the world edge, tiles on the opposite end are also marked as visited
+* Create fast travel by introducing subway (can only travel to visited areas!)
 * Allow to buy on credit, starts action by which you need to have repaid the person!
-* Environments should not have an x, y for the player, but its Character should!
-* Show navigation icon
+* Show navigation icon in interface (when showing target, but also as mouse cursor?)
 * When player clicks on non-navigate-able tile, navigate as close to the tile as possible (take dominant distance on x-y coordinate and keep reducing until path is found)
-* Building floors should have two stairs, to go up but also down! (last floor has no up, player should go back down!!)
 * Buildings should occupy their full size on sidewalk/sand-only tiles?
-* Sometimes building start offset is not inside walkable ground ?
-* Buildings should close in the morning! (unless you have a place to sleep inside)
-* Kick people out of shop after 30 game minutes have passed
-* Serialize Effects into saved game (subtract elapsed and set current value as start)
 * Don't spawn/generate actionable object in empty tile surrounded by a closed path
 * Make menu collapsable
 * World must become lighter when morning comes
@@ -83,7 +107,3 @@ npm run test
 * When a new waypoint is set and its first tile(s) is equal to the existing waypoint, keep momentum going?
 * Time should be able to speed up (when sleeping for instance)
 * When drunk shuffle letters in sentences randomly =D
-* Add a timer to GameModel that runs periodic updates:
-
- every now and then re-generate all characters (if none is currently in the range of the player 20 tiles)
- if characters share their new position with another character, halt movement
