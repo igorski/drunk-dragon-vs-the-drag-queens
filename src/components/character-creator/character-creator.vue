@@ -201,7 +201,7 @@ export default {
             this.appearance.clothes = randomized.clothes;
         },
         goToForm( index ) {
-            this.form = this.isValid ? 0 : Math.max( 0, index );
+            this.form = !this.isValid ? 0 : Math.max( 0, index );
         },
         saveCharacter() {
             this.$emit( 'input', this.character );
