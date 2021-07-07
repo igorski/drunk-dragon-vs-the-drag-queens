@@ -94,8 +94,8 @@ export default {
             return this.character.properties.intent;
         },
         characterComponent() {
-            // TODO: currently female only
-            return () => import('@/renderers/character-female');
+            // TODO: currently we only interact with queens?
+            return () => import('@/renderers/character-queen');
         },
         characterWidth() {
             const ideal = 300; /* see _variables@mobile-width */

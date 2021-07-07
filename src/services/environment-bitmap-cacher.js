@@ -3,7 +3,7 @@ import { loader }             from 'zcanvas';
 import { createPixelCanvas }  from '@/utils/canvas-util';
 import SpriteCache            from '@/utils/sprite-cache';
 import WorldCache             from '@/utils/world-cache';
-import { generateBitmap }     from '@/renderers/character-female-bitmap';
+import { generateBitmap }     from '@/renderers/character-queen-bitmap';
 
 import { BUILDING_TYPE, BUILDING_TILES } from '@/model/factories/building-factory';
 import { WORLD_TYPE, WORLD_TILES }       from '@/model/factories/world-factory';

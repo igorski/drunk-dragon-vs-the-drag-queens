@@ -1,8 +1,8 @@
 /**
  * All assets, coordinates and dimensions
- * to assemble a female Character from a Character Object
+ * to assemble a queen Character from a Character Object
  */
- export const ASSET_PATH = `./assets/characters/female/`;
+ export const ASSET_PATH = `./assets/characters/queen/`;
 
  export const fileSuffix = idx => {
      const filenum = idx + 1;

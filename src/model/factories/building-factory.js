@@ -195,7 +195,7 @@ function createFloor( width, height, terrain = [], floorType ) {
                 if ( assertSurroundingTilesOfTypeAroundPoint( x, y, environment, BUILDING_TILES.GROUND )
                      && !characterIndices.includes( index ))
                  {
-                    out.characters.push( CharacterFactory.create( x, y ));
+                    out.characters.push( CharacterFactory.create({ x, y }));
                     characterIndices.push( index );
                     break; // on to next character
                 }

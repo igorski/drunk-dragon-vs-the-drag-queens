@@ -109,7 +109,7 @@ const WorldFactory =
 
         for ( let i = 0; i < amountOfCharacters; ++i ) {
             const { x, y } = world.buildings[ i ];
-            world.characters.push( CharacterFactory.create( x, y + 1 ));
+            world.characters.push( CharacterFactory.create({ x, y: y + 1 }));
         }
 
         // center player within world

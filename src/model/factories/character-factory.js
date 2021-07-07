@@ -4,22 +4,22 @@ import InventoryFactory from '@/model/factories/inventory-factory';
 import { validateProperties } from '../validator';
 import { randomInRange, randomFromList } from '@/utils/random-util';
 
-const FEMALE_HAIR_TOTAL    = 8;
-const FEMALE_JEWELRY_TOTAL = 5;
-const FEMALE_EYE_TOTAL     = 3;
-const FEMALE_NOSE_TOTAL    = 3;
-const FEMALE_MOUTH_TOTAL   = 4;
-const FEMALE_CLOTHES_TOTAL = 5;
+const QUEEN_HAIR_TOTAL    = 8;
+const QUEEN_JEWELRY_TOTAL = 5;
+const QUEEN_EYE_TOTAL     = 3;
+const QUEEN_NOSE_TOTAL    = 3;
+const QUEEN_MOUTH_TOTAL   = 4;
+const QUEEN_CLOTHES_TOTAL = 5;
 
-export const SKIN_COLORS = [ /*'#FFDBAC',*/ '#F1C27D', '#E0AC69', '#C68642', '#8D5524' ];
-export const FEMALE_APPEARANCE = {
-    skin: SKIN_COLORS.length,
-    hair: FEMALE_HAIR_TOTAL,
-    jewelry: FEMALE_JEWELRY_TOTAL,
-    eyes: FEMALE_EYE_TOTAL,
-    mouth: FEMALE_MOUTH_TOTAL,
-    nose: FEMALE_NOSE_TOTAL,
-    clothes: FEMALE_CLOTHES_TOTAL,
+export const QUEEN_SKIN_COLORS = [ /*'#FFDBAC',*/ '#F1C27D', '#E0AC69', '#C68642', '#8D5524' ];
+export const QUEEN_APPEARANCE = {
+    skin: QUEEN_SKIN_COLORS.length,
+    hair: QUEEN_HAIR_TOTAL,
+    jewelry: QUEEN_JEWELRY_TOTAL,
+    eyes: QUEEN_EYE_TOTAL,
+    mouth: QUEEN_MOUTH_TOTAL,
+    nose: QUEEN_NOSE_TOTAL,
+    clothes: QUEEN_CLOTHES_TOTAL,
 };
 
 const CharacterFactory =
@@ -30,21 +30,27 @@ const CharacterFactory =
       * their visual appearance, a series of properties that affects their
       * performance (e.g. speed, accuracy) and an inventory.
       */
-     create( x = 0, y = 0, appearance = {}, properties = {},  inventory = InventoryFactory.create() ) {
+     create({ x = 0, y = 0, xp = 0, level = 1 } = {},
+         appearance = {}, properties = {},  inventory = InventoryFactory.create() ) {
          const character = {
              x,
              y,
+             level,
+             xp,
              // all characters are always 1 tile in width and height
-             width: 1, height: 1,
+             width: 1,
+             height: 1,
              appearance: {
                  name: 'Derp',
                  ...CharacterFactory.generateAppearance(),
                  ...appearance
              },
-             // all in percentile range (e.g. 0-1)
              properties: {
-                 speed: 1,
+                 attack: 1,
+                 defense: 1,
                  intent: null,
+                 // the following are in percentile range (e.g. 0-1)
+                 speed: 1,
                  intoxication: 0,
                  boost: 0,
                  ...properties
@@ -57,15 +63,14 @@ const CharacterFactory =
     },
 
     generateAppearance() {
-        // TODO: currently F only
         return {
-            skin: randomFromList( SKIN_COLORS ),
-            hair: randomInRange( 0, FEMALE_HAIR_TOTAL - 1 ),
-            jewelry: randomInRange( 0, FEMALE_JEWELRY_TOTAL - 1 ),
-            eyes: randomInRange( 0, FEMALE_EYE_TOTAL - 1 ),
-            mouth: randomInRange( 0, FEMALE_MOUTH_TOTAL - 1 ),
-            nose: randomInRange( 0, FEMALE_NOSE_TOTAL - 1 ),
-            clothes: randomInRange( 0, FEMALE_CLOTHES_TOTAL - 1 ),
+            skin: randomFromList( QUEEN_SKIN_COLORS ),
+            hair: randomInRange( 0, QUEEN_HAIR_TOTAL - 1 ),
+            jewelry: randomInRange( 0, QUEEN_JEWELRY_TOTAL - 1 ),
+            eyes: randomInRange( 0, QUEEN_EYE_TOTAL - 1 ),
+            mouth: randomInRange( 0, QUEEN_MOUTH_TOTAL - 1 ),
+            nose: randomInRange( 0, QUEEN_NOSE_TOTAL - 1 ),
+            clothes: randomInRange( 0, QUEEN_CLOTHES_TOTAL - 1 ),
         };
     },
 
@@ -74,7 +79,12 @@ const CharacterFactory =
      * back into a Character instance
      */
     assemble( data ) {
-        return CharacterFactory.create( data.x, data.y,
+        return CharacterFactory.create({
+            x: data.x,
+            y: data.y,
+            level: data.l,
+            xp: data.xp,
+        },
         {
             name: data.n,
             skin: data.sk,
@@ -85,6 +95,8 @@ const CharacterFactory =
             nose: data.no,
             clothes: data.c
         }, {
+            attack: data.a,
+            defense: data.d,
             speed: data.sp,
             intent: data.i ? IntentFactory.assemble( data.i ) : null,
             intoxication: data.in,
@@ -96,9 +108,10 @@ const CharacterFactory =
      * serializes a Character instance into a JSON structure
      */
     disassemble( character ) {
-        const { x, y, appearance, properties, inventory } = character;
+        const { x, y, level, xp, appearance, properties, inventory } = character;
         return {
-            x, y,
+            x, y, xp,
+            l: level,
             n: appearance.name,
             sk: appearance.skin,
             h: appearance.hair,
@@ -107,6 +120,8 @@ const CharacterFactory =
             m: appearance.mouth,
             no: appearance.nose,
             c: appearance.clothes,
+            a: properties.attack,
+            d: properties.defense,
             sp: properties.speed,
             i: properties.intent ? IntentFactory.disassemble( properties.intent ) : null,
             in: properties.intoxication,

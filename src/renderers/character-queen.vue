@@ -1,8 +1,8 @@
 <template>
-    <div class="female" :style="scaledCharacterSize">
-        <div class="female__body" :style="scaledBodySize">
+    <div class="queen" :style="scaledCharacterSize">
+        <div class="queen__body" :style="scaledBodySize">
             <svg width="100%" height="100%" viewBox="-41 15 486.11499999999995 579.53">
-                <path class="female__body__skin" :fill="skin" d="M41.162,592.5h403.133c-17-91-44-119-44-119c-18-21-45-24-45-24c-6-0.074-31.5-14-31.5-14
+                <path class="queen__body__skin" :fill="skin" d="M41.162,592.5h403.133c-17-91-44-119-44-119c-18-21-45-24-45-24c-6-0.074-31.5-14-31.5-14
                 	c-14.5-12-40.5-28-40.5-28c-15.575-8.342-38.909-20.928-48.092-25.884c-7.167-17.464-5.703-43.871-5.703-43.871
                 	c0.666-11.423,10.001-39.495,10.001-39.495S248.5,278.402,252,277.451l3.771,2.008c6.938,6.958,12.396-10.932,12.396-10.932
                 	l2.756-7.327c1.841-2.904,3.911-5.366,3.911-5.366l0.917-0.833c0.917-0.833,2.75-2.5,6.416-5.833
@@ -21,7 +21,7 @@
              :key="index"
              :src="part.src"
              :style="part.style"
-             class="female__body-part"
+             class="queen__body-part"
         />
     </div>
 </template>
@@ -29,7 +29,7 @@
 <script>
 import {
     ASSET_PATH, CHARACTER_SIZE, BODY_SIZE, BODY_PARTS, fileSuffix
-} from '@/definitions/character-female';
+} from '@/definitions/character-queen';
 
 export default {
     props: {
@@ -111,7 +111,7 @@ export default {
 <style lang="scss" scoped>
     @import "@/styles/_mixins.scss";
 
-    .female {
+    .queen {
         position: relative;
         @include noSelect();
         @include noEvents();

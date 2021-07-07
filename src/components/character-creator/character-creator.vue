@@ -92,15 +92,15 @@
 <script>
 import { mapState } from 'vuex';
 import PriceTypes from '@/definitions/price-types';
-import CharacterFactory, { FEMALE_APPEARANCE, SKIN_COLORS } from '@/model/factories/character-factory';
+import CharacterFactory, { QUEEN_APPEARANCE, QUEEN_SKIN_COLORS } from '@/model/factories/character-factory';
 import InventoryFactory from '@/model/factories/inventory-factory';
-import Character from '@/renderers/character-female';
+import Character from '@/renderers/character-queen';
 import messages from './messages.json';
 
 // a little pocket money to begin with
 const DEFAULT_CASH = PriceTypes.EXPENSIVE;
 
-const createCharacter = name => CharacterFactory.create( 0, 0, { name }, null, InventoryFactory.create( DEFAULT_CASH ));
+const createCharacter = name => CharacterFactory.create( {}, { name }, null, InventoryFactory.create( DEFAULT_CASH ));
 
 export default {
     i18n: { messages },
@@ -120,14 +120,14 @@ export default {
         },
         skin: {
             get() {
-                return SKIN_COLORS.indexOf( this.appearance.skin );
+                return QUEEN_SKIN_COLORS.indexOf( this.appearance.skin );
             },
             set( index ) {
-                this.appearance.skin = SKIN_COLORS[ index ];
+                this.appearance.skin = QUEEN_SKIN_COLORS[ index ];
             },
         },
         maxValues() {
-            return FEMALE_APPEARANCE;
+            return QUEEN_APPEARANCE;
         },
         characterWidth() {
             const ideal = 685; /* see _variables@mobile-width */

@@ -2,13 +2,13 @@ import { loader } from 'zcanvas';
 import { createPixelCanvas, changeImageColor } from '@/utils/canvas-util';
 import {
     ASSET_PATH, CHARACTER_SIZE, BODY_SIZE, BODY_PARTS, fileSuffix
-} from '@/definitions/character-female';
+} from '@/definitions/character-queen';
 
 export const TARGET_SIZE = 200;
 
-export const generateBitmap = async femaleCharacterToRender => {
+export const generateBitmap = async queenToRender => {
     const scale = TARGET_SIZE / CHARACTER_SIZE.width;
-    const { appearance } = femaleCharacterToRender;
+    const { appearance } = queenToRender;
 
     const bodySvg = { src: `${ASSET_PATH}body.svg` };
     const shadows = { src: `${ASSET_PATH}shadows.png` };

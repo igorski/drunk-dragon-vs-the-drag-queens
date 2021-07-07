@@ -54,8 +54,7 @@ export default {
             'player',
         ]),
         characterComponent() {
-            // TODO: currently female only
-            return () => import('@/renderers/character-female');
+            return () => import('@/renderers/character-queen');
         },
         characterWidth() {
             const ideal = 300; /* see _variables@mobile-width */

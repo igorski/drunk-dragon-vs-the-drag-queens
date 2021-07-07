@@ -8,7 +8,7 @@ describe('Character factory', () => {
             const properties = {
                 speed: 2, // out of range value, so should be invalid
             };
-            expect(() => CharacterFactory.create( 0, 0, {}, properties )).toThrow();
+            expect(() => CharacterFactory.create({ x: 0, y: 0 }, {}, properties )).toThrow();
         });
 
         it('should leave all construction arguments unchanged', () => {
@@ -23,13 +23,25 @@ describe('Character factory', () => {
                 nose: 0,
             };
             const properties = {
+                attack: 5,
+                defense: 10,
                 speed: 0.5,
                 intoxication: 0.4,
                 boost: 0.3,
                 intent: IntentFactory.create()
             };
+            const x = 11;
+            const y = 12;
+            const level = 3;
+            const xp = 500;
             const inventory = InventoryFactory.create();
-            const char = CharacterFactory.create( 0, 0, appearance, properties, inventory );
+
+            const char = CharacterFactory.create({ x, y, level, xp }, appearance, properties, inventory );
+
+            expect( char.x ).toEqual( x );
+            expect( char.y ).toEqual( y );
+            expect( char.level ).toEqual( level );
+            expect( char.xp ).toEqual( xp );
             expect( char.appearance ).toEqual( appearance );
             expect( char.properties ).toEqual( properties );
             expect( char.inventory ).toEqual( inventory );
@@ -37,7 +49,7 @@ describe('Character factory', () => {
     });
 
     it('should be able to assemble and disassemble a serialized character without loss of data', () => {
-        const character = CharacterFactory.create( 15, 20, { name: 'Billy' });
+        const character = CharacterFactory.create({ x: 15, y: 20, level: 10, xp: 1200 }, { name: "Billy" });
         const { appearance, properties, inventory } = character;
         properties.speed = .7;
         properties.intent = IntentFactory.create();
