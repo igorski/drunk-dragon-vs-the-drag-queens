@@ -26,7 +26,7 @@ to the game's randomly generated creation hash. As such, no two games are the sa
 
 The game is written using Vue with Vuex.
 
-All game's actors and properties are Object structures inside Vuex store states making
+All the game's actors and properties are Object structures inside Vuex store states making
 these reactive.
 
 In order to create a new structure, a factory pattern is provided and every
@@ -49,7 +49,6 @@ so the game is effectively paused when the browser/tab isn't focused).
 
  * _./assets/_ resources referenced by the application e.g. images, fonts and spritesheets
  * _./components/_ Vue components
- * _./config/_ generic configuration
  * _./definitions/_ enumerations for game specific actions
  * _./model/_ game actor factories and actions (e.g. game logic)
  * _./renderers/_ visualisers of game actors (either as zCanvas "sprites" or Vue components)
@@ -85,6 +84,10 @@ npm run test
 
 ## TODO
 
+* Create leveling mechanism
+* Create fight mechanism
+* Drag swag == mana
+* Overworld triggers fights (dragons)
 * Don't enter exit unless path ends at its exact coordinate
 * Can we give announcement of closing time when entering building?
 * Create floors that are bars chockfull of people!

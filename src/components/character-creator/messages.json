@@ -1,9 +1,6 @@
 {
     "en-US": {
         "createCharacter": "Create character",
-        "sex": "Sex",
-        "male": "Male",
-        "female": "Female",
         "name": "Name",
         "skin": "Skin color",
         "eyes": "Eyes",

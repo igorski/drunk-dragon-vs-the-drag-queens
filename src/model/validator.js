@@ -9,14 +9,6 @@ function fail( msg ) {
     return false;
 };
 
-export const validateAppearance = appearance => {
-    // these should be valid enumerations
-    if (!['M', 'F'].includes( appearance.sex )) {
-        return fail( 'Invalid sex specified' );
-    }
-    return true;
-};
-
 export const validateProperties = properties => {
     // these are expected to be within 0 - 1 range
     [ 'speed', 'intoxication', 'boost' ].forEach(prop => {

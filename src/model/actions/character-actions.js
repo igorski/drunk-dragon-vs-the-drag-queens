@@ -28,7 +28,7 @@ export default
      */
     getCharisma( character, relativeCharacter = CharacterFactory.create() ) {
         const { intoxication, boost } = character.properties;
-        let value = character.appearance.sex === 'F' ? .25 : .1; // women are more charismatic
+        let value = .25;
 
         // highly drunk people are highly attractive to equally drunk people and
         // not at all to those who aren't.

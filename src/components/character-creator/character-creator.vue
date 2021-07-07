@@ -27,33 +27,8 @@
                         :disabled="!isValid"
                     ></button>
                 </form>
-                <!-- form 2 : character sex -->
+                <!-- form 2 character design -->
                 <form v-if="form === 1"
-                      key="form-2"
-                      class="character-creator__form"
-                      @submit.prevent="goToForm(2)"
-                >
-                    <fieldset class="rpg-fieldset">
-                        <div class="input">
-                            <label v-t="'sex'" for="sex"></label>
-                            <RadioToggleButtons
-                                v-model="sex"
-                                :values="availableSexes"
-                                color="purple"
-                                textColor="#000"
-                                selectedTextColor="#FFF"
-                            />
-                        </div>
-                    </fieldset>
-                    <button
-                        v-t="'thatsMe'"
-                        type="submit"
-                        title="$t('save')"
-                        class="rpg-button rpg-button--submit"
-                        :disabled="!isValid"
-                    ></button>
-                </form>
-                <form v-if="form === 2"
                       key="form-2"
                       class="character-creator__form"
                       @submit.prevent="saveCharacter"
@@ -125,7 +100,7 @@ import messages from './messages.json';
 // a little pocket money to begin with
 const DEFAULT_CASH = PriceTypes.EXPENSIVE;
 
-const createCharacter = (sex, name) => CharacterFactory.create( 0, 0, { sex, name }, null, InventoryFactory.create( DEFAULT_CASH ));
+const createCharacter = name => CharacterFactory.create( 0, 0, { name }, null, InventoryFactory.create( DEFAULT_CASH ));
 
 export default {
     i18n: { messages },
@@ -134,7 +109,7 @@ export default {
     },
     data: () => ({
         form: 0,
-        character: createCharacter('F', ''),
+        character: createCharacter( "" ),
     }),
     computed: {
         ...mapState([
@@ -142,20 +117,6 @@ export default {
         ]),
         appearance() {
             return this.character.appearance;
-        },
-        availableSexes() {
-            return [
-				{ label: this.$t('male'), value: 'M', disabled: true }, // currently F only
-				{ label: this.$t('female'), value: 'F' }
-			];
-        },
-        sex: {
-            get() {
-                return this.appearance.sex;
-            },
-            set( sex ) {
-                this.character = createCharacter( sex, this.appearance.name );
-            }
         },
         skin: {
             get() {
@@ -166,7 +127,6 @@ export default {
             },
         },
         maxValues() {
-            // TODO: this is F sex only
             return FEMALE_APPEARANCE;
         },
         characterWidth() {
@@ -190,7 +150,7 @@ export default {
     },
     methods: {
         randomize() {
-            const randomized = CharacterFactory.generateAppearance( this.appearance.sex );
+            const randomized = CharacterFactory.generateAppearance();
 
             this.appearance.skin    = randomized.skin;
             this.appearance.eyes    = randomized.eyes;

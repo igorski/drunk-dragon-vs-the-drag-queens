@@ -4,13 +4,6 @@ import InventoryFactory from '@/model/factories/inventory-factory';
 
 describe('Character factory', () => {
     describe('when creating a character structure', () => {
-        it('should throw when an invalid appearance is passed', () => {
-            const appearance = {
-                sex: 'yes', // invalid sex, so should be invalid
-            };
-            expect(() => CharacterFactory.create( 0, 0, appearance )).toThrow();
-        });
-
         it('should throw when an invalid property configuration is passed', () => {
             const properties = {
                 speed: 2, // out of range value, so should be invalid
@@ -20,7 +13,6 @@ describe('Character factory', () => {
 
         it('should leave all construction arguments unchanged', () => {
             const appearance = {
-                sex: 'M',
                 name: 'Duul',
                 skin: '#00FF00',
                 eyes: 3,
@@ -47,7 +39,6 @@ describe('Character factory', () => {
     it('should be able to assemble and disassemble a serialized character without loss of data', () => {
         const character = CharacterFactory.create( 15, 20, { name: 'Billy' });
         const { appearance, properties, inventory } = character;
-        appearance.sex = 'M';
         properties.speed = .7;
         properties.intent = IntentFactory.create();
         properties.intoxication = .3;

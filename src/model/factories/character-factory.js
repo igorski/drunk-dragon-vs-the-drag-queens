@@ -1,7 +1,7 @@
 import Random           from 'random-seed';
 import IntentFactory    from '@/model/factories/intent-factory';
 import InventoryFactory from '@/model/factories/inventory-factory';
-import { validateAppearance, validateProperties } from '../validator';
+import { validateProperties } from '../validator';
 import { randomInRange, randomFromList } from '@/utils/random-util';
 
 const FEMALE_HAIR_TOTAL    = 8;
@@ -37,9 +37,8 @@ const CharacterFactory =
              // all characters are always 1 tile in width and height
              width: 1, height: 1,
              appearance: {
-                 sex: 'F', // it's the 80's, gender identity wasn't in vogue and sex is binary ;)
                  name: 'Derp',
-                 ...CharacterFactory.generateAppearance( 'F' ),
+                 ...CharacterFactory.generateAppearance(),
                  ...appearance
              },
              // all in percentile range (e.g. 0-1)
@@ -52,13 +51,12 @@ const CharacterFactory =
              },
              inventory
          };
-         validateAppearance( character.appearance );
          validateProperties( character.properties );
 
          return character;
     },
 
-    generateAppearance( sex = 'F' ) {
+    generateAppearance() {
         // TODO: currently F only
         return {
             skin: randomFromList( SKIN_COLORS ),
@@ -78,7 +76,6 @@ const CharacterFactory =
     assemble( data ) {
         return CharacterFactory.create( data.x, data.y,
         {
-            sex: data.s,
             name: data.n,
             skin: data.sk,
             hair: data.h,
@@ -102,7 +99,6 @@ const CharacterFactory =
         const { x, y, appearance, properties, inventory } = character;
         return {
             x, y,
-            s: appearance.sex,
             n: appearance.name,
             sk: appearance.skin,
             h: appearance.hair,

@@ -96,7 +96,6 @@ export default {
         characterComponent() {
             // TODO: currently female only
             return () => import('@/renderers/character-female');
-            //return this.character.sex === 'F' ?
         },
         characterWidth() {
             const ideal = 300; /* see _variables@mobile-width */

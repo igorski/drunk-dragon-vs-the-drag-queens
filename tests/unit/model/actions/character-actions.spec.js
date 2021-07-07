@@ -35,12 +35,6 @@ describe('Character actions', () => {
         });
 
         describe('charisma', () => {
-            it('should by default hold women in higher esteem than men', () => {
-                const male = CharacterFactory.create( x, y, { sex: 'M' });
-                const female = CharacterFactory.create( x, y, { sex: 'F' });
-                expect( CharacterActions.getCharisma( female ) > CharacterActions.getCharisma( male ));
-            });
-
             describe('the effects of alcohol', () => {
                 it('should consider a lightly intoxicated person as more attractive', () => {
                     const character = CharacterFactory.create( x, y, {}, { intoxication: 0 });

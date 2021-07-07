@@ -1,14 +1,6 @@
-import { validateAppearance, validateProperties, validateInventory } from '@/model/validator';
+import { validateProperties, validateInventory } from '@/model/validator';
 
 describe('Validator', () => {
-    describe('Character appearance', () => {
-        it('should validate sex', () => {
-            expect(() => validateAppearance({ sex: 'M' })).not.toThrow();
-            expect(() => validateAppearance({ sex: 'F' })).not.toThrow();
-            expect(() => validateAppearance({ sex: 'x' })).toThrow();
-        });
-    });
-
     describe('Character properties', () => {
         it('should validate all percentile ranges', () => {
             const intoxication = 1;
