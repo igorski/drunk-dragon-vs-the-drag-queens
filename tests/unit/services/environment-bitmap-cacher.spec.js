@@ -13,12 +13,18 @@ import {
     EMPTY_BOTTOM_LEFT,
     EMPTY_TOP_RIGHT,
     EMPTY_TOP_LEFT
-} from '@/services/environment-bitmap-cacher';
-import BuildingFactory, { BUILDING_TYPE, BUILDING_TILES } from '@/model/factories/building-factory';
-import { coordinateToIndex } from '@/utils/terrain-util';
+} from "@/services/environment-bitmap-cacher";
+import BuildingFactory, { BUILDING_TYPE, BUILDING_TILES } from "@/model/factories/building-factory";
+import { coordinateToIndex } from "@/utils/terrain-util";
 
-describe('Environment bitmap cacher', () => {
-    it('should calculate the correct tile sheet indices for the floor terrain walls', () => {
+jest.mock( "zcanvas", () => ({
+    loader: {
+        onReady: new Promise(resolve => resolve())
+    },
+}));
+
+describe("Environment bitmap cacher", () => {
+    it("should calculate the correct tile sheet indices for the floor terrain walls", () => {
         const environment = BuildingFactory.create();
 
         // cache the building tile types (makes it easier to "view" the map

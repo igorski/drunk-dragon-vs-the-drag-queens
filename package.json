@@ -42,8 +42,5 @@
     "vue-template-compiler": "^2.6.11",
     "zcanvas": "^4.0.3",
     "zthreader": "^1.0.2"
-  },
-  "optionalDependencies": {
-    "canvas": "^2.6.1"
   }
 }

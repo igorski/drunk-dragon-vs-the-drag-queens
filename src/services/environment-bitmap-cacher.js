@@ -1,12 +1,12 @@
-import { zThread, zThreader } from 'zthreader';
-import { loader }             from 'zcanvas';
-import { createPixelCanvas }  from '@/utils/canvas-util';
-import SpriteCache            from '@/utils/sprite-cache';
-import WorldCache             from '@/utils/world-cache';
-import { generateBitmap }     from '@/renderers/character-queen-bitmap';
+import { zThread, zThreader } from "zthreader";
+import { loader }             from "zcanvas";
+import { createPixelCanvas }  from "@/utils/canvas-util";
+import SpriteCache            from "@/utils/sprite-cache";
+import WorldCache             from "@/utils/world-cache";
+import { generateBitmap }     from "@/renderers/character-queen-bitmap";
 
-import { BUILDING_TYPE, BUILDING_TILES } from '@/model/factories/building-factory';
-import { WORLD_TYPE, WORLD_TILES }       from '@/model/factories/world-factory';
+import { BUILDING_TYPE, BUILDING_TILES } from "@/model/factories/building-factory";
+import { WORLD_TYPE, WORLD_TILES }       from "@/model/factories/world-factory";
 
 const NONE = undefined;
 
@@ -53,7 +53,7 @@ export const renderEnvironment = ( environment, player ) =>
                     target = SpriteCache.ENV_BUILDING;
                     break;
             }
-            target.src    = cvs.toDataURL( 'image/png' );
+            target.src    = cvs.toDataURL( "image/png" );
             target.width  = cvs.width;
             target.height = cvs.height;
 
@@ -95,13 +95,13 @@ export const renderEnvironment = ( environment, player ) =>
         let iterations       = rt - 1;
 
         thread._executeInternal = () => {
-            // the amount of times we call the 'render'-function
+            // the amount of times we call the "render"-function
             // per iteration of the internal execution method
             const stepsPerIteration = 1;
 
             for ( let i = 0; i < stepsPerIteration; ++i ) {
                 if ( iterations >= MAX_ITERATIONS ) {
-                    // process the finalRenders and we're done
+                    // process the finalRenders and we"re done
                     while ( finalRenders.length ) {
                         finalRenders.shift()();
                     }
@@ -129,7 +129,7 @@ export const renderEnvironment = ( environment, player ) =>
  * @param {number} ty y index of the tile in the terrain map
  * @param {number} x targetX to draw the tile at on the ctx
  * @param {number} y targetY to draw the tile at on the ctx
- * @param {Object} environment the environment we're rendering
+ * @param {Object} environment the environment we"re rendering
  * @param {Array<Function>} finalRenders list of items to render last (above everything else)
  */
 function drawTileForSurroundings( ctx, tx, ty, x, y, environment, finalRenders ) {
@@ -276,7 +276,7 @@ export function getTileDescription( tx, ty, environment, blockRecursion ) {
         tileBelow, tileBelowLeft, tileBelowRight,
     } = getSurroundingTiles( tile, tx, ty, environment );
 
-    // TODO: make a generic tile index for 'nothing' (e.g. -1)
+    // TODO: make a generic tile index for "nothing" (e.g. -1)
     const empty = (ct) => environment.type === BUILDING_TYPE && ct === BUILDING_TILES.NOTHING;
     const emptyOrUnequal = (t1, ttc) => empty( ttc ) || t1 !== ttc;
     const emptyOrNonExisting = ct => ct === NONE || empty(ct); // non existing implies current tile is at world edge
