@@ -35,9 +35,9 @@ export default
 
         if ( intoxication === 1 ) return ( relativeCharacter.properties.intoxication === intoxication ) ? 1 : 0;
 
-        // some traits are just unnattractive, period.
+        // some traits are just unattractive, period.
 
-        if ( boost === 1 ) return 0;
+        if ( boost === 1 ) return 0; // extremely coked out of their mind.
 
         // slight intoxication is sexy, high not so much
 

@@ -27,9 +27,7 @@
 </template>
 
 <script>
-import {
-    ASSET_PATH, CHARACTER_SIZE, BODY_SIZE, BODY_PARTS, fileSuffix
-} from '@/definitions/character-queen';
+import { QUEEN_ASSET_PATH, QUEEN_DIMENSIONS, fileSuffix } from "@/definitions/character-types";
 
 export default {
     props: {
@@ -53,35 +51,35 @@ export default {
             return this.appearance.skin;
         },
         shadows() {
-            return `${ASSET_PATH}shadows.png`;
+            return `${QUEEN_ASSET_PATH}shadows.png`;
         },
         nose() {
-            return `${ASSET_PATH}nose_${fileSuffix(this.appearance.nose)}.png`;
+            return `${QUEEN_ASSET_PATH}nose_${fileSuffix(this.appearance.nose)}.png`;
         },
         hair() {
-            return `${ASSET_PATH}hair_${fileSuffix(this.appearance.hair)}.png`;
+            return `${QUEEN_ASSET_PATH}hair_${fileSuffix(this.appearance.hair)}.png`;
         },
         eyes() {
-            return `${ASSET_PATH}eyes_${fileSuffix(this.appearance.eyes)}.png`;
+            return `${QUEEN_ASSET_PATH}eyes_${fileSuffix(this.appearance.eyes)}.png`;
         },
         mouth() {
-            return `${ASSET_PATH}mouth_${fileSuffix(this.appearance.mouth)}.png`;
+            return `${QUEEN_ASSET_PATH}mouth_${fileSuffix(this.appearance.mouth)}.png`;
         },
         clothes() {
-            return `${ASSET_PATH}clothes_${fileSuffix(this.appearance.clothes)}.png`;
+            return `${QUEEN_ASSET_PATH}clothes_${fileSuffix(this.appearance.clothes)}.png`;
         },
         jewelry() {
-            return `${ASSET_PATH}jewelry_${fileSuffix(this.appearance.jewelry)}.png`;
+            return `${QUEEN_ASSET_PATH}jewelry_${fileSuffix(this.appearance.jewelry)}.png`;
         },
         scaledCharacterSize() {
-            const { width, height } = CHARACTER_SIZE;
+            const { width, height } = QUEEN_DIMENSIONS.bounds;
             return {
                 width: `${width * this.scale}px`,
                 height: `${height * this.scale}px`
             };
         },
         scaledBodySize() {
-            const { top, left, width, height } = BODY_SIZE;
+            const { top, left, width, height } = QUEEN_DIMENSIONS.body;
             return {
                 top: `${top * this.scale}px`,
                 left: `${left * this.scale}px`,
@@ -90,8 +88,9 @@ export default {
             };
         },
         scaledBodyParts() {
-            return Object.keys( BODY_PARTS ).reduce(( acc, key ) => {
-                const { top, left, width, height } = BODY_PARTS[ key ];
+            const { parts } = QUEEN_DIMENSIONS;
+            return Object.keys( parts ).reduce(( acc, key ) => {
+                const { top, left, width, height } = parts[ key ];
                 acc[ key ] = {
                     src: this[key],
                     style: {

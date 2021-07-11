@@ -1,20 +1,21 @@
-import CharacterFactory from '@/model/factories/character-factory';
-import IntentFactory    from '@/model/factories/intent-factory';
-import InventoryFactory from '@/model/factories/inventory-factory';
+import { QUEEN, DRAGON } from "@/definitions/character-types";
+import CharacterFactory  from "@/model/factories/character-factory";
+import IntentFactory     from "@/model/factories/intent-factory";
+import InventoryFactory  from "@/model/factories/inventory-factory";
 
-describe('Character factory', () => {
-    describe('when creating a character structure', () => {
-        it('should throw when an invalid property configuration is passed', () => {
+describe("Character factory", () => {
+    describe("when creating a character structure", () => {
+        it("should throw when an invalid property configuration is passed", () => {
             const properties = {
                 speed: 2, // out of range value, so should be invalid
             };
             expect(() => CharacterFactory.create({ x: 0, y: 0 }, {}, properties )).toThrow();
         });
 
-        it('should leave all construction arguments unchanged', () => {
+        it("should leave all construction arguments unchanged", () => {
             const appearance = {
-                name: 'Duul',
-                skin: '#00FF00',
+                name: "Duul",
+                skin: "#00FF00",
                 eyes: 3,
                 hair: 2,
                 jewelry: 1,
@@ -34,13 +35,17 @@ describe('Character factory', () => {
             const y = 12;
             const level = 3;
             const xp = 500;
+            const hp = 12;
+            const type = DRAGON;
             const inventory = InventoryFactory.create();
 
-            const char = CharacterFactory.create({ x, y, level, xp }, appearance, properties, inventory );
+            const char = CharacterFactory.create({ x, y, level, hp, xp, type }, appearance, properties, inventory );
 
+            expect( char.type ).toEqual( type );
             expect( char.x ).toEqual( x );
             expect( char.y ).toEqual( y );
             expect( char.level ).toEqual( level );
+            expect( char.hp ).toEqual( hp );
             expect( char.xp ).toEqual( xp );
             expect( char.appearance ).toEqual( appearance );
             expect( char.properties ).toEqual( properties );
@@ -48,8 +53,8 @@ describe('Character factory', () => {
         });
     });
 
-    it('should be able to assemble and disassemble a serialized character without loss of data', () => {
-        const character = CharacterFactory.create({ x: 15, y: 20, level: 10, xp: 1200 }, { name: "Billy" });
+    it("should be able to assemble and disassemble a serialized character without loss of data", () => {
+        const character = CharacterFactory.create({ x: 15, y: 20, level: 10, xp: 1200, type: DRAGON }, { name: "Billy" });
         const { appearance, properties, inventory } = character;
         properties.speed = .7;
         properties.intent = IntentFactory.create();

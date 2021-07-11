@@ -1,3 +1,25 @@
+/**
+* The MIT License (MIT)
+*
+* Igor Zinken 2020-2021 - https://www.igorski.nl
+*
+* Permission is hereby granted, free of charge, to any person obtaining a copy of
+* this software and associated documentation files (the "Software"), to deal in
+* the Software without restriction, including without limitation the rights to
+* use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+* the Software, and to permit persons to whom the Software is furnished to do so,
+* subject to the following conditions:
+*
+* The above copyright notice and this permission notice shall be included in all
+* copies or substantial portions of the Software.
+*
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+* IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+* FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+* COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+* IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+* CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*/
 <template>
     <div class="rpg">
         <template v-if="loading">
@@ -34,23 +56,23 @@
 </template>
 
 <script>
-import { mapState, mapGetters, mapMutations, mapActions } from 'vuex';
-import Vue from 'vue';
-import VueI18n from 'vue-i18n';
-import VueRadioToggleButtons from 'vue-radio-toggle-buttons';
-import 'vue-radio-toggle-buttons/dist/vue-radio-toggle-buttons.css';
-import { preloadAssets } from '@/services/asset-preloader';
-import DialogWindow      from '@/components/dialog-window/dialog-window';
-import HeaderMenu        from '@/components/header-menu/header-menu';
-import Notifications     from '@/components/notifications/notifications';
-import World             from '@/components/world/world';
-import messages          from './messages.json';
+import { mapState, mapGetters, mapMutations, mapActions } from "vuex";
+import Vue from "vue";
+import VueI18n from "vue-i18n";
+import VueRadioToggleButtons from "vue-radio-toggle-buttons";
+import "vue-radio-toggle-buttons/dist/vue-radio-toggle-buttons.css";
+import { preloadAssets } from "@/services/asset-preloader";
+import DialogWindow      from "@/components/dialog-window/dialog-window";
+import HeaderMenu        from "@/components/header-menu/header-menu";
+import Notifications     from "@/components/notifications/notifications";
+import World             from "@/components/world/world";
+import messages          from "./messages.json";
 
-import { GAME_OVER } from '@/definitions/game-states';
+import { GAME_OVER } from "@/definitions/game-states";
 import {
     SCREEN_GAME, SCREEN_CHARACTER_CREATE, SCREEN_OPTIONS, SCREEN_STATUS,
-    SCREEN_CHARACTER_INTERACTION, SCREEN_SHOP, SCREEN_CREDITS, SCREEN_GAME_OVER
-} from '@/definitions/screens';
+    SCREEN_CHARACTER_INTERACTION, SCREEN_BATTLE, SCREEN_SHOP, SCREEN_CREDITS, SCREEN_GAME_OVER
+} from "@/definitions/screens";
 
 Vue.use( VueI18n );
 // Create VueI18n instance with options
@@ -58,9 +80,9 @@ const i18n = new VueI18n({
     messages
 });
 Vue.use(VueRadioToggleButtons, {
-	color: '#333',
-	textColor: '#333',
-	selectedTextColor: '#eee'
+	color: "#333",
+	textColor: "#333",
+	selectedTextColor: "#eee"
 });
 
 export default {
@@ -73,33 +95,35 @@ export default {
     },
     computed: {
         ...mapState([
-            'loading',
-            'screen',
-            'dialog',
+            "loading",
+            "screen",
+            "dialog",
         ]),
         ...mapGetters([
-            'hasSavedGame',
-            'gameState',
-            'player',
+            "hasSavedGame",
+            "gameState",
+            "player",
         ]),
         activeScreen() {
             switch ( this.screen ) {
                 default:
                     return null;
                 case SCREEN_CHARACTER_CREATE:
-                    return () => import('./components/character-creator/character-creator');
+                    return () => import("./components/character-creator/character-creator");
                 case SCREEN_CHARACTER_INTERACTION:
-                    return () => import('./components/character-interaction/character-interaction');
+                    return () => import("./components/character-interaction/character-interaction");
+                case SCREEN_BATTLE:
+                    return () => import("./components/battle/battle");
                 case SCREEN_OPTIONS:
-                    return () => import('./components/options/options');
+                    return () => import("./components/options/options");
                 case SCREEN_STATUS:
-                    return () => import('./components/status/status');
+                    return () => import("./components/status/status");
                 case SCREEN_SHOP:
-                    return () => import('./components/shop/shop');
+                    return () => import("./components/shop/shop");
                 case SCREEN_CREDITS:
-                    return () => import('./components/credits/credits');
+                    return () => import("./components/credits/credits");
                 case SCREEN_GAME_OVER:
-                    return () => import('./components/game-over/game-over');
+                    return () => import("./components/game-over/game-over");
             }
         },
         hasScreen() {
@@ -120,7 +144,7 @@ export default {
         this.setI18n( i18n );
         this.setLoading( true );
 
-        window.addEventListener( 'resize', this.handleResize );
+        window.addEventListener( "resize", this.handleResize );
         this.handleResize();
 
         await preloadAssets();
@@ -137,15 +161,15 @@ export default {
     },
     methods: {
         ...mapMutations([
-            'setI18n',
-            'setLoading',
-            'setDimensions',
-            'setScreen',
+            "setI18n",
+            "setLoading",
+            "setDimensions",
+            "setScreen",
         ]),
         ...mapActions([
-            'prepareAudio',
-            'createGame',
-            'loadGame',
+            "prepareAudio",
+            "createGame",
+            "loadGame",
         ]),
         handleResize() {
             this.setDimensions({
@@ -174,8 +198,8 @@ export default {
 </script>
 
 <style lang="scss">
-    @import '@/styles/_variables.scss';
-    @import '@/styles/animations.scss';
+    @import "@/styles/_variables.scss";
+    @import "@/styles/animations.scss";
 
     html, body {
         overscroll-behavior-x: none; /* disable navigation back/forward swipe on Chrome */

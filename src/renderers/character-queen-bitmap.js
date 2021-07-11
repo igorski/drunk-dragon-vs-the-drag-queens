@@ -1,23 +1,21 @@
-import { loader } from 'zcanvas';
-import { createPixelCanvas, changeImageColor } from '@/utils/canvas-util';
-import {
-    ASSET_PATH, CHARACTER_SIZE, BODY_SIZE, BODY_PARTS, fileSuffix
-} from '@/definitions/character-queen';
+import { loader } from "zcanvas";
+import { createPixelCanvas, changeImageColor } from "@/utils/canvas-util";
+import { QUEEN_ASSET_PATH, QUEEN_DIMENSIONS, fileSuffix } from "@/definitions/character-types";
 
 export const TARGET_SIZE = 200;
 
 export const generateBitmap = async queenToRender => {
-    const scale = TARGET_SIZE / CHARACTER_SIZE.width;
+    const scale = TARGET_SIZE / QUEEN_DIMENSIONS.bounds.width;
     const { appearance } = queenToRender;
 
-    const bodySvg = { src: `${ASSET_PATH}body.svg` };
-    const shadows = { src: `${ASSET_PATH}shadows.png` };
-    const nose    = { src: `${ASSET_PATH}nose_${fileSuffix(appearance.nose)}.png` };
-    const eyes    = { src: `${ASSET_PATH}eyes_${fileSuffix(appearance.eyes)}.png` };
-    const hair    = { src: `${ASSET_PATH}hair_${fileSuffix(appearance.hair)}.png` };
-    const mouth   = { src: `${ASSET_PATH}mouth_${fileSuffix(appearance.mouth)}.png` };
-    const clothes = { src: `${ASSET_PATH}clothes_${fileSuffix(appearance.clothes)}.png` };
-    const jewelry = { src: `${ASSET_PATH}jewelry_${fileSuffix(appearance.jewelry)}.png` };
+    const bodySvg = { src: `${QUEEN_ASSET_PATH}body.svg` };
+    const shadows = { src: `${QUEEN_ASSET_PATH}shadows.png` };
+    const nose    = { src: `${QUEEN_ASSET_PATH}nose_${fileSuffix(appearance.nose)}.png` };
+    const eyes    = { src: `${QUEEN_ASSET_PATH}eyes_${fileSuffix(appearance.eyes)}.png` };
+    const hair    = { src: `${QUEEN_ASSET_PATH}hair_${fileSuffix(appearance.hair)}.png` };
+    const mouth   = { src: `${QUEEN_ASSET_PATH}mouth_${fileSuffix(appearance.mouth)}.png` };
+    const clothes = { src: `${QUEEN_ASSET_PATH}clothes_${fileSuffix(appearance.clothes)}.png` };
+    const jewelry = { src: `${QUEEN_ASSET_PATH}jewelry_${fileSuffix(appearance.jewelry)}.png` };
 
     const imagesToLoad = [ bodySvg, shadows, nose, eyes, hair, mouth, clothes, jewelry ];
 
@@ -28,7 +26,7 @@ export const generateBitmap = async queenToRender => {
         await loader.loadImage( itl.src, itl.img );
     }
 
-    const { cvs, ctx } = createPixelCanvas( TARGET_SIZE, CHARACTER_SIZE.height * scale );
+    const { cvs, ctx } = createPixelCanvas( TARGET_SIZE, QUEEN_DIMENSIONS.bounds.height * scale );
 
     // body is SVG and requires custom coloring
 
@@ -36,14 +34,16 @@ export const generateBitmap = async queenToRender => {
 
     // render base body parts
 
-    renderBodyPart( ctx, bodySvg, scale, BODY_SIZE );
-    renderBodyPart( ctx, shadows, scale, BODY_PARTS.shadows );
-    renderBodyPart( ctx, clothes, scale, BODY_PARTS.clothes );
+    const { body, parts } = QUEEN_DIMENSIONS;
+
+    renderBodyPart( ctx, bodySvg, scale, body );
+    renderBodyPart( ctx, shadows, scale, parts.shadows );
+    renderBodyPart( ctx, clothes, scale, parts.clothes );
 
     // apply circular mask to body and clothes
 
-    ctx.globalCompositeOperation = 'destination-in';
-    ctx.fillStyle = '#000';
+    ctx.globalCompositeOperation = "destination-in";
+    ctx.fillStyle = "#000";
     ctx.beginPath();
     ctx.arc(
         cvs.width * .5,
@@ -52,15 +52,15 @@ export const generateBitmap = async queenToRender => {
         0, 2 * Math.PI
     );
     ctx.fill();
-    ctx.globalCompositeOperation = 'source-over';
+    ctx.globalCompositeOperation = "source-over";
 
     // overlay remaining body parts
 
-    renderBodyPart( ctx, nose,    scale, BODY_PARTS.nose );
-    renderBodyPart( ctx, eyes,    scale, BODY_PARTS.eyes );
-    renderBodyPart( ctx, hair,    scale, BODY_PARTS.hair );
-    renderBodyPart( ctx, mouth,   scale, BODY_PARTS.mouth );
-    renderBodyPart( ctx, jewelry, scale, BODY_PARTS.jewelry );
+    renderBodyPart( ctx, nose,    scale, parts.nose );
+    renderBodyPart( ctx, eyes,    scale, parts.eyes );
+    renderBodyPart( ctx, hair,    scale, parts.hair );
+    renderBodyPart( ctx, mouth,   scale, parts.mouth );
+    renderBodyPart( ctx, jewelry, scale, parts.jewelry );
 
     const out = new Image();
     out.src   = cvs.toDataURL();

@@ -1,10 +1,11 @@
-import storage     from 'store/dist/store.modern';
-import audio       from './modules/audio-module';
-import environment from './modules/environment-module';
-import game        from './modules/game-module';
-import player      from './modules/player-module';
+import storage     from "store/dist/store.modern";
+import audio       from "./modules/audio-module";
+import battle      from "./modules/battle-module";
+import environment from "./modules/environment-module";
+import game        from "./modules/game-module";
+import player      from "./modules/player-module";
 
-const STORAGE_KEY = 'rpg_settings';
+const STORAGE_KEY = "rpg_settings";
 
 const storedData = storage.get( STORAGE_KEY ) || {};
 
@@ -12,7 +13,7 @@ const storedData = storage.get( STORAGE_KEY ) || {};
 // store so we can commit translated error/success messages from actions
 
 let i18n;
-const translate = (key, optArgs) => i18n && typeof i18n.t === 'function' ? i18n.t(key, optArgs) : key;
+const translate = (key, optArgs) => i18n && typeof i18n.t === "function" ? i18n.t(key, optArgs) : key;
 
 // internal timers
 let _saveTimer;
@@ -24,6 +25,7 @@ let _saveTimer;
 export default {
     modules: {
         audio,
+        battle,
         environment,
         game,
         player
@@ -66,7 +68,7 @@ export default {
          * types can be info, error or confirm. When type is confirm, optional
          * confirmation and cancellation handler can be passed.
          */
-        openDialog( state, { type = 'info', title = '', message = '', confirm = null, cancel = null }) {
+        openDialog( state, { type = "info", title = "", message = "", confirm = null, cancel = null }) {
             state.dialog = { type, title , message, confirm, cancel };
         },
         closeDialog( state ) {
@@ -76,14 +78,14 @@ export default {
          * shows a dialog window stating an Error has occurred.
          */
         showError( state, message ) {
-            state.dialog = { type: 'error', title: translate('title.error'), message };
+            state.dialog = { type: "error", title: translate("title.error"), message };
         },
         /**
          * shows a notification containing given title and message.
          * multiple notifications can be stacked.
          */
-        showNotification( state, { message = '', title = null }) {
-            state.notifications.push({ title: title || translate('title.success'), message });
+        showNotification( state, { message = "", title = null }) {
+            state.notifications.push({ title: title || translate("title.success"), message });
         },
         clearNotifications( state) {
             state.notifications = [];
@@ -92,11 +94,11 @@ export default {
     actions: {
         enableAutoSave({ commit, dispatch }, enabled ) {
             window.clearInterval( _saveTimer );
-            commit( 'setAutoSave', enabled );
-            dispatch( 'saveOptions' );
+            commit( "setAutoSave", enabled );
+            dispatch( "saveOptions" );
             if ( enabled ) {
                 _saveTimer = window.setInterval(() => {
-                    dispatch( 'saveGame' );
+                    dispatch( "saveGame" );
                 }, 3 * 60 * 1000 );
             }
         },

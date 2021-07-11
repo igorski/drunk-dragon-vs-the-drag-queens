@@ -18,8 +18,10 @@ const EffectFactory =
      * @return {Object}
      */
     create( mutation, startTime, duration, startValue, endValue, callback = null ) {
-        if ( !mutation && !callback ) {
-            throw new Error( 'cannot instantiate an Effect without either a mutation or callback' );
+        if ( process.env.NODE_ENV !== "production" ) {
+            if ( !mutation && !callback ) {
+                throw new Error( "cannot instantiate an Effect without either a mutation or callback" );
+            }
         }
         const scaledDuration = duration * GAME_TIME_RATIO;
         return {

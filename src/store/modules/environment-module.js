@@ -1,15 +1,16 @@
-import AudioTracks                           from '@/definitions/audio-tracks';
-import BuildingFactory, { BUILDING_TILES }   from '@/model/factories/building-factory';
-import EffectFactory                         from '@/model/factories/effect-factory';
-import IntentFactory                         from '@/model/factories/intent-factory';
-import ShopFactory                           from '@/model/factories/shop-factory';
-import { renderEnvironment }                 from '@/services/environment-bitmap-cacher';
-import SpriteCache                           from '@/utils/sprite-cache';
-import { getFirstFreeTileOfTypeAroundPoint } from '@/utils/terrain-util';
+import AudioTracks                           from "@/definitions/audio-tracks";
+import { QUEEN, DRAGON }                     from "@/definitions/character-types";
+import BuildingFactory, { BUILDING_TILES }   from "@/model/factories/building-factory";
+import EffectFactory                         from "@/model/factories/effect-factory";
+import IntentFactory                         from "@/model/factories/intent-factory";
+import ShopFactory                           from "@/model/factories/shop-factory";
+import { renderEnvironment }                 from "@/services/environment-bitmap-cacher";
+import SpriteCache                           from "@/utils/sprite-cache";
+import { getFirstFreeTileOfTypeAroundPoint } from "@/utils/terrain-util";
 
 import {
-    SCREEN_GAME, SCREEN_SHOP, SCREEN_CHARACTER_INTERACTION
-} from '@/definitions/screens';
+    SCREEN_GAME, SCREEN_SHOP, SCREEN_CHARACTER_INTERACTION, SCREEN_BATTLE
+} from "@/definitions/screens";
 
 export default {
     state: {
@@ -100,32 +101,32 @@ export default {
             if ( !shop.items.length ) {
                 ShopFactory.generateItems( shop, 5 );
             }
-            commit( 'setShop', shop );
-            commit( 'setScreen', SCREEN_SHOP );
-            commit( 'addEffect', EffectFactory.create(
-                null, getters.gameTime, 60000, 0, 1, 'handleShopTimeout'
+            commit( "setShop", shop );
+            commit( "setScreen", SCREEN_SHOP );
+            commit( "addEffect", EffectFactory.create(
+                null, getters.gameTime, 60000, 0, 1, "handleShopTimeout"
             ));
         },
         leaveShop({ commit }) {
-            commit( 'removeEffectsByCallback', [ 'handleShopTimeout' ]);
+            commit( "removeEffectsByCallback", [ "handleShopTimeout" ]);
         },
         handleShopTimeout({ commit, getters, dispatch }) {
-            commit( 'openDialog', { message: getters.translate('timeouts.shop') });
-            commit( 'setScreen', SCREEN_GAME );
-            dispatch( 'leaveShop' );
+            commit( "openDialog", { message: getters.translate("timeouts.shop") });
+            commit( "setScreen", SCREEN_GAME );
+            dispatch( "leaveShop" );
         },
         async enterBuilding({ state, getters, commit, dispatch }, building ) {
             // generate levels, terrains and characters inside the building if they
-            // weren't generated yet.
+            // weren"t generated yet.
             if ( !building.floors?.length ) {
                 BuildingFactory.generateFloors( state.hash, building, getters.player );
             }
-            commit( 'setBuilding', building );
+            commit( "setBuilding", building );
 
             // enter building at the first floor
-            await dispatch( 'changeFloor', 0 );
+            await dispatch( "changeFloor", 0 );
             // change music to building theme
-            dispatch( 'playSound', AudioTracks.BUILDING_THEME );
+            dispatch( "playSound", AudioTracks.BUILDING_THEME );
         },
         // change floor inside building
         async changeFloor({ state, getters, commit, dispatch }, floor ) {
@@ -135,45 +136,50 @@ export default {
 
             if ( floor < 0 ) {
                 // was first stairway, go back to outside world
-                dispatch( 'leaveBuilding' );
+                dispatch( "leaveBuilding" );
             } else {
                 // ascend/descend to requested level
-                commit( 'setFloor', floor );
-                await dispatch( 'changeActiveEnvironment', floors[ floor ]);
+                commit( "setFloor", floor );
+                await dispatch( "changeActiveEnvironment", floors[ floor ]);
                 // position player next to stairway
                 const environment = getters.activeEnvironment;
                 const firstExit   = environment.exits[ isDown ? 1 : 0 ];
                 const startCoordinates = getFirstFreeTileOfTypeAroundPoint( firstExit.x, firstExit.y, environment, BUILDING_TILES.GROUND );
-                commit( 'setXPosition', startCoordinates.x );
-                commit( 'setYPosition', startCoordinates.y );
+                commit( "setXPosition", startCoordinates.x );
+                commit( "setYPosition", startCoordinates.y );
             }
         },
         async leaveBuilding({ state, commit, dispatch }) {
-            commit( 'setBuilding', null );
-            SpriteCache.ENV_BUILDING.src = ''; // reset building level cache
+            commit( "setBuilding", null );
+            SpriteCache.ENV_BUILDING.src = ""; // reset building level cache
 
-            await dispatch( 'changeActiveEnvironment', state.world );
+            await dispatch( "changeActiveEnvironment", state.world );
 
             // change music to overground theme
-            dispatch( 'playSound', AudioTracks.OVERGROUND_THEME );
+            dispatch( "playSound", AudioTracks.OVERGROUND_THEME );
         },
         async changeActiveEnvironment({ state, getters, commit }, environment ) {
             if ( !!state.activeEnvironment ) {
                 // free memory allocated to Bitmaps
-                commit( 'flushBitmaps' );
+                commit( "flushBitmaps" );
             }
-            commit( 'setActiveEnvironment', environment );
-            commit( 'setLoading', true );
+            commit( "setActiveEnvironment", environment );
+            commit( "setLoading", true );
             await renderEnvironment( environment, getters.player );
-            commit( 'setLoading', false );
+            commit( "setLoading", false );
         },
         interactWithCharacter({ state, commit }, character ) {
-            let { intent } = character.properties;
-            if ( !intent ) {
-                character.properties.intent = IntentFactory.create();
+            if ( character.type === DRAGON ) {
+                commit( "setOpponent", character );
+                commit( "setScreen",   SCREEN_BATTLE );
+            } else if ( character.type === QUEEN ) {
+                let { intent } = character.properties;
+                if ( !intent ) {
+                    character.properties.intent = IntentFactory.create();
+                }
+                commit( "setCharacter", character );
+                commit( "setScreen", SCREEN_CHARACTER_INTERACTION );
             }
-            commit( 'setCharacter', character );
-            commit( 'setScreen', SCREEN_CHARACTER_INTERACTION );
         },
     }
 };

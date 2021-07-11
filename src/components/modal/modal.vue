@@ -2,10 +2,12 @@
     <div class="modal">
         <div class="modal__header">
             <h3>{{ title }}</h3>
-            <button type="button"
-                    class="close-button"
-                    :title="$t('closeWindow')"
-                    @click="$emit('close')"
+            <button
+                v-if="dismissible"
+                type="button"
+                class="close-button"
+                :title="$t('closeWindow')"
+                @click="$emit('close')"
             >&times;</button>
         </div>
         <div class="modal__content">
@@ -23,7 +25,11 @@ export default {
         title: {
             type: String,
             required: true,
-        }
+        },
+        dismissible: {
+            type: Boolean,
+            default: true,
+        },
     }
 };
 </script>

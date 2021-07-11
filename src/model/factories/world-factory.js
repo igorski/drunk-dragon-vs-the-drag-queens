@@ -1,17 +1,18 @@
-import { Map }                     from 'rot-js';
-import Bowser                      from 'bowser';
-import MD5                         from 'MD5';
-import HashUtil                    from '@/utils/hash-util';
-import WorldCache                  from '@/utils/world-cache';
-import BuildingFactory             from './building-factory';
-import CharacterFactory            from './character-factory';
-import EnvironmentFactory          from './environment-factory';
-import ShopFactory, { SHOP_TYPES } from './shop-factory';
+import { Map }                     from "rot-js";
+import Bowser                      from "bowser";
+import MD5                         from "MD5";
+import { QUEEN, DRAGON }           from "@/definitions/character-types";
+import HashUtil                    from "@/utils/hash-util";
+import WorldCache                  from "@/utils/world-cache";
+import BuildingFactory             from "./building-factory";
+import CharacterFactory            from "./character-factory";
+import EnvironmentFactory          from "./environment-factory";
+import ShopFactory, { SHOP_TYPES } from "./shop-factory";
 import {
     growTerrain, getSurroundingIndices, getSurroundingTiles, coordinateToIndex, distance
-} from '@/utils/terrain-util';
+} from "@/utils/terrain-util";
 
-export const WORLD_TYPE = 'Overground';
+export const WORLD_TYPE = "Overground";
 
 /**
  * the tile types for rendering the overground
@@ -61,11 +62,11 @@ const WorldFactory =
         let size = HashUtil.charsToNum( hash );
         const { parsedResult } = Bowser.getParser( window.navigator.userAgent );
 
-        // on iOS we don't exceed the 6 megapixel (2500 x 2500) limit on images, we COULD investigate
+        // on iOS we don"t exceed the 6 megapixel (2500 x 2500) limit on images, we COULD investigate
         // in stitching multiple smaller images together, but this might just be a satisfactory world size :p
-        // note on iPad OS 13 the platform i reported as macOS 10.15, hence the Safari check...
+        // note on iPad OS 13 the platform is reported as macOS 10.15, hence the Safari check...
 
-        if ( parsedResult?.os?.name === 'iOS' || parsedResult?.browser?.name === 'Safari') {
+        if ( parsedResult?.os?.name === "iOS" || parsedResult?.browser?.name === "Safari" ) {
             size = Math.min( 2500 / WorldCache.tileWidth, size );
         }
         world.width  =
@@ -109,7 +110,7 @@ const WorldFactory =
 
         for ( let i = 0; i < amountOfCharacters; ++i ) {
             const { x, y } = world.buildings[ i ];
-            world.characters.push( CharacterFactory.create({ x, y: y + 1 }));
+            world.characters.push( CharacterFactory.create({ x, y: y + 1, type: QUEEN }));
         }
 
         // center player within world
@@ -117,12 +118,18 @@ const WorldFactory =
         world.x = centerX;
         world.y = centerY;
 
-        // ensure player begins on a walkable tile TODO: should we check if there's a walkable path instead?
+        // ensure player begins on a walkable tile TODO: should we check if there"s a walkable path instead?
 
         while ( world.terrain[ coordinateToIndex( world.x, world.y, world )] > MAX_WALKABLE_TILE ) {
             --world.x;
             --world.y;
         }
+
+        // generate the drunk dragon
+        // TODO: for debugging purposes he is now close to the player
+
+        const dragon = CharacterFactory.create({ type: DRAGON, x: world.x + 2, y: world.y - 1 });
+        world.characters.push( dragon );
     },
 
     /**
@@ -367,7 +374,7 @@ function generateGroup( startX, startY, world, amountToCreate, typeFactoryCreate
             groupItem.y = reservedPosition.y;
 
             // bit of a cheat... add a wall around the object entrance (should be at the
-            // horizontal middle of the vertical bottom) so the player can't enter from that side
+            // horizontal middle of the vertical bottom) so the player can"t enter from that side
 
             for ( let xd = groupItem.x - ( halfWidth - 1 ); xd < groupItem.x + halfWidth; ++xd ) {
                 for ( let yd = groupItem.y - ( height - 1 ); yd <= groupItem.y; ++yd ) {
@@ -448,7 +455,7 @@ function digRoads( worldWidth, worldHeight ) {
 /**
  * reserve a given object at the given coordinate
  *
- * if the requested coordinate isn't free/available, this method
+ * if the requested coordinate isn"t free/available, this method
  * will search for the next free position as close as possible to
  * the the requested coordinate
  *
@@ -458,18 +465,18 @@ function digRoads( worldWidth, worldHeight ) {
  * @return {Object|null} coordinates at which Object has been reserved
  */
 function reserveObject( object, world, others = [] ) {
-    // assemble the list of Object we shouldn't collide with
+    // assemble the list of Object we shouldn"t collide with
     const compare = [ ...world.shops, ...world.buildings, ...others ];
 
     let { x, y } = object;
     if ( !checkIfFree( object, world, compare )) {
 
-        // which direction we'll try next
+        // which direction we"ll try next
 
         const left  = x > world.width  / 2;
         const up    = y > world.height / 2;
 
-        let tries = 255; // fail-safe, let's not recursive forever
+        let tries = 255; // fail-safe, let"s not recursive forever
         while ( true ) {
             if ( left ) {
                 --x;
@@ -490,7 +497,7 @@ function reserveObject( object, world, others = [] ) {
                 break;
             }
 
-            // didn't find a spot... :(
+            // didn"t find a spot... :(
 
             if ( --tries === 0 ) {
                 return null;

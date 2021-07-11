@@ -84,10 +84,10 @@ npm run test
 
 ## TODO
 
+* There is only a single dragon throughout the game, it should path find you in the overworld and fight you, winning the fight resets the dragon to a far side of the map
+* When fighting other queens, make "flirt" an action (using charisma)
 * Create leveling mechanism
-* Create fight mechanism
-* Drag swag == mana
-* Overworld triggers fights (dragons)
+* Drag swag (charisma?) == mana
 * Don't enter exit unless path ends at its exact coordinate
 * Can we give announcement of closing time when entering building?
 * Create floors that are bars chockfull of people!

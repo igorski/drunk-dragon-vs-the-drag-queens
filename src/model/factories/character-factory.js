@@ -1,8 +1,9 @@
-import Random           from 'random-seed';
-import IntentFactory    from '@/model/factories/intent-factory';
-import InventoryFactory from '@/model/factories/inventory-factory';
-import { validateProperties } from '../validator';
-import { randomInRange, randomFromList } from '@/utils/random-util';
+import Random           from "random-seed";
+import { QUEEN }        from "@/definitions/character-types";
+import IntentFactory    from "@/model/factories/intent-factory";
+import InventoryFactory from "@/model/factories/inventory-factory";
+import { validateProperties } from "../validator";
+import { randomInRange, randomFromList } from "@/utils/random-util";
 
 const QUEEN_HAIR_TOTAL    = 8;
 const QUEEN_JEWELRY_TOTAL = 5;
@@ -11,7 +12,7 @@ const QUEEN_NOSE_TOTAL    = 3;
 const QUEEN_MOUTH_TOTAL   = 4;
 const QUEEN_CLOTHES_TOTAL = 5;
 
-export const QUEEN_SKIN_COLORS = [ /*'#FFDBAC',*/ '#F1C27D', '#E0AC69', '#C68642', '#8D5524' ];
+export const QUEEN_SKIN_COLORS = [ /*"#FFDBAC",*/ "#F1C27D", "#E0AC69", "#C68642", "#8D5524" ];
 export const QUEEN_APPEARANCE = {
     skin: QUEEN_SKIN_COLORS.length,
     hair: QUEEN_HAIR_TOTAL,
@@ -30,18 +31,20 @@ const CharacterFactory =
       * their visual appearance, a series of properties that affects their
       * performance (e.g. speed, accuracy) and an inventory.
       */
-     create({ x = 0, y = 0, xp = 0, level = 1 } = {},
+     create({ x = 0, y = 0, level = 1, hp = 1, xp = 0, type = QUEEN } = {},
          appearance = {}, properties = {},  inventory = InventoryFactory.create() ) {
          const character = {
              x,
              y,
              level,
+             hp,
              xp,
+             type,
              // all characters are always 1 tile in width and height
              width: 1,
              height: 1,
              appearance: {
-                 name: 'Derp',
+                 name: "Derp",
                  ...CharacterFactory.generateAppearance(),
                  ...appearance
              },
@@ -83,7 +86,9 @@ const CharacterFactory =
             x: data.x,
             y: data.y,
             level: data.l,
+            type: data.t,
             xp: data.xp,
+            hp: data.hp,
         },
         {
             name: data.n,
@@ -108,10 +113,11 @@ const CharacterFactory =
      * serializes a Character instance into a JSON structure
      */
     disassemble( character ) {
-        const { x, y, level, xp, appearance, properties, inventory } = character;
+        const { x, y, level, type, xp, hp, appearance, properties, inventory } = character;
         return {
-            x, y, xp,
+            x, y, xp, hp,
             l: level,
+            t: type,
             n: appearance.name,
             sk: appearance.skin,
             h: appearance.hair,
