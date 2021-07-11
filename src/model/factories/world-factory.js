@@ -128,7 +128,13 @@ const WorldFactory =
         // generate the drunk dragon
         // TODO: for debugging purposes he is now close to the player
 
-        const dragon = CharacterFactory.create({ type: DRAGON, x: world.x + 2, y: world.y - 1 });
+        const dragon = CharacterFactory.create({
+            type: DRAGON,
+            x: world.x + 2,
+            y: world.y - 1,
+            hp: 5,
+            level: 1,
+        }, { name: "Drunk Dragon" });
         world.characters.push( dragon );
     },
 

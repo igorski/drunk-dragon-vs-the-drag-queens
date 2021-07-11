@@ -1,25 +1,25 @@
-import MD5              from 'MD5';
-import storage          from 'store/dist/store.modern';
-import Vue              from 'vue';
-import CharacterFactory from '@/model/factories/character-factory';
-import GameFactory      from '@/model/factories/game-factory';
-import WorldFactory     from '@/model/factories/world-factory';
-import EffectActions    from '@/model/actions/effect-actions';
+import MD5              from "MD5";
+import storage          from "store/dist/store.modern";
+import Vue              from "vue";
+import CharacterFactory from "@/model/factories/character-factory";
+import GameFactory      from "@/model/factories/game-factory";
+import WorldFactory     from "@/model/factories/world-factory";
+import EffectActions    from "@/model/actions/effect-actions";
 import {
     GAME_ACTIVE, GAME_PAUSED, GAME_OVER
-} from '@/definitions/game-states';
+} from "@/definitions/game-states";
 import {
     GAME_START_TIME, GAME_TIME_RATIO, VALIDITY_CHECK_INTERVAL, isValidHourToBeOutside, isValidHourToBeInside
-} from '@/utils/time-util';
+} from "@/utils/time-util";
 import {
     SCREEN_CHARACTER_CREATE
-} from '@/definitions/screens';
+} from "@/definitions/screens";
 
-const STORAGE_KEY = 'rpg';
+const STORAGE_KEY = "rpg";
 
 export default {
     state: {
-        hash: '',
+        hash: "",
         created: 0,
         modified: 0,
         gameStart: 0,    // timestamp at which the game was originally created
@@ -68,10 +68,10 @@ export default {
             if ( idx >= 0 ) state.effects.splice( idx, 1 );
         },
         removeEffectsByMutation( state, types = [] ) {
-            Vue.set( state, 'effects', state.effects.filter(({ mutation }) => !types.includes( mutation )));
+            Vue.set( state, "effects", state.effects.filter(({ mutation }) => !types.includes( mutation )));
         },
         removeEffectsByCallback( state, callbacks = [] ) {
-            Vue.set( state, 'effects', state.effects.filter(({ callback }) => !callbacks.includes( callback )));
+            Vue.set( state, "effects", state.effects.filter(({ callback }) => !callbacks.includes( callback )));
         },
     },
     actions: {
@@ -84,7 +84,7 @@ export default {
             const world = WorldFactory.create();
             WorldFactory.populate( world, hash );
             // set game data
-            commit( 'setGame', {
+            commit( "setGame", {
                 created: now,
                 modified: now,
                 gameStart: now,
@@ -95,11 +95,11 @@ export default {
                 world,
                 hash,
             });
-            commit( 'setBuilding', null);
-            commit( 'setWorld', world );
-            commit( 'setPlayer', player );
-            commit( 'setLastRender', Date.now() );
-            await dispatch( 'changeActiveEnvironment', world );
+            commit( "setBuilding", null);
+            commit( "setWorld", world );
+            commit( "setPlayer", player );
+            commit( "setLastRender", Date.now() );
+            await dispatch( "changeActiveEnvironment", world );
         },
         async loadGame({ state, commit, dispatch }) {
             const data = storage.get( STORAGE_KEY );
@@ -107,17 +107,17 @@ export default {
                 const { game, world, building, player } = GameFactory.assemble( data );
                 if ( !player || !world ) {
                     // corrupted or outdated format
-                    dispatch( 'resetGame' );
-                    commit( 'setScreen', SCREEN_CHARACTER_CREATE );
+                    dispatch( "resetGame" );
+                    commit( "setScreen", SCREEN_CHARACTER_CREATE );
                     return false;
                 }
-                commit( 'setGame', game );
-                commit( 'setBuilding', building );
-                commit( 'setWorld', world );
-                commit( 'setPlayer', player );
+                commit( "setGame", game );
+                commit( "setBuilding", building );
+                commit( "setWorld", world );
+                commit( "setPlayer", player );
                 const activeEnvironmentToSet = building?.floors[ building.floor ] ?? world;
-                commit( 'setLastRender', Date.now() );
-                await dispatch( 'changeActiveEnvironment', activeEnvironmentToSet );
+                commit( "setLastRender", Date.now() );
+                await dispatch( "changeActiveEnvironment", activeEnvironmentToSet );
             } catch {
                 // likely corrupted or really outdated format
                 return false;
@@ -131,18 +131,18 @@ export default {
         async importGame({ commit, dispatch }, data ) {
             const { game, world, building, player } = GameFactory.assemble( data );
             if ( game === null ) throw new Error(); // catch in calling component
-            commit( 'setGame', game );
-            commit( 'setBuilding', building );
-            commit( 'setWorld', world );
-            commit( 'setPlayer', player );
-            await dispatch( 'saveGame' );
-            await dispatch( 'loadGame' );
+            commit( "setGame", game );
+            commit( "setBuilding", building );
+            commit( "setWorld", world );
+            commit( "setPlayer", player );
+            await dispatch( "saveGame" );
+            await dispatch( "loadGame" );
         },
         async exportGame({ state, getters }) {
             const data = GameFactory.disassemble( state, getters.player, getters.world, getters.building );
-            const pom = document.createElement( 'a' );
-            pom.setAttribute( 'href', `data:text/plain;charset=utf-8,${encodeURIComponent( data )}`);
-            pom.setAttribute( 'download', 'savegame.rpg' );
+            const pom = document.createElement( "a" );
+            pom.setAttribute( "href", `data:text/plain;charset=utf-8,${encodeURIComponent( data )}`);
+            pom.setAttribute( "download", "savegame.rpg" );
             pom.click();
         },
         resetGame() {
@@ -150,7 +150,7 @@ export default {
         },
         /* game updates */
         /**
-         * Hooks into the game's render loop. This updates the world environment
+         * Hooks into the game"s render loop. This updates the world environment
          * prior to each render cycle. Given timestamp is the renderers timestamp
          * which relative to the renderStart timestamp defines the relative time.
          */
@@ -160,19 +160,19 @@ export default {
             }
             // advance game time (values in milliseconds)
             const delta = ( timestamp - state.lastRender ) * GAME_TIME_RATIO;
-            commit( 'advanceGameTime', delta );
+            commit( "advanceGameTime", delta );
 
             const gameTimestamp = getters.gameTime;
 
             if (( gameTimestamp - state.lastValidGameTime ) >= VALIDITY_CHECK_INTERVAL ) {
                 const date = new Date( gameTimestamp );
                 if ( getters.isOutside && !isValidHourToBeOutside( date )) {
-                    commit( 'setGameState', GAME_OVER );
+                    commit( "setGameState", GAME_OVER );
                 } else if ( !getters.isOutside && !isValidHourToBeInside( date )) {
-                    dispatch( 'leaveBuilding' );
-                    commit( 'openDialog', { message: getters.translate('timeouts.building') });
+                    dispatch( "leaveBuilding" );
+                    commit( "openDialog", { message: getters.translate("timeouts.building") });
                 } else {
-                    commit( 'setLastValidGameTime', gameTimestamp );
+                    commit( "setLastValidGameTime", gameTimestamp );
                 }
             }
 
@@ -180,11 +180,11 @@ export default {
             const updateFns = { commit, dispatch };
             state.effects.forEach( effect => {
                 if ( EffectActions.update( updateFns, effect, gameTimestamp )) {
-                    commit( 'removeEffect', effect );
+                    commit( "removeEffect", effect );
                 }
             });
             // update last render timestamp
-            commit( 'setLastRender', timestamp );
+            commit( "setLastRender", timestamp );
         },
     },
 };

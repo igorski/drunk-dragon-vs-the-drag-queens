@@ -1,5 +1,5 @@
 <template>
-    <basic-select
+    <model-select
         :value.sync="value"
         :options="inventory"
         :placeholder="$t('findItemByName')"
@@ -9,18 +9,18 @@
 </template>
 
 <script>
-import { mapGetters }  from 'vuex';
-import { BasicSelect } from 'vue-search-select';
-import sharedMessages  from '@/i18n/items.json';
-import messages        from './messages.json';
+import { mapGetters }  from "vuex";
+import { ModelSelect } from "vue-search-select";
+import sharedMessages  from "@/i18n/items.json";
+import messages        from "./messages.json";
 
-import 'semantic-ui-css/components/dropdown.min.css'
-import 'vue-search-select/dist/VueSearchSelect.css';
+import "semantic-ui-css/components/dropdown.min.css"
+import "vue-search-select/dist/VueSearchSelect.css";
 
 export default {
     i18n: { messages, sharedMessages },
     components: {
-        BasicSelect,
+        ModelSelect,
     },
     props: {
         value: {
@@ -30,7 +30,7 @@ export default {
     },
     computed: {
         ...mapGetters([
-            'player',
+            "player",
         ]),
         inventory() {
             return this.player.inventory.items.map( value => ({ text: this.$t( value.name ), value }));
@@ -38,7 +38,7 @@ export default {
     },
     methods: {
         updateValue({ value }) {
-            this.$emit( 'input', value );
+            this.$emit( "input", value );
         },
     },
 };

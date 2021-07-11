@@ -90,17 +90,17 @@
 </template>
 
 <script>
-import { mapState } from 'vuex';
-import PriceTypes from '@/definitions/price-types';
-import CharacterFactory, { QUEEN_APPEARANCE, QUEEN_SKIN_COLORS } from '@/model/factories/character-factory';
-import InventoryFactory from '@/model/factories/inventory-factory';
-import Character from '@/renderers/character-queen';
-import messages from './messages.json';
+import { mapState } from "vuex";
+import PriceTypes from "@/definitions/price-types";
+import CharacterFactory, { QUEEN_APPEARANCE, QUEEN_SKIN_COLORS } from "@/model/factories/character-factory";
+import InventoryFactory from "@/model/factories/inventory-factory";
+import Character from "@/renderers/character-queen";
+import messages from "./messages.json";
 
 // a little pocket money to begin with
 const DEFAULT_CASH = PriceTypes.EXPENSIVE;
 
-const createCharacter = name => CharacterFactory.create( {}, { name }, null, InventoryFactory.create( DEFAULT_CASH ));
+const createCharacter = name => CharacterFactory.create({ hp: 5 }, { name }, null, InventoryFactory.create( DEFAULT_CASH ));
 
 export default {
     i18n: { messages },
@@ -113,7 +113,7 @@ export default {
     }),
     computed: {
         ...mapState([
-            'dimensions',
+            "dimensions",
         ]),
         appearance() {
             return this.character.appearance;
@@ -164,16 +164,16 @@ export default {
             this.form = !this.isValid ? 0 : Math.max( 0, index );
         },
         saveCharacter() {
-            this.$emit( 'input', this.character );
+            this.$emit( "input", this.character );
         },
     }
 };
 </script>
 
 <style lang="scss" scoped>
-    @import '@/styles/_layout.scss';
-    @import '@/styles/forms.scss';
-    @import '@/styles/animations.scss';
+    @import "@/styles/_layout.scss";
+    @import "@/styles/forms.scss";
+    @import "@/styles/animations.scss";
 
     .character-creator {
         @include window();

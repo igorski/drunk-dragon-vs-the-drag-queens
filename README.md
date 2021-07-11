@@ -84,6 +84,11 @@ npm run test
 
 ## TODO
 
+* getDamageForAttack needs to take character attack and opponent defense into account
+* replace all Math.random() with random-util.random()
+* Show HP, drag swag and XP/level in status
+* Implement ambush in battle
+* Implement run away (uses boost/intoxication for outcome)
 * There is only a single dragon throughout the game, it should path find you in the overworld and fight you, winning the fight resets the dragon to a far side of the map
 * When fighting other queens, make "flirt" an action (using charisma)
 * Create leveling mechanism

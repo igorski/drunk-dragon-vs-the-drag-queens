@@ -1,6 +1,7 @@
 {
     "en-US": {
         "gameOver": "Game over",
+        "youPerishedInBattle": "You perished in battle. Perhaps you fought fiercely or perhaps you were outmatched. Pick your battles carefully.",
         "alasTheDaylightHasOverwhelmedYou": "Alas, the daylight has overwhelmed you. You should have tried harder to find shelter.",
         "youHavePlayedFor": "You managed to stay safe from the daylight for a grand total of {days} days and {hours} hours."
     }

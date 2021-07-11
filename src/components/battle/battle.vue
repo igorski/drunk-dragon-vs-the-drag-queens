@@ -21,25 +21,154 @@
 * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 <template>
-    <modal :title="$t('battle')" :dismissible="false">
-        {{ opponent }}
+    <modal
+        :title="$t('battleAgainstName', { name: opponent.appearance.name })"
+        :dismissible="battleWon"
+        @close="close()"
+    >
+        <character-status :character="player" />
+        <character-status :character="opponent" />
+        <div v-if="battleWon">
+            {{ $t('youWon') }}
+        </div>
+        <div v-else>
+            <p v-if="message">{{ message }}</p>
+            <model-select
+                v-model="attackType"
+                :options="attackTypesForPlayer"
+                :placeholder="$t('chooseAttackType')"
+                :is-disabled="!canAttack"
+                class="attack-list"
+            />
+            <button
+                v-t="'attack'"
+                type="button"
+                :disabled="!canAttack"
+                @click="attack()"
+            ></button>
+            <button
+                v-t="'runAway'"
+                type="button"
+                :disabled="!canAttack"
+                @click="run()"
+            ></button>
+        </div>
     </modal>
 </template>
 
 <script>
-import {  mapGetters, mapMutations } from "vuex";
-import Modal    from "@/components/modal/modal";
-import messages from "./messages.json";
+import { mapGetters, mapMutations, mapActions } from "vuex";
+import { ModelSelect } from 'vue-search-select';
+import AttackTypes     from "@/definitions/attack-types";
+import { GAME_OVER }   from "@/definitions/game-states";
+import { SCREEN_GAME } from "@/definitions/screens";
+import Modal           from "@/components/modal/modal";
+import CharacterStatus from "./character-status/character-status";
+import messages        from "./messages.json";
+
+import "semantic-ui-css/components/dropdown.min.css";
+import "vue-search-select/dist/VueSearchSelect.css";
 
 export default {
     i18n: { messages },
     components: {
-        Modal
+        ModelSelect,
+        Modal,
+        CharacterStatus,
     },
+    data: () => ({
+        playerTurn: true, // TODO: implement ambush (enemy attacks first)
+        attackType: null,
+        battleWon: false,
+        timeout: null,
+        message: null,
+    }),
     computed: {
         ...mapGetters([
+            "player",
             "opponent",
         ]),
+        canAttack() {
+            return this.player.hp > 0 && this.playerTurn;
+        },
+        attackTypesForPlayer() {
+            return [
+                { text: this.$t( "slap" ), value: AttackTypes.SLAP },
+                { text: this.$t( "kick" ), value: AttackTypes.KICK },
+            ];
+        },
     },
+    watch: {
+        player({ hp }) {
+            if ( hp === 0 ) {
+                this.setGameState( GAME_OVER );
+            }
+        },
+        opponent({ hp }) {
+            if ( hp === 0 ) {
+                this.battleWon = true;
+                window.setTimeout(() => {
+                    this.close();
+                    // TODO: award points, reset dragon
+                }, 3000 );
+            } else if ( !this.playerTurn ) {
+                this.executeOpponentAttack(); // opponent retaliates
+            }
+        }
+    },
+    created() {
+        this.attackType = this.attackTypesForPlayer[0];
+    },
+    methods: {
+        ...mapMutations([
+            "setGameState",
+            "setScreen",
+            "showNotification",
+        ]),
+        ...mapActions([
+            "attackOpponent",
+            "attackPlayer",
+            "runFromOpponent"
+        ]),
+        async attack() {
+            this.playerTurn = false;
+            const damage = await this.attackOpponent({ type: this.attackType.value });
+            // TODO: show damage dealt
+        },
+        async run() {
+            this.playerTurn = false;
+            const { name } = this.opponent.appearance;
+            if ( await this.runFromOpponent() ) {
+                this.showNotification( this.$t( "youEscapedFromBattlingName", { name }));
+                this.close();
+            } else {
+                this.message = this.$t( "cannotEscapeFromName", { name });
+                this.executeOpponentAttack();
+            }
+        },
+        executeOpponentAttack() {
+            if ( this.timeout ) {
+                return;
+            }
+            this.timeout = window.setTimeout( async () => {
+                const damage = await this.attackPlayer({ type: AttackTypes.BITE });
+                this.playerTurn = true;
+                this.message = this.$t( "nameDealtDamage", { name: this.opponent.appearance.name, damage });
+                window.clearTimeout( this.timeout );
+                this.timeout = null;
+            }, 2000 );
+        },
+        close() {
+            this.setScreen( SCREEN_GAME );
+        },
+    }
 };
 </script>
+
+<style lang="scss" scoped>
+@import "@/styles/_layout.scss";
+
+.attack-list {
+    display: inline !important;
+}
+</style>

@@ -1,5 +1,14 @@
 {
     "en-US": {
-        "battle": "Battle"
+        "battleAgainstName": "Battle against {name}",
+        "attack": "Attack",
+        "chooseAttackType": "Choose attack type",
+        "nameDealtDamage": "{name} dealt {damage} HP damage",
+        "runAway": "Run away",
+        "cannotEscapeFromName": "Cannot escape battle against {name} !",
+        "youEscapedFromBattlingName": "You escaped from battling {name}.",
+        "slap": "Slap",
+        "kick": "Kick",
+        "youWon": "You won!"
     }
 }

@@ -6,5 +6,6 @@
  */
 export default {
     SLAP: 0,
-    KICK: 1
+    KICK: 1,
+    BITE: 2
 };
