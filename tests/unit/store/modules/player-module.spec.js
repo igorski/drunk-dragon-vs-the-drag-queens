@@ -29,8 +29,7 @@ describe("Vuex player module", () => {
                 y: 13,
                 level: 2,
                 properties: {
-                    attack: 2,
-                    defense: 50
+                    speed: 5,
                 },
                 inventory: {
                     cash: 10
@@ -48,8 +47,7 @@ describe("Vuex player module", () => {
                 height: 1,
                 properties: {
                     ...properties,
-                    attack: 2,
-                    defense: 50,
+                    speed: 5
                 },
                 inventory: {
                     ...inventory,
