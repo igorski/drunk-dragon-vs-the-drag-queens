@@ -24,8 +24,6 @@ describe("Character factory", () => {
                 nose: 0,
             };
             const properties = {
-                attack: 5,
-                defense: 10,
                 speed: 0.5,
                 intoxication: 0.4,
                 boost: 0.3,

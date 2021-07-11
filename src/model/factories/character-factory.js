@@ -49,8 +49,6 @@ const CharacterFactory =
                  ...appearance
              },
              properties: {
-                 attack: 1,
-                 defense: 1,
                  intent: null,
                  // the following are in percentile range (e.g. 0-1)
                  speed: 1,
@@ -100,8 +98,6 @@ const CharacterFactory =
             nose: data.no,
             clothes: data.c
         }, {
-            attack: data.a,
-            defense: data.d,
             speed: data.sp,
             intent: data.i ? IntentFactory.assemble( data.i ) : null,
             intoxication: data.in,
@@ -126,8 +122,6 @@ const CharacterFactory =
             m: appearance.mouth,
             no: appearance.nose,
             c: appearance.clothes,
-            a: properties.attack,
-            d: properties.defense,
             sp: properties.speed,
             i: properties.intent ? IntentFactory.disassemble( properties.intent ) : null,
             in: properties.intoxication,
