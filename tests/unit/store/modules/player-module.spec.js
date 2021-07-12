@@ -157,7 +157,7 @@ describe("Vuex player module", () => {
                 const commit = jest.fn();
 
                 expect( actions.giveItemToCharacter({ commit }, { item, character })).toBe( false );
-                item.type = 1; // type is equal to intent, but price isn"t
+                item.type = 1; // type is equal to intent, but price isn't
                 expect( actions.giveItemToCharacter({ commit }, { item, character })).toBe( false );
                 expect( commit ).not.toHaveBeenCalled();
             });

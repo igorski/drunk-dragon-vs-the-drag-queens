@@ -10,20 +10,25 @@ export default
      */
     update({ commit, dispatch }, effect, currentTime ) {
         const elapsed = currentTime - effect.startTime;
-        const { mutation, increment } = effect;
 
         if ( elapsed < 0 ) {
             return false; // Effect is scheduled ahead of start time
         }
 
+        const { mutation, increment, target } = effect;
+
         if ( elapsed >= effect.duration ) {
-            typeof mutation === 'string' && commit( mutation, effect.endValue );
-            typeof effect.callback === 'string' && dispatch( effect.callback );
+            if ( typeof mutation === "string" ) {
+                commit( mutation, target ? { value: effect.endValue, target } : effect.endValue );
+            }
+            typeof effect.callback === "string" && dispatch( effect.callback, target );
 
             return true;
         }
-        typeof mutation === 'string' && commit( mutation, effect.startValue + ( increment * elapsed ));
-
+        if ( typeof mutation === "string" ) {
+            const value = effect.startValue + ( increment * elapsed );
+            commit( mutation, target ? { value, target } : value );
+        }
         return false;
     }
 };

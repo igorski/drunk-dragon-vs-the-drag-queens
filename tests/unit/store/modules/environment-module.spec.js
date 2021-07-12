@@ -225,7 +225,7 @@ describe("Vuex environment module", () => {
                     expect( commit ).toHaveBeenNthCalledWith( 3, "addEffect", {
                         mutation: null, startTime: mockedGetters.gameTime, duration: 60000 * GAME_TIME_RATIO,
                         startValue: expect.any( Number ), endValue: expect.any( Number ),
-                        increment: expect.any( Number ), callback: "handleShopTimeout"
+                        increment: expect.any( Number ), callback: "handleShopTimeout", target: null
                     });
                 });
 

@@ -15,9 +15,12 @@ const EffectFactory =
      * @param {Number} startValue the value when the effect starts
      * @param {Number} endValue the value when the effect ends
      * @param {String=} callback optional Vuex action to dispatch when effect is completed
+     * @param {*=} target optional data property of any type to identify the effect target (f.i. character identifier)
+     *                    when supplied, mutations and actions will receive { value, target } Object instead
+     *                    of primitive value as argument
      * @return {Object}
      */
-    create( mutation, startTime, duration, startValue, endValue, callback = null ) {
+    create( mutation, startTime, duration, startValue, endValue, callback = null, target = null ) {
         if ( process.env.NODE_ENV !== "production" ) {
             if ( !mutation && !callback ) {
                 throw new Error( "cannot instantiate an Effect without either a mutation or callback" );
@@ -31,6 +34,7 @@ const EffectFactory =
             startValue,
             endValue,
             callback,
+            target,
             increment: ( endValue - startValue ) / scaledDuration
         };
     },
@@ -40,7 +44,7 @@ const EffectFactory =
      * back into a Effect instance
      */
     assemble( data ) {
-        return EffectFactory.create( data.m, data.s, data.d, data.sv, data.ev, data.c );
+        return EffectFactory.create( data.m, data.s, data.d, data.sv, data.ev, data.c, data.t );
     },
 
     /**
@@ -53,7 +57,8 @@ const EffectFactory =
             d: effect.duration / GAME_TIME_RATIO,
             sv: effect.startValue,
             ev: effect.endValue,
-            c: effect.callback
+            c: effect.callback,
+            t: effect.target,
         };
     }
 };
