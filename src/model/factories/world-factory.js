@@ -461,7 +461,7 @@ function digRoads( worldWidth, worldHeight ) {
 /**
  * reserve a given object at the given coordinate
  *
- * if the requested coordinate isn"t free/available, this method
+ * if the requested coordinate isn't free/available, this method
  * will search for the next free position as close as possible to
  * the the requested coordinate
  *
