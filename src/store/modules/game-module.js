@@ -73,6 +73,9 @@ export default {
         removeEffectsByCallback( state, callbacks = [] ) {
             Vue.set( state, "effects", state.effects.filter(({ callback }) => !callbacks.includes( callback )));
         },
+        removeEffectsByTarget( state, targets = []) {
+            Vue.set( state, "effects", state.effects.filter(({ target }) => !targets.includes( target )));
+        },
     },
     actions: {
         /* game management / storage */
