@@ -4,6 +4,7 @@ import IntentFactory    from "@/model/factories/intent-factory";
 import InventoryFactory from "@/model/factories/inventory-factory";
 import { validateProperties } from "../validator";
 import { randomInRange, randomFromList } from "@/utils/random-util";
+import { getUid } from "@/utils/uid-util";
 
 const QUEEN_HAIR_TOTAL    = 8;
 const QUEEN_JEWELRY_TOTAL = 5;
@@ -31,9 +32,10 @@ const CharacterFactory =
       * their visual appearance, a series of properties that affects their
       * performance (e.g. speed, accuracy) and an inventory.
       */
-     create({ x = 0, y = 0, level = 1, hp = 1, xp = 0, type = QUEEN } = {},
+     create({ x = 0, y = 0, level = 1, hp = 1, xp = 0, type = QUEEN, id = getUid() } = {},
          appearance = {}, properties = {},  inventory = InventoryFactory.create() ) {
          const character = {
+             id,
              x,
              y,
              level,
@@ -81,6 +83,7 @@ const CharacterFactory =
      */
     assemble( data ) {
         return CharacterFactory.create({
+            id: data.id,
             x: data.x,
             y: data.y,
             level: data.l,
@@ -109,9 +112,9 @@ const CharacterFactory =
      * serializes a Character instance into a JSON structure
      */
     disassemble( character ) {
-        const { x, y, level, type, xp, hp, appearance, properties, inventory } = character;
+        const { id, x, y, level, type, xp, hp, appearance, properties, inventory } = character;
         return {
-            x, y, xp, hp,
+            x, y, xp, hp, id,
             l: level,
             t: type,
             n: appearance.name,

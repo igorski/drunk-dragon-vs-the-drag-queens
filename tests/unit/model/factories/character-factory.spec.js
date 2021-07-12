@@ -29,6 +29,7 @@ describe("Character factory", () => {
                 boost: 0.3,
                 intent: IntentFactory.create()
             };
+            const id = "fooBar";
             const x = 11;
             const y = 12;
             const level = 3;
@@ -37,8 +38,9 @@ describe("Character factory", () => {
             const type = DRAGON;
             const inventory = InventoryFactory.create();
 
-            const char = CharacterFactory.create({ x, y, level, hp, xp, type }, appearance, properties, inventory );
+            const char = CharacterFactory.create({ id, x, y, level, hp, xp, type }, appearance, properties, inventory );
 
+            expect( char.id ).toEqual( id );
             expect( char.type ).toEqual( type );
             expect( char.x ).toEqual( x );
             expect( char.y ).toEqual( y );
@@ -52,7 +54,7 @@ describe("Character factory", () => {
     });
 
     it("should be able to assemble and disassemble a serialized character without loss of data", () => {
-        const character = CharacterFactory.create({ x: 15, y: 20, level: 10, xp: 1200, type: DRAGON }, { name: "Billy" });
+        const character = CharacterFactory.create({ id: "bazQux", x: 15, y: 20, level: 10, xp: 1200, type: DRAGON }, { name: "Billy" });
         const { appearance, properties, inventory } = character;
         properties.speed = .7;
         properties.intent = IntentFactory.create();

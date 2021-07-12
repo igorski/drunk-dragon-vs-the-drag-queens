@@ -56,6 +56,7 @@ describe( "Vuex battle module", () => {
             };
             mutations.updateOpponent( state, updatedOpponent );
             expect( state.opponent ).toEqual({
+                id: expect.any( String ),
                 hp: 200,
                 xp: 100,
                 x: 12,

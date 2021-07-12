@@ -37,6 +37,7 @@ describe("Vuex player module", () => {
             };
             mutations.updatePlayer( state, updatedPlayer );
             expect( state.player ).toEqual({
+                id: expect.any( String ),
                 hp: 200,
                 xp: 100,
                 x: 12,
