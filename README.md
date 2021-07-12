@@ -84,6 +84,8 @@ npm run test
 
 ## TODO
 
+* implement ambush (enemy attacks first)
+* changes to opponent should also reflect to appropriate world.characters instance (e.g. battle after run away should not restore health of dragon!)
 * getDamageForAttack needs to take character attack and opponent defense into account
 * replace all Math.random() with random-util.random()
 * Show HP, drag swag and XP/level in status

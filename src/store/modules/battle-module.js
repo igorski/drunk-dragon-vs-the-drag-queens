@@ -5,15 +5,17 @@ import { random }      from "@/utils/random-util";
 import { getDamageForAttack } from "@/model/factories/attack-factory";
 
 function updateHP( damage, currentHP ) {
-    return { hp: Math.max( 0, currentHP - damage ) };
+    return Math.max( 0, currentHP - damage );
 }
 
 export default {
     state: {
         opponent: null,
+        playerTurn: false,
     },
     getters: {
         opponent: state => state.opponent,
+        playerTurn: state => state.playerTurn,
     },
     mutations: {
         setOpponent( state, opponent ) {
@@ -22,14 +24,19 @@ export default {
         updateOpponent( state, opponent ) {
             state.opponent = merge( cloneDeep( state.opponent ), opponent );
         },
+        setPlayerTurn( state, value ) {
+            state.playerTurn = !!value;
+        },
     },
     actions: {
         attackOpponent({ state, getters, commit }, { type }) {
+            commit( "setPlayerTurn", false );
             const damage = getDamageForAttack( getters.player, state.opponent, type );
-            commit( "updateOpponent", updateHP( damage, state.opponent.hp ));
+            commit( "updateOpponent", { hp: updateHP( damage, state.opponent.hp ) });
             return damage;
         },
         runFromOpponent({ state, getters, commit }) {
+            commit( "setPlayerTurn", false );
             const { level, properties } = getters.player;
             const { opponent } = state;
             if ( properties.intoxication > 0.75 ) {
@@ -46,7 +53,9 @@ export default {
         },
         attackPlayer({ state, getters, commit }, { type }) {
             const damage = getDamageForAttack( state.opponent, getters.player, type );
-            commit( "updatePlayer", updateHP( damage, getters.player.hp ));
+            const hp = updateHP( damage, getters.player.hp );
+            commit( "updatePlayer", { hp });
+            commit( "setPlayerTurn", hp > 0 );
             return damage;
         },
     },

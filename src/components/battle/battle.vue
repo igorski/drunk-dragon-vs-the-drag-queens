@@ -77,7 +77,6 @@ export default {
         CharacterStatus,
     },
     data: () => ({
-        playerTurn: true, // TODO: implement ambush (enemy attacks first)
         attackType: null,
         battleWon: false,
         timeout: null,
@@ -86,6 +85,7 @@ export default {
     computed: {
         ...mapGetters([
             "player",
+            "playerTurn",
             "opponent",
         ]),
         canAttack() {
@@ -117,12 +117,14 @@ export default {
         }
     },
     created() {
-        this.attackType = this.attackTypesForPlayer[0];
+        this.attackType = this.attackTypesForPlayer[ 0 ];
+        this.setPlayerTurn( true ); // TODO: implement ambush (should be Vuex action on battle creation)
     },
     methods: {
         ...mapMutations([
             "setGameState",
             "setScreen",
+            "setPlayerTurn",
             "showNotification",
         ]),
         ...mapActions([
@@ -131,16 +133,13 @@ export default {
             "runFromOpponent"
         ]),
         async attack() {
-            this.playerTurn = false;
             const damage = await this.attackOpponent({ type: this.attackType.value });
             // TODO: show damage dealt
         },
         async run() {
-            this.playerTurn = false;
             const { name } = this.opponent.appearance;
             if ( await this.runFromOpponent() ) {
-                this.showNotification( this.$t( "youEscapedFromBattlingName", { name }));
-                this.close();
+                this.showNotification({ message: this.$t( "youEscapedFromBattlingName", { name }) });
             } else {
                 this.message = this.$t( "cannotEscapeFromName", { name });
                 this.executeOpponentAttack();
@@ -152,7 +151,6 @@ export default {
             }
             this.timeout = window.setTimeout( async () => {
                 const damage = await this.attackPlayer({ type: AttackTypes.BITE });
-                this.playerTurn = true;
                 this.message = this.$t( "nameDealtDamage", { name: this.opponent.appearance.name, damage });
                 window.clearTimeout( this.timeout );
                 this.timeout = null;
