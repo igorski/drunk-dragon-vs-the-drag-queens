@@ -32,7 +32,10 @@ describe( "Environment actions", () => {
         it( "should always cancel the pending movements for the requested character", () => {
             const commit = jest.fn();
             EnvironmentActions.moveCharacter({ commit, getters }, character, environment, 0, 0 );
-            expect( commit ).toHaveBeenNthCalledWith( 1, "removeEffectsByTarget", character.id );
+            expect( commit ).toHaveBeenNthCalledWith(
+                1, "removeEffectsByTargetAndMutation",
+                { target: character.id, types: [ "setCharacterXPosition", "setCharacterYPosition" ] }
+            );
         });
 
         it( "should enqueue waypoints calculated on-the-fly from the target coordinate when no waypoints were provided", () => {

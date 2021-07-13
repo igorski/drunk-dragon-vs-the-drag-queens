@@ -84,10 +84,10 @@ npm run test
 
 ## TODO
 
+* Sometimes when switching direction character jumps to finish different waypoint than seems logical?
 * Create leveling mechanism by awarding XP
 * Update level of dragon too when defeated on fight end (and relocate on map)
 * player-module use of dispatch( "updateCharacters" ); where do we want to do this ?
-* environment-actions.moveCharacter remove actions by character.id and mutation types (otherwise long standing effects unrelated to movement are cleared for this character!!!)
 * on game over, when there is a save offer to restore from last save
 * lighting effect for daylight
 * halt all character updates when switching environments/screen isn't game_screen

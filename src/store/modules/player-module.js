@@ -59,13 +59,18 @@ export default
             const { activeEnvironment } = getters;
             commit( "setOnMovementUpdate", onProgress );
 
+            const xMutation = "setXPosition";
+            const yMutation = "setYPosition";
+
             // get existing movements so we can seemlessly update these to the new destination
-            const existing = getters.effects.filter(({ target }) => target === character.id );
+            const existing = getters.effects.filter(({ target, mutation }) => {
+                return target === character.id && ( mutation === xMutation || mutation === yMutation );
+            });
 
             // enqueue the waypoints
             EnvironmentActions.moveCharacter(
                 { commit, getters }, { ...character, x: activeEnvironment.x, y: activeEnvironment.y },
-                activeEnvironment, 0, 0, existing, "setXPosition", "setYPosition", "handleMoveUpdate", waypoints
+                activeEnvironment, 0, 0, existing, xMutation, yMutation, "handleMoveUpdate", waypoints
             );
         },
         handleMoveUpdate({ state, dispatch, commit, getters }) {

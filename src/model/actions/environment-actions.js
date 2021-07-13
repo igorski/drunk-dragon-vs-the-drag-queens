@@ -49,8 +49,7 @@ export default {
             }
         }
         // cancel existing movements and enqueue new waypoints
-        // TODO: should these be for the given mutations (!!!)
-        commit( "removeEffectsByTarget", character.id );
+        commit( "removeEffectsByTargetAndMutation", { target: character.id, types: [ xMutation, yMutation ] });
 
         // keep the first waypoint of the pending movements active though
         // (this prevents sudden jumps when changing movement directions)

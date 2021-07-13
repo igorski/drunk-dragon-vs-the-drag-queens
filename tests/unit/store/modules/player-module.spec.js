@@ -100,8 +100,6 @@ describe("Vuex player module", () => {
 
             // expect registration of update handler
             expect( commit ).toHaveBeenNthCalledWith( 1, "setOnMovementUpdate", onProgress );
-            // expect cancellation of existing movement effects
-            expect( commit ).toHaveBeenNthCalledWith( 2, "removeEffectsByTarget", state.player.id );
         });
 
         describe("when buying an item from a shop", () => {
