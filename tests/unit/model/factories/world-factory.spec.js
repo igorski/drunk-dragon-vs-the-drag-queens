@@ -1,4 +1,4 @@
-import MD5          from "md5";
+import MD5          from "MD5";
 import { DRAGON }   from "@/definitions/character-types";
 import WorldFactory from "@/model/factories/world-factory";
 
