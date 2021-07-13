@@ -344,7 +344,7 @@ describe("Vuex game module", () => {
                 const state = {
                     gameState: GAME_ACTIVE,
                     lastValidGameTime: timestamp - VALIDITY_CHECK_INTERVAL,
-                    lastRender: mockedGetters.timestamp - TIME_PER_RENDER_SLICE,
+                    lastRender: timestamp - TIME_PER_RENDER_SLICE,
                     effects: []
                 };
                 actions.updateGame({ commit, dispatch, getters: mockedGetters, state }, timestamp );
@@ -354,6 +354,8 @@ describe("Vuex game module", () => {
 
                 // advance clock
                 mockedGetters.gameTime = timestamp + ( 8 * 60 * 60 * 1000 );
+                state.lastRender       = mockedGetters.timestamp - TIME_PER_RENDER_SLICE;
+
                 actions.updateGame({ commit, dispatch, getters: mockedGetters, state }, timestamp );
                 expect( commit ).toHaveBeenNthCalledWith( 2, "setGameState", GAME_OVER );
             });
@@ -377,7 +379,8 @@ describe("Vuex game module", () => {
 
                 // advance clock
                 mockedGetters.gameTime = timestamp + ( 7 * 60 * 60 * 1000 );
-                
+                state.lastRender       = mockedGetters.timestamp - TIME_PER_RENDER_SLICE;
+
                 actions.updateGame({ commit, dispatch, getters: mockedGetters, state }, timestamp );
                 expect( dispatch ).toHaveBeenNthCalledWith( 1, "leaveBuilding" );
             });
