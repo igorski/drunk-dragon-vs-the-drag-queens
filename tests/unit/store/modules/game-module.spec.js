@@ -6,6 +6,7 @@ import { SCREEN_SHOP, SCREEN_GAME, SCREEN_CHARACTER_INTERACTION } from "@/defini
 import {
     GAME_START_TIME, GAME_TIME_RATIO, VALIDITY_CHECK_INTERVAL
 } from "@/utils/time-util";
+const TIME_PER_RENDER_SLICE = 1000 / 60;
 
 const { getters, mutations, actions } = store;
 
@@ -327,6 +328,7 @@ describe("Vuex game module", () => {
                 const state = {
                     gameState: GAME_ACTIVE,
                     lastValidGameTime: timestamp - VALIDITY_CHECK_INTERVAL,
+                    lastRender: timestamp - TIME_PER_RENDER_SLICE,
                     effects: []
                 };
                 actions.updateGame({ commit, dispatch, getters: mockedGetters, state }, timestamp );
@@ -342,6 +344,7 @@ describe("Vuex game module", () => {
                 const state = {
                     gameState: GAME_ACTIVE,
                     lastValidGameTime: timestamp - VALIDITY_CHECK_INTERVAL,
+                    lastRender: timestamp - TIME_PER_RENDER_SLICE,
                     effects: []
                 };
                 actions.updateGame({ commit, dispatch, getters: mockedGetters, state }, timestamp );
@@ -362,6 +365,7 @@ describe("Vuex game module", () => {
                 const state = {
                     gameState: GAME_ACTIVE,
                     lastValidGameTime: timestamp - VALIDITY_CHECK_INTERVAL,
+                    lastRender: timestamp - TIME_PER_RENDER_SLICE,
                     effects: []
                 };
                 actions.updateGame({ commit, dispatch, getters: mockedGetters, state }, timestamp );
