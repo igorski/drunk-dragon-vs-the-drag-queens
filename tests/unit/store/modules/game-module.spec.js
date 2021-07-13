@@ -4,7 +4,7 @@ import EffectFactory       from "@/model/factories/effect-factory";
 import { GAME_ACTIVE, GAME_OVER } from "@/definitions/game-states";
 import { SCREEN_SHOP, SCREEN_GAME, SCREEN_CHARACTER_INTERACTION } from "@/definitions/screens";
 import {
-    GAME_START_TIME, GAME_TIME_RATIO, VALIDITY_CHECK_INTERVAL
+    GAME_START_TIME_UNIX, GAME_TIME_RATIO, VALIDITY_CHECK_INTERVAL
 } from "@/utils/time-util";
 const TIME_PER_RENDER_SLICE = 1000 / 60;
 
@@ -274,7 +274,7 @@ describe("Vuex game module", () => {
         });
 
         describe("when updating the game properties", () => {
-            const timestamp = new Date( GAME_START_TIME ).getTime();
+            const timestamp     = GAME_START_TIME_UNIX;
             const mockedGetters = {
                 gameTime: timestamp,
                 translate: jest.fn(),
@@ -344,13 +344,15 @@ describe("Vuex game module", () => {
                 const state = {
                     gameState: GAME_ACTIVE,
                     lastValidGameTime: timestamp - VALIDITY_CHECK_INTERVAL,
-                    lastRender: timestamp - TIME_PER_RENDER_SLICE,
+                    lastRender: mockedGetters.timestamp - TIME_PER_RENDER_SLICE,
                     effects: []
                 };
                 actions.updateGame({ commit, dispatch, getters: mockedGetters, state }, timestamp );
                 expect( commit ).not.toHaveBeenNthCalledWith( 2, "setGameState", GAME_OVER );
 
                 commit = jest.fn();
+
+                // advance clock
                 mockedGetters.gameTime = timestamp + ( 8 * 60 * 60 * 1000 );
                 actions.updateGame({ commit, dispatch, getters: mockedGetters, state }, timestamp );
                 expect( commit ).toHaveBeenNthCalledWith( 2, "setGameState", GAME_OVER );
@@ -372,7 +374,10 @@ describe("Vuex game module", () => {
                 expect( dispatch ).not.toHaveBeenNthCalledWith( 1, "leaveBuilding" );
 
                 commit = jest.fn();
+
+                // advance clock
                 mockedGetters.gameTime = timestamp + ( 7 * 60 * 60 * 1000 );
+                
                 actions.updateGame({ commit, dispatch, getters: mockedGetters, state }, timestamp );
                 expect( dispatch ).toHaveBeenNthCalledWith( 1, "leaveBuilding" );
             });

@@ -1,5 +1,6 @@
-export const GAME_START_TIME = '1986-08-29T20:00:00.000Z';
-export const GAME_TIME_RATIO = 20; // how much faster the clock ticks in game time vs real time
+export const GAME_START_TIME      = '1986-08-29T20:00:00.000Z';
+export const GAME_START_TIME_UNIX = 525729600000; // new Date( GAME_START_TIME ).getTime();
+export const GAME_TIME_RATIO      = 20; // how much faster the clock ticks in game time vs real time
 export const VALIDITY_CHECK_INTERVAL = 10000 * GAME_TIME_RATIO;
 
 // the time of day the player is allowed to roam in- or outside
