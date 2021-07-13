@@ -1,12 +1,13 @@
-import AudioTracks                           from "@/definitions/audio-tracks";
-import { QUEEN, DRAGON }                     from "@/definitions/character-types";
-import BuildingFactory, { BUILDING_TILES }   from "@/model/factories/building-factory";
-import EffectFactory                         from "@/model/factories/effect-factory";
-import IntentFactory                         from "@/model/factories/intent-factory";
-import ShopFactory                           from "@/model/factories/shop-factory";
-import { renderEnvironment }                 from "@/services/environment-bitmap-cacher";
-import SpriteCache                           from "@/utils/sprite-cache";
-import { getFirstFreeTileOfTypeAroundPoint } from "@/utils/terrain-util";
+import AudioTracks                         from "@/definitions/audio-tracks";
+import { QUEEN, DRAGON }                   from "@/definitions/character-types";
+import EnvironmentActions                  from "@/model/actions/environment-actions";
+import BuildingFactory, { BUILDING_TILES } from "@/model/factories/building-factory";
+import EffectFactory                       from "@/model/factories/effect-factory";
+import IntentFactory                       from "@/model/factories/intent-factory";
+import ShopFactory                         from "@/model/factories/shop-factory";
+import { renderEnvironment }               from "@/services/environment-bitmap-cacher";
+import SpriteCache                         from "@/utils/sprite-cache";
+import { getFirstFreeTileOfTypeAroundPoint, distance } from "@/utils/terrain-util";
 
 import {
     SCREEN_GAME, SCREEN_SHOP, SCREEN_CHARACTER_INTERACTION, SCREEN_BATTLE
@@ -23,6 +24,7 @@ export default {
     getters: {
         world: state => state.world,
         character: state => state.character,
+        dragon: state => state.activeEnvironment === state.world ? state.world.characters.find(({ type }) => type === DRAGON ) : null,
         activeEnvironment: state => state.activeEnvironment,
         building: state => state.building,
         floor: state => state.building?.floor ?? NaN,
@@ -42,11 +44,19 @@ export default {
         setShop( state, shop ) {
             state.shop = shop;
         },
-        setXPosition( state, value ) {
+        /* coordinates for the player are set on the environment (to maintain position when switching envs) */
+        setXPosition( state, { value }) {
             state.activeEnvironment.x = value;
         },
-        setYPosition( state, value ) {
+        setYPosition( state, { value }) {
             state.activeEnvironment.y = value;
+        },
+        /* all non-Player character coordinate updates */
+        setCharacterXPosition( state, { value, target }) {
+            state.activeEnvironment.characters.find(({ id }) => id === target ).x = value;
+        },
+        setCharacterYPosition( state, { value, target }) {
+            state.activeEnvironment.characters.find(({ id }) => id === target ).y = value;
         },
         setActiveEnvironment( state, environment ) {
             state.activeEnvironment = environment;
@@ -111,7 +121,7 @@ export default {
             commit( "removeEffectsByCallback", [ "handleShopTimeout" ]);
         },
         handleShopTimeout({ commit, getters, dispatch }) {
-            commit( "openDialog", { message: getters.translate("timeouts.shop") });
+            commit( "openDialog", { message: getters.translate( "timeouts.shop" ) });
             commit( "setScreen", SCREEN_GAME );
             dispatch( "leaveShop" );
         },
@@ -180,6 +190,25 @@ export default {
                 commit( "setCharacter", character );
                 commit( "setScreen", SCREEN_CHARACTER_INTERACTION );
             }
+        },
+        hitTest({ getters, commit, dispatch }) {
+            EnvironmentActions.hitTest({ dispatch, commit, getters }, getters.activeEnvironment );
+        },
+        updateCharacters({ getters, commit }) {
+            const { dragon, activeEnvironment } = getters;
+            if ( !dragon ) {
+                return; // TODO: at this moment we only update the Dragon
+            }
+            const { x, y } = activeEnvironment;
+
+            // check if dragon is within range of player
+            if ( distance( dragon.x, dragon.y, x, y ) > 25 ) {
+                return;
+            }
+            // get existing movements so we can seemlessly update these to the new destination
+            const existing = getters.effects.filter(({ target }) => target === dragon.id );
+            // calculate the waypoints and enqueue the movements
+            EnvironmentActions.moveCharacter({ commit, getters }, dragon, activeEnvironment, x, y, existing );
         },
     }
 };

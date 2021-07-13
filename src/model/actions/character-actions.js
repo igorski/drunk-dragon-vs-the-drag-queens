@@ -1,5 +1,6 @@
-import CharacterFactory from '@/model/factories/character-factory';
-import { validateProperties } from '../validator';
+import CharacterFactory from "@/model/factories/character-factory";
+import { DRAGON }       from "@/definitions/character-types";
+import { validateProperties } from "../validator";
 
 export default
 {
@@ -18,7 +19,12 @@ export default
 
     getSpeed( character ) {
         const { speed, intoxication, boost } = character.properties;
-        return speed + ( -intoxication + boost );
+        const tunedSpeed = speed + ( -intoxication + boost );
+
+        if ( character.type === DRAGON && character.level < 3 ) {
+            return tunedSpeed * 1.5; // lower level dragons are slower to give the player a break
+        }
+        return tunedSpeed;
     },
 
     /**

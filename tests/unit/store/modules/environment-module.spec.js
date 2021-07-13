@@ -54,6 +54,23 @@ describe("Vuex environment module", () => {
             expect( getters.character( state )).toEqual( state.character );
         });
 
+        it("should return the dragon, when outside", () => {
+            const state = {
+                world: {
+                    id: "world",
+                    characters: [
+                        CharacterFactory.create({ type: QUEEN }),
+                        CharacterFactory.create({ type: DRAGON }),
+                        CharacterFactory.create({ type: QUEEN })
+                    ],
+                },
+                activeEnvironment: { id: "somethingElse", characters: [] },
+            };
+            expect( getters.dragon( state )).toBeNull();
+            state.activeEnvironment = state.world;
+            expect( getters.dragon( state )).toEqual( state.world.characters[ 1 ] );
+        });
+
         it("should return the active floor, when in a building", () => {
             const state = { building: null };
             expect( getters.floor( state )).toEqual( NaN );
@@ -95,13 +112,13 @@ describe("Vuex environment module", () => {
         describe("when changing player position", () => {
             it("should be able to update the player x position in the current environment", () => {
                 const state = { activeEnvironment: { x: 0, y: 0 } };
-                mutations.setXPosition( state, 10 );
+                mutations.setXPosition( state, { value: 10 });
                 expect( state.activeEnvironment ).toEqual({ x: 10, y: 0 });
             });
 
             it("should be able to update the player y position in the current environment", () => {
                 const state = { activeEnvironment: { x: 0, y: 0 } };
-                mutations.setYPosition( state, 10 );
+                mutations.setYPosition( state, { value: 10 });
                 expect( state.activeEnvironment ).toEqual({ x: 0, y: 10 });
             });
 

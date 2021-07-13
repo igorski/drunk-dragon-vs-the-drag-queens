@@ -88,8 +88,8 @@ describe("Vuex player module", () => {
 
     describe("actions", () => {
         it("should be able to move the player to the requested destination", () => {
-            const state         = { player: { properties: { speed: 1, intoxication: 0, boost: 0 } } };
-            const mockedGetters = { activeEnvironment: { x: 0, y: 0 }, gameTime: 0 };
+            const state         = { player: { id: "foo", properties: { speed: 1, intoxication: 0, boost: 0 } } };
+            const mockedGetters = { activeEnvironment: { x: 0, y: 0 }, effects: [], gameTime: 0 };
             const commit        = jest.fn();
             const dispatch      = jest.fn();
 
@@ -98,13 +98,10 @@ describe("Vuex player module", () => {
 
             actions.moveToDestination({ state, getters: mockedGetters, commit, dispatch }, { waypoints, onProgress });
 
-            // expect cancellation of existing movement effects
-            expect( commit ).toHaveBeenNthCalledWith( 1, "removeEffectsByMutation", [ "setXPosition", "setYPosition" ]);
             // expect registration of update handler
-            expect( commit ).toHaveBeenNthCalledWith( 2, "setOnMovementUpdate", onProgress );
-            // expect individual addition of each waypoint as an effect
-            expect( commit ).toHaveBeenNthCalledWith( 3, "addEffect", expect.any( Object ));
-            expect( commit ).toHaveBeenNthCalledWith( 4, "addEffect", expect.any( Object ));
+            expect( commit ).toHaveBeenNthCalledWith( 1, "setOnMovementUpdate", onProgress );
+            // expect cancellation of existing movement effects
+            expect( commit ).toHaveBeenNthCalledWith( 2, "removeEffectsByTarget", state.player.id );
         });
 
         describe("when buying an item from a shop", () => {

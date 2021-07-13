@@ -33,6 +33,7 @@ export default {
         gameState: state => state.gameState,
         gameTime: state => state.gameTime,
         hasSavedGame: state => () => !!storage.get( STORAGE_KEY ),
+        effects: state => state.effects,
     },
     mutations: {
         setGame( state, value ) {

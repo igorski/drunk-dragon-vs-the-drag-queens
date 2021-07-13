@@ -17,23 +17,23 @@ export const getDamageForAttack = ( character, targetCharacter, attackType ) => 
 
 /* internal methods */
 
-function getDamageForAttackByQueen( queen, targetCharacter, attackType ) {
+function getDamageForAttackByQueen( queenCharacter, targetCharacter, attackType ) {
     // TODO multiply attack damage by carried items
     switch ( attackType ) {
         default:
         case AttackTypes.SLAP:
-            return queen.level * 1;
+            return queenCharacter.level * 1;
         case AttackTypes.KICK:
-            return queen.level * 2;
+            return queenCharacter.level * 2;
     }
 }
 
-function getDamageForAttackByDragon( dragon, targetCharacter, attackType ) {
+function getDamageForAttackByDragon( dragonCharacter, targetCharacter, attackType ) {
     // we take some pity on new players
     const painMultiplier = targetCharacter.level === 1 ? 2 : 5;
     switch ( attackType ) {
         default:
         case AttackTypes.BITE:
-            return dragon.level * painMultiplier;
+            return dragonCharacter.level * painMultiplier;
     }
 }

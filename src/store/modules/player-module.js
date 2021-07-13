@@ -1,6 +1,5 @@
 import cloneDeep          from "lodash/cloneDeep";
 import merge              from "lodash/merge";
-import EffectFactory      from "@/model/factories/effect-factory";
 import EnvironmentActions from "@/model/actions/environment-actions";
 import CharacterActions   from "@/model/actions/character-actions";
 import InventoryActions   from "@/model/actions/inventory-actions";
@@ -9,7 +8,6 @@ import InventoryActions   from "@/model/actions/inventory-actions";
 const cancelPendingMovement = commit => {
     commit( "removeEffectsByMutation", [ "setXPosition", "setYPosition" ]);
 };
-const DEFAULT_WALK_SPEED = 400; // ms for a single step
 
 /**
  * Player module mediates all interactions the game"s Player can take. As it is
@@ -56,42 +54,25 @@ export default
         },
     },
     actions: {
-        moveToDestination({ state, getters, commit, dispatch }, { waypoints = [], onProgress = null }) {
-            cancelPendingMovement( commit );
+        moveToDestination({ state, getters, commit }, { waypoints = [], onProgress = null }) {
+            const character = state.player;
+            const { activeEnvironment } = getters;
             commit( "setOnMovementUpdate", onProgress );
 
-            const { activeEnvironment, gameTime } = getters;
-            let startTime  = gameTime;
-            const duration = DEFAULT_WALK_SPEED * CharacterActions.getSpeed( state.player );
-            let lastX      = activeEnvironment.x;
-            let lastY      = activeEnvironment.y;
-            let effect;
+            // get existing movements so we can seemlessly update these to the new destination
+            const existing = getters.effects.filter(({ target }) => target === character.id );
 
-            waypoints.forEach(({ x, y }, index ) => {
-                // waypoints can move between two axes at a time
-                if ( x !== lastX ) {
-                    effect = EffectFactory.create(
-                        "setXPosition", startTime, duration, lastX, x, "handleMoveUpdate"
-                    );
-                    commit( "addEffect", effect );
-                    lastX = x;
-                }
-                if ( y !== lastY ) {
-                    effect = EffectFactory.create(
-                        "setYPosition", startTime, duration, lastY, y, "handleMoveUpdate"
-                    );
-                    commit( "addEffect", effect );
-                    lastY = y;
-                }
-                if ( effect ) {
-                    startTime += effect.duration; // add effects scaled duration to next start time
-                }
-            });
+            // enqueue the waypoints
+            EnvironmentActions.moveCharacter(
+                { commit, getters }, { ...character, x: activeEnvironment.x, y: activeEnvironment.y },
+                activeEnvironment, 0, 0, existing, "setXPosition", "setYPosition", "handleMoveUpdate", waypoints
+            );
         },
         handleMoveUpdate({ state, dispatch, commit, getters }) {
             if ( EnvironmentActions.hitTest({ dispatch, commit, getters }, getters.activeEnvironment )) {
                 cancelPendingMovement( commit );
             }
+            dispatch( "updateCharacters" ); // TODO: should be somewhere more intelligently done
             typeof state.onMoveUpdate === "function" && state.onMoveUpdate();
         },
         buyItem({ state, commit }, item ) {

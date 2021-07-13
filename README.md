@@ -84,7 +84,16 @@ npm run test
 
 ## TODO
 
+* Create leveling mechanism by awarding XP
+* Update level of dragon too when defeated on fight end (and relocate on map)
+* player-module use of dispatch( "updateCharacters" ); where do we want to do this ?
+* environment-actions.moveCharacter remove actions by character.id and mutation types (otherwise long standing effects unrelated to movement are cleared for this character!!!)
+* on game over, when there is a save offer to restore from last save
+* lighting effect for daylight
+* halt all character updates when switching environments/screen isn't game_screen
 * implement ambush (enemy attacks first)
+* add store to sell shoes / fake nails (increases attack, certain shoes increase speed, but decrease charisma)
+* add hamburger joint (can increase hp slowly but cheaply, medicine is more expensive but more potent)
 * changes to opponent should also reflect to appropriate world.characters instance (e.g. battle after run away should not restore health of dragon!)
 * getDamageForAttack needs to take character attack and opponent defense into account
 * replace all Math.random() with random-util.random()
@@ -93,7 +102,6 @@ npm run test
 * Implement run away (uses boost/intoxication for outcome)
 * There is only a single dragon throughout the game, it should path find you in the overworld and fight you, winning the fight resets the dragon to a far side of the map
 * When fighting other queens, make "flirt" an action (using charisma)
-* Create leveling mechanism
 * Drag swag (charisma?) == mana
 * Don't enter exit unless path ends at its exact coordinate
 * Can we give announcement of closing time when entering building?

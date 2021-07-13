@@ -118,7 +118,7 @@ const WorldFactory =
         world.x = centerX;
         world.y = centerY;
 
-        // ensure player begins on a walkable tile TODO: should we check if there"s a walkable path instead?
+        // ensure player begins on a walkable tile TODO: should we check if there's a walkable path instead?
 
         while ( world.terrain[ coordinateToIndex( world.x, world.y, world )] > MAX_WALKABLE_TILE ) {
             --world.x;
