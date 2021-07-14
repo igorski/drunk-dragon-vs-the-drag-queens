@@ -278,10 +278,18 @@ describe("Vuex game module", () => {
         });
 
         describe("when updating the game properties", () => {
-            const timestamp     = GAME_START_TIME_UNIX;
+            const gameTime      = GAME_START_TIME_UNIX;
             const mockedGetters = {
-                gameTime: timestamp,
+                gameTime,
                 translate: jest.fn(),
+            };
+            const createMockTimeCommit = () => {
+                // when advanceGameTime is committed, we advance the mocked gameTime
+                return jest.fn(( mutation, value ) => {
+                    if ( mutation === "advanceGameTime" ) {
+                        mockedGetters.gameTime += value; // value is delta in ms to progress time by
+                    }
+                });
             };
 
             it("should not do anything when the game state is not active", () => {
@@ -289,7 +297,7 @@ describe("Vuex game module", () => {
                 const commit = jest.fn();
                 const dispatch = jest.fn();
 
-                actions.updateGame({ commit, dispatch, getters: mockedGetters, state }, timestamp );
+                actions.updateGame({ commit, dispatch, getters: mockedGetters, state }, Date.now() );
                 expect( commit ).not.toHaveBeenCalled();
                 expect( dispatch ).not.toHaveBeenCalled();
             });
@@ -314,76 +322,80 @@ describe("Vuex game module", () => {
                         gameState: GAME_ACTIVE,
                         effects: [ effect1, effect2 ],
                     },
-                }, timestamp );
+                }, Date.now() );
 
                 // assert Effects have been updated
-                expect( mockUpdateFn ).toHaveBeenNthCalledWith( 1, { commit, dispatch }, effect1, timestamp );
-                expect( mockUpdateFn ).toHaveBeenNthCalledWith( 2, { commit, dispatch }, effect2, timestamp );
+                expect( mockUpdateFn ).toHaveBeenNthCalledWith( 1, { commit, dispatch }, effect1, gameTime );
+                expect( mockUpdateFn ).toHaveBeenNthCalledWith( 2, { commit, dispatch }, effect2, gameTime );
 
                 // assert secondary effect has been requested to be removed (as its update returned true)
                 expect( commit ).toHaveBeenCalledWith( "removeEffect", effect2 );
             });
 
             it("should be able to verify the game validity periodically", () => {
-                const commit    = jest.fn();
+                const commit    = createMockTimeCommit();
                 const dispatch  = jest.fn();
                 mockedGetters.isOutside = true;
+                mockedGetters.gameTime  = gameTime;
 
+                const timestamp = Date.now(); // timestamp used by zCanvas update handler
                 const state = {
                     gameState: GAME_ACTIVE,
-                    lastValidGameTime: timestamp - VALIDITY_CHECK_INTERVAL,
-                    lastRender: 0,
+                    lastValidGameTime: gameTime - VALIDITY_CHECK_INTERVAL,
+                    lastRender: timestamp - TIME_PER_RENDER_SLICE, // timestamp of previous "zCanvas update"
                     effects: []
                 };
                 actions.updateGame({ commit, dispatch, getters: mockedGetters, state }, timestamp );
-                expect( commit ).toHaveBeenNthCalledWith( 2, "setLastValidGameTime", timestamp );
+                expect( commit ).toHaveBeenNthCalledWith( 2, "setLastValidGameTime", mockedGetters.gameTime );
             });
 
             it("should end the game when the player is caught outside at an invalid hour", () => {
-                let commit    = jest.fn();
+                let commit    = createMockTimeCommit();
                 let dispatch  = jest.fn();
                 mockedGetters.isOutside = true;
-                mockedGetters.gameTime  = timestamp + ( 7 * 60 * 60 * 1000 );
+                mockedGetters.gameTime  = gameTime + ( 7 * 60 * 60 * 1000 );
 
+                const timestamp = Date.now(); // timestamp used by zCanvas update handler
                 const state = {
                     gameState: GAME_ACTIVE,
-                    lastValidGameTime: timestamp - VALIDITY_CHECK_INTERVAL,
-                    lastRender: 0,
+                    lastValidGameTime: gameTime - VALIDITY_CHECK_INTERVAL,
+                    lastRender: timestamp - TIME_PER_RENDER_SLICE, // timestamp of previous "zCanvas update"
                     effects: []
                 };
                 actions.updateGame({ commit, dispatch, getters: mockedGetters, state }, timestamp );
                 expect( commit ).not.toHaveBeenNthCalledWith( 2, "setGameState", GAME_OVER );
 
-                commit = jest.fn();
+                commit = createMockTimeCommit();
 
                 // advance clock
-                mockedGetters.gameTime = timestamp + ( 8 * 60 * 60 * 1000 );
-                state.lastRender       = mockedGetters.timestamp - TIME_PER_RENDER_SLICE;
+                mockedGetters.gameTime = gameTime + ( 8 * 60 * 60 * 1000 );
+                state.lastRender       = timestamp - TIME_PER_RENDER_SLICE;
 
                 actions.updateGame({ commit, dispatch, getters: mockedGetters, state }, timestamp );
                 expect( commit ).toHaveBeenNthCalledWith( 2, "setGameState", GAME_OVER );
             });
 
             it("should end the game when the player is inside a building after closing time", () => {
-                let commit    = jest.fn();
+                let commit = createMockTimeCommit();
                 let dispatch  = jest.fn();
                 mockedGetters.isOutside = false;
-                mockedGetters.gameTime  = timestamp + ( 6 * 60 * 60 * 1000 );
+                mockedGetters.gameTime  = gameTime + ( 6 * 60 * 60 * 1000 );
 
+                const timestamp = Date.now(); // timestamp used by zCanvas update handler
                 const state = {
                     gameState: GAME_ACTIVE,
-                    lastValidGameTime: timestamp - VALIDITY_CHECK_INTERVAL,
-                    lastRender: 0,
+                    lastValidGameTime: gameTime - VALIDITY_CHECK_INTERVAL,
+                    lastRender: timestamp - TIME_PER_RENDER_SLICE, // timestamp of previous "zCanvas update"
                     effects: []
                 };
                 actions.updateGame({ commit, dispatch, getters: mockedGetters, state }, timestamp );
                 expect( dispatch ).not.toHaveBeenNthCalledWith( 1, "leaveBuilding" );
 
-                commit = jest.fn();
+                commit = createMockTimeCommit();
 
                 // advance clock
-                mockedGetters.gameTime = timestamp + ( 7 * 60 * 60 * 1000 );
-                state.lastRender       = mockedGetters.timestamp - TIME_PER_RENDER_SLICE;
+                mockedGetters.gameTime = gameTime + ( 7 * 60 * 60 * 1000 );
+                state.lastRender       = timestamp - TIME_PER_RENDER_SLICE;
 
                 actions.updateGame({ commit, dispatch, getters: mockedGetters, state }, timestamp );
                 expect( dispatch ).toHaveBeenNthCalledWith( 1, "leaveBuilding" );

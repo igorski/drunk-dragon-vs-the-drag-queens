@@ -157,17 +157,18 @@ export default {
         resetGame() {
             storage.remove( STORAGE_KEY );
         },
-        /* game updates */
         /**
-         * Hooks into the game"s render loop. This updates the world environment
-         * prior to each render cycle. Given timestamp is the renderers timestamp
-         * which relative to the renderStart timestamp defines the relative time.
+         * Hooks into the game's render loop. This updates the world environment
+         * prior to each render cycle. Given timestamp is time at which the zCanvas
+         * renderer invoked this update. By subtracting the lastRender state this
+         * describes the elapsed time between two render iterations (ACTUAL time,
+         * NOT game time, for which GAME_TIME_RATIO multiplier is necessary)
          */
         updateGame({ state, getters, commit, dispatch }, timestamp ) {
             if ( state.gameState !== GAME_ACTIVE ) {
                 return;
             }
-            // advance game time (values in milliseconds)
+            // advance game time (values in milliseconds relative to game time, not actual render interval)
             const delta = ( timestamp - state.lastRender ) * GAME_TIME_RATIO;
             commit( "advanceGameTime", delta );
 
