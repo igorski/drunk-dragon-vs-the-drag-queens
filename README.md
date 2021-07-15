@@ -1,4 +1,4 @@
-# rpg
+# Drunk Dragon vs. the Drag Queens
 
 NAME IDEAS:
 
@@ -84,26 +84,31 @@ npm run test
 
 ## TODO
 
+* Create leveling mechanism by awarding XP.
+** Show Level, XP, HP in status view.
+
+* getDamageForAttack needs to take character attack and opponent defense into account
+** Clothing can increase defense
+
+* Drag swag/charisma == mana
+** Show in status view
+
 * should dragon get stronger / more drunk depending on hour of night ?
 * Sometimes when switching direction character jumps to finish different waypoint than seems logical?
-* Create leveling mechanism by awarding XP
 * Update level of dragon too when defeated on fight end (and relocate on map)
 * player-module use of dispatch( "updateCharacters" ); where do we want to do this ?
 * on game over, when there is a save offer to restore from last save
 * lighting effect for daylight
 * halt all character updates when switching environments/screen isn't game_screen
 * implement ambush (enemy attacks first)
-* add store to sell shoes / fake nails (increases attack, certain shoes increase speed, but decrease charisma)
+* add store to sell shoes / fake nails (increases attack, certain shoes increase speed, but decrease drag swag/charisma)
 * add hamburger joint (can increase hp slowly but cheaply, medicine is more expensive but more potent)
 * changes to opponent should also reflect to appropriate world.characters instance (e.g. battle after run away should not restore health of dragon!)
-* getDamageForAttack needs to take character attack and opponent defense into account
 * replace all Math.random() with random-util.random()
-* Show HP, drag swag and XP/level in status
 * Implement ambush in battle
 * Implement run away (uses boost/intoxication for outcome)
 * There is only a single dragon throughout the game, it should path find you in the overworld and fight you, winning the fight resets the dragon to a far side of the map
-* When fighting other queens, make "flirt" an action (using charisma)
-* Drag swag (charisma?) == mana
+* When fighting other queens, make "flirt" an action (using drag swag)
 * Don't enter exit unless path ends at its exact coordinate
 * Can we give announcement of closing time when entering building?
 * Create floors that are bars chockfull of people!
