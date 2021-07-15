@@ -66,6 +66,13 @@
                             :title="$t('viewCredits')" @click="openScreen('credits')">
                     </button>
                 </li>
+                <li>
+                    <a
+                        v-t="'help'"
+                        href="https://www.igorski.nl/drunk-dragon-vs-the-drag-queens/help"
+                        target="_blank"
+                    ></a>
+                </li>
             </ul>
         </nav>
     </header>
@@ -261,13 +268,14 @@ export default {
             padding: 0;
             margin: 0 $spacing-medium;
 
-            button {
+            button, a {
                 @include titleFont();
                 cursor: pointer;
                 border: 0;
                 background: none;
                 color: $color-text-header;
                 font-size: 100%;
+                text-decoration: none;
 
                 &:hover {
                     color: $color-5;
@@ -275,22 +283,6 @@ export default {
 
                 &:disabled {
                     color: #666;
-                }
-            }
-
-            a {
-                text-decoration: none;
-                font-style: normal;
-                font-size: 120%;
-
-                &.active {
-                    color: $color-text-header;
-                }
-
-                &:hover {
-                    color: $color-text-header;
-                    border-bottom: none;
-                    text-decoration: underline;
                 }
             }
 

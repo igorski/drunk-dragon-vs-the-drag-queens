@@ -8,7 +8,7 @@
 <script>
 import { mapGetters }      from "vuex";
 import Modal               from "@/components/modal/modal";
-import { GAME_START_TIME } from "@/utils/time-util";
+import { GAME_START_TIME } from "@/definitions/constants";
 import messages            from "./messages.json";
 
 const MS_IN_AN_HOUR = 3600000;
