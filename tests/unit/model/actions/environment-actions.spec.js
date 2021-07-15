@@ -38,7 +38,7 @@ describe( "Environment actions", () => {
             );
         });
 
-        it( "should enqueue waypoints calculated on-the-fly from the target coordinate when no waypoints were provided", () => {
+        it( "should enqueue waypoints calculated on-the-fly from the source and target coordinates", () => {
             const commit = jest.fn();
             const targetX = 3;
             const targetY = 2;
@@ -56,20 +56,6 @@ describe( "Environment actions", () => {
             });
             expect( commit ).toHaveBeenNthCalledWith( 3, "addEffect", {
                 ...effectRequestObject, endValue: mockPath[ 1 ].x // second is x-translation
-            });
-        });
-
-        it( "should enqueue the given waypoints, when provided", () => {
-            const commit = jest.fn();
-            const waypoints = [{ x: 2, y: 1 }, { x: 3, y: 1 }];
-            EnvironmentActions.moveCharacter({ commit, getters }, character, environment, 0, 0, [], undefined, undefined, undefined, waypoints );
-
-            // assert individual addition of each waypoint coordinate as an Effect
-            expect( commit ).toHaveBeenNthCalledWith( 2, "addEffect", {
-                ...effectRequestObject, endValue: waypoints[ 0 ].x
-            });
-            expect( commit ).toHaveBeenNthCalledWith( 3, "addEffect", {
-                ...effectRequestObject, endValue: waypoints[ 1 ].x
             });
         });
 

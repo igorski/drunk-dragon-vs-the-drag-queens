@@ -93,8 +93,10 @@ npm run test
 * Drag swag/charisma == mana
 ** Show in status view
 
+* When drunk, characters should slur all 's' words
+* Describe in manual how different properties of intoxication/boost affect charisma (also show this on-screen!)
 * should dragon get stronger / more drunk depending on hour of night ?
-* Sometimes when switching direction character jumps to finish different waypoint than seems logical?
+* When fighting / entering building, environment coordinates are messed up?
 * Update level of dragon too when defeated on fight end (and relocate on map)
 * player-module use of dispatch( "updateCharacters" ); where do we want to do this ?
 * on game over, when there is a save offer to restore from last save

@@ -184,8 +184,11 @@ WorldRenderer.prototype.isValidTarget = function( tileType ) {
  * @param {number} tx destination x-coordinate
  * @param {number} ty destination y-coordinate
  */
-WorldRenderer.prototype.navigateToTile = function( x, y ) {
-    const waypoints = findPath(
+WorldRenderer.prototype.navigateToTile = async function( x, y ) {
+    // TODO: here we pre-calculate the path to prevent "easy" navigation of long distances
+    // Path calculation is also done by "moveToDestination" through EnvironmentActions.moveCharacter.
+    // Can we de-duplicate this ??
+    let waypoints = findPath(
         this._environment,
         Math.round( this._environment.x ), Math.round( this._environment.y ),
         x, y, this.maxWalkableTileNum
@@ -196,7 +199,7 @@ WorldRenderer.prototype.navigateToTile = function( x, y ) {
         // must navigate to smaller steps (prevents automagically resolving of long distances)
         return;
     }
-    dispatch( 'moveToDestination', { waypoints, onProgress: () => {
+    waypoints = await dispatch( 'moveToDestination', { x, y, onProgress: () => {
         const visited = [];
         const { left, top, right, bottom } = this.getVisibleTiles();
         for ( let ix = left; ix < right; ++ix ) {

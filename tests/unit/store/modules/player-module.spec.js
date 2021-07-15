@@ -1,6 +1,8 @@
 import store from "@/store/modules/player-module";
 import { QUEEN } from "@/definitions/character-types";
 import CharacterFactory from "@/model/factories/character-factory";
+import EnvironmentFactory from "@/model/factories/environment-factory";
+
 const { getters, mutations, actions } = store;
 
 describe("Vuex player module", () => {
@@ -89,14 +91,13 @@ describe("Vuex player module", () => {
     describe("actions", () => {
         it("should be able to move the player to the requested destination", () => {
             const state         = { player: { id: "foo", properties: { speed: 1, intoxication: 0, boost: 0 } } };
-            const mockedGetters = { activeEnvironment: { x: 0, y: 0 }, effects: [], gameTime: 0 };
+            const mockedGetters = { activeEnvironment: EnvironmentFactory.create(), effects: [], gameTime: 0 };
             const commit        = jest.fn();
             const dispatch      = jest.fn();
 
-            const waypoints  = [{ x: 1, y: 1 }, { x: 2, y: 2 }];
             const onProgress = jest.fn();
 
-            actions.moveToDestination({ state, getters: mockedGetters, commit, dispatch }, { waypoints, onProgress });
+            actions.moveToDestination({ state, getters: mockedGetters, commit, dispatch }, { x: 1, y: 1, onProgress });
 
             // expect registration of update handler
             expect( commit ).toHaveBeenNthCalledWith( 1, "setOnMovementUpdate", onProgress );

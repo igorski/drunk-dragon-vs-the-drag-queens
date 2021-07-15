@@ -54,7 +54,7 @@ export default
         },
     },
     actions: {
-        moveToDestination({ state, getters, commit }, { waypoints = [], onProgress = null }) {
+        moveToDestination({ state, getters, commit }, { x, y, onProgress = null }) {
             const character = state.player;
             const { activeEnvironment } = getters;
             commit( "setOnMovementUpdate", onProgress );
@@ -68,9 +68,9 @@ export default
             });
 
             // enqueue the waypoints
-            EnvironmentActions.moveCharacter(
+            return EnvironmentActions.moveCharacter(
                 { commit, getters }, { ...character, x: activeEnvironment.x, y: activeEnvironment.y },
-                activeEnvironment, 0, 0, existing, xMutation, yMutation, "handleMoveUpdate", waypoints
+                activeEnvironment, x, y, existing, xMutation, yMutation, "handleMoveUpdate"
             );
         },
         handleMoveUpdate({ state, dispatch, commit, getters }) {

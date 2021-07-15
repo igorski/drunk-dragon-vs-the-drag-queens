@@ -17,17 +17,15 @@ export default {
      * @param {Object} Vuex store reference
      * @param {Object} character to move
      * @param {Object} environment to move within
-     * @param {Number} targetX target x-coordinate to move to, ignored when optWaypoints are provided
-     * @param {Number} targetY target y-coordinate to move to, ignored when optWaypoints are provided
+     * @param {Number} targetX target x-coordinate to move to
+     * @param {Number} targetY target y-coordinate to move to
      * @param {Array<Object>=} pendingMovements optional list of existing movements (Effects) for this character
      * @param {String=} xMutation optional name of Vuex store mutation to execute on x-coordinate translations
      * @param {String=} yMutation optional name of Vuex store mutation to execute on y-coordinate translations
      * @param {String=} updateMutation optional name of Vuex store mutation to execute on single waypoint move
-     * @param {Array<Object>=} optWaypoints optional waypoints list, when empty will be calculated from target coords
      */
     moveCharacter({ commit, getters }, character, environment, targetX, targetY, pendingMovements = [],
-        xMutation = "setCharacterXPosition", yMutation = "setCharacterYPosition", updateMutation = "hitTest",
-        optWaypoints = null
+        xMutation = "setCharacterXPosition", yMutation = "setCharacterYPosition", updateMutation = "hitTest"
     ) {
         let startTime = getters.gameTime;
         let startX = Math.round( character.x );
@@ -59,7 +57,7 @@ export default {
         });
 
         // calculate waypoints from the last position to the target position
-        const waypoints = optWaypoints || findPath(
+        const waypoints = findPath(
             environment, startX, startY,
             Math.round( targetX ), Math.round( targetY ), MAX_WALKABLE_TILE
         );
@@ -90,6 +88,7 @@ export default {
                 startTime += effect.duration; // add effects scaled duration to next start time
             }
         });
+        return waypoints;
     },
     /**
      * Performs a collision detection with the environments interactive
