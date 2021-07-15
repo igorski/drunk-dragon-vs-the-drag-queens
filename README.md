@@ -84,6 +84,7 @@ npm run test
 
 ## TODO
 
+* should dragon get stronger / more drunk depending on hour of night ?
 * Sometimes when switching direction character jumps to finish different waypoint than seems logical?
 * Create leveling mechanism by awarding XP
 * Update level of dragon too when defeated on fight end (and relocate on map)

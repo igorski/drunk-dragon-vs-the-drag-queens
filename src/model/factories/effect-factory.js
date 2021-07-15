@@ -1,4 +1,4 @@
-import { GAME_TIME_RATIO } from '@/utils/time-util';
+import { GAME_TIME_RATIO } from "@/definitions/constants";
 
 const EffectFactory =
 {

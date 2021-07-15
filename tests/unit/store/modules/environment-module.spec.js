@@ -6,9 +6,7 @@ import { GAME_ACTIVE, GAME_OVER } from "@/definitions/game-states";
 import {
     SCREEN_SHOP, SCREEN_GAME, SCREEN_CHARACTER_INTERACTION, SCREEN_BATTLE
 } from "@/definitions/screens";
-import {
-    GAME_START_TIME, GAME_TIME_RATIO, VALIDITY_CHECK_INTERVAL
-} from "@/utils/time-util";
+import { GAME_START_TIME, GAME_TIME_RATIO, VALIDITY_CHECK_INTERVAL } from "@/definitions/constants";
 
 const { getters, mutations, actions } = store;
 

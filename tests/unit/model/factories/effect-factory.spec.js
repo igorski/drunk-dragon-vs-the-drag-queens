@@ -1,5 +1,5 @@
 import EffectFactory from "@/model/factories/effect-factory";
-import { GAME_TIME_RATIO } from "@/utils/time-util";
+import { GAME_TIME_RATIO } from "@/definitions/constants";
 
 describe("Effect factory", () => {
     it( "should require either a mutation or callback action to be defined", () => {

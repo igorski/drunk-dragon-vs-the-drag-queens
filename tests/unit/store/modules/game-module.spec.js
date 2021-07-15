@@ -5,7 +5,7 @@ import { GAME_ACTIVE, GAME_OVER } from "@/definitions/game-states";
 import { SCREEN_SHOP, SCREEN_GAME, SCREEN_CHARACTER_INTERACTION } from "@/definitions/screens";
 import {
     GAME_START_TIME_UNIX, GAME_TIME_RATIO, VALIDITY_CHECK_INTERVAL
-} from "@/utils/time-util";
+} from "@/definitions/constants";
 const TIME_PER_RENDER_SLICE = 1000 / 60;
 
 const { getters, mutations, actions } = store;

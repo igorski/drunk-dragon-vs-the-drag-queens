@@ -1,6 +1,6 @@
 import EffectActions from "@/model/actions/effect-actions";
 import EffectFactory from "@/model/factories/effect-factory";
-import { GAME_TIME_RATIO } from "@/utils/time-util";
+import { GAME_TIME_RATIO } from "@/definitions/constants";
 
 describe("Effect actions", () => {
     const mutation       = "foo";

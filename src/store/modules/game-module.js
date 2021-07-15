@@ -5,12 +5,9 @@ import CharacterFactory from "@/model/factories/character-factory";
 import GameFactory      from "@/model/factories/game-factory";
 import WorldFactory     from "@/model/factories/world-factory";
 import EffectActions    from "@/model/actions/effect-actions";
-import {
-    GAME_ACTIVE, GAME_PAUSED, GAME_OVER
-} from "@/definitions/game-states";
-import {
-    GAME_START_TIME, GAME_TIME_RATIO, VALIDITY_CHECK_INTERVAL, isValidHourToBeOutside, isValidHourToBeInside
-} from "@/utils/time-util";
+import { GAME_START_TIME, GAME_TIME_RATIO, VALIDITY_CHECK_INTERVAL } from "@/definitions/constants";
+import { GAME_ACTIVE, GAME_PAUSED, GAME_OVER } from "@/definitions/game-states";
+import { isValidHourToBeOutside, isValidHourToBeInside } from "@/utils/time-util";
 import {
     SCREEN_CHARACTER_CREATE
 } from "@/definitions/screens";
@@ -159,16 +156,16 @@ export default {
         },
         /**
          * Hooks into the game's render loop. This updates the world environment
-         * prior to each render cycle. Given timestamp is time at which the zCanvas
-         * renderer invoked this update. By subtracting the lastRender state this
-         * describes the elapsed time between two render iterations (ACTUAL time,
+         * prior to each render cycle. Given timestamp is the time at which the zCanvas
+         * renderer invoked this update. By subtracting the lastRender value this
+         * describes the elapsed time between two render iterations (in ACTUAL time,
          * NOT game time, for which GAME_TIME_RATIO multiplier is necessary)
          */
         updateGame({ state, getters, commit, dispatch }, timestamp ) {
             if ( state.gameState !== GAME_ACTIVE ) {
                 return;
             }
-            // advance game time (values in milliseconds relative to game time, not actual render interval)
+            // advance game time (values are in milliseconds relative to the game's time scale)
             const delta = ( timestamp - state.lastRender ) * GAME_TIME_RATIO;
             commit( "advanceGameTime", delta );
 
@@ -180,7 +177,7 @@ export default {
                     commit( "setGameState", GAME_OVER );
                 } else if ( !getters.isOutside && !isValidHourToBeInside( date )) {
                     dispatch( "leaveBuilding" );
-                    commit( "openDialog", { message: getters.translate("timeouts.building") });
+                    commit( "openDialog", { message: getters.translate( "timeouts.building" ) });
                 } else {
                     commit( "setLastValidGameTime", gameTimestamp );
                 }
