@@ -138,7 +138,7 @@ describe( "Environment actions", () => {
             };
             expect( EnvironmentActions.hitTest({ commit, dispatch, getters }, environment )).toBe( true );
             expect( dispatch ).toHaveBeenCalledWith( "interactWithCharacter", environment.characters[ 0 ]);
-            expect( commit ).toHaveBeenCalledWith( "setYPosition", environment.y + 1 );
+            expect( commit ).toHaveBeenCalledWith( "setYPosition", { value: environment.y + 1 });
         });
 
         it( "should enter a shop when the player collides with said shop", () => {
@@ -155,7 +155,7 @@ describe( "Environment actions", () => {
             };
             expect( EnvironmentActions.hitTest({ commit, dispatch, getters }, environment )).toBe( true );
             expect( dispatch ).toHaveBeenCalledWith( "enterShop", environment.shops[ 0 ]);
-            expect( commit ).toHaveBeenCalledWith( "setYPosition", environment.y + 1 );
+            expect( commit ).toHaveBeenCalledWith( "setYPosition", { value: environment.y + 1 });
         });
 
         it( "should enter a building when the player collides with said building", () => {
@@ -172,7 +172,7 @@ describe( "Environment actions", () => {
             };
             expect( EnvironmentActions.hitTest({ commit, dispatch, getters }, environment )).toBe( true );
             expect( dispatch ).toHaveBeenCalledWith( "enterBuilding", environment.buildings[ 0 ]);
-            expect( commit ).toHaveBeenCalledWith( "setYPosition", environment.y + 1 );
+            expect( commit ).toHaveBeenCalledWith( "setYPosition", { value: environment.y + 1 });
         });
 
         it( "should move to a lower floor when the player collides with the first exit inside a building", () => {
@@ -189,7 +189,7 @@ describe( "Environment actions", () => {
             };
             expect( EnvironmentActions.hitTest({ commit, dispatch, getters }, environment )).toBe( true );
             expect( dispatch ).toHaveBeenCalledWith( "changeFloor", getters.floor - 1 );
-            expect( commit ).toHaveBeenCalledWith( "setYPosition", environment.y + 1 );
+            expect( commit ).toHaveBeenCalledWith( "setYPosition", { value: environment.y + 1 });
         });
 
         it( "should move to a higher floor when the player collides with the last exit inside a building", () => {
@@ -206,7 +206,7 @@ describe( "Environment actions", () => {
             };
             expect( EnvironmentActions.hitTest({ commit, dispatch, getters }, environment )).toBe( true );
             expect( dispatch ).toHaveBeenCalledWith( "changeFloor", getters.floor + 1 );
-            expect( commit ).toHaveBeenCalledWith( "setYPosition", environment.y + 1 );
+            expect( commit ).toHaveBeenCalledWith( "setYPosition", { value: environment.y + 1 });
         });
     });
 });

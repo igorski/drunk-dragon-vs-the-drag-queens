@@ -127,7 +127,7 @@ export default {
         if ( hit ) {
             // here we ensures that when we're done with the action (e.g. leaving
             // a building) we don't collide with the same object (re-entering the building again)
-            commit( "setYPosition", y + 1 );
+            commit( "setYPosition", { value: y + 1 });
             // dispatch after updating position (otherwise y is changed for new environment)
             dispatch( dispatchFn, dispatchValue ?? hit );
         }

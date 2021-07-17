@@ -155,8 +155,8 @@ export default {
                 const environment = getters.activeEnvironment;
                 const firstExit   = environment.exits[ isDown ? 1 : 0 ];
                 const startCoordinates = getFirstFreeTileOfTypeAroundPoint( firstExit.x, firstExit.y, environment, BUILDING_TILES.GROUND );
-                commit( "setXPosition", startCoordinates.x );
-                commit( "setYPosition", startCoordinates.y );
+                commit( "setXPosition", { value: startCoordinates.x });
+                commit( "setYPosition", { value: startCoordinates.y });
             }
         },
         async leaveBuilding({ state, commit, dispatch }) {
