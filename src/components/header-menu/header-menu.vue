@@ -13,7 +13,7 @@
                     <button v-t="'file'" type="button"
                             class="submenu__toggle" :title="$t('file')">
                     </button>
-                    <ul>
+                    <ul class="menu__items__sub">
                         <li>
                             <button v-t="'saveGame'"
                                     type="button"
@@ -258,8 +258,24 @@ export default {
             margin: 0 auto;
             display: block;
 
+            &__sub {
+                li button {
+                    display: block;
+                    margin: $spacing-medium 0;
+                }
+            }
+
             @include large() {
                 text-align: left;
+
+                &__sub {
+                    padding-top: $menu-height;
+                    background-color: transparent;
+
+                    li button {
+                        background-color: $color-background;
+                    }
+                }
             }
         }
 
@@ -276,6 +292,7 @@ export default {
                 color: $color-text-header;
                 font-size: 100%;
                 text-decoration: none;
+                padding: 0 $spacing-small;
 
                 &:hover {
                     color: $color-5;
