@@ -25,7 +25,8 @@ describe( "Vuex player module", () => {
             const state = { player: CharacterFactory.create({ x: 10, y: 11, hp: 10 }) };
             const { appearance, inventory, properties } = state.player;
             const updatedPlayer = {
-                hp: 200,
+                hp: 195,
+                maxHp: 200,
                 xp: 100,
                 x: 12,
                 y: 13,
@@ -40,7 +41,8 @@ describe( "Vuex player module", () => {
             mutations.updatePlayer( state, updatedPlayer );
             expect( state.player ).toEqual({
                 id: expect.any( String ),
-                hp: 200,
+                hp: 195,
+                maxHp: 200,
                 xp: 100,
                 x: 12,
                 y: 13,

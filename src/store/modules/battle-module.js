@@ -1,6 +1,6 @@
 import merge            from "lodash/merge";
 import cloneDeep        from "lodash/cloneDeep";
-import { XP_PER_LEVEL } from "@/definitions/constants";
+import { XP_PER_LEVEL, xpNeededForLevel } from "@/definitions/constants";
 import { GAME_OVER }    from "@/definitions/game-states";
 import { SCREEN_GAME }  from "@/definitions/screens";
 import { random }       from "@/utils/random-util";
@@ -88,11 +88,13 @@ export default {
             if ( opponent.hp === 0 ) {
                 // player won
                 commit( "awardXP", state.award );
-                const { level, xp } = getters.player;
-                const nextLevel = XP_PER_LEVEL + (( XP_PER_LEVEL * level ) * ( level - 1 ));
-                if (( xp - nextLevel ) >= 0 ) {
+                const { level, xp, hp, maxHp } = getters.player;
+                const nextLevelXp = xpNeededForLevel( level );
+                if (( xp - nextLevelXp ) >= 0 ) {
                     // level up as enough XP was gathered
                     commit( "setPlayerLevel", level + 1 );
+                    // update available HP
+                    commit( "updatePlayer", { hp: hp + 5, maxHp: maxHp + 5 } );
                 }
                 commit( "setBattleWon", true );
             } else if ( getters.player.hp === 0 ) {

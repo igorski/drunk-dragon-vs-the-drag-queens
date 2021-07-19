@@ -52,10 +52,11 @@ describe( "Vuex battle module", () => {
         });
 
         it( "should be able to update the properties of the currently battling opponent", () => {
-            const state = { opponent: CharacterFactory.create({ x: 10, y: 11, hp: 10, type: DRAGON }) };
+            const state = { opponent: CharacterFactory.create({ x: 10, y: 11, hp: 10, maxHp: 10, type: DRAGON }) };
             const { appearance, inventory, properties } = state.opponent;
             const updatedOpponent = {
                 hp: 200,
+                maxHp: 210,
                 xp: 100,
                 x: 12,
                 y: 13,
@@ -71,6 +72,7 @@ describe( "Vuex battle module", () => {
             expect( state.opponent ).toEqual({
                 id: expect.any( String ),
                 hp: 200,
+                maxHp: 210,
                 xp: 100,
                 x: 12,
                 y: 13,
@@ -275,7 +277,7 @@ describe( "Vuex battle module", () => {
             it( "should increase the level when sufficient XP has been gathered", async () => {
                 const halfLevelXP = XP_PER_LEVEL / 2;
                 const state       = { opponent: { hp: 0 }, award: halfLevelXP };
-                mockedGetters     = { player: { xp: 0, level: 1 } };
+                mockedGetters     = { player: { xp: 0, level: 1, hp: 3, maxHp: 5 } };
 
                 let commit = createMockAwardGetter();
                 await actions.resolveBattle({ state, getters: mockedGetters, commit });
@@ -289,7 +291,9 @@ describe( "Vuex battle module", () => {
                 await actions.resolveBattle({ state, getters: mockedGetters, commit });
 
                 // expected level to have risen
-                expect( commit ).toHaveBeenCalledWith( "setPlayerLevel", 2 );
+                expect( commit ).toHaveBeenNthCalledWith( 2, "setPlayerLevel", 2 );
+                // expect HP to have risen
+                expect( commit ).toHaveBeenNthCalledWith( 3, "updatePlayer", { hp: 8, maxHp: 10 } );
             });
 
             it( "should require increasingly more XP to raise subsequent levels", async () => {

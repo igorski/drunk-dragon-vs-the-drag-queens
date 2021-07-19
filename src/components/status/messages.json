@@ -6,6 +6,10 @@
         "date": "Date",
         "cash": "Cash",
         "inventory": "Inventory",
-        "youHaveNoItems": "You currently have no items in your inventory."
+        "youHaveNoItems": "You currently have no items in your inventory.",
+        "level": "Level",
+        "hp": "HP",
+        "xp": "XP",
+        "xpNeededToLevelUp": "XP needed to level up"
     }
 }

@@ -12,3 +12,6 @@ export const VALID_HOURS_INSIDE  = [ 22, 23, 0, 1, 2, 3, 4 ];
 /* levelling mechanism */
 
 export const XP_PER_LEVEL = 10; // amount of XP needed to level up. Multiply by current level for each subsequent level up.
+
+// the amount of XP needed to reach given level
+export const xpNeededForLevel = level => XP_PER_LEVEL + (( XP_PER_LEVEL * level ) * ( level - 1 ));

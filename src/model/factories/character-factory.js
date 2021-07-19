@@ -32,14 +32,16 @@ const CharacterFactory =
       * their visual appearance, a series of properties that affects their
       * performance (e.g. speed, accuracy) and an inventory.
       */
-     create({ x = 0, y = 0, level = 1, hp = 1, xp = 0, type = QUEEN, id = getUid() } = {},
+     create({ x = 0, y = 0, level = 1, hp = 1, maxHp = 0, xp = 0, type = QUEEN, id = getUid() } = {},
          appearance = {}, properties = {},  inventory = InventoryFactory.create() ) {
+         maxHp = Math.max( hp, maxHp );
          const character = {
              id,
              x,
              y,
              level,
              hp,
+             maxHp,
              xp,
              type,
              // all characters are always 1 tile in width and height
@@ -90,6 +92,7 @@ const CharacterFactory =
             type: data.t,
             xp: data.xp,
             hp: data.hp,
+            maxHp: data.mhp
         },
         {
             name: data.n,
@@ -112,9 +115,10 @@ const CharacterFactory =
      * serializes a Character instance into a JSON structure
      */
     disassemble( character ) {
-        const { id, x, y, level, type, xp, hp, appearance, properties, inventory } = character;
+        const { id, x, y, level, type, xp, hp, maxHp, appearance, properties, inventory } = character;
         return {
             x, y, xp, hp, id,
+            mhp: maxHp,
             l: level,
             t: type,
             n: appearance.name,

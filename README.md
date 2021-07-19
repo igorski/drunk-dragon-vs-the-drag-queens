@@ -84,15 +84,14 @@ npm run test
 
 ## TODO
 
-** Show Level, XP, XP needed for next level and HP in status view.
-
 * getDamageForAttack needs to take character attack and opponent defense into account
 ** Clothing can increase defense
 
 * Drag swag/charisma == mana
 ** Show in status view
 
-* When advancing a level, increase HP.
+* Block status and credits menu when in battle
+* When advancing a level, increase max HP.
 * Calculate appropriate award for battle (battle-module#startBattle)
 * Images for shop products
 * Dynamic components need a loader

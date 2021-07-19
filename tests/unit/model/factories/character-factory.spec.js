@@ -35,10 +35,11 @@ describe("Character factory", () => {
             const level = 3;
             const xp = 500;
             const hp = 12;
+            const maxHp = 20;
             const type = DRAGON;
             const inventory = InventoryFactory.create();
 
-            const char = CharacterFactory.create({ id, x, y, level, hp, xp, type }, appearance, properties, inventory );
+            const char = CharacterFactory.create({ id, x, y, level, hp, xp, maxHp, type }, appearance, properties, inventory );
 
             expect( char.id ).toEqual( id );
             expect( char.type ).toEqual( type );
@@ -46,6 +47,7 @@ describe("Character factory", () => {
             expect( char.y ).toEqual( y );
             expect( char.level ).toEqual( level );
             expect( char.hp ).toEqual( hp );
+            expect( char.maxHp ).toEqual( maxHp );
             expect( char.xp ).toEqual( xp );
             expect( char.appearance ).toEqual( appearance );
             expect( char.properties ).toEqual( properties );
