@@ -5,23 +5,23 @@ import EnvironmentFactory from "@/model/factories/environment-factory";
 
 const { getters, mutations, actions } = store;
 
-describe("Vuex player module", () => {
-    describe("getters", () => {
-        it("should return the player Character", () => {
+describe( "Vuex player module", () => {
+    describe( "getters", () => {
+        it( "should return the player Character", () => {
             const state = { player: { baz: "qux" } };
             expect( getters.player( state )).toEqual( state.player );
         });
     });
 
-    describe("mutations", () => {
-        it("should be able to set the player Character", () => {
+    describe( "mutations", () => {
+        it( "should be able to set the player Character", () => {
             const state = { player: null };
             const player = { foo: "bar" };
             mutations.setPlayer( state, player );
             expect( state.player ).toEqual( player );
         });
 
-        it("should be able to update the player Character properties", () => {
+        it( "should be able to update the player Character properties", () => {
             const state = { player: CharacterFactory.create({ x: 10, y: 11, hp: 10 }) };
             const { appearance, inventory, properties } = state.player;
             const updatedPlayer = {
@@ -60,26 +60,38 @@ describe("Vuex player module", () => {
             });
         });
 
-        it("should be able to deduct cash from the players balance", () => {
+        it( "should be able to deduct cash from the players balance", () => {
             const state = { player: { inventory: { cash: 50 } } };
             mutations.deductCash( state, 10 );
             expect( state.player.inventory.cash ).toEqual( 40 );
         });
 
-        it("should be able to award cash to the players balance", () => {
+        it( "should be able to award cash to the players balance", () => {
             const state = { player: { inventory: { cash: 50 } } };
             mutations.awardCash( state, 10 );
             expect( state.player.inventory.cash ).toEqual( 60 );
         });
 
-        it("should be able to add an item to the players inventory", () => {
+        it( "should be able to increment the player XP", () => {
+            const state = { player: { xp: 10 } };
+            mutations.awardXP( state, 5 );
+            expect( state.player.xp ).toEqual( 15 );
+        });
+
+        it( "should be able to set the player level", () => {
+            const state = { player: { level: 1 } };
+            mutations.setPlayerLevel( state, 2 );
+            expect( state.player.level ).toEqual( 2 );
+        });
+
+        it( "should be able to add an item to the players inventory", () => {
             const state = { player: { inventory: { cash: 50, items: [{ foo: "bar" }] } } };
             const item  = { baz: "qux" };
             mutations.addItemToInventory( state, item );
             expect( state.player.inventory.items ).toEqual([{ foo: "bar"}, { baz: "qux" }]);
         });
 
-        it("should be able to remove an item from the players inventory", () => {
+        it( "should be able to remove an item from the players inventory", () => {
             const state = { player: { inventory: {
                 cash: 50, items: [{ foo: "bar" }, { baz: "qux" }] } }
             };
@@ -88,8 +100,8 @@ describe("Vuex player module", () => {
         });
     });
 
-    describe("actions", () => {
-        it("should be able to move the player to the requested destination", () => {
+    describe( "actions", () => {
+        it( "should be able to move the player to the requested destination", () => {
             const state         = { player: { id: "foo", properties: { speed: 1, intoxication: 0, boost: 0 } } };
             const mockedGetters = { activeEnvironment: EnvironmentFactory.create(), effects: [], gameTime: 0 };
             const commit        = jest.fn();
@@ -103,8 +115,8 @@ describe("Vuex player module", () => {
             expect( commit ).toHaveBeenNthCalledWith( 1, "setOnMovementUpdate", onProgress );
         });
 
-        describe("when buying an item from a shop", () => {
-            it("should deny the transaction when the player has insufficient funds", () => {
+        describe( "when buying an item from a shop", () => {
+            it( "should deny the transaction when the player has insufficient funds", () => {
                 const state  = { player: { inventory: { cash: 5 } } };
                 const item   = { price: 10 };
                 const commit = jest.fn();
@@ -112,7 +124,7 @@ describe("Vuex player module", () => {
                 expect( commit ).not.toHaveBeenCalled();
             });
 
-            it("should buy the item when the player has sufficient funds and move it to the player inventory", () => {
+            it( "should buy the item when the player has sufficient funds and move it to the player inventory", () => {
                 const state  = { player: { inventory: { cash: 15 } } };
                 const item   = { price: 10 };
                 const commit = jest.fn();
@@ -123,7 +135,7 @@ describe("Vuex player module", () => {
             });
         });
 
-        it("should be able to sell an item to a shop", () => {
+        it( "should be able to sell an item to a shop", () => {
             const orgPrice = 12;
             const item     = { price: orgPrice };
             const price    = 5;
@@ -138,7 +150,7 @@ describe("Vuex player module", () => {
             expect( item.price ).not.toEqual( orgPrice ); // price has been updated
         });
 
-        describe("when giving an inventory item to another Character", () => {
+        describe( "when giving an inventory item to another Character", () => {
             const character = {
                 properties: {
                     intent: {
@@ -158,7 +170,7 @@ describe("Vuex player module", () => {
                 expect( commit ).not.toHaveBeenCalled();
             });
 
-            it("should give the item when it meets the Characters intent", () => {
+            it( "should give the item when it meets the Characters intent", () => {
                 const item = { type: 1, price: 10 };
                 const commit = jest.fn();
 

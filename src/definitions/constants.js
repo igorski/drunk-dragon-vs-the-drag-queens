@@ -8,3 +8,7 @@ export const VALIDITY_CHECK_INTERVAL = 10000 * GAME_TIME_RATIO;
 // the time of day the player is allowed to roam in- or outside
 export const VALID_HOURS_OUTSIDE = [ 22, 23, 0, 1, 2, 3, 4, 5 ];
 export const VALID_HOURS_INSIDE  = [ 22, 23, 0, 1, 2, 3, 4 ];
+
+/* levelling mechanism */
+
+export const XP_PER_LEVEL = 10; // amount of XP needed to level up. Multiply by current level for each subsequent level up.

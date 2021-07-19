@@ -32,7 +32,6 @@
             {{ $t('youWon') }}
         </div>
         <div v-else>
-            <p v-if="message">{{ message }}</p>
             <model-select
                 v-model="attackType"
                 :options="attackTypesForPlayer"
@@ -53,6 +52,13 @@
                 @click="run()"
             ></button>
         </div>
+        <!-- battle progress update messages -->
+        <p
+            v-for="(message, index) in messages"
+            :key="`msg_${index}`"
+        >
+            {{ message }}
+        </p>
     </modal>
 </template>
 
@@ -60,7 +66,6 @@
 import { mapGetters, mapMutations, mapActions } from "vuex";
 import { ModelSelect } from 'vue-search-select';
 import AttackTypes     from "@/definitions/attack-types";
-import { GAME_OVER }   from "@/definitions/game-states";
 import { SCREEN_GAME } from "@/definitions/screens";
 import Modal           from "@/components/modal/modal";
 import CharacterStatus from "./character-status/character-status";
@@ -78,14 +83,18 @@ export default {
     },
     data: () => ({
         attackType: null,
-        battleWon: false,
         timeout: null,
-        message: null,
+        messages: [],
+        playerStats: {
+            xp: 0,
+            level: 1,
+        },
     }),
     computed: {
         ...mapGetters([
             "player",
             "playerTurn",
+            "battleWon",
             "opponent",
         ]),
         canAttack() {
@@ -99,30 +108,37 @@ export default {
         },
     },
     watch: {
-        player({ hp }) {
-            if ( hp === 0 ) {
-                this.setGameState( GAME_OVER );
-            }
-        },
         opponent({ hp }) {
-            if ( hp === 0 ) {
-                this.battleWon = true;
-                window.setTimeout(() => {
-                    this.close();
-                    // TODO: award points, reset dragon
-                }, 3000 );
-            } else if ( !this.playerTurn ) {
+            if ( hp !== 0 && !this.playerTurn ) {
                 this.executeOpponentAttack(); // opponent retaliates
             }
+        },
+        battleWon( value ) {
+            if ( !value ) {
+                return;
+            }
+            this.messages = [];
+            const { level, xp } = this.player;
+            if ( xp > this.playerStats.xp ) {
+                this.messages.push( this.$t( "youEarnedXp", { xp: xp - this.playerStats.xp } ));
+            }
+            if ( level > this.playerStats.level ) {
+                this.messages.push( this.$t( "youAdvancedToLevel", { level }));
+            }
+            window.setTimeout(() => {
+                this.close();
+                // TODO: reset dragon
+            }, 3000 );
         }
     },
     created() {
         this.attackType = this.attackTypesForPlayer[ 0 ];
+        const { xp, level } = this.player;
+        this.$set( this.playerStats, { xp, level });
         this.setPlayerTurn( true ); // TODO: implement ambush (should be Vuex action on battle creation)
     },
     methods: {
         ...mapMutations([
-            "setGameState",
             "setScreen",
             "setPlayerTurn",
             "showNotification",
@@ -134,14 +150,14 @@ export default {
         ]),
         async attack() {
             const damage = await this.attackOpponent({ type: this.attackType.value });
-            // TODO: show damage dealt
+            // TODO: show damage dealt ?
         },
         async run() {
             const { name } = this.opponent.appearance;
             if ( await this.runFromOpponent() ) {
                 this.showNotification({ message: this.$t( "youEscapedFromBattlingName", { name }) });
             } else {
-                this.message = this.$t( "cannotEscapeFromName", { name });
+                this.messages = [ this.$t( "cannotEscapeFromName", { name }) ];
                 this.executeOpponentAttack();
             }
         },
@@ -151,7 +167,7 @@ export default {
             }
             this.timeout = window.setTimeout( async () => {
                 const damage = await this.attackPlayer({ type: AttackTypes.BITE });
-                this.message = this.$t( "nameDealtDamage", { name: this.opponent.appearance.name, damage });
+                this.messages = [ this.$t( "nameDealtDamage", { name: this.opponent.appearance.name, damage }) ];
                 window.clearTimeout( this.timeout );
                 this.timeout = null;
             }, 2000 );

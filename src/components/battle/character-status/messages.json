@@ -1,6 +1,7 @@
 {
     "en-US": {
         "hp": "HP: {hp}",
+        "xp": "XP: {xp}",
         "level": "Level: {level}"
     }
 }

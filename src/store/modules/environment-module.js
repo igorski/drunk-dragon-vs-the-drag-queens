@@ -178,10 +178,10 @@ export default {
             await renderEnvironment( environment, getters.player );
             commit( "setLoading", false );
         },
-        interactWithCharacter({ state, commit }, character ) {
+        interactWithCharacter({ state, commit, dispatch }, character ) {
             if ( character.type === DRAGON ) {
-                commit( "setOpponent", character );
-                commit( "setScreen",   SCREEN_BATTLE );
+                dispatch( "startBattle", character );
+                commit( "setScreen", SCREEN_BATTLE );
             } else if ( character.type === QUEEN ) {
                 let { intent } = character.properties;
                 if ( !intent ) {

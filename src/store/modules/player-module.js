@@ -36,6 +36,12 @@ export default
         awardCash( state, amount ) {
             state.player.inventory.cash += amount;
         },
+        awardXP( state, xp ) {
+            state.player.xp += xp;
+        },
+        setPlayerLevel( state, level ) {
+            state.player.level = level;
+        },
         addItemToInventory( state, item ) {
             const { items } = state.player.inventory;
             if ( !items.includes( item )) {

@@ -1,6 +1,8 @@
 import store            from "@/store/modules/battle-module";
 import AttackTypes      from "@/definitions/attack-types";
 import { DRAGON }       from "@/definitions/character-types";
+import { XP_PER_LEVEL } from "@/definitions/constants";
+import { GAME_OVER }    from "@/definitions/game-states";
 import { SCREEN_GAME }  from "@/definitions/screens";
 import CharacterFactory from "@/model/factories/character-factory";
 
@@ -28,6 +30,11 @@ describe( "Vuex battle module", () => {
             const state = { playerTurn: true };
             expect( getters.playerTurn( state )).toEqual( state.playerTurn );
         });
+
+        it( "should be able to retrieve whether the battle has been won by the player", () => {
+            const state = { battleWon: true };
+            expect( getters.battleWon( state )).toEqual( state.battleWon );
+        });
     });
 
     describe( "mutations", () => {
@@ -36,6 +43,12 @@ describe( "Vuex battle module", () => {
             const opponent = CharacterFactory.create({ type: DRAGON });
             mutations.setOpponent( state, opponent );
             expect( state.opponent ).toEqual( opponent );
+        });
+
+        it( "should be able to set the award for winning the current battle", () => {
+            const state = { award: 0 };
+            mutations.setAward( state, 2 );
+            expect( state.award ).toEqual( 2 );
         });
 
         it( "should be able to update the properties of the currently battling opponent", () => {
@@ -76,6 +89,18 @@ describe( "Vuex battle module", () => {
                 appearance
             });
         });
+
+        it( "should be able to set the player turn", () => {
+            const state = { playerTurn: false };
+            mutations.setPlayerTurn( state, true );
+            expect( state.playerTurn ).toBe( true );
+        });
+
+        it( "should be able to set the battle won (by player) status", () => {
+            const state = { battleWon: false };
+            mutations.setBattleWon( state, true );
+            expect( state.battleWon ).toBe( true );
+        });
     });
 
     describe( "actions", () => {
@@ -93,11 +118,22 @@ describe( "Vuex battle module", () => {
 
             it( "should update the opponent HP and return the damage for the given attack type", async () => {
                 const commit = jest.fn();
+                const dispatch = jest.fn();
                 opponent.hp = 10;
                 mockDamageForAttack = 5;
-                const damage = await actions.attackOpponent({ state, getters: mockedGetters, commit }, { type: AttackTypes.SLAP });
+                const damage = await actions.attackOpponent({ state, getters: mockedGetters, commit, dispatch }, { type: AttackTypes.SLAP });
                 expect( commit ).toHaveBeenNthCalledWith( 2, "updateOpponent", { hp: opponent.hp - mockDamageForAttack });
                 expect( damage ).toEqual( mockDamageForAttack );
+                expect( dispatch ).not.toHaveBeenCalledWith( "resolveBattle" );
+            });
+
+            it( "should resolve the battle if the opponent has no HP left after attack", async () => {
+                const commit = jest.fn();
+                const dispatch = jest.fn();
+                opponent.hp = 1;
+                mockDamageForAttack = 1;
+                await actions.attackOpponent({ state, getters: mockedGetters, commit, dispatch }, { type: AttackTypes.SLAP });
+                expect( dispatch ).toHaveBeenCalledWith( "resolveBattle" );
             });
         });
 
@@ -162,18 +198,30 @@ describe( "Vuex battle module", () => {
 
             it( "should activate the Players turn if the Player still has HP left after attack", async () => {
                 const commit = jest.fn();
+                const dispatch = jest.fn();
                 player.hp = 10;
                 mockDamageForAttack = 1;
                 await actions.attackPlayer({ state, getters: mockedGetters, commit }, { type: AttackTypes.SLAP });
                 expect( commit ).toHaveBeenNthCalledWith( 2, "setPlayerTurn", true );
+                expect( dispatch ).not.toHaveBeenCalledWith( "resolveBattle" );
             });
 
             it( "should not activate the Players turn if the Player has no HP left after attack", async () => {
                 const commit = jest.fn();
+                const dispatch = jest.fn();
                 player.hp = 1;
                 mockDamageForAttack = 1;
-                await actions.attackPlayer({ state, getters: mockedGetters, commit }, { type: AttackTypes.SLAP });
+                await actions.attackPlayer({ state, getters: mockedGetters, commit, dispatch }, { type: AttackTypes.SLAP });
                 expect( commit ).toHaveBeenNthCalledWith( 2, "setPlayerTurn", false );
+            });
+
+            it( "should resolve the battle if the Player has no HP left after attack", async () => {
+                const commit = jest.fn();
+                const dispatch = jest.fn();
+                player.hp = 1;
+                mockDamageForAttack = 1;
+                await actions.attackPlayer({ state, getters: mockedGetters, commit, dispatch }, { type: AttackTypes.SLAP });
+                expect( dispatch ).toHaveBeenCalledWith( "resolveBattle" );
             });
 
             it( "should update the opponent HP and return the damage for the given attack type", async () => {
@@ -183,6 +231,104 @@ describe( "Vuex battle module", () => {
                 const damage = await actions.attackPlayer({ state, getters: mockedGetters, commit }, { type: AttackTypes.SLAP });
                 expect( commit ).toHaveBeenNthCalledWith( 1, "updatePlayer", { hp: player.hp - mockDamageForAttack });
                 expect( damage ).toEqual( mockDamageForAttack );
+            });
+        });
+
+        it( "should be able to start a battle setting the appropriate values", async () => {
+            const commit = jest.fn();
+            const opponent = { foo: "bar" };
+
+            await actions.startBattle({ commit }, opponent );
+
+            expect( commit ).toHaveBeenNthCalledWith( 1, "setBattleWon", false );
+            expect( commit ).toHaveBeenNthCalledWith( 2, "setOpponent", opponent );
+            expect( commit ).toHaveBeenNthCalledWith( 3, "setAward", expect.any( Number ));
+        });
+
+        describe( "When resolving a battle", () => {
+            let mockedGetters;
+            const createMockAwardGetter = () => {
+                return jest.fn(( mutation, value ) => {
+                    if ( mutation === "awardXP" ) {
+                        mockedGetters.player.xp += value;
+                    }
+                });
+            };
+
+            it( "should set the game over state when the opponent has won", async () => {
+                const state = { opponent: { hp: 1 } };
+                mockedGetters = { player: { hp: 0 } };
+                const commit = jest.fn();
+                await actions.resolveBattle({ state, commit, getters: mockedGetters });
+                expect( commit ).toHaveBeenCalledWith( "setGameState", GAME_OVER );
+            });
+
+            if( "should award XP and set the battle won status when the player has won", async () => {
+                const state = { opponent: { hp: 0 }, award: 10 };
+                mockedGetters = { player: { hp: 1 } };
+                const commit = jest.fn();
+                await actions.resolveBattle({ state, commit, getters: mockedGetters });
+                expect( commit ).toHaveBeenNthCalledWith( 1, "awardXP", state.award );
+                expect( commit ).toHaveBeenNthCalledWith( 2, "setBattleWon", true );
+            });
+
+            it( "should increase the level when sufficient XP has been gathered", async () => {
+                const halfLevelXP = XP_PER_LEVEL / 2;
+                const state       = { opponent: { hp: 0 }, award: halfLevelXP };
+                mockedGetters     = { player: { xp: 0, level: 1 } };
+
+                let commit = createMockAwardGetter();
+                await actions.resolveBattle({ state, getters: mockedGetters, commit });
+
+                // expected level not to have risen yet
+                expect( commit ).not.toHaveBeenCalledWith( "setPlayerLevel", expect.any( Number ));
+
+                mockedGetters.player.xp = 0;
+                state.award = XP_PER_LEVEL;
+                commit = createMockAwardGetter();
+                await actions.resolveBattle({ state, getters: mockedGetters, commit });
+
+                // expected level to have risen
+                expect( commit ).toHaveBeenCalledWith( "setPlayerLevel", 2 );
+            });
+
+            it( "should require increasingly more XP to raise subsequent levels", async () => {
+                // if XP_PER_LEVEL is 10, level 2 is reached at 10 XP, level 3 at 30 XP,
+                // level 4 at 70 XP, level 5 at 130 XP, etc.
+                const state   = { opponent: { hp: 0 }, award: XP_PER_LEVEL };
+                mockedGetters = { player: { xp: XP_PER_LEVEL, level: 2 }};
+                let commit    = createMockAwardGetter();
+
+                await actions.resolveBattle({ state, getters: mockedGetters, commit });
+
+                // expect not have to have risen yet
+                expect( commit ).not.toHaveBeenCalledWith( "setPlayerLevel", expect.any( Number ));
+
+                // to advance from level 2 to 3, you need twice the XP_PER_LEVEL above
+                // the amount needed to advance from level 1 to 2 (which is XP_PER_LEVEL)
+                mockedGetters.player = { xp: XP_PER_LEVEL, level: 2 };
+                state.award = XP_PER_LEVEL * 2;
+                commit = createMockAwardGetter();
+                await actions.resolveBattle({ state, getters: mockedGetters, commit });
+
+                // expect to have risen
+                expect( commit ).toHaveBeenCalledWith( "setPlayerLevel", 3 );
+
+                mockedGetters.player = { xp: XP_PER_LEVEL * 3, level: 3 };
+                state.award = XP_PER_LEVEL * 2;
+                commit = createMockAwardGetter();
+                await actions.resolveBattle({ state, getters: mockedGetters, commit });
+
+                // expect not have to have risen yet
+                expect( commit ).not.toHaveBeenCalledWith( "setPlayerLevel", expect.any( Number ));
+
+                // to advance from level 3 to 4, you need four times the XP_PER_LEVEL above
+                // the amount needed to advance from level 2 to 3 (which is XP_PER_LEVEL * 3)
+                state.award = XP_PER_LEVEL * 2;
+                await actions.resolveBattle({ state, getters: mockedGetters, commit });
+
+                // expect to have risen
+                expect( commit ).toHaveBeenCalledWith( "setPlayerLevel", 4 );
             });
         });
     });

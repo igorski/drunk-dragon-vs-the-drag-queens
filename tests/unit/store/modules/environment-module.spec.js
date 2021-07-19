@@ -362,14 +362,15 @@ describe("Vuex environment module", () => {
 
                 it( "should start a battle when interacting with a Dragon", () => {
                     const commit    = jest.fn();
+                    const dispatch  = jest.fn();
                     const character = CharacterFactory.create({ type: DRAGON });
                     mockUpdateFn    = jest.fn();
 
-                    actions.interactWithCharacter({ commit }, character );
+                    actions.interactWithCharacter({ commit, dispatch }, character );
 
                     expect( mockUpdateFn ).not.toHaveBeenCalledWith( "create" );
-                    expect( commit ).toHaveBeenNthCalledWith( 1, "setOpponent", character );
-                    expect( commit ).toHaveBeenNthCalledWith( 2, "setScreen", SCREEN_BATTLE );
+                    expect( dispatch ).toHaveBeenNthCalledWith( 1, "startBattle", character );
+                    expect( commit ).toHaveBeenNthCalledWith( 1, "setScreen", SCREEN_BATTLE );
                 });
             });
         });

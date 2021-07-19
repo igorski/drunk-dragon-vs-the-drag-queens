@@ -84,8 +84,7 @@ npm run test
 
 ## TODO
 
-* Create leveling mechanism by awarding XP.
-** Show Level, XP, HP in status view.
+** Show Level, XP, XP needed for next level and HP in status view.
 
 * getDamageForAttack needs to take character attack and opponent defense into account
 ** Clothing can increase defense
@@ -93,9 +92,12 @@ npm run test
 * Drag swag/charisma == mana
 ** Show in status view
 
+* When advancing a level, increase HP.
+* Calculate appropriate award for battle (battle-module#startBattle)
 * Images for shop products
 * Dynamic components need a loader
 * When drunk, characters should slur all 's' words
+* When drunk, attacks should occasionally miss!
 * Create start screen when no game is saved, show intro
 * Describe in manual how different properties of intoxication/boost affect charisma (also show this on-screen!)
 * should dragon get stronger / more drunk depending on hour of night ?
@@ -103,7 +105,6 @@ npm run test
 * Update level of dragon too when defeated on fight end (and relocate on map)
 * player-module use of dispatch( "updateCharacters" ); where do we want to do this ?
 * on game over, when there is a save offer to restore from last save
-* lighting effect for daylight
 * halt all character updates when switching environments/screen isn't game_screen
 * implement ambush (enemy attacks first)
 * add store to sell shoes / fake nails (increases attack, certain shoes increase speed, but decrease drag swag/charisma)
@@ -125,14 +126,11 @@ npm run test
 * Don't generate scenery (trees) in front of doors!
 * Bug: When navigating by the world edge, tiles on the opposite end are also marked as visited
 * Create fast travel by introducing subway (can only travel to visited areas!)
-* Allow to buy on credit, starts action by which you need to have repaid the person!
+* Allow to buy on credit, starts action by which you need to have repaid the person OR ELSE!
 * Show navigation icon in interface (when showing target, but also as mouse cursor?)
 * When player clicks on non-navigate-able tile, navigate as close to the tile as possible (take dominant distance on x-y coordinate and keep reducing until path is found)
 * Buildings should occupy their full size on sidewalk/sand-only tiles?
 * Don't spawn/generate actionable object in empty tile surrounded by a closed path
-* Make menu collapsable
-* World must become lighter when morning comes
+* Overworld must become lighter when morning comes
 * Keep track of important dates (Christmas, New Year)
-* When a new waypoint is set and its first tile(s) is equal to the existing waypoint, keep momentum going?
 * Time should be able to speed up (when sleeping for instance)
-* When drunk shuffle letters in sentences randomly =D

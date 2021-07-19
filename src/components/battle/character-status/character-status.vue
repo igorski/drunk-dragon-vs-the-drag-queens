@@ -24,6 +24,7 @@
     <div class="character-status">
         {{ $t('hp', { hp: character.hp }) }}
         {{ $t('level', { level: character.level })}}
+        {{ $t('xp', { xp: character.xp }) }}
     </div>
 </template>
 
