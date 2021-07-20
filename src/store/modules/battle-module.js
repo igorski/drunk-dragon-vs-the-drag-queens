@@ -97,6 +97,7 @@ export default {
                     commit( "updatePlayer", { hp: hp + 5, maxHp: maxHp + 5 } );
                 }
                 commit( "setBattleWon", true );
+                commit( "setOpponent", null );
             } else if ( getters.player.hp === 0 ) {
                 commit( "setGameState", GAME_OVER );
             }

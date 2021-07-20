@@ -90,7 +90,7 @@ npm run test
 * Drag swag/charisma == mana
 ** Show in status view
 
-* Block status and credits menu when in battle
+* More attack types depending on item / level ? (certain levels learn new moves)
 * When advancing a level, increase max HP.
 * Calculate appropriate award for battle (battle-module#startBattle)
 * Images for shop products

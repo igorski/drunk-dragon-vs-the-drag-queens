@@ -15,55 +15,69 @@
                     </button>
                     <ul class="menu__items__sub">
                         <li>
-                            <button v-t="'saveGame'"
-                                    type="button"
-                                    :disabled="!hasActiveGame || isGameOver"
-                                    :title="$t('saveGame')"
-                                    @click="handleSave"
+                            <button
+                                v-t="'saveGame'"
+                                type="button"
+                                :disabled="!hasActiveGame || isGameOver"
+                                :title="$t('saveGame')"
+                                @click="handleSave"
                             ></button>
                         </li>
                         <li>
-                            <button v-t="'exportGame'"
-                                    type="button"
-                                    :disabled="!hasActiveGame || isGameOver"
-                                    :title="$t('exportGame')"
-                                    @click="handleExport"
+                            <button
+                                v-t="'exportGame'"
+                                type="button"
+                                :disabled="!hasActiveGame || isGameOver"
+                                :title="$t('exportGame')"
+                                @click="handleExport"
                             ></button>
                         </li>
                         <li>
-                            <button v-t="'options'"
-                                    type="button"
-                                    :disabled="!hasActiveGame"
-                                    :title="$t('options')"
-                                    @click="openScreen('options')"
+                            <button
+                                v-t="'options'"
+                                type="button"
+                                :disabled="!hasActiveGame"
+                                :title="$t('options')"
+                                @click="openScreen('options')"
                             ></button>
                         </li>
                         <li>
-                            <button v-t="'importGame'"
-                                    type="button"
-                                    :title="$t('importGame')"
-                                    @click="handleImport"
+                            <button
+                                v-t="'importGame'"
+                                type="button"
+                                :title="$t('importGame')"
+                                @click="handleImport"
                             ></button>
                         </li>
                         <li>
-                            <button v-t="'resetGame'"
-                                    type="button"
-                                    :disabled="!hasActiveGame"
-                                    :title="$t('resetGame')"
-                                    @click="handleReset"
+                            <button
+                                v-t="'resetGame'"
+                                type="button"
+                                :disabled="!hasActiveGame"
+                                :title="$t('resetGame')"
+                                @click="handleReset"
                             ></button>
                         </li>
                     </ul>
                 </li>
                 <li>
-                    <button v-t="'status'" type="button"
-                            :disabled="!hasActiveGame"
-                            :title="$t('status')" @click="openScreen('status')">
+                    <button
+                        v-t="'status'"
+                        type="button"
+                        :disabled="!hasActiveGame || !canOpenModalItems"
+                        :title="$t('status')"
+                        @click="openScreen('status')"
+                    >
                     </button>
                 </li>
                 <li>
-                    <button v-t="'viewCredits'" type="button"
-                            :title="$t('viewCredits')" @click="openScreen('credits')">
+                    <button
+                        v-t="'viewCredits'"
+                        type="button"
+                        :disabled="!canOpenModalItems"
+                        :title="$t('viewCredits')"
+                        @click="openScreen('credits')"
+                    >
                     </button>
                 </li>
                 <li>
@@ -79,10 +93,10 @@
 </template>
 
 <script>
-import { mapGetters, mapMutations, mapActions } from 'vuex';
-import { GAME_OVER } from '@/definitions/game-states';
-import { SCREEN_GAME, SCREEN_OPTIONS, SCREEN_STATUS, SCREEN_CREDITS } from '@/definitions/screens';
-import messages from './messages.json';
+import { mapGetters, mapMutations, mapActions } from "vuex";
+import { GAME_OVER } from "@/definitions/game-states";
+import { SCREEN_GAME, SCREEN_OPTIONS, SCREEN_STATUS, SCREEN_CREDITS } from "@/definitions/screens";
+import messages from "./messages.json";
 
 export default {
     i18n: { messages },
@@ -91,8 +105,9 @@ export default {
     }),
     computed: {
         ...mapGetters([
-            'gameState',
-            'player',
+            "gameState",
+            "player",
+            "opponent",
         ]),
         hasActiveGame() {
             return !!this.player; // e.g. creating new character/restart
@@ -100,37 +115,40 @@ export default {
         isGameOver() {
             return this.gameState === GAME_OVER;
         },
+        canOpenModalItems() {
+            return !this.opponent;
+        },
     },
     methods: {
         ...mapMutations([
-            'setScreen',
-            'openDialog',
-            'showError',
-            'showNotification',
+            "setScreen",
+            "openDialog",
+            "showError",
+            "showNotification",
         ]),
         ...mapActions([
-            'resetGame',
-            'saveGame',
-            'importGame',
-            'exportGame',
+            "resetGame",
+            "saveGame",
+            "importGame",
+            "exportGame",
         ]),
         toggleMenu() {
             this.menuOpened = !this.menuOpened;
             // prevent scrolling main body when scrolling menu list (are we expecting scrollable body?)
-            //document.body.style.overflow = this.menuOpened ? 'hidden' : 'auto';
+            //document.body.style.overflow = this.menuOpened ? "hidden" : "auto";
         },
         openScreen( target ) {
             let screen;
             switch ( target ) {
                 default:
                     return;
-                case 'options':
+                case "options":
                     screen = SCREEN_OPTIONS;
                     break;
-                case 'status':
+                case "status":
                     screen = SCREEN_STATUS;
                     break;
-                case 'credits':
+                case "credits":
                     screen = SCREEN_CREDITS;
                     break;
             }
@@ -145,27 +163,27 @@ export default {
         async handleSave() {
             try {
                 await this.saveGame();
-                this.showNotification({ message: this.$t('gameSavedSuccessfully') });
+                this.showNotification({ message: this.$t("gameSavedSuccessfully") });
             } catch {
-                this.showError( this.$t('error.unknownError'));
+                this.showError( this.$t("error.unknownError"));
             }
         },
         async handleExport() {
             try {
                 await this.exportGame();
-                this.showNotification({ message: this.$t('gameExportedSuccessfully') });
+                this.showNotification({ message: this.$t("gameExportedSuccessfully") });
             } catch {
-                this.showError( this.$t('error.unknownError'));
+                this.showError( this.$t("error.unknownError"));
             }
         },
         handleImport() {
             this.openDialog({
-                type: 'confirm',
-                title: this.$t('areYouSure'),
-                message: this.$t('importGameDescr'),
+                type: "confirm",
+                title: this.$t("areYouSure"),
+                message: this.$t("importGameDescr"),
                 confirm: () => {
-                    const input = document.createElement('input');
-                    input.type = 'file';
+                    const input = document.createElement("input");
+                    input.type = "file";
                     input.onchange = ({ target }) => {
                         const reader = new FileReader();
                         reader.onload = async readerEvent => {
@@ -173,10 +191,10 @@ export default {
                                 await this.importGame( readerEvent.target.result );
                                 this.setScreen( SCREEN_GAME );
                             } catch {
-                                this.showError( this.$t('errorImportingGame'));
+                                this.showError( this.$t("errorImportingGame"));
                             }
                         };
-                        reader.readAsText( target.files[0], 'UTF-8' );
+                        reader.readAsText( target.files[0], "UTF-8" );
                     }
                     input.click();
                 }
@@ -184,9 +202,9 @@ export default {
         },
         handleReset() {
             this.openDialog({
-                type: 'confirm',
-                title: this.$t('areYouSure'),
-                message: this.$t('resetGameDescr'),
+                type: "confirm",
+                title: this.$t("areYouSure"),
+                message: this.$t("resetGameDescr"),
                 confirm: () => {
                     this.resetGame();
                     window.location.reload(); // a little bruteforce
@@ -198,7 +216,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-    @import '@/styles/_variables';
+    @import "@/styles/_variables";
 
     .header {
         position: fixed;

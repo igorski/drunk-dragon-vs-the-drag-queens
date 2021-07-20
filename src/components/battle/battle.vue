@@ -22,12 +22,12 @@
 */
 <template>
     <modal
-        :title="$t('battleAgainstName', { name: opponent.appearance.name })"
+        :title="title"
         :dismissible="battleWon"
         @close="close()"
     >
         <character-status :character="player" />
-        <character-status :character="opponent" />
+        <character-status v-if="opponent" :character="opponent" />
         <div v-if="battleWon">
             {{ $t('youWon') }}
         </div>
@@ -98,7 +98,7 @@ export default {
             "opponent",
         ]),
         canAttack() {
-            return this.player.hp > 0 && this.playerTurn;
+            return !this.battleWon && this.player.hp > 0 && this.playerTurn;
         },
         attackTypesForPlayer() {
             return [
@@ -108,8 +108,8 @@ export default {
         },
     },
     watch: {
-        opponent({ hp }) {
-            if ( hp !== 0 && !this.playerTurn ) {
+        opponent( opponent ) {
+            if ( opponent?.hp !== 0 && !this.playerTurn ) {
                 this.executeOpponentAttack(); // opponent retaliates
             }
         },
@@ -132,6 +132,7 @@ export default {
         }
     },
     created() {
+        this.title = this.$t( "battleAgainstName", { name: this.opponent.appearance.name });
         this.attackType = this.attackTypesForPlayer[ 0 ];
         const { xp, level } = this.player;
         this.$set( this.playerStats, { xp, level });
@@ -162,7 +163,7 @@ export default {
             }
         },
         executeOpponentAttack() {
-            if ( this.timeout ) {
+            if ( this.timeout || this.battleWon ) {
                 return;
             }
             this.timeout = window.setTimeout( async () => {

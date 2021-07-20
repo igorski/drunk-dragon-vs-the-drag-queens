@@ -265,13 +265,14 @@ describe( "Vuex battle module", () => {
                 expect( commit ).toHaveBeenCalledWith( "setGameState", GAME_OVER );
             });
 
-            if( "should award XP and set the battle won status when the player has won", async () => {
+            if( "should award XP, set the battle won status and clear the Opponent when the Player has won", async () => {
                 const state = { opponent: { hp: 0 }, award: 10 };
                 mockedGetters = { player: { hp: 1 } };
                 const commit = jest.fn();
                 await actions.resolveBattle({ state, commit, getters: mockedGetters });
                 expect( commit ).toHaveBeenNthCalledWith( 1, "awardXP", state.award );
                 expect( commit ).toHaveBeenNthCalledWith( 2, "setBattleWon", true );
+                expect( commit ).toHaveBeenNthCalledWith( 3, "setOpponent", null );
             });
 
             it( "should increase the level when sufficient XP has been gathered", async () => {
