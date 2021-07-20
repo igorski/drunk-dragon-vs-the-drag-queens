@@ -48,7 +48,7 @@ export default {
             // modal header is 78px in height
             $padding: 78px + $menu-height-mobile;
             padding-bottom: $padding;
-            height: calc(100% - $padding);
+            height: calc(100% - #{$padding});
         }
 
         @include large() {
