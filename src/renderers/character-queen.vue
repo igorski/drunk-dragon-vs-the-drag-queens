@@ -108,26 +108,27 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-    @import "@/styles/_mixins.scss";
+@import "@/styles/_colors.scss";
+@import "@/styles/_mixins.scss";
 
-    .queen {
-        position: relative;
-        @include noSelect();
-        @include noEvents();
-        border-bottom-left-radius: 50%;
-        border-bottom-right-radius: 50%;
-        overflow: hidden;
+.queen {
+    position: relative;
+    @include noSelect();
+    @include noEvents();
+    border-radius: 50%;
+    background-color: $color-2;
+    overflow: hidden;
 
-        &__body {
+    &__body {
+        position: absolute;
+
+        &__skin {
+            transition: fill .4s ease;
+        }
+
+        &-part {
             position: absolute;
-
-            &__skin {
-                transition: fill .4s ease;
-            }
-
-            &-part {
-                position: absolute;
-            }
         }
     }
+}
 </style>

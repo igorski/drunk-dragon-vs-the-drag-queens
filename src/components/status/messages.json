@@ -1,15 +1,12 @@
 {
     "en-US": {
         "status": "Status",
-        "map": "Map",
-        "time": "Time",
-        "date": "Date",
         "cash": "Cash",
         "inventory": "Inventory",
         "youHaveNoItems": "You currently have no items in your inventory.",
         "level": "Level",
         "hp": "HP",
         "xp": "XP",
-        "xpNeededToLevelUp": "XP needed to level up"
+        "xpNeededToLevelUp": "{xp} XP needed to reach next level"
     }
 }
