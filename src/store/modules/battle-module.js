@@ -80,7 +80,7 @@ export default {
         startBattle({ commit }, opponent ) {
             commit( "setBattleWon", false );
             commit( "setOpponent", opponent );
-            commit( "setAward", 15 ); // TODO
+            commit( "setAward", opponent.level * ( XP_PER_LEVEL / 2 ));
         },
         resolveBattle({ state, getters, commit }) {
             const { opponent } = state;

@@ -90,11 +90,11 @@ npm run test
 * Drag swag/charisma == mana
 ** Show in status view
 
-* stop character effects when screen isn't game_screen (time should keep running though!)
+* don't allow navigation over walls when inside a buiding
+* stop character movement effects when screen isn't game_screen (time should keep running though!)
 * replace pines with more tropical trees
 * More attack types depending on item / level ? (certain levels learn new moves)
 * When advancing a level, increase max HP.
-* Calculate appropriate award for battle (battle-module#startBattle)
 * Images for shop products
 * Dynamic components need a loader
 * When drunk, characters should slur all 's' words

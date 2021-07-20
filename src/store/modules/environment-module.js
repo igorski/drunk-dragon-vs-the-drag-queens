@@ -53,10 +53,16 @@ export default {
         },
         /* all non-Player character coordinate updates */
         setCharacterXPosition( state, { value, target }) {
-            state.activeEnvironment.characters.find(({ id }) => id === target ).x = value;
+            const character = state.activeEnvironment.characters.find(({ id }) => id === target );
+            if ( character ) {
+                character.x = value;
+            }
         },
         setCharacterYPosition( state, { value, target }) {
-            state.activeEnvironment.characters.find(({ id }) => id === target ).y = value;
+            const character = state.activeEnvironment.characters.find(({ id }) => id === target );
+            if ( character ) {
+                character.y = value;
+            }
         },
         setActiveEnvironment( state, environment ) {
             state.activeEnvironment = environment;

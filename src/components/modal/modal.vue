@@ -56,6 +56,7 @@ export default {
             max-height: 75vh;
             box-sizing: border-box;
             @include center(fixed);
+            top: calc(50% - 48px); // .ui parent container falls below menu
 
             &__header {
                 padding: $spacing-medium $spacing-large;
