@@ -22,6 +22,7 @@
 */
 <template>
     <div class="character-status">
+        <h5>{{ character.appearance.name }}</h5>
         {{ $t('hp', { hp: character.hp }) }}
         {{ $t('level', { level: character.level })}}
         {{ $t('xp', { xp: character.xp }) }}
@@ -47,7 +48,7 @@ export default {
 .character-status {
     display: inline-block;
     padding: $spacing-medium;
-    border: 2px solid #FFF;
+    border: 4px solid $color-1;
     border-radius: $spacing-small;
 }
 </style>

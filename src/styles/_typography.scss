@@ -15,12 +15,15 @@
 
 h1, h2, h3, h4, h5, h6 {
     @include titleFont();
-    font-size: 48px;
     color: $color-text-header;
 
     @include mobile {
         font-size: 24px;
     }
+}
+
+h1 {
+    font-size: 48px;
 }
 
 h2 {
@@ -34,6 +37,11 @@ h2 {
 h3 {
     font-size: 24px;
     margin: $spacing-small 0;
+}
+
+h5 {
+    font-size: 16px;
+    margin: 0;
 }
 
 // p {

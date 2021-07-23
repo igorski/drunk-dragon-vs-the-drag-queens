@@ -8,19 +8,7 @@
                 <img ref="map" class="map-image" />
             </div>
             <div class="status-content__inventory status-content--inline">
-                <h3 v-t="'inventory'"></h3>
-                <ul v-if="inventory.length">
-                    <li v-for="(item, index) in inventory"
-                          :key="`item${index}`"
-                          class="inventory-item"
-                          @click="handleInventoryClick( item )"
-                    >
-                        {{ item.text }}
-                    </li>
-                </ul>
-                <p v-else v-t="'youHaveNoItems'"></p>
-                <h3 v-t="'cash'"></h3>
-                <span>$ {{ player.inventory.cash.toFixed( 2 ) }}</span>
+                <inventory :player="player" />
             </div>
             <div class="status-content__character">
                 <component
@@ -52,22 +40,21 @@
 </template>
 
 <script>
-import { mapState, mapGetters, mapMutations } from "vuex";
+import { mapState, mapGetters } from "vuex";
 import Modal from "@/components/modal/modal";
+import Inventory from "@/components/inventory/inventory";
 import { xpNeededForLevel } from "@/definitions/constants";
-import ITEM_TYPES from "@/definitions/item-types";
-import ItemActions from "@/model/actions/item-actions";
 import { BUILDING_TYPE } from "@/model/factories/building-factory";
 import { timestampToFormattedDate, timestampToTimeString } from "@/utils/time-util";
 import renderWorld from "@/renderers/world-map-renderer";
 import renderBuilding from "@/renderers/building-map-renderer";
-import sharedMessages from "@/i18n/items.json";
 import messages from "./messages.json";
 
 export default {
-    i18n: { messages, sharedMessages },
+    i18n: { messages },
     components: {
         Modal,
+        Inventory,
     },
     computed: {
         ...mapState([
@@ -92,9 +79,6 @@ export default {
         time() {
             return timestampToTimeString( this.gameTime );
         },
-        inventory() {
-            return this.player.inventory.items.map( value => ({ text: this.$t( value.name ), value }));
-        },
         xpNeededToLevelUp() {
             return xpNeededForLevel( this.player.level ) - this.player.xp;
         },
@@ -110,36 +94,6 @@ export default {
                 break;
         }
         this.$refs.map.src = renderFn( this.activeEnvironment, 210 ).src;
-    },
-    methods: {
-        ...mapMutations([
-            "openDialog",
-            "removeItemFromInventory",
-            "showNotification",
-        ]),
-        handleInventoryClick( item ) {
-            this.openDialog({
-                type: "confirm",
-                title: this.$t( "confirmUsage" ),
-                message: this.$t( 'doYouWishToApplyItem', { item: item.text }),
-                confirm: async () => {
-                    switch ( item.type ) {
-                        default:
-                            break;
-                        case ITEM_TYPES.JEWELRY:
-                            break;
-                        case ITEM_TYPES.LIQUOR:
-                            break;
-                        case ITEM_TYPES.HEALTHCARE:
-
-                            break;
-                    }
-                    ItemActions.applyItemToPlayer( this.$store, item.value, this.player );
-                    this.removeItemFromInventory( item.value );
-                    this.showNotification({ message: this.$t( "appliedItem", { item: item.text }) });
-                },
-            });
-        },
     },
 };
 </script>

@@ -1,13 +1,14 @@
-import ItemFactory        from './item-factory';
-import ItemTypes          from '@/definitions/item-types';
-import WorldCache         from '@/utils/world-cache';
-import { randomFromList } from '@/utils/random-util';
+import ItemFactory        from "./item-factory";
+import ItemTypes          from "@/definitions/item-types";
+import WorldCache         from "@/utils/world-cache";
+import { randomFromList } from "@/utils/random-util";
 
 export const SHOP_TYPES = {
     PHARMACY: 0,
     LIQUOR: 1,
     JEWELLER: 2,
-    PAWN: 3
+    PAWN: 3,
+    LOAN: 4
 };
 
 const ShopFactory =
@@ -70,8 +71,10 @@ const ShopFactory =
             case SHOP_TYPES.LIQUOR:
                 items = ItemFactory.createList( ItemTypes.LIQUOR, amountToCreate );
                 break;
+            default:
             case SHOP_TYPES.PAWN:
-                // no items, you can buy back items you sold instead
+            case SHOP_TYPES.LOAN:
+                // no items
                 return;
         }
         shop.items.push( ...items );

@@ -90,8 +90,9 @@ npm run test
 * Drag swag/charisma == mana
 ** Show in status view
 
-* Allow to buy on credit, starts action by which you need to have repaid the person OR ELSE!
+* Allow to loan money, starts action by which you need to have repaid the person OR ELSE!
 * status screen implement handleInventoryClick for jewelry and liquor types (see item-actions)
+* allow using items during fights
 * make door drags expose their intent immediately, offer option to fight them (they should be stronger by a few levels)
 * cross water when in possession of flippers :D
 * don't allow navigation over walls when inside a building

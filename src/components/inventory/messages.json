@@ -1,0 +1,10 @@
+{
+    "en-US": {
+        "inventory": "Inventory",
+        "youHaveNoItems": "You currently have no items in your inventory.",
+        "cash": "Cash",
+        "confirmUsage": "Confirm usage",
+        "doYouWishToApplyItem": "Do you wish to apply \"{item}\" ?",
+        "appliedItem": "Applied {item}"
+    }
+}

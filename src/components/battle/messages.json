@@ -1,8 +1,10 @@
 {
     "en-US": {
         "battleAgainstName": "Battle against {name}",
+        "actions": "Actions",
         "attack": "Attack",
         "chooseAttackType": "Choose attack type",
+        "youDealtDamageToName": "You dealt {damage} HP damage to {name}",
         "nameDealtDamage": "{name} dealt {damage} HP damage",
         "runAway": "Run away",
         "cannotEscapeFromName": "Cannot escape battle against {name} !",
@@ -11,6 +13,7 @@
         "kick": "Kick",
         "youWon": "You won!",
         "youEarnedXp": "You earned {xp} experience points",
-        "youAdvancedToLevel": "You advanced to level {level}"
+        "youAdvancedToLevel": "You advanced to level {level}",
+        "useItem": "Use item"
     }
 }

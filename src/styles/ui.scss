@@ -24,6 +24,28 @@
     }
 }
 
+.rpg-ghost-button {
+    cursor: pointer;
+    background: none;
+    border: none;
+    font-size: 100%;
+    color: $color-text;
+    margin: $spacing-small 0;
+    padding: 0;
+
+    &:disabled {
+        color: #333;
+    }
+
+    &:not([disabled]):hover {
+        color: $color-5;
+
+        &:before {
+            content: "> ";
+        }
+    }
+}
+
 .rpg-tab-list {
   display: inline-block;
   margin: $spacing-medium 0 0;

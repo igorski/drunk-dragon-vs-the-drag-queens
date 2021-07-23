@@ -26,65 +26,99 @@
         :dismissible="battleWon"
         @close="close()"
     >
-        <character-status :character="player" />
-        <character-status v-if="opponent" :character="opponent" />
-        <div v-if="battleWon">
-            {{ $t('youWon') }}
-        </div>
-        <div v-else>
-            <model-select
-                v-model="attackType"
-                :options="attackTypesForPlayer"
-                :placeholder="$t('chooseAttackType')"
-                :is-disabled="!canAttack"
-                class="attack-list"
-            />
-            <button
-                v-t="'attack'"
-                type="button"
-                :disabled="!canAttack"
-                @click="attack()"
-            ></button>
+        <div class="actions">
+            <h3 v-t="'actions'"></h3>
+            <div class="actions__inline-group">
+                <button
+                    v-t="'attack'"
+                    type="button"
+                    :disabled="!canAttack"
+                    class="rpg-ghost-button actions__inline-group--element"
+                    @touchstart="setHoverItem( 'attack' )"
+                    @mouseenter="setHoverItem( 'attack' )"
+                    @mouseleave="setHoverItem( null )"
+                ></button>
+                <ul
+                    class="actions actions__list-container"
+                    v-show="hoverItem === 'attack' && canAttack"
+                    @mouseenter="setHoverItem( 'attack' )"
+                    @mouseleave="setHoverItem( null )"
+                >
+                    <li
+                        v-for="(attackType, index) in attackTypesForPlayer"
+                        :key="`attack_${index}`"
+                        @click="attack( attackType.value )"
+                    >
+                        <button class="rpg-ghost-button">{{ attackType.text }}</button>
+                    </li>
+                </ul>
+            </div>
             <button
                 v-t="'runAway'"
                 type="button"
                 :disabled="!canAttack"
+                class="rpg-ghost-button"
                 @click="run()"
             ></button>
+            <div class="actions__inline-group">
+                <button
+                    v-t="'useItem'"
+                    type="button"
+                    :disabled="!canAttack || !player.inventory.items.length"
+                    class="rpg-ghost-button actions__inline-group--element"
+                    @touchstart="setHoverItem( 'inventory' )"
+                    @mouseenter="setHoverItem( 'inventory' )"
+                ></button>
+                <inventory
+                    v-show="hoverItem === 'inventory' && canAttack"
+                    :player="player"
+                    list-only
+                    class="actions actions__list-container"
+                    @mouseenter="setHoverItem( 'inventory' )"
+                    @mouseleave="setHoverItem( null )"
+                    @select="setPlayerTurn( false )"
+                />
+            </div>
+        </div>
+        <div class="battle-group">
+            <character-status :character="player" class="character-status" />
+            <character-status v-if="opponent" :character="opponent" class="character-status" />
+        </div>
+        <div v-if="battleWon">
+            {{ $t('youWon') }}
         </div>
         <!-- battle progress update messages -->
-        <p
-            v-for="(message, index) in messages"
-            :key="`msg_${index}`"
-        >
-            {{ message }}
-        </p>
+        <div v-else-if="messages.length" class="battle-messages">
+            <p
+                v-for="(message, index) in messages"
+                :key="`msg_${index}`"
+            >
+                {{ message }}
+            </p>
+        </div>
     </modal>
 </template>
 
 <script>
 import { mapGetters, mapMutations, mapActions } from "vuex";
-import { ModelSelect } from 'vue-search-select';
 import AttackTypes     from "@/definitions/attack-types";
 import { SCREEN_GAME } from "@/definitions/screens";
 import Modal           from "@/components/modal/modal";
+import Inventory       from "@/components/inventory/inventory";
 import CharacterStatus from "./character-status/character-status";
 import messages        from "./messages.json";
-
-import "semantic-ui-css/components/dropdown.min.css";
-import "vue-search-select/dist/VueSearchSelect.css";
 
 export default {
     i18n: { messages },
     components: {
-        ModelSelect,
         Modal,
+        Inventory,
         CharacterStatus,
     },
     data: () => ({
-        attackType: null,
         timeout: null,
         messages: [],
+        hoverItem: null,
         playerStats: {
             xp: 0,
             level: 1,
@@ -108,9 +142,12 @@ export default {
         },
     },
     watch: {
-        opponent( opponent ) {
-            if ( opponent?.hp !== 0 && !this.playerTurn ) {
-                this.executeOpponentAttack(); // opponent retaliates
+        playerTurn( value ) {
+            if ( !value ) {
+                this.setHoverItem( null ); // player turn unsets after using item
+                if ( this.opponent?.hp ) {
+                    this.executeOpponentAttack(); // opponent retaliates as long as its alive
+                }
             }
         },
         battleWon( value ) {
@@ -133,7 +170,6 @@ export default {
     },
     created() {
         this.title = this.$t( "battleAgainstName", { name: this.opponent.appearance.name });
-        this.attackType = this.attackTypesForPlayer[ 0 ];
         const { xp, level } = this.player;
         this.$set( this.playerStats, { xp, level });
         this.setPlayerTurn( true ); // TODO: implement ambush (should be Vuex action on battle creation)
@@ -149,9 +185,14 @@ export default {
             "attackPlayer",
             "runFromOpponent"
         ]),
-        async attack() {
-            const damage = await this.attackOpponent({ type: this.attackType.value });
-            // TODO: show damage dealt ?
+        setHoverItem( item ) {
+            this.hoverItem = item;
+        },
+        async attack( type ) {
+            const damage = await this.attackOpponent({ type });
+            if ( this.opponent?.hp > 0 ) {
+                this.messages = [ this.$t( "youDealtDamageToName", { damage, name: this.opponent.appearance.name }) ];
+            }
         },
         async run() {
             const { name } = this.opponent.appearance;
@@ -183,7 +224,57 @@ export default {
 <style lang="scss" scoped>
 @import "@/styles/_layout.scss";
 
+.actions {
+    border: 4px solid $color-1;
+    border-radius: $spacing-small;
+    padding: $spacing-medium;
+    display: block;
+    width: 100%;
+
+    @include large() {
+        display: inline-block;
+        width: 200px;
+    }
+
+    &__inline-group {
+        position: relative;
+
+        &--element {
+            position: inline-block;
+            margin-right: $spacing-medium;
+        }
+    }
+
+    &__list-container {
+        position: absolute;
+        z-index: 1;
+        left: $spacing-large;
+        top: -$spacing-large;
+        background-color: $color-3;
+    }
+}
+
 .attack-list {
     display: inline !important;
+}
+
+.battle-group {
+    @include large() {
+        display: inline-block;
+        vertical-align: top;
+        margin-left: $spacing-medium;
+
+        .character-status {
+            display: block;
+            margin-bottom: $spacing-medium;
+        }
+    }
+}
+
+.battle-messages {
+    background-color: #000;
+    border-radius: $spacing-small;
+    padding: $spacing-xsmall $spacing-medium;
+    color: #FFF;
 }
 </style>

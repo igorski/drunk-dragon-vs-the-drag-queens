@@ -1,15 +1,9 @@
 {
     "en-US": {
         "status": "Status",
-        "cash": "Cash",
-        "inventory": "Inventory",
-        "youHaveNoItems": "You currently have no items in your inventory.",
         "level": "Level",
         "hp": "HP",
         "xp": "XP",
-        "xpNeededToLevelUp": "{xp} XP needed to reach next level",
-        "confirmUsage": "Confirm usage",
-        "doYouWishToApplyItem": "Do you wish to apply \"{item}\" ?",
-        "appliedItem": "Applied {item}"
+        "xpNeededToLevelUp": "{xp} XP needed to reach next level"
     }
 }
