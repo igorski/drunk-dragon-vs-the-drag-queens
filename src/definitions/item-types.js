@@ -11,13 +11,13 @@ export default {
 };
 
 export const JEWELRY_TYPES = [
-    'necklace', 'bracelet', 'ring'
+    "necklace", "bracelet", "ring"
 ];
 
 export const LIQUOR_TYPES = [
-    'wine', 'gin', 'cognac'
+    "wine", "gin", "cognac"
 ];
 
 export const HEALTHCARE_TYPES = [
-    'bandaid', 'aspirin'
+    "bandaid", "aspirin"
 ];

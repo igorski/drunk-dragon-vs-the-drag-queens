@@ -1,18 +1,21 @@
 export default WorldRenderer;
 
-import { sprite }  from 'zcanvas';
-import { WORLD_TILES, MAX_WALKABLE_TILE } from '@/model/factories/world-factory';
-import SpriteCache from '@/utils/sprite-cache';
-import WorldCache  from '@/utils/world-cache';
-import { coordinateToIndex, indexToCoordinate } from '@/utils/terrain-util';
-import { findPath } from '@/utils/path-finder';
+import { sprite } from "zcanvas";
+import { WORLD_TILES, MAX_WALKABLE_TILE } from "@/model/factories/world-factory";
+import { SHOP_TYPES } from "@/model/factories/shop-factory";
+import SpriteCache from "@/utils/sprite-cache";
+import WorldCache  from "@/utils/world-cache";
+import { coordinateToIndex, indexToCoordinate } from "@/utils/terrain-util";
+import { findPath } from "@/utils/path-finder";
 
 let commit, dispatch; // Vuex store hooks
 
-const DEBUG          = process.env.NODE_ENV === 'development';
+const DEBUG          = process.env.NODE_ENV === "development";
 const CHARACTER_SIZE = 40;
 
 const { tileWidth, tileHeight, sizeBuilding, sizeShop } = WorldCache;
+
+/* building / Object types */
 
 const BUILDING = {
     bitmap: SpriteCache.BUILDING,
@@ -34,7 +37,7 @@ const SHOP = {
  * @param {number} height
  */
 function WorldRenderer( store, width, height ) {
-    WorldRenderer.super( this, 'constructor', { width, height, interactive: true });
+    WorldRenderer.super( this, "constructor", { width, height, interactive: true });
 
     commit   = store.commit;
     dispatch = store.dispatch;
@@ -91,7 +94,7 @@ WorldRenderer.prototype.render = function( aWorld, aPlayer ) {
  * @param {number=} aNewHeight optional new height of the image
  */
 WorldRenderer.prototype.updateImage = function( aImage, aNewWidth, aNewHeight ) {
-    WorldRenderer.super( this, 'updateImage', aImage, aNewWidth, aNewHeight );
+    WorldRenderer.super( this, "updateImage", aImage, aNewWidth, aNewHeight );
 
     const isPortrait = aNewHeight > aNewWidth;
 
@@ -199,7 +202,7 @@ WorldRenderer.prototype.navigateToTile = async function( x, y ) {
         // must navigate to smaller steps (prevents automagically resolving of long distances)
         return;
     }
-    waypoints = await dispatch( 'moveToDestination', { x, y, onProgress: () => {
+    waypoints = await dispatch( "moveToDestination", { x, y, onProgress: () => {
         const visited = [];
         const { left, top, right, bottom } = this.getVisibleTiles();
         for ( let ix = left; ix < right; ++ix ) {
@@ -207,7 +210,7 @@ WorldRenderer.prototype.navigateToTile = async function( x, y ) {
                 visited.push( coordinateToIndex( ix, iy, this._environment ));
             }
         }
-        commit( 'markVisitedTerrain', visited );
+        commit( "markVisitedTerrain", visited );
     }});
     if ( DEBUG ) {
         this.target = waypoints;
@@ -391,7 +394,7 @@ WorldRenderer.prototype.renderCharacters = function( aCanvasContext, characters 
 
 WorldRenderer.prototype.renderWaypoints = function( aCanvasContext, left, top, halfHorizontalTileAmount, halfVerticalTileAmount ) {
     if (Array.isArray( this.target )) {
-        aCanvasContext.fillStyle = 'red';
+        aCanvasContext.fillStyle = "red";
         const { tileWidth, tileHeight } = WorldCache;
         this.target.forEach(({ x, y }) => {
             const tLeft   = (( x - left ) * tileWidth )  + halfHorizontalTileAmount;
@@ -402,8 +405,9 @@ WorldRenderer.prototype.renderWaypoints = function( aCanvasContext, left, top, h
     }
 }
 
-function renderObjects( aCanvasContext, objectList, { left, top, right, bottom }, { bitmap, width, height }) {
+function renderObjects( aCanvasContext, objectList, { left, top, right, bottom }, objectType ) {
     const { tileWidth, tileHeight } = WorldCache;
+    const { bitmap, width, height } = objectType;
     let targetX, targetY;
 
     // to broaden the visible range, add one whole coordinate
@@ -419,7 +423,7 @@ function renderObjects( aCanvasContext, objectList, { left, top, right, bottom }
     const b = bottom + h;
 
     for ( let i = 0, l = objectList.length; i < l; ++i ) {
-        const { x, y } = objectList[ i ];
+        const { x, y, type } = objectList[ i ];
         if ( x >= l && x <= r &&
              y >= t && y <= b )
         {
@@ -429,6 +433,31 @@ function renderObjects( aCanvasContext, objectList, { left, top, right, bottom }
             targetY -= (( height - tileHeight )); // entrance is on lowest side
 
             aCanvasContext.drawImage( bitmap, targetX, targetY, width, height );
+
+            // add visual distinction to shop types
+            // TODO: these will be different sprites in final version
+            if ( objectType === SHOP ) {
+                let text = "Shop";
+                switch ( type ) {
+                    default:
+                        break;
+                    case SHOP_TYPES.PHARMACY:
+                        text = "Pharmacy";
+                        break;
+                    case SHOP_TYPES.LIQUOR:
+                        text = "Liquor store";
+                        break;
+                    case SHOP_TYPES.JEWELLER:
+                        text = "Jeweller";
+                        break;
+                    case SHOP_TYPES.PAWN:
+                        text = "Pawn shop";
+                        break;
+                }
+                aCanvasContext.font = "30px Arial";
+                aCanvasContext.fillStyle = "#FFF";
+                aCanvasContext.fillText( text, targetX - 15, targetY - 15 );
+            }
         }
     }
 }

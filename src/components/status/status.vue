@@ -13,6 +13,7 @@
                     <li v-for="(item, index) in inventory"
                           :key="`item${index}`"
                           class="inventory-item"
+                          @click="handleInventoryClick( item )"
                     >
                         {{ item.text }}
                     </li>
@@ -51,9 +52,11 @@
 </template>
 
 <script>
-import { mapState, mapGetters } from "vuex";
+import { mapState, mapGetters, mapMutations } from "vuex";
 import Modal from "@/components/modal/modal";
 import { xpNeededForLevel } from "@/definitions/constants";
+import ITEM_TYPES from "@/definitions/item-types";
+import ItemActions from "@/model/actions/item-actions";
 import { BUILDING_TYPE } from "@/model/factories/building-factory";
 import { timestampToFormattedDate, timestampToTimeString } from "@/utils/time-util";
 import renderWorld from "@/renderers/world-map-renderer";
@@ -107,6 +110,36 @@ export default {
                 break;
         }
         this.$refs.map.src = renderFn( this.activeEnvironment, 210 ).src;
+    },
+    methods: {
+        ...mapMutations([
+            "openDialog",
+            "removeItemFromInventory",
+            "showNotification",
+        ]),
+        handleInventoryClick( item ) {
+            this.openDialog({
+                type: "confirm",
+                title: this.$t( "confirmUsage" ),
+                message: this.$t( 'doYouWishToApplyItem', { item: item.text }),
+                confirm: async () => {
+                    switch ( item.type ) {
+                        default:
+                            break;
+                        case ITEM_TYPES.JEWELRY:
+                            break;
+                        case ITEM_TYPES.LIQUOR:
+                            break;
+                        case ITEM_TYPES.HEALTHCARE:
+
+                            break;
+                    }
+                    ItemActions.applyItemToPlayer( this.$store, item.value, this.player );
+                    this.removeItemFromInventory( item.value );
+                    this.showNotification({ message: this.$t( "appliedItem", { item: item.text }) });
+                },
+            });
+        },
     },
 };
 </script>

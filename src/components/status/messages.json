@@ -7,6 +7,9 @@
         "level": "Level",
         "hp": "HP",
         "xp": "XP",
-        "xpNeededToLevelUp": "{xp} XP needed to reach next level"
+        "xpNeededToLevelUp": "{xp} XP needed to reach next level",
+        "confirmUsage": "Confirm usage",
+        "doYouWishToApplyItem": "Do you wish to apply \"{item}\" ?",
+        "appliedItem": "Applied {item}"
     }
 }

@@ -90,7 +90,11 @@ npm run test
 * Drag swag/charisma == mana
 ** Show in status view
 
-* don't allow navigation over walls when inside a buiding
+* Allow to buy on credit, starts action by which you need to have repaid the person OR ELSE!
+* status screen implement handleInventoryClick for jewelry and liquor types (see item-actions)
+* make door drags expose their intent immediately, offer option to fight them (they should be stronger by a few levels)
+* cross water when in possession of flippers :D
+* don't allow navigation over walls when inside a building
 * stop character movement effects when screen isn't game_screen (time should keep running though!)
 * replace pines with more tropical trees
 * More attack types depending on item / level ? (certain levels learn new moves)
@@ -127,7 +131,6 @@ npm run test
 * Don't generate scenery (trees) in front of doors!
 * Bug: When navigating by the world edge, tiles on the opposite end are also marked as visited
 * Create fast travel by introducing subway (can only travel to visited areas!)
-* Allow to buy on credit, starts action by which you need to have repaid the person OR ELSE!
 * Show navigation icon in interface (when showing target, but also as mouse cursor?)
 * When player clicks on non-navigate-able tile, navigate as close to the tile as possible (take dominant distance on x-y coordinate and keep reducing until path is found)
 * Buildings should occupy their full size on sidewalk/sand-only tiles?

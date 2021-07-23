@@ -1,5 +1,6 @@
 import cloneDeep          from "lodash/cloneDeep";
 import merge              from "lodash/merge";
+import isEqual            from "lodash/isEqual";
 import EnvironmentActions from "@/model/actions/environment-actions";
 import CharacterActions   from "@/model/actions/character-actions";
 import InventoryActions   from "@/model/actions/inventory-actions";
@@ -50,7 +51,7 @@ export default
         },
         removeItemFromInventory( state, item ) {
             const { items } = state.player.inventory;
-            const index = items.indexOf( item );
+            const index = items.findIndex( compare => isEqual( compare, item ));
             if ( index > -1 ) {
                 items.splice( index, 1 );
             }
