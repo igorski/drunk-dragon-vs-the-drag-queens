@@ -1,5 +1,5 @@
 <template>
-    <div class="queen" :style="scaledCharacterSize">
+    <div class="queen" :style="scaledCharacterSize" :class="{ background: background }">
         <div class="queen__body" :style="scaledBodySize">
             <svg width="100%" height="100%" viewBox="-41 15 486.11499999999995 579.53">
                 <path class="queen__body__skin" :fill="skin" d="M41.162,592.5h403.133c-17-91-44-119-44-119c-18-21-45-24-45-24c-6-0.074-31.5-14-31.5-14
@@ -38,6 +38,10 @@ export default {
         width: {
             type: Number,
             required: true,
+        },
+        background: {
+            type: Boolean,
+            default: true,
         },
     },
     computed: {
@@ -115,9 +119,12 @@ export default {
     position: relative;
     @include noSelect();
     @include noEvents();
-    border-radius: 50%;
-    background-color: $color-2;
-    overflow: hidden;
+
+    &.background {
+        border-radius: 50%;
+        background-color: $color-2;
+        overflow: hidden;
+    }
 
     &__body {
         position: absolute;

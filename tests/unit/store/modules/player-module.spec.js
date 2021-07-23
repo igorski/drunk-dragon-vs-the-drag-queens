@@ -104,7 +104,9 @@ describe( "Vuex player module", () => {
 
     describe( "actions", () => {
         it( "should be able to move the player to the requested destination", () => {
-            const state         = { player: { id: "foo", properties: { speed: 1, intoxication: 0, boost: 0 } } };
+            const state = {
+                player: CharacterFactory.create({ id: "foo", properties: { speed: 1, intoxication: 0, boost: 0 } }
+            )};
             const mockedGetters = { activeEnvironment: EnvironmentFactory.create(), effects: [], gameTime: 0 };
             const commit        = jest.fn();
             const dispatch      = jest.fn();

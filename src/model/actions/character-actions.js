@@ -1,5 +1,6 @@
 import CharacterFactory from "@/model/factories/character-factory";
 import { DRAGON }       from "@/definitions/character-types";
+import { SHOE_HEELS, SHOE_SNEAKERS } from "@/definitions/item-types";
 import { validateProperties } from "../validator";
 
 export default
@@ -22,7 +23,15 @@ export default
         const tunedSpeed = speed + ( -intoxication + boost );
 
         if ( character.type === DRAGON && character.level < 3 ) {
-            return tunedSpeed * 1.5; // lower level dragons are slower to give the player a break
+            return tunedSpeed * 0.75; // lower level dragons are slower to give the player a break
+        }
+        const { items } = character.inventory;
+
+        if ( items.find(({ name }) => name === SHOE_HEELS )) {
+            return tunedSpeed * 0.75; // heels slow you down
+        }
+        if ( items.find(({ name }) => name === SHOE_SNEAKERS )) {
+            return tunedSpeed * 1.5; // sneakers give you a speed boost
         }
         return tunedSpeed;
     },

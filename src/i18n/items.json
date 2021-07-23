@@ -7,6 +7,9 @@
         "gin": "Bottle of gin",
         "cognac": "Bottle of cognac",
         "bandaid": "Package of bandaid",
-        "aspirin": "Aspirin"
+        "aspirin": "Aspirin",
+        "heels": "High heels",
+        "sneakers": "Sneakers",
+        "flippers": "Flippers"
     }
 }

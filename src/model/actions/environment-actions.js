@@ -63,7 +63,7 @@ export default {
         );
 
         // enqueue animated movement for each waypoint as an Effect
-        const duration = DEFAULT_WALK_SPEED * CharacterActions.getSpeed( character );
+        const duration = DEFAULT_WALK_SPEED / Math.max( 0.1, CharacterActions.getSpeed( character ));
         let lastX      = startX;
         let lastY      = startY;
         let effect;

@@ -84,6 +84,7 @@
                 class="character-creator__preview"
                 :character="character"
                 :width="characterWidth"
+                :background="false"
             />
         </div>
     </div>
@@ -186,8 +187,8 @@ export default {
             }
             &__preview {
                 position: absolute;
-                left: 355px;
-                top: -110px;
+                left: 375px;
+                top: -125px;
             }
         }
 

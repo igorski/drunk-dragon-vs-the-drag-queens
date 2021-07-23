@@ -1,10 +1,10 @@
-import PriceTypes from '@/definitions/price-types';
-import { randomBool, randomFromList } from '@/utils/random-util';
-import ItemTypes, { JEWELRY_TYPES, LIQUOR_TYPES, HEALTHCARE_TYPES } from '@/definitions/item-types';
+import PriceTypes from "@/definitions/price-types";
+import { randomBool, randomFromList } from "@/utils/random-util";
+import ItemTypes, { JEWELRY_TYPES, CLOTHING_TYPES, LIQUOR_TYPES, HEALTHCARE_TYPES } from "@/definitions/item-types";
 
 const ItemFactory =
 {
-    create( type, optName = '', optPrice = -1 ) {
+    create( type, optName = "", optPrice = -1 ) {
         let price = optPrice;
         if ( price === -1 ) {
             const prices    = Object.values( PriceTypes );
@@ -27,6 +27,9 @@ const ItemFactory =
                     break;
                 case ItemTypes.HEALTHCARE:
                     name = randomFromList( HEALTHCARE_TYPES );
+                    break;
+                case ItemTypes.CLOTHES:
+                    name = randomFromList( CLOTHING_TYPES );
                     break;
             }
         }
@@ -76,6 +79,8 @@ function namesForType( type ) {
             return LIQUOR_TYPES;
         case ItemTypes.HEALTCHARE:
             return HEALTHCARE_TYPES;
+        case ItemTypes.CLOTHES:
+            return CLOTHING_TYPES;
     }
     return [];
 }

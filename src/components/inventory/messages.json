@@ -5,6 +5,7 @@
         "cash": "Cash",
         "confirmUsage": "Confirm usage",
         "doYouWishToApplyItem": "Do you wish to apply \"{item}\" ?",
-        "appliedItem": "Applied {item}"
+        "appliedItem": "Applied {item}",
+        "itemIsAlreadyInUse": "\"{item}\" is already in use."
     }
 }

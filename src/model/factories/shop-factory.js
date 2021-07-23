@@ -7,8 +7,9 @@ export const SHOP_TYPES = {
     PHARMACY: 0,
     LIQUOR: 1,
     JEWELLER: 2,
-    PAWN: 3,
-    LOAN: 4
+    CLOTHES: 3,
+    PAWN: 4,
+    LOAN: 5
 };
 
 const ShopFactory =
@@ -67,6 +68,9 @@ const ShopFactory =
                 break;
             case SHOP_TYPES.JEWELLER:
                 items = ItemFactory.createList( ItemTypes.JEWELRY, amountToCreate );
+                break;
+            case SHOP_TYPES.CLOTHES:
+                items = ItemFactory.createList( ItemTypes.CLOTHES, amountToCreate );
                 break;
             case SHOP_TYPES.LIQUOR:
                 items = ItemFactory.createList( ItemTypes.LIQUOR, amountToCreate );

@@ -33,7 +33,7 @@ const CharacterFactory =
       * performance (e.g. speed, accuracy) and an inventory.
       */
      create({ x = 0, y = 0, level = 1, hp = 1, maxHp = 0, xp = 0, type = QUEEN, id = getUid() } = {},
-         appearance = {}, properties = {},  inventory = InventoryFactory.create() ) {
+         appearance = {}, properties = {}, inventory = InventoryFactory.create() ) {
          maxHp = Math.max( hp, maxHp );
          const character = {
              id,

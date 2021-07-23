@@ -53,27 +53,29 @@ export default {
             "removeItemFromInventory",
             "showNotification",
         ]),
-        handleInventoryClick( item ) {
+        handleInventoryClick( inventoryEntry ) {
+            const { text, value } = inventoryEntry;
             this.openDialog({
                 type: "confirm",
                 title: this.$t( "confirmUsage" ),
-                message: this.$t( "doYouWishToApplyItem", { item: item.text }),
+                message: this.$t( "doYouWishToApplyItem", { item: text }),
                 confirm: async () => {
-                    switch ( item.type ) {
+                    switch ( value.type ) {
                         default:
+                        case ITEM_TYPES.HEALTHCARE:
                             break;
+                        // certain items have no extra action beyond the abilities they provide when present
                         case ITEM_TYPES.JEWELRY:
+                        case ITEM_TYPES.CLOTHES:
+                            return this.showNotification({ message: this.$t( "itemIsAlreadyInUse", { item: text }) });
                             break;
                         case ITEM_TYPES.LIQUOR:
                             break;
-                        case ITEM_TYPES.HEALTHCARE:
-
-                            break;
                     }
-                    ItemActions.applyItemToPlayer( this.$store, item.value, this.player );
-                    this.removeItemFromInventory( item.value );
-                    this.showNotification({ message: this.$t( "appliedItem", { item: item.text }) });
-                    this.$emit( "select", { item });
+                    ItemActions.applyItemToPlayer( this.$store, value, this.player );
+                    this.removeItemFromInventory( value );
+                    this.showNotification({ message: this.$t( "appliedItem", { item: text }) });
+                    this.$emit( "select", value );
                 },
             });
         },

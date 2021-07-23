@@ -90,16 +90,17 @@ npm run test
 * Drag swag/charisma == mana
 ** Show in status view
 
+* When buying a clothes item, discard the existing one of the same type (show confirmation)
+* Add a base price to certain items (e.g. clothes shouldn't be too cheap, yo).
+* Display product capabilities in shop display
 * Allow to loan money, starts action by which you need to have repaid the person OR ELSE!
-* status screen implement handleInventoryClick for jewelry and liquor types (see item-actions)
-* allow using items during fights
+* status screen implement handleInventoryClick for liquor types (also see item-actions)
 * make door drags expose their intent immediately, offer option to fight them (they should be stronger by a few levels)
 * cross water when in possession of flippers :D
 * don't allow navigation over walls when inside a building
 * stop character movement effects when screen isn't game_screen (time should keep running though!)
 * replace pines with more tropical trees
 * More attack types depending on item / level ? (certain levels learn new moves)
-* When advancing a level, increase max HP.
 * Images for shop products
 * Dynamic components need a loader
 * When drunk, characters should slur all 's' words
