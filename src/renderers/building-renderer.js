@@ -21,7 +21,7 @@ function BuildingRenderer( store, width, height ) {
     BuildingRenderer.super( this, 'constructor', store, width, height );
 
     this.maxWalkableTileNum     = MAX_WALKABLE_TILE;
-    this.validNavigationTargets = [ BUILDING_TILES.GROUND, BUILDING_TILES.STAIRS ];
+    this.validNavigationTargets = [ BUILDING_TILES.GROUND, BUILDING_TILES.STAIRS, BUILDING_TILES.HOTEL ];
 }
 WorldRenderer.extend( BuildingRenderer );
 

@@ -28,16 +28,16 @@ jest.mock("store/dist/store.modern", () => ({
     remove: (...args) => mockUpdateFn("remove", ...args),
 }));
 
-describe("Vuex game module", () => {
-    describe("getters", () => {
-        it("should return the active game state", () => {
+describe( "Vuex game module", () => {
+    describe( "getters", () => {
+        it( "should return the active game state", () => {
             const state = { gameState: 2 };
             expect( getters.gameState( state )).toEqual( 2 );
         });
     });
 
-    describe("mutations", () => {
-        it("should be able to set the active game", () => {
+    describe( "mutations", () => {
+        it( "should be able to set the active game", () => {
             const state = {};
             const game = {
                 created: Date.now(),
@@ -56,19 +56,19 @@ describe("Vuex game module", () => {
             });
         });
 
-        it("should be able to set the game state", () => {
+        it( "should be able to set the game state", () => {
             const state = { gameState: 0 };
             mutations.setGameState( state, 2 );
             expect( state.gameState ).toEqual( 2 );
         });
 
-        it("should be able to set the last game render time", () => {
+        it( "should be able to set the last game render time", () => {
             const state = { lastRender: 0 };
             mutations.setLastRender( state, 100 );
             expect( state.lastRender ).toEqual( 100 );
         });
 
-        it("should be able to advance the current game time", () => {
+        it( "should be able to advance the current game time", () => {
             const now = Date.now();
             const state = { gameTime: now };
             const delta = 1000;
@@ -76,26 +76,33 @@ describe("Vuex game module", () => {
             expect( state.gameTime ).toEqual( now + delta );
         });
 
-        it("should be able to set the last valid game time", () => {
+        it( "should be able to set the current game time", () => {
+            const now = Date.now();
+            const state = { gameTime: 0 };
+            mutations.setGameTime( state, now );
+            expect( state.gameTime ).toEqual( now );
+        });
+
+        it( "should be able to set the last valid game time", () => {
             const state = { lastValidGameTime: 0 };
             mutations.setLastValidGameTime( state, 2000 );
             expect( state.lastValidGameTime ).toEqual( 2000 );
         });
 
-        describe("when adding time bound effects", () => {
-            it("should be able to add an effect to the game", () => {
+        describe( "when adding time bound effects", () => {
+            it( "should be able to add an effect to the game", () => {
                 const state = { effects: [{ foo: "bar" }] };
                 mutations.addEffect( state, { baz: "qux" });
                 expect( state.effects ).toEqual( [{ foo: "bar" }, { baz: "qux" }] );
             });
 
-            it("should be able to remove an effect from the game", () => {
+            it( "should be able to remove an effect from the game", () => {
                 const state = { effects: [{ foo: "bar" }, { baz: "qux" } ]};
                 mutations.removeEffect( state, state.effects[ 0 ]);
                 expect( state.effects ).toEqual([{ baz: "qux" }]);
             });
 
-            it("should be able to remove effects of specific mutation types", () => {
+            it( "should be able to remove effects of specific mutation types", () => {
                 const state = {
                     effects: [
                         { id: 1, mutation: "foo" },
@@ -115,7 +122,7 @@ describe("Vuex game module", () => {
                 expect( state.effects ).toEqual([ { id: 4, mutation: "baz" } ]);
             });
 
-            it("should be able to remove effects with specific callback actions", () => {
+            it( "should be able to remove effects with specific callback actions", () => {
                 const state = {
                     effects: [
                         { id: 1, callback: "foo" },
@@ -135,7 +142,7 @@ describe("Vuex game module", () => {
                 expect( state.effects ).toEqual([ { id: 4, callback: "baz" } ]);
             });
 
-            it("should be able to remove effects for specific targets", () => {
+            it( "should be able to remove effects for specific targets", () => {
                 const state = {
                     effects: [
                         { id: 1, target: "foo", mutation: "fooMut" },
@@ -161,8 +168,8 @@ describe("Vuex game module", () => {
         });
     });
 
-    describe("actions", () => {
-        it("should be able to create a new game", async () => {
+    describe( "actions", () => {
+        it( "should be able to create a new game", async () => {
             const character = CharacterFactory.create();
             const world     = { foo: "bar" };
             const commit    = jest.fn();
@@ -181,8 +188,8 @@ describe("Vuex game module", () => {
             expect( mockUpdateFn ).toHaveBeenNthCalledWith( 2, "populate", world, expect.any( String ));
         });
 
-        describe("when storing the game", () => {
-            it("should be able to save the game state into local storage", () => {
+        describe( "when storing the game", () => {
+            it( "should be able to save the game state into local storage", () => {
                 mockUpdateFn = jest.fn(() => "mockReturn");
                 const state  = { foo: "bar" };
                 const mockedGetters = { player: { baz: "qux" }, world: { quux: "quz" }, building: { corge: "grault" } };
@@ -191,7 +198,7 @@ describe("Vuex game module", () => {
                 expect( mockUpdateFn ).toHaveBeenNthCalledWith( 2, "set", "rpg", "mockReturn" );
             });
 
-            it("should be able to restore a saved game from local storage when saved outside", async () => {
+            it( "should be able to restore a saved game from local storage when saved outside", async () => {
                 const game     = { hash: "foo" };
                 const world    = "bar";
                 const player   = { quz: "corge" };
@@ -212,7 +219,7 @@ describe("Vuex game module", () => {
                 expect( dispatch ).toHaveBeenCalledWith( "changeActiveEnvironment", world );
             });
 
-            it("should be able to restore a saved game from local storage when saved inside a building", async () => {
+            it( "should be able to restore a saved game from local storage when saved inside a building", async () => {
                 const game     = { hash: "foo" };
                 const world    = "bar";
                 const building = { floor: 0, floors: [{ qux: "quux" }] };
@@ -234,7 +241,7 @@ describe("Vuex game module", () => {
                 expect( dispatch ).toHaveBeenCalledWith( "changeActiveEnvironment", building.floors[0] );
             });
 
-            it("should reset the game state if the save is corrupted", async () => {
+            it( "should reset the game state if the save is corrupted", async () => {
                 const game     = { hash: "foo" };
                 mockUpdateFn   = jest.fn(() => game ); // fails as there is no player nor world
                 const state    = {};
@@ -249,7 +256,7 @@ describe("Vuex game module", () => {
                 expect( commit ).toHaveBeenCalledWith( "setScreen", expect.any( Number ));
             });
 
-            it("should be able to import an exported save game", async () => {
+            it( "should be able to import an exported save game", async () => {
                 const encodedData = { h: "foo", w: "bar", p: "baz" };
                 const game     = { hash: "foo" };
                 const world    = "bar";
@@ -270,14 +277,14 @@ describe("Vuex game module", () => {
                 expect( dispatch ).toHaveBeenNthCalledWith( 2, "loadGame" );
             });
 
-            it("should be able to remove a saved game state from local storage", () => {
+            it( "should be able to remove a saved game state from local storage", () => {
                 mockUpdateFn = jest.fn();
                 actions.resetGame();
                 expect( mockUpdateFn ).toHaveBeenCalledWith( "remove", "rpg" );
             });
         });
 
-        describe("when updating the game properties", () => {
+        describe( "when updating the game properties", () => {
             const gameTime      = GAME_START_TIME_UNIX;
             const mockedGetters = {
                 gameTime,
@@ -292,7 +299,7 @@ describe("Vuex game module", () => {
                 });
             };
 
-            it("should not do anything when the game state is not active", () => {
+            it( "should not do anything when the game state is not active", () => {
                 const state = { gameState: GAME_OVER };
                 const commit = jest.fn();
                 const dispatch = jest.fn();
@@ -302,7 +309,7 @@ describe("Vuex game module", () => {
                 expect( dispatch ).not.toHaveBeenCalled();
             });
 
-            it("should be able to update the effects for an active game", () => {
+            it( "should be able to update the effects for an active game", () => {
                 const commit    = jest.fn();
                 const dispatch  = jest.fn();
                 const effect1 = EffectFactory.create( "mutation1");
@@ -332,7 +339,7 @@ describe("Vuex game module", () => {
                 expect( commit ).toHaveBeenCalledWith( "removeEffect", effect2 );
             });
 
-            it("should be able to verify the game validity periodically", () => {
+            it( "should be able to verify the game validity periodically", () => {
                 const commit    = createMockTimeCommit();
                 const dispatch  = jest.fn();
                 mockedGetters.isOutside = true;
@@ -349,7 +356,7 @@ describe("Vuex game module", () => {
                 expect( commit ).toHaveBeenNthCalledWith( 2, "setLastValidGameTime", mockedGetters.gameTime );
             });
 
-            it("should end the game when the player is caught outside at an invalid hour", () => {
+            it( "should end the game when the player is caught outside at an invalid hour", () => {
                 let commit    = createMockTimeCommit();
                 let dispatch  = jest.fn();
                 mockedGetters.isOutside = true;
@@ -375,7 +382,7 @@ describe("Vuex game module", () => {
                 expect( commit ).toHaveBeenNthCalledWith( 2, "setGameState", GAME_OVER );
             });
 
-            it("should end the game when the player is inside a building after closing time", () => {
+            it( "should end the game when the player is inside a building after closing time", () => {
                 let commit = createMockTimeCommit();
                 let dispatch  = jest.fn();
                 mockedGetters.isOutside = false;

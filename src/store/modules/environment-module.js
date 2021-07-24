@@ -10,7 +10,7 @@ import SpriteCache                         from "@/utils/sprite-cache";
 import { getFirstFreeTileOfTypeAroundPoint, distance } from "@/utils/terrain-util";
 
 import {
-    SCREEN_GAME, SCREEN_SHOP, SCREEN_CHARACTER_INTERACTION, SCREEN_BATTLE
+    SCREEN_GAME, SCREEN_SHOP, SCREEN_HOTEL, SCREEN_CHARACTER_INTERACTION, SCREEN_BATTLE
 } from "@/definitions/screens";
 
 export default {
@@ -20,6 +20,7 @@ export default {
         activeEnvironment: null, // environment the player is currently navigating
         building: null,          // currently entered building
         shop: null,              // currently entered shop
+        hotel: null,             // currently entered hotel
     },
     getters: {
         world: state => state.world,
@@ -29,6 +30,7 @@ export default {
         building: state => state.building,
         floor: state => state.building?.floor ?? NaN,
         shop: state => state.shop,
+        hotel: state => state.hotel,
         isOutside: state => !state.building && !state.shop,
     },
     mutations: {
@@ -43,6 +45,9 @@ export default {
         },
         setShop( state, shop ) {
             state.shop = shop;
+        },
+        setHotel( state, hotel ) {
+            state.hotel = hotel;
         },
         /* coordinates for the player are set on the environment (to maintain position when switching envs) */
         setXPosition( state, { value }) {
@@ -130,6 +135,10 @@ export default {
             commit( "openDialog", { message: getters.translate( "timeouts.shop" ) });
             commit( "setScreen", SCREEN_GAME );
             dispatch( "leaveShop" );
+        },
+        enterHotel({ commit }, hotel ) {
+            commit( "setHotel", hotel );
+            commit( "setScreen", SCREEN_HOTEL );
         },
         async enterBuilding({ state, getters, commit, dispatch }, building ) {
             // generate levels, terrains and characters inside the building if they

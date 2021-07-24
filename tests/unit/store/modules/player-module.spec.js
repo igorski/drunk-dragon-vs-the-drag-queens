@@ -1,5 +1,7 @@
 import store from "@/store/modules/player-module";
 import { QUEEN } from "@/definitions/character-types";
+import { GAME_START_HOUR } from "@/definitions/constants";
+import { SCREEN_GAME } from "@/definitions/screens";
 import CharacterFactory from "@/model/factories/character-factory";
 import EnvironmentFactory from "@/model/factories/environment-factory";
 
@@ -181,6 +183,61 @@ describe( "Vuex player module", () => {
                 expect( actions.giveItemToCharacter({ commit }, { item, character })).toBe( true );
                 expect( commit ).toHaveBeenNthCalledWith( 1, "addItemToCharacterInventory", { item, character });
                 expect( commit ).toHaveBeenNthCalledWith( 2, "removeItemFromInventory", item);
+            });
+        });
+
+        describe( "when booking a hotel room", () => {
+            const hotel = { price: 10 };
+
+            it( "should return without booking when the player has insufficient funds", async () => {
+                const commit   = jest.fn();
+                const dispatch = jest.fn();
+                const state    = { player: { inventory: { cash: 5 } } };
+
+                const success = await actions.bookHotelRoom({ state, getters: {}, commit, dispatch }, hotel );
+
+                expect( success ).toBe( false );
+                expect( commit ).not.toHaveBeenCalled();
+                expect( dispatch ).not.toHaveBeenCalled();
+            });
+
+            it( "should complete the booking, restore health, deduct cash and leave the building when the player has sufficient funds", async () => {
+                const commit   = jest.fn();
+                const dispatch = jest.fn();
+                const state    = { player: { hp: 1, maxHp: 10, inventory: { cash: 10 } } };
+                const mockedGetters = { gameTime: new Date( "1986-08-29T23:59:31.000Z" ), translate: jest.fn() };
+
+                const success = await actions.bookHotelRoom({ state, getters: mockedGetters, commit, dispatch }, hotel );
+
+                expect( success ).toBe( true );
+                expect( commit ).toHaveBeenNthCalledWith( 1, "setGameTime", expect.any( Number ));
+                expect( commit ).toHaveBeenNthCalledWith( 2, "setLastValidGameTime", expect.any( Number ));
+                expect( commit ).toHaveBeenNthCalledWith( 3, "updatePlayer", { hp: state.player.maxHp });
+                expect( commit ).toHaveBeenNthCalledWith( 4, "deductCash", hotel.price );
+                expect( commit ).toHaveBeenNthCalledWith( 5, "setHotel", null );
+                expect( commit ).toHaveBeenNthCalledWith( 6, "setScreen", SCREEN_GAME );
+                expect( dispatch ).toHaveBeenCalledWith( "leaveBuilding" );
+                expect( commit ).toHaveBeenNthCalledWith( 7, "openDialog", expect.any( Object ));
+            });
+
+            it( "should advance the clock to tomorrow when successfully booked before midnight", async () => {
+                const commit   = jest.fn();
+                const dispatch = jest.fn();
+                const state    = { player: { inventory: { cash: 10 } } };
+                const mockedGetters = { gameTime: new Date( "1986-08-29T23:59:31.000Z" ), translate: jest.fn() };
+
+                await actions.bookHotelRoom({ state, getters: mockedGetters, commit, dispatch }, hotel );
+                expect( commit ).toHaveBeenCalledWith( "setGameTime", new Date( `1986-08-30T${GAME_START_HOUR}:00:00.000Z` ).getTime() );
+            });
+
+            it( "should advance the clock to the start hour on the same day when successfully booked after midnight", async () => {
+                const commit   = jest.fn();
+                const dispatch = jest.fn();
+                const state    = { player: { inventory: { cash: 10 } } };
+                const mockedGetters = { gameTime: new Date( "1986-08-30T01:59:31.000Z" ), translate: jest.fn() };
+
+                await actions.bookHotelRoom({ state, getters: mockedGetters, commit, dispatch }, hotel );
+                expect( commit ).toHaveBeenCalledWith( "setGameTime", new Date( `1986-08-30T${GAME_START_HOUR}:00:00.000Z` ).getTime() );
             });
         });
     });

@@ -70,8 +70,8 @@ import messages          from "./messages.json";
 
 import { GAME_OVER } from "@/definitions/game-states";
 import {
-    SCREEN_GAME, SCREEN_CHARACTER_CREATE, SCREEN_OPTIONS, SCREEN_STATUS,
-    SCREEN_CHARACTER_INTERACTION, SCREEN_BATTLE, SCREEN_SHOP, SCREEN_CREDITS, SCREEN_GAME_OVER
+    SCREEN_GAME, SCREEN_CHARACTER_CREATE, SCREEN_OPTIONS, SCREEN_STATUS, SCREEN_CREDITS,
+    SCREEN_CHARACTER_INTERACTION, SCREEN_BATTLE, SCREEN_SHOP, SCREEN_HOTEL, SCREEN_GAME_OVER
 } from "@/definitions/screens";
 
 Vue.use( VueI18n );
@@ -120,6 +120,8 @@ export default {
                     return () => import("./components/status/status");
                 case SCREEN_SHOP:
                     return () => import("./components/shop/shop");
+                case SCREEN_HOTEL:
+                    return () => import("./components/hotel/hotel");
                 case SCREEN_CREDITS:
                     return () => import("./components/credits/credits");
                 case SCREEN_GAME_OVER:

@@ -209,5 +209,22 @@ describe( "Environment actions", () => {
             expect( dispatch ).toHaveBeenCalledWith( "changeFloor", getters.floor + 1 );
             expect( commit ).toHaveBeenCalledWith( "setYPosition", { value: environment.y + 1 });
         });
+
+        it ( "should enter the hotel when the player collides with a hotel counter", () => {
+            const commit   = jest.fn();
+            const dispatch = jest.fn();
+            const getters  = { floor : 1 };
+            const environment = {
+                x: 10,
+                y: 10,
+                type: BUILDING_TYPE,
+                characters: [],
+                shops: [],
+                exits: [],
+                hotels: [{ x: 10, y: 10 }]
+            };
+            expect( EnvironmentActions.hitTest({ commit, dispatch, getters }, environment )).toBe( true );
+            expect( dispatch ).toHaveBeenCalledWith( "enterHotel", environment.hotels[ 0 ]);
+        });
     });
 });

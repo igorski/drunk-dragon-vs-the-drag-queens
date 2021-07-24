@@ -1,7 +1,7 @@
 /**
 * The MIT License (MIT)
 *
-* Igor Zinken 2016-2020 - https://www.igorski.nl
+* Igor Zinken 2016-2021 - https://www.igorski.nl
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy of
 * this software and associated documentation files (the "Software"), to deal in
@@ -25,24 +25,26 @@
         <h4>{{ title }}</h4>
         <p>{{ message }}</p>
         <div class="button-container">
-            <button v-t="'ok'"
-                    type="button"
-                    class="rpg-button"
-                    @click="handleConfirm"
+            <button
+                v-t="'ok'"
+                type="button"
+                class="rpg-button"
+                @click="handleConfirm"
             ></button>
-            <button v-t="'cancel'"
-                    v-if="type === 'confirm'"
-                    type="button"
-                    class="rpg-button"
-                    @click="handleCancel"
+            <button
+                v-t="'cancel'"
+                v-if="type === 'confirm'"
+                type="button"
+                class="rpg-button"
+                @click="handleCancel"
             ></button>
         </div>
     </div>
 </template>
 
 <script>
-import { mapMutations } from 'vuex';
-import messages from './messages.json';
+import { mapMutations } from "vuex";
+import messages from "./messages.json";
 
 export default {
     i18n: { messages },
@@ -71,19 +73,19 @@ export default {
     },
     methods: {
         ...mapMutations([
-            'closeDialog',
+            "closeDialog",
         ]),
         handleConfirm() {
-            if ( typeof this.confirmHandler === "function" )
-                this.confirmHandler();
-
             this.close();
+            if ( typeof this.confirmHandler === "function" ) {
+                this.confirmHandler();
+            }
         },
         handleCancel() {
-            if ( typeof this.cancelHandler === "function" )
-                this.cancelHandler();
-
             this.close();
+            if ( typeof this.cancelHandler === "function" ) {
+                this.cancelHandler();
+            }
         },
         close() {
             this.closeDialog();
@@ -93,48 +95,48 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-    @import "@/styles/_variables.scss";
-    @import "@/styles/_layout.scss";
+@import "@/styles/_variables.scss";
+@import "@/styles/_layout.scss";
 
-    .dialog-window {
-      @include overlay();
-      @include noSelect();
-      @include boxSize();
-      @include center(fixed);
+.dialog-window {
+    @include overlay();
+    @include noSelect();
+    @include boxSize();
+    @include center(fixed);
 
-      width: auto;
-      height: auto;
-      padding: $spacing-small $spacing-large;
-      border-radius: $spacing-small;
-      box-shadow: 0 0 25px rgba(0,0,0,.5);
+    width: auto;
+    height: auto;
+    padding: $spacing-small $spacing-large;
+    border-radius: $spacing-small;
+    box-shadow: 0 0 25px rgba(0,0,0,.5);
 
-      h4 {
+    h4 {
         margin: $spacing-medium 0;
         color: $color-1;
         font-weight: bold;
-      }
     }
+}
 
-    .button-container {
-        display: flex;
+.button-container {
+    display: flex;
 
-        button {
-            display: inline;
-            width: 48%;
-            padding: $spacing-medium $spacing-large;
-        }
+    button {
+        display: inline;
+        width: 48%;
+        padding: $spacing-medium $spacing-large;
     }
+}
 
-    @media screen and ( max-width: $mobile-width ) {
-      .dialog-window {
+@media screen and ( max-width: $mobile-width ) {
+    .dialog-window {
         border-radius: 0;
         width: 100%;
         height: 100%;
 
         button {
-          display: block;
-          width: 100%;
+            display: block;
+            width: 100%;
         }
-      }
     }
+}
 </style>

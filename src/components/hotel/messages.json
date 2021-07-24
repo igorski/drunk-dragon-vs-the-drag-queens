@@ -1,0 +1,12 @@
+{
+    "en-US": {
+        "hotelCounter": "Hotel counter",
+        "welcomeToOurHotel": "Welcome to our hotel. It's modest but we provide a place for you to spend the night in full privacy.",
+        "priceForTonight": "The price for staying tonight is ${price}. Would you like to book a room ?",
+        "stayTheNight": "Stay the night",
+        "leave": "Leave",
+        "confirmPurchase": "Confirm your purchase",
+        "bookRoomForPrice": "Do you confirm to book this room for ${price} ? After paying you can immediately go up to your room and stay for the night.",
+        "insufficientFunds": "We are not a charity. No money, no room."
+    }
+}

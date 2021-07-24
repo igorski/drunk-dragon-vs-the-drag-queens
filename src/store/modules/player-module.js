@@ -1,9 +1,11 @@
-import cloneDeep          from "lodash/cloneDeep";
-import merge              from "lodash/merge";
-import isEqual            from "lodash/isEqual";
-import EnvironmentActions from "@/model/actions/environment-actions";
-import CharacterActions   from "@/model/actions/character-actions";
-import InventoryActions   from "@/model/actions/inventory-actions";
+import cloneDeep           from "lodash/cloneDeep";
+import merge               from "lodash/merge";
+import isEqual             from "lodash/isEqual";
+import { GAME_START_HOUR } from "@/definitions/constants";
+import { SCREEN_GAME }     from "@/definitions/screens";
+import EnvironmentActions  from "@/model/actions/environment-actions";
+import CharacterActions    from "@/model/actions/character-actions";
+import InventoryActions    from "@/model/actions/inventory-actions";
 
 // cancel the pending movements TODO: this should target the effect "owner"!
 const cancelPendingMovement = commit => {
@@ -112,6 +114,35 @@ export default
             commit( "addItemToCharacterInventory", { item, character });
             commit( "removeItemFromInventory", item );
             return true;
-        }
+        },
+        bookHotelRoom({ state, getters, commit, dispatch }, hotel ) {
+            const { player } = state;
+            if ( player.inventory.cash < hotel.price ) {
+                return false;
+            }
+            // advance clock to next valid time tomorrow
+            const date = new Date( getters.gameTime );
+            if ( date.getUTCHours() >= GAME_START_HOUR ) {
+                date.setDate( date.getDate() + 1 );
+            }
+            date.setUTCHours( GAME_START_HOUR );
+            date.setUTCMinutes( 0 );
+            date.setUTCSeconds( 0 );
+            const timestamp = date.getTime();
+            commit( "setGameTime", timestamp );
+            commit( "setLastValidGameTime", timestamp );
+
+            // restore HP
+            commit( "updatePlayer", { hp: player.maxHp })
+
+            // pay hotel and leave building
+            commit( "deductCash", hotel.price );
+            commit( "setHotel", null );
+            commit( "setScreen", SCREEN_GAME );
+            dispatch( "leaveBuilding" );
+            commit( "openDialog", { message: getters.translate( "messages.stayedTheNight" ) });
+
+            return true;
+        },
     },
 };

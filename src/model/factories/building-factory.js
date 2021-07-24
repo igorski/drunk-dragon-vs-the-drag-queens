@@ -1,17 +1,18 @@
-import { Map }            from 'rot-js';
-import HashUtil           from '@/utils/hash-util';
-import WorldCache         from '@/utils/world-cache';
-import CharacterFactory   from './character-factory';
-import EnvironmentFactory from './environment-factory';
+import { Map }            from "rot-js";
+import PriceTypes         from "@/definitions/price-types";
+import HashUtil           from "@/utils/hash-util";
+import WorldCache         from "@/utils/world-cache";
+import CharacterFactory   from "./character-factory";
+import EnvironmentFactory from "./environment-factory";
 import {
-    random, randomInRange
-} from '@/utils/random-util';
+    random, randomInRange, randomFromList, randomBool
+} from "@/utils/random-util";
 import {
-    positionAtFirstFreeTileType, positionAtLastFreeTileType, coordinateToIndex,
-    assertSurroundingTilesOfTypeAroundPoint
-} from '@/utils/terrain-util';
+    positionAtFirstFreeTileType, positionAtLastFreeTileType, positionAtRandomFreeTileType,
+    coordinateToIndex, assertSurroundingTilesOfTypeAroundPoint
+} from "@/utils/terrain-util";
 
-export const BUILDING_TYPE = 'Building';
+export const BUILDING_TYPE = "Building";
 export const FLOOR_TYPES = {
     BAR: 0,
     HOTEL: 1
@@ -23,8 +24,9 @@ export const FLOOR_TYPES = {
 export const BUILDING_TILES = {
     GROUND  : 0,
     STAIRS  : 1,
-    WALL    : 2,
-    NOTHING : 3
+    HOTEL   : 2,
+    WALL    : 3,
+    NOTHING : 4
 };
 /**
 * Highest index within the tiles list which is associated
@@ -59,7 +61,7 @@ const BuildingFactory =
      * @param {Object} player
      */
     generateFloors( hash, building, player ) {
-        const playerLevel = player?.level ?? 1; // TODO : how to increment player skill
+        const playerLevel = player?.xp ?? 1;
         const floorAmount = playerLevel % 30 + MIN_FLOOR_AMOUNT;
         const floors      = [];
         const floorTypes  = Object.values( FLOOR_TYPES );
@@ -97,25 +99,33 @@ const BuildingFactory =
                 }
             };
             const terrain = generate();
-            if ( terrain instanceof Error ) {
-                console.error(
-                    `BuildingFactory::ERROR "${terrain.message}" occurred when generating for size:
-                    ${floorWidth} x ${floorHeight} with min room size:
-                    ${minRoomWidth} x ${minRoomHeight} and max room size:
-                    ${maxRoomWidth} x ${maxRoomHeight} with ${tries} left`
-                );
+            if ( process.env.NODE_ENV === "development" ) {
+                if ( terrain instanceof Error ) {
+                    console.error(
+                        `BuildingFactory::ERROR "${terrain.message}" occurred when generating for size:
+                        ${floorWidth} x ${floorHeight} with min room size:
+                        ${minRoomWidth} x ${minRoomHeight} and max room size:
+                        ${maxRoomWidth} x ${maxRoomHeight} with ${tries} left`
+                    );
+                }
             }
 
             // create the exit to the previous floor/outside world
 
             terrain[ positionAtFirstFreeTileType( terrain, BUILDING_TILES.GROUND ) ] = BUILDING_TILES.STAIRS;
 
-            // create the exit to the next floor
-
-            if ( i !== maxFloor ) {
+            let floorType = randomBool() ? FLOOR_TYPES.BAR : FLOOR_TYPES.HOTEL;
+            if ( i === maxFloor ) {
+                // the last floor should always be a hotel, create the hotel counter
+                floorType = FLOOR_TYPES.HOTEL;
+            } else {
+                // all floors except for the last one have an the exit to the next floor
                 terrain[ positionAtLastFreeTileType( terrain, BUILDING_TILES.GROUND ) ] = BUILDING_TILES.STAIRS;
             }
-            floors.push( createFloor( floorWidth, floorHeight, terrain, floorTypes[ i % floorTypes.length ] ));
+            if ( floorType === FLOOR_TYPES.HOTEL ) {
+                terrain[ positionAtRandomFreeTileType( terrain, BUILDING_TILES.GROUND ) ] = BUILDING_TILES.HOTEL;
+            }
+            floors.push( createFloor( floorWidth, floorHeight, terrain, floorType, player ));
         }
         building.floors = floors; // commit the floors to the Building
     },
@@ -132,6 +142,7 @@ const BuildingFactory =
             ...EnvironmentFactory.assemble( floor ),
             floorType: floor.ft,
             exits: floor.ex,
+            hotels: floor.ho,
         }));
         return out;
     },
@@ -147,6 +158,7 @@ const BuildingFactory =
              ...EnvironmentFactory.disassemble( floor ),
              ft: floor.floorType,
              ex: floor.exits,
+             ho: floor.hotels
          }));
          return out;
      }
@@ -162,8 +174,9 @@ export default BuildingFactory;
  * @param {number} height
  * @param {Array<number>} terrain
  * @param {number} floorType
+ * @param {Object} player Character
  */
-function createFloor( width, height, terrain = [], floorType ) {
+function createFloor( width, height, terrain = [], floorType, player ) {
     const environment = { width, height, terrain }; // temporarily used for Object positioning
     const characters  = [];
     const out = {
@@ -171,13 +184,19 @@ function createFloor( width, height, terrain = [], floorType ) {
         type: BUILDING_TYPE,
         floorType,
         exits: [],
+        hotels: [],
     };
 
-    // create exits
+    // create exits / hotels
 
     for ( let x = 0, y = 0; y < height; x = ( ++x === width ? ( x % width + ( ++y & 0 ) ) : x )) {
-        if ( terrain[ coordinateToIndex( x, y, environment ) ] === BUILDING_TILES.STAIRS ) {
+        const tile = terrain[ coordinateToIndex( x, y, environment ) ];
+        if ( tile === BUILDING_TILES.STAIRS ) {
             out.exits.push({ x, y });
+        } else if ( tile === BUILDING_TILES.HOTEL ) {
+            const priceList = [ PriceTypes.AVERAGE, PriceTypes.EXPENSIVE, PriceTypes.LUXURY ];
+            const price = Math.round(( randomFromList( priceList ) * Math.random() ) + ( player.level * 2 ));
+            out.hotels.push({ x, y, price });
         }
     }
 
@@ -203,7 +222,7 @@ function createFloor( width, height, terrain = [], floorType ) {
         }
     }
 
-    if ( process.env.NODE_ENV === 'development' ) {
+    if ( process.env.NODE_ENV === "development" ) {
         console.warn( `Generated ${characterIndices.length} characters for a possible max of ${totalCharacters}` );
     }
 

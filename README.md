@@ -90,15 +90,17 @@ npm run test
 * Drag swag/charisma == mana
 ** Show in status view
 
-* When generating door drags, ensure hotel is actually placed successfully!
-* Implement sleeping in hotel !! (should be averagely priced to make player think about purchases)
+* show XP, cash and level stats on game over screen
+* don't allow navigation over walls when inside a building (max walkable tile for environment in environment-actions!)
+* Create unique sprite for hotel counter
+* Queens inside buildings should either be woo'd or fought
+* When generating door queens, ensure hotel is actually placed successfully!
 * When buying a clothes item, discard the existing one of the same type (show confirmation)
 * Add a base price to certain items (e.g. clothes shouldn't be too cheap, yo. heels are an expensive item).
 * Display product capabilities in shop display
 * Allow to loan money, starts action by which you need to have repaid the person OR ELSE!
 * status screen implement handleInventoryClick for liquor types (also see item-actions)
 * make door drags expose their intent immediately, offer option to fight them (they should be stronger by a few levels)
-* don't allow navigation over walls when inside a building (max walkable tile for environment in environment-actions!)
 * stop character movement effects when screen isn't game_screen (time should keep running though!)
 * replace pines with more tropical trees
 * More attack types depending on item / level ? (certain levels learn new moves)
@@ -126,8 +128,7 @@ npm run test
 * Don't enter exit unless path ends at its exact coordinate
 * Can we give announcement of closing time when entering building?
 * Create floors that are bars chockfull of people!
-* Create hotels inside buildings
-* Weird bug where leaving a building sets you in the middle of nowhere?? (spotted by taking first exit/entrance)
+* Weird bug where leaving a building sets you in the middle of nowhere?? (most likely env x,y is updated for overground, not last floor)
 * Identify shop types by their exterior
 * Item type elevator key to allow instant access to any floor
 * Intro text when starting a new game

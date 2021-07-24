@@ -50,6 +50,9 @@ export default {
         advanceGameTime( state, valueInMilliseconds ) {
             state.gameTime += valueInMilliseconds;
         },
+        setGameTime( state, value ) {
+            state.gameTime = value;
+        },
         setLastValidGameTime( state, value ) {
             state.lastValidGameTime = value;
         },

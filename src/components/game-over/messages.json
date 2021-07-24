@@ -2,7 +2,7 @@
     "en-US": {
         "gameOver": "Game over",
         "youPerishedInBattle": "You perished in battle. Perhaps you fought fiercely or perhaps you were outmatched. Pick your battles carefully.",
-        "alasTheDaylightHasOverwhelmedYou": "Alas, the daylight has overwhelmed you. You should have tried harder to find shelter.",
-        "youHavePlayedFor": "You managed to stay safe from the daylight for a grand total of {days} days and {hours} hours."
+        "alasTheDaylightHasOverwhelmedYou": "Alas, the daylight has overwhelmed you. There is only so much makeup can do, a queen looks best under the right lighting conditions and full daylight just isn't one of them. You should have tried harder to find shelter.",
+        "youHavePlayedFor": "You managed to stay safe from the daylight for a grand total of {days} day(s) and {hours} hours."
     }
 }

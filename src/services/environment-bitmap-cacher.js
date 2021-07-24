@@ -193,6 +193,7 @@ function drawTileForSurroundings( ctx, tx, ty, x, y, environment, finalRenders )
                 drawAdjacentTiles( tile, tx, ty, x, y, environment, ctx  );
                 break;
 
+            case BUILDING_TILES.HOTEL: // TODO: unique tile
             case BUILDING_TILES.STAIRS:
                 return drawTile( ctx, SpriteCache.FLOOR, 260, x, y );
 

@@ -133,6 +133,9 @@ export default {
                 dispatchFn = "changeFloor";
                 const isDown = environment.exits.indexOf( hit ) === 0;
                 dispatchValue = isDown ? getters.floor - 1 : getters.floor + 1;
+            } else if ( hit = internalHitTest( x, y, environment.hotels )) {
+                // entered hotel
+                dispatchFn = "enterHotel";
             }
         }
         if ( hit ) {
