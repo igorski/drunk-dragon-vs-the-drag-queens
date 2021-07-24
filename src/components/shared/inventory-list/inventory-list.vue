@@ -35,7 +35,6 @@ export default {
     },
     methods: {
         updateValue( value ) {
-            console.warn("update to",value);
             this.$emit( "input", value );
         },
     },

@@ -90,6 +90,7 @@ npm run test
 * Drag swag/charisma == mana
 ** Show in status view
 
+* When generating door drags, ensure hotel is actually placed successfully!
 * Implement sleeping in hotel !! (should be averagely priced to make player think about purchases)
 * When buying a clothes item, discard the existing one of the same type (show confirmation)
 * Add a base price to certain items (e.g. clothes shouldn't be too cheap, yo. heels are an expensive item).

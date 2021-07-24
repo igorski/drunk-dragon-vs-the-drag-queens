@@ -1,6 +1,6 @@
-import ItemTypes          from '@/definitions/item-types';
-import PriceTypes         from '@/definitions/price-types';
-import { randomFromList } from '@/utils/random-util';
+import ItemTypes          from "@/definitions/item-types";
+import PriceTypes         from "@/definitions/price-types";
+import { randomFromList } from "@/utils/random-util";
 
 const IntentFactory = {
     create( type, price ) {

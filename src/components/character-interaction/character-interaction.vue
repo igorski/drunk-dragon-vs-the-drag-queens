@@ -1,7 +1,8 @@
 <template>
-    <modal :title="$t('conversation')"
-           class="interaction-modal"
-           @close="close()"
+    <modal
+        :title="$t('conversation')"
+        class="interaction-modal"
+        @close="close()"
     >
         <div class="interactions">
             <h3 v-t="'askQuestion'"></h3>
@@ -60,15 +61,17 @@
 </template>
 
 <script>
-import { mapState, mapGetters, mapMutations, mapActions } from 'vuex';
-import sortBy             from 'lodash/sortBy';
-import Modal              from '@/components/modal/modal';
-import InventoryList      from '@/components/shared/inventory-list/inventory-list';
-import ItemTypes          from '@/definitions/item-types';
-import PriceTypes         from '@/definitions/price-types';
-import { SHOP_TYPES }     from '@/model/factories/shop-factory';
-import { randomFromList } from '@/utils/random-util';
-import messages           from './messages.json';
+import { mapState, mapGetters, mapMutations, mapActions } from "vuex";
+import sortBy             from "lodash/sortBy";
+import Modal              from "@/components/modal/modal";
+import InventoryList      from "@/components/shared/inventory-list/inventory-list";
+import ItemTypes          from "@/definitions/item-types";
+import PriceTypes         from "@/definitions/price-types";
+import { SHOP_TYPES }     from "@/model/factories/shop-factory";
+import { randomFromList } from "@/utils/random-util";
+import messages           from "./messages.json";
+
+const INTENT_TIMEOUT = 4000;
 
 export default {
     i18n: { messages },
@@ -79,23 +82,23 @@ export default {
     data: () => ({
         askedQuestions: 0,
         intentTimeout: null,
-        message: '',
-        thought: '',
+        message: "",
+        thought: "",
         selectedItem: null,
     }),
     computed: {
         ...mapState([
-            'dimensions',
+            "dimensions",
         ]),
         ...mapGetters([
-            'character',
+            "character",
         ]),
         intent() {
             return this.character.properties.intent;
         },
         characterComponent() {
             // TODO: currently we only interact with queens?
-            return () => import('@/renderers/character-queen');
+            return () => import("@/renderers/character-queen");
         },
         characterWidth() {
             const ideal = 300; /* see _variables@mobile-width */
@@ -108,75 +111,81 @@ export default {
     },
     methods: {
         ...mapMutations([
-            'openDialog',
-            'showNotification',
-            'removeCharacter',
+            "openDialog",
+            "showNotification",
+            "removeCharacter",
         ]),
         ...mapActions([
-            'buyItem',
-            'giveItemToCharacter',
+            "buyItem",
+            "giveItemToCharacter",
         ]),
         interact( type ) {
             let list;
             this.clearIntentTimeout();
             switch ( type ) {
                 case 0:
-                    list = this.$t('answers.hi');
+                    list = this.$t("answers.hi");
                     break;
                 case 1:
-                    list = this.$t('answers.whatsInHere');
+                    list = this.$t("answers.whatsInHere");
                     break;
                 case 2:
-                    list = this.$t('answers.canIEnter');
+                    list = this.$t("answers.canIEnter");
                     break;
             }
             this.message = randomFromList( list );
 
             // persistent bugging shows the Characters intent in a thought balloon
-            if ( ++this.askedQuestions > 2 && this.intentTimeout === null ) {
+            if ( ++this.askedQuestions > 1 && this.intentTimeout === null ) {
                 this.intentTimeout = window.setTimeout(() => {
                     switch ( this.intent.type ) {
                         case ItemTypes.JEWELRY:
-                            this.thought = this.$t('convinceMeWithAPresent');
+                            this.thought = this.$t( "convinceMeWithAPresent" );
+                            break;
+                        case ItemTypes.CLOTHES:
+                            this.thought = this.$t( "needNewClothes" );
                             break;
                         case ItemTypes.LIQUOR:
-                            this.thought = this.$t('couldUseADrink');
+                            this.thought = this.$t( "couldUseADrink" );
                             break;
                         case ItemTypes.HEALTHCARE:
-                            this.thought = this.$t('feelingSick');
+                            this.thought = this.$t( "feelingSick" );
                             break;
                     }
-                }, 5000 );
+                    this.message = "";
+                }, INTENT_TIMEOUT );
             }
         },
         clearIntentTimeout() {
             window.clearTimeout( this.intentTimeout );
+            this.intentTimeout = null;
         },
         async giveItem() {
+            this.thought = "";
             if ( this.intent.type !== this.selectedItem.type ) {
-                this.message = this.$t('noThankYou');
+                this.message = this.$t("noThankYou");
                 return;
             }
             if ( await this.giveItemToCharacter({ item: this.selectedItem, character: this.character }) ) {
-                this.message = this.$t('justWhatINeeded');
+                this.message = this.$t("justWhatINeeded");
                 window.setTimeout(() => {
                     this.close();
                     this.removeCharacter( this.character );
-                }, 5000 );
+                }, 4000 );
             } else {
-                this.message = this.$t('tooCheap');
+                this.message = this.$t("tooCheap");
             }
             this.selectedItem = null;
         },
         close() {
-            this.$emit('close');
+            this.$emit("close");
         }
     },
 };
 </script>
 
 <style lang="scss" scoped>
-    @import '@/styles/_variables';
+    @import "@/styles/_variables";
 
     .interaction-modal {
         overflow: visible; // speech bubble
