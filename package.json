@@ -38,7 +38,7 @@
     "store": "^2.0.12",
     "vue-i18n": "^8.22.2",
     "vue-radio-toggle-buttons": "^0.1.0",
-    "vue-search-select": "^2.9.3",
+    "vue-select": "^3.11.2",
     "vue-template-compiler": "^2.6.11",
     "zcanvas": "^4.0.3",
     "zthreader": "^1.0.2"

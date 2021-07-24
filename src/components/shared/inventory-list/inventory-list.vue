@@ -1,26 +1,23 @@
 <template>
-    <model-select
+    <select-list
         :value.sync="value"
         :options="inventory"
         :placeholder="$t('findItemByName')"
-        :is-disabled="!inventory.length"
-        @select="updateValue"
+        :disabled="!inventory.length"
+        @input="updateValue"
     />
 </template>
 
 <script>
 import { mapGetters }  from "vuex";
-import { ModelSelect } from "vue-search-select";
+import SelectList      from "@/components/shared/select-list/select-list";
 import sharedMessages  from "@/i18n/items.json";
 import messages        from "./messages.json";
-
-import "semantic-ui-css/components/dropdown.min.css"
-import "vue-search-select/dist/VueSearchSelect.css";
 
 export default {
     i18n: { messages, sharedMessages },
     components: {
-        ModelSelect,
+        SelectList,
     },
     props: {
         value: {
@@ -33,11 +30,12 @@ export default {
             "player",
         ]),
         inventory() {
-            return this.player.inventory.items.map( value => ({ text: this.$t( value.name ), value }));
+            return this.player.inventory.items.map( value => ({ label: this.$t( value.name ), value }));
         }
     },
     methods: {
-        updateValue({ value }) {
+        updateValue( value ) {
+            console.warn("update to",value);
             this.$emit( "input", value );
         },
     },
