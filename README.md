@@ -85,19 +85,19 @@ npm run test
 ## TODO
 
 * getDamageForAttack needs to take character attack and opponent defense into account
-** Clothing can increase defense
+** Clothing can increase defense, jewelry swag
 
 * Drag swag/charisma == mana
 ** Show in status view
 
+* Implement sleeping in hotel !! (should be averagely priced to make player think about purchases)
 * When buying a clothes item, discard the existing one of the same type (show confirmation)
-* Add a base price to certain items (e.g. clothes shouldn't be too cheap, yo).
+* Add a base price to certain items (e.g. clothes shouldn't be too cheap, yo. heels are an expensive item).
 * Display product capabilities in shop display
 * Allow to loan money, starts action by which you need to have repaid the person OR ELSE!
 * status screen implement handleInventoryClick for liquor types (also see item-actions)
 * make door drags expose their intent immediately, offer option to fight them (they should be stronger by a few levels)
-* cross water when in possession of flippers :D
-* don't allow navigation over walls when inside a building
+* don't allow navigation over walls when inside a building (max walkable tile for environment in environment-actions!)
 * stop character movement effects when screen isn't game_screen (time should keep running though!)
 * replace pines with more tropical trees
 * More attack types depending on item / level ? (certain levels learn new moves)
@@ -140,3 +140,4 @@ npm run test
 * Overworld must become lighter when morning comes
 * Keep track of important dates (Christmas, New Year)
 * Time should be able to speed up (when sleeping for instance)
+* world-renderer isValidTarget|maxWalkableTile|and pre calc of waypoints is duplicating environment-actions unnecessarily!

@@ -1,6 +1,7 @@
 import EnvironmentActions from "@/model/actions/environment-actions";
 import { BUILDING_TYPE }  from "@/model/factories/building-factory";
 import CharacterFactory   from "@/model/factories/character-factory";
+import EnvironmentFactory from "@/model/factories/environment-factory";
 import { WORLD_TYPE, MAX_WALKABLE_TILE } from "@/model/factories/world-factory";
 
 // mock pathfinder implementation
@@ -17,7 +18,7 @@ describe( "Environment actions", () => {
     describe( "When the movement of a Character to a target coordinate is requested", () => {
         const getters     = { gameTime: 5000 };
         const character   = CharacterFactory.create({ id: "foo", x: 1, y: 1 });
-        const environment = { foo: "bar" };
+        const environment = EnvironmentFactory.create();
         const effectRequestObject = {
             callback: expect.any( String ),
             duration: expect.any( Number ),

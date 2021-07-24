@@ -1,8 +1,10 @@
 import { BUILDING_TYPE }                 from "@/model/factories/building-factory";
 import EffectFactory                     from "@/model/factories/effect-factory";
-import { WORLD_TYPE, MAX_WALKABLE_TILE } from "@/model/factories/world-factory";
+import { WORLD_TYPE, WORLD_TILES, MAX_WALKABLE_TILE } from "@/model/factories/world-factory";
 import CharacterActions from "@/model/actions/character-actions";
+import { SHOE_FLIPPERS } from "@/definitions/item-types";
 import { findPath }     from "@/utils/path-finder";
+import { coordinateToIndex } from "@/utils/terrain-util";
 
 const DEFAULT_WALK_SPEED = 400; // ms for a single step
 
@@ -27,9 +29,18 @@ export default {
     moveCharacter({ commit, getters }, character, environment, targetX, targetY, pendingMovements = [],
         xMutation = "setCharacterXPosition", yMutation = "setCharacterYPosition", updateMutation = "hitTest"
     ) {
+        // can we walk on water ? TODO: supply in args per environment type.
+        const maxTile = character.inventory.items.find(({ name }) => name === SHOE_FLIPPERS ) ? WORLD_TILES.WATER : MAX_WALKABLE_TILE;
+        const indexOfTile = coordinateToIndex( fastRound( targetX ), fastRound( targetY ), environment ); // translate coordinate to 1D list index
+        const targetTile  = environment.terrain[ indexOfTile ];
+
+        if ( targetTile > maxTile ) {
+            return; // unnavigateable destination
+        }
+
         let startTime = getters.gameTime;
-        let startX = Math.round( character.x );
-        let startY = Math.round( character.y );
+        let startX = fastRound( character.x );
+        let startY = fastRound( character.y );
 
         const firstEffects = [];
         if ( pendingMovements.length > 1 ) {
@@ -59,7 +70,7 @@ export default {
         // calculate waypoints from the last position to the target position
         const waypoints = findPath(
             environment, startX, startY,
-            Math.round( targetX ), Math.round( targetY ), MAX_WALKABLE_TILE
+            fastRound( targetX ), fastRound( targetY ), maxTile
         );
 
         // enqueue animated movement for each waypoint as an Effect

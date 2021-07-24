@@ -1,6 +1,7 @@
 export default WorldRenderer;
 
 import { sprite } from "zcanvas";
+import { SHOE_FLIPPERS } from "@/definitions/item-types";
 import { WORLD_TILES, MAX_WALKABLE_TILE } from "@/model/factories/world-factory";
 import { SHOP_TYPES } from "@/model/factories/shop-factory";
 import SpriteCache from "@/utils/sprite-cache";
@@ -177,7 +178,15 @@ WorldRenderer.prototype.handleRelease = function( pointerX, pointerY ) {
  * @return {boolean}
  */
 WorldRenderer.prototype.isValidTarget = function( tileType ) {
-    return this.validNavigationTargets.includes( tileType );
+    return this.validNavigationTargets.includes( tileType ) || ( tileType === this.getMaxWalkableTile() );
+};
+
+/**
+ * Get the maximum tile index we can navigate over.
+ * Depending on our inventory / other character properties we can navigate over different tiles (e.g. walk on water)
+ */
+WorldRenderer.prototype.getMaxWalkableTile = function() {
+    return this._player.inventory.items.find(({ name }) => name === SHOE_FLIPPERS ) ? WORLD_TILES.WATER : this.maxWalkableTileNum;
 };
 
 /**
@@ -194,7 +203,7 @@ WorldRenderer.prototype.navigateToTile = async function( x, y ) {
     let waypoints = findPath(
         this._environment,
         Math.round( this._environment.x ), Math.round( this._environment.y ),
-        x, y, this.maxWalkableTileNum
+        x, y, this.getMaxWalkableTile()
     );
     const maxLen = this.horizontalTileAmount + this.verticalTileAmount;
     if ( waypoints.length > maxLen ) {

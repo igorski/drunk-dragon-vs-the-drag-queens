@@ -22,7 +22,7 @@ export const WORLD_TILES = {
     GRASS    : 1,
     SAND     : 2,
     ROAD     : 3,
-    WATER    : 4,
+    WATER    : 4, // can traverse water when wearing flippers
     MOUNTAIN : 5,
     TREE     : 6,
     NOTHING  : 7
