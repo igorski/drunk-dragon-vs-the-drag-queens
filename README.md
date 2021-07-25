@@ -94,14 +94,14 @@ npm run test
 * don't allow navigation over walls when inside a building (max walkable tile for environment in environment-actions!)
 * Create unique sprite for hotel counter
 * Queens inside buildings should either be woo'd or fought
-* When generating door queens, ensure hotel is actually placed successfully!
+* Before generating door queens, ensure building was actually placed successfully!
 * When buying a clothes item, discard the existing one of the same type (show confirmation)
-* Add a base price to certain items (e.g. clothes shouldn't be too cheap, yo. heels are an expensive item).
+* Add a base price to certain items (e.g. clothes shouldn't be too cheap, yo. heels and flippers are expensive items).
 * Display product capabilities in shop display
 * Allow to loan money, starts action by which you need to have repaid the person OR ELSE!
 * status screen implement handleInventoryClick for liquor types (also see item-actions)
 * make door drags expose their intent immediately, offer option to fight them (they should be stronger by a few levels)
-* stop character movement effects when screen isn't game_screen (time should keep running though!)
+* stop character movement effects when screen isn't SCREEN_GAME (time should keep running though!)
 * replace pines with more tropical trees
 * More attack types depending on item / level ? (certain levels learn new moves)
 * Images for shop products

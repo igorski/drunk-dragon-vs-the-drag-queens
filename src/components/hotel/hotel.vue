@@ -4,7 +4,7 @@
         <p>{{ $t( "priceForTonight", { price: hotel.price }) }}</p>
         <div class="actions">
             <button
-                v-t="'stayTheNight'"
+                v-t="'bookRoom'"
                 type="button"
                 class="rpg-button"
                 @click="book()"

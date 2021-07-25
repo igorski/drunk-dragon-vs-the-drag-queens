@@ -1,23 +1,23 @@
-import { loader }  from 'zcanvas';
-import SpriteCache from '@/utils/sprite-cache';
+import { loader }  from "zcanvas";
+import SpriteCache from "@/utils/sprite-cache";
 
 let _queue = [];
 let _loadContainer;
 
 export const preloadAssets = () =>
 {
-    console.log( 'PRELOAD ASSETS' );
+    console.log( "PRELOAD ASSETS" );
 
     // we create a container (positioned off-screen) to append the images to, this is to
     // overcome mobile browsers not actually loading the Images until they are inside the DOM and
     // no, we cannot add it to a display:none; -container !
 
-    _loadContainer = document.createElement( 'div' );
+    _loadContainer = document.createElement( "div" );
 
     const { style } = _loadContainer;
-    style.position  = 'absolute';
-    style.left      = '-9999px';
-    style.top       = '0';
+    style.position  = "absolute";
+    style.left      = "-9999px";
+    style.top       = "0";
 
     document.body.appendChild( _loadContainer );
 
@@ -35,6 +35,7 @@ export const preloadAssets = () =>
         { src: `${assetRoot}sidewalk.png`, target: SpriteCache.GROUND },
         { src: `${assetRoot}tree.png`,     target: SpriteCache.TREE },
         { src: `${assetRoot}water.png`,    target: SpriteCache.WATER },
+        { src: `${assetRoot}character_sheet.png`, target: SpriteCache.PLAYER }
     ];
     return new Promise((resolve, reject) => {
         const processQueue = async () => {
@@ -46,7 +47,7 @@ export const preloadAssets = () =>
                 const asset = _queue.shift();
                 const image = asset.target;
 
-                image.crossOrigin = 'anonymous';
+                image.crossOrigin = "anonymous";
                 _loadContainer.appendChild( image );
 
                 try {

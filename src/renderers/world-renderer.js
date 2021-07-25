@@ -4,15 +4,15 @@ import { sprite } from "zcanvas";
 import { SHOE_FLIPPERS } from "@/definitions/item-types";
 import { WORLD_TILES, MAX_WALKABLE_TILE } from "@/model/factories/world-factory";
 import { SHOP_TYPES } from "@/model/factories/shop-factory";
-import SpriteCache from "@/utils/sprite-cache";
-import WorldCache  from "@/utils/world-cache";
+import SpriteCache, { PLAYER_SHEET } from "@/utils/sprite-cache";
+import WorldCache from "@/utils/world-cache";
 import { coordinateToIndex, indexToCoordinate } from "@/utils/terrain-util";
 import { findPath } from "@/utils/path-finder";
 
 let commit, dispatch; // Vuex store hooks
 
 const DEBUG          = process.env.NODE_ENV === "development";
-const CHARACTER_SIZE = 40;
+const CHARACTER_SIZE = 23;
 
 const { tileWidth, tileHeight, sizeBuilding, sizeShop } = WorldCache;
 
@@ -81,8 +81,18 @@ WorldRenderer.prototype.render = function( aWorld, aPlayer ) {
     this._player      = aPlayer;
 
     // cache player Bitmap dimensions
-    this._playerBmpWidth  = aPlayer.bitmap.width;
-    this._playerBmpHeight = aPlayer.bitmap.height;
+    this._playerBitmap = new sprite({
+        bitmap: SpriteCache.PLAYER,
+        sheetTileWidth: 23,
+        sheetTileHeight: 23,
+        sheet: PLAYER_SHEET
+    });
+    // cache last known properties for player sprite animation
+    this._lastX   = aWorld.x;
+    this._lastY   = aWorld.y;
+    this._lastDir = 0;
+
+    this.addChild( this._playerBitmap );
 };
 
 /**
@@ -372,9 +382,37 @@ WorldRenderer.prototype.renderPlayer = function( aCanvasContext, left, top, half
         y = (( this.verticalTileAmount - ( worldHeight - world.y )) * tileHeight ) + vy;
     }
 */
-    const xDelta = CHARACTER_SIZE / 2 - tileWidth / 2;
-    const yDelta = CHARACTER_SIZE / 2 - tileHeight / 2
-    aCanvasContext.drawImage( this._player.bitmap, 0, 0, this._playerBmpWidth, this._playerBmpHeight, x - xDelta, y - yDelta, CHARACTER_SIZE, CHARACTER_SIZE );
+    const targetX = x - ( CHARACTER_SIZE / 2 - tileWidth  / 2 );
+    const targetY = y - ( CHARACTER_SIZE / 2 - tileHeight / 2 );
+
+    // determine whether and in which direction we're moving by taking the
+    // world coordinate (represents player position) and compare it with the cached value
+    const isMoving = vx !== this._lastX || vy !== this._lastY;
+    if ( isMoving ) {
+        let dir = this._lastDir;
+        if ( vx > this._lastX ) {
+            dir = 3; // moving right
+        }
+        if ( vx < this._lastX ) {
+            dir = 2; // moving left
+        }
+        if ( vy > this._lastY ) {
+            dir = 1; // moving down
+        }
+        if ( vy < this._lastY ) {
+            dir = 0; // moving up
+        }
+        if ( dir !== this._lastDir ) {
+            this._playerBitmap.switchAnimation( dir );
+            this._lastDir = dir;
+        } else {
+            this._playerBitmap.update(); // updates spritesheet
+        }
+        this._lastX = vx;
+        this._lastY = vy;
+    }
+    this._playerBitmap.setBounds( targetX, targetY, CHARACTER_SIZE, CHARACTER_SIZE );
+    this._playerBitmap.draw( aCanvasContext );
 }
 
 WorldRenderer.prototype.renderCharacters = function( aCanvasContext, characters = [], { left, top, right, bottom }) {
