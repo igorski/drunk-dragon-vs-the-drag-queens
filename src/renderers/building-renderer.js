@@ -1,13 +1,13 @@
 export default BuildingRenderer;
 
-import WorldRenderer from './world-renderer';
-import TerrainUtil   from '@/utils/terrain-util';
-import WorldCache    from '@/utils/world-cache';
-import SpriteCache   from '@/utils/sprite-cache';
+import WorldRenderer from "./world-renderer";
+import TerrainUtil   from "@/utils/terrain-util";
+import WorldCache    from "@/utils/world-cache";
+import SpriteCache   from "@/utils/sprite-cache";
 
-import { BUILDING_TILES, MAX_WALKABLE_TILE } from '@/model/factories/building-factory';
+import { BUILDING_TILES, getMaxWalkableTile } from "@/model/factories/building-factory";
 
-const DEBUG = process.env.NODE_ENV !== 'production';
+const DEBUG = process.env.NODE_ENV !== "production";
 
 /**
  * @constructor
@@ -18,14 +18,20 @@ const DEBUG = process.env.NODE_ENV !== 'production';
  * @param {number} height
  */
 function BuildingRenderer( store, width, height ) {
-    BuildingRenderer.super( this, 'constructor', store, width, height );
+    BuildingRenderer.super( this, "constructor", store, width, height );
 
-    this.maxWalkableTileNum     = MAX_WALKABLE_TILE;
     this.validNavigationTargets = [ BUILDING_TILES.GROUND, BUILDING_TILES.STAIRS, BUILDING_TILES.HOTEL ];
 }
 WorldRenderer.extend( BuildingRenderer );
 
 /* public methods */
+
+/**
+ * @override
+ */
+BuildingRenderer.prototype.getMaxWalkableTile = function() {
+    return getMaxWalkableTile( this._player );
+};
 
 /**
  * @override
@@ -46,7 +52,7 @@ BuildingRenderer.prototype.draw = function( aCanvasContext ) {
     } = visibleTiles;
 
     // flood fill the building with black
-    aCanvasContext.fillStyle = '#000000';
+    aCanvasContext.fillStyle = "#000000";
     aCanvasContext.fillRect( 0, 0, width, height );
 
     // render terrain from cache

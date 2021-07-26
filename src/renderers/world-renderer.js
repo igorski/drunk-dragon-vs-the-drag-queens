@@ -1,8 +1,7 @@
 export default WorldRenderer;
 
 import { sprite } from "zcanvas";
-import { SHOE_FLIPPERS } from "@/definitions/item-types";
-import { WORLD_TILES, MAX_WALKABLE_TILE } from "@/model/factories/world-factory";
+import { WORLD_TILES, getMaxWalkableTile } from "@/model/factories/world-factory";
 import { SHOP_TYPES } from "@/model/factories/shop-factory";
 import SpriteCache, { PLAYER_SHEET } from "@/utils/sprite-cache";
 import WorldCache from "@/utils/world-cache";
@@ -57,8 +56,6 @@ function WorldRenderer( store, width, height ) {
      * be lazily created once rendering starts.
      */
     this.playerBitmap = null;
-
-    this.maxWalkableTileNum = MAX_WALKABLE_TILE;
 }
 sprite.extend( WorldRenderer );
 
@@ -193,10 +190,11 @@ WorldRenderer.prototype.isValidTarget = function( tileType ) {
 
 /**
  * Get the maximum tile index we can navigate over.
- * Depending on our inventory / other character properties we can navigate over different tiles (e.g. walk on water)
+ * This wraps around the getter in the environments factory so we can
+ * override this in inheriting renderer classes.
  */
 WorldRenderer.prototype.getMaxWalkableTile = function() {
-    return this._player.inventory.items.find(({ name }) => name === SHOE_FLIPPERS ) ? WORLD_TILES.WATER : this.maxWalkableTileNum;
+    return getMaxWalkableTile( this._player );
 };
 
 /**

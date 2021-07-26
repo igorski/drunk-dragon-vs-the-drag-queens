@@ -29,10 +29,11 @@ export const BUILDING_TILES = {
     NOTHING : 4
 };
 /**
-* Highest index within the tiles list which is associated
-* with a tile type that the player can walk on
-*/
-export const MAX_WALKABLE_TILE = BUILDING_TILES.STAIRS;
+ * Get the highest index within the tiles list that given character can walk on.
+ * Depending on our inventory / other character properties we can navigate over
+ * different tiles (e.g. walk on water)
+ */
+export const getMaxWalkableTile = character => BUILDING_TILES.HOTEL;
 
 const MIN_FLOOR_AMOUNT  = 3;
 const MIN_CORRIDOR_SIZE = 1;

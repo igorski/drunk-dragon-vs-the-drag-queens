@@ -2,7 +2,7 @@ import EnvironmentActions from "@/model/actions/environment-actions";
 import { BUILDING_TYPE }  from "@/model/factories/building-factory";
 import CharacterFactory   from "@/model/factories/character-factory";
 import EnvironmentFactory from "@/model/factories/environment-factory";
-import { WORLD_TYPE, MAX_WALKABLE_TILE } from "@/model/factories/world-factory";
+import { WORLD_TYPE, getMaxWalkableTile } from "@/model/factories/world-factory";
 
 // mock pathfinder implementation
 const mockPath = [{ x: 1, y: 2 }, { x: 2, y: 2 }];
@@ -46,9 +46,10 @@ describe( "Environment actions", () => {
 
             EnvironmentActions.moveCharacter({ commit, getters }, character, environment, targetX, targetY );
 
+            const maxWalkableTile = getMaxWalkableTile( character );
             // assert path finder calculation was called with the appropriate arguments
             expect( mockPathArgs ).toEqual([
-                environment, character.x, character.y, targetX, targetY, MAX_WALKABLE_TILE
+                environment, character.x, character.y, targetX, targetY, maxWalkableTile
             ]);
 
             // assert individual addition of each waypoint coordinate as an Effect

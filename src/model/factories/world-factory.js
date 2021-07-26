@@ -2,6 +2,7 @@ import { Map }                     from "rot-js";
 import Bowser                      from "bowser";
 import MD5                         from "MD5";
 import { QUEEN, DRAGON }           from "@/definitions/character-types";
+import { SHOE_FLIPPERS }           from "@/definitions/item-types";
 import HashUtil                    from "@/utils/hash-util";
 import WorldCache                  from "@/utils/world-cache";
 import BuildingFactory             from "./building-factory";
@@ -27,11 +28,16 @@ export const WORLD_TILES = {
     TREE     : 6,
     NOTHING  : 7
 };
+
+const MAX_WALKABLE_TILE = WORLD_TILES.ROAD;
 /**
-* Highest index within the tiles list which is associated
-* with a tile type that the player can walk on
-*/
-export const MAX_WALKABLE_TILE = WORLD_TILES.ROAD;
+ * Get the highest index within the tiles list that given character can walk on.
+ * Depending on our inventory / other character properties we can navigate over
+ * different tiles (e.g. walk on water)
+ */
+export const getMaxWalkableTile = character => {
+    return character.inventory.items.find(({ name }) => name === SHOE_FLIPPERS ) ? WORLD_TILES.WATER : MAX_WALKABLE_TILE;
+};
 
 const WorldFactory =
 {

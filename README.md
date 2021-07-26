@@ -91,7 +91,6 @@ npm run test
 ** Show in status view
 
 * show XP, cash and level stats on game over screen
-* don't allow navigation over walls when inside a building (max walkable tile for environment in environment-actions!)
 * Create unique sprite for hotel counter
 * Queens inside buildings should either be woo'd or fought
 * Before generating door queens, ensure building was actually placed successfully!
