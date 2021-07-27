@@ -1,7 +1,7 @@
 import store               from "@/store/modules/game-module";
 import CharacterFactory    from "@/model/factories/character-factory";
 import EffectFactory       from "@/model/factories/effect-factory";
-import { GAME_ACTIVE, GAME_OVER } from "@/definitions/game-states";
+import { GAME_ACTIVE, GAME_PAUSED, GAME_OVER } from "@/definitions/game-states";
 import { SCREEN_SHOP, SCREEN_GAME, SCREEN_CHARACTER_INTERACTION } from "@/definitions/screens";
 import {
     GAME_START_TIME_UNIX, GAME_TIME_RATIO, VALIDITY_CHECK_INTERVAL
@@ -253,7 +253,6 @@ describe( "Vuex game module", () => {
                 expect( success ).toBe( false );
                 expect( mockUpdateFn ).toHaveBeenNthCalledWith( 1, "get", "rpg" );
                 expect( dispatch ).toHaveBeenCalledWith( "resetGame" );
-                expect( commit ).toHaveBeenCalledWith( "setScreen", expect.any( Number ));
             });
 
             it( "should be able to import an exported save game", async () => {
@@ -277,10 +276,14 @@ describe( "Vuex game module", () => {
                 expect( dispatch ).toHaveBeenNthCalledWith( 2, "loadGame" );
             });
 
-            it( "should be able to remove a saved game state from local storage", () => {
+            it( "should be able to reset an existing game and remove a saved game state from local storage", () => {
                 mockUpdateFn = jest.fn();
-                actions.resetGame();
+                const commit = jest.fn();
+                actions.resetGame({ commit });
                 expect( mockUpdateFn ).toHaveBeenCalledWith( "remove", "rpg" );
+                expect( commit ).toHaveBeenNthCalledWith( 1, "setGameState", GAME_PAUSED );
+                expect( commit ).toHaveBeenNthCalledWith( 2, "setPlayer", null );
+                expect( commit ).toHaveBeenNthCalledWith( 3, "setScreen", expect.any( Number ));
             });
         });
 

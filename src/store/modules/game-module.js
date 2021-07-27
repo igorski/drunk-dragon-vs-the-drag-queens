@@ -117,7 +117,6 @@ export default {
                 if ( !player || !world ) {
                     // corrupted or outdated format
                     dispatch( "resetGame" );
-                    commit( "setScreen", SCREEN_CHARACTER_CREATE );
                     return false;
                 }
                 commit( "setGame", game );
@@ -154,8 +153,11 @@ export default {
             pom.setAttribute( "download", "savegame.rpg" );
             pom.click();
         },
-        resetGame() {
+        resetGame({ commit }) {
             storage.remove( STORAGE_KEY );
+            commit( "setGameState", GAME_PAUSED );
+            commit( "setPlayer", null );
+            commit( "setScreen", SCREEN_CHARACTER_CREATE );
         },
         /**
          * Hooks into the game's render loop. This updates the world environment

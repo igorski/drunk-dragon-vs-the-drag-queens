@@ -90,7 +90,9 @@ npm run test
 * Drag swag/charisma == mana
 ** Show in status view
 
-* show XP, cash and level stats on game over screen
+* Keyboard control!
+* Animate player position on map (pulsating circle)
+* Waypoint path finder should not go over exits when calculating path inside building (exists are only valid as destination tile)
 * Create unique sprite for hotel counter
 * Queens inside buildings should either be woo'd or fought
 * Before generating door queens, ensure building was actually placed successfully!
@@ -113,7 +115,6 @@ npm run test
 * When fighting / entering building, environment coordinates are messed up?
 * Update level of dragon too when defeated on fight end (and relocate on map)
 * player-module use of dispatch( "updateCharacters" ); where do we want to do this ?
-* on game over, when there is a save offer to restore from last save
 * halt all character updates when switching environments/screen isn't game_screen
 * implement ambush (enemy attacks first)
 * add store to sell shoes / fake nails (increases attack, certain shoes increase speed, but decrease drag swag/charisma)

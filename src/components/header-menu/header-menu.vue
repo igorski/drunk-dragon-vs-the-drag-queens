@@ -207,7 +207,6 @@ export default {
                 message: this.$t("resetGameDescr"),
                 confirm: () => {
                     this.resetGame();
-                    window.location.reload(); // a little bruteforce
                 }
             });
         },
