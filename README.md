@@ -90,9 +90,9 @@ npm run test
 * Drag swag/charisma == mana
 ** Show in status view
 
-* Keyboard control!
 * Animate player position on map (pulsating circle)
 * Waypoint path finder should not go over exits when calculating path inside building (exists are only valid as destination tile)
+* Ensure that on game create the player can find a path to a building and a shop
 * Create unique sprite for hotel counter
 * Queens inside buildings should either be woo'd or fought
 * Before generating door queens, ensure building was actually placed successfully!
