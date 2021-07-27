@@ -18,14 +18,32 @@ export default
     TREE       : new Image(),
     FLOOR      : new Image(),
 
-    PLAYER     : new Image()
+    PLAYER     : new Image(),
+    DRAGON     : new Image()
 };
 
-// sprite sheet for the Sprite represented by PLAYER
+// sprite sheet for the Sprite representing PLAYER
 
-export const PLAYER_SHEET = [
-    { row: 0, col: 0, amount: 4, fpt: 3 }, // walk up
-    { row: 1, col: 0, amount: 4, fpt: 3 }, // walk down
-    { row: 2, col: 0, amount: 4, fpt: 4 }, // walk left
-    { row: 3, col: 0, amount: 4, fpt: 4 }, // walk right
-];
+export const PLAYER_SHEET = {
+    tileWidth  : 23,
+    tileHeight : 23,
+    frames: [
+        { row: 0, col: 0, amount: 4, fpt: 3 }, // walk up
+        { row: 1, col: 0, amount: 4, fpt: 3 }, // walk down
+        { row: 2, col: 0, amount: 4, fpt: 4 }, // walk left
+        { row: 3, col: 0, amount: 4, fpt: 4 }, // walk right
+    ]
+};
+
+// sprite sheet for the Sprite representing DRAGON
+
+export const DRAGON_SHEET = {
+    tileWidth : 16,
+    tileHeight: 16,
+    frames: [
+        { row: 0, col: 0, amount: 4, fpt: 3 }, // walk up
+        { row: 1, col: 0, amount: 4, fpt: 3 }, // walk down
+        { row: 2, col: 0, amount: 4, fpt: 4 }, // walk left
+        { row: 3, col: 0, amount: 4, fpt: 4 }, // walk right
+    ]
+};

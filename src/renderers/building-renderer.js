@@ -55,7 +55,7 @@ export default class BuildingRenderer extends WorldRenderer {
                                   targetX, targetY, canvasWidth, canvasHeight );
 
         this.renderCharacters( aCanvasContext, floor.characters, visibleTiles );
-        this.renderPlayer( aCanvasContext, left, top, halfHorizontalTileAmount, halfVerticalTileAmount );
+        this._playerSprite.render( aCanvasContext, vx, vy, left, top );
 
         // draw path when walking to waypoint
 

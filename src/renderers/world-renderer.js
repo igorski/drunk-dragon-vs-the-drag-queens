@@ -1,19 +1,24 @@
 import { sprite } from "zcanvas";
+import { QUEEN, DRAGON } from "@/definitions/character-types";
 import { WORLD_TILES, getMaxWalkableTile } from "@/model/factories/world-factory";
 import { SHOP_TYPES } from "@/model/factories/shop-factory";
-import SpriteCache, { PLAYER_SHEET } from "@/utils/sprite-cache";
+import CharacterSpriteRenderer from "@/renderers/character-sprite-renderer";
+import SpriteCache, { PLAYER_SHEET, DRAGON_SHEET } from "@/utils/sprite-cache";
 import WorldCache from "@/utils/world-cache";
 import { coordinateToIndex, indexToCoordinate } from "@/utils/terrain-util";
 import { findPath } from "@/utils/path-finder";
 
 let commit, dispatch; // Vuex store hooks
 
-const DEBUG          = process.env.NODE_ENV === "development";
-const CHARACTER_SIZE = 23;
+const DEBUG     = process.env.NODE_ENV === "development";
+const MOVE_KEYS = [ 37, 38, 39, 40 ];
+
+/* character sprites */
+
+const CHARACTER_WIDTH  = PLAYER_SHEET.tileWidth;
+const CHARACTER_HEIGHT = PLAYER_SHEET.tileHeight;
 
 const { tileWidth, tileHeight, sizeBuilding, sizeShop } = WorldCache;
-
-const MOVE_KEYS = [ 37, 38, 39, 40 ];
 
 /* building / Object types */
 
@@ -54,18 +59,18 @@ export default class WorldRenderer extends sprite {
         this.validNavigationTargets = [ WORLD_TILES.GROUND, WORLD_TILES.GRASS, WORLD_TILES.SAND, WORLD_TILES.ROAD ];
 
         /**
-         * Bitmap that renders the player character. Will
-         * be lazily created once rendering starts.
+         * zCanvas.sprite-instances that will render the world characters.
          */
-        this.playerBitmap = null;
+        this._playerSprite = null;
+        this._dragonSprite = null;
 
         this._keyListener = this.handleKeyDown.bind( this );
         window.addEventListener( "keydown", this._keyListener );
     }
 
     dispose() {
-        console.warn("DAG RENDERER");
         window.removeEventListener( "keydown", this._keyListener );
+        super.dispose();
     }
 
     /* public methods */
@@ -78,19 +83,11 @@ export default class WorldRenderer extends sprite {
         this._environment = aWorld;
         this._player      = aPlayer;
 
-        // cache player Bitmap dimensions
-        this._playerBitmap = new sprite({
-            bitmap: SpriteCache.PLAYER,
-            sheetTileWidth: 23,
-            sheetTileHeight: 23,
-            sheet: PLAYER_SHEET
-        });
-        // cache last known properties for player sprite animation
-        this._lastX   = aWorld.x;
-        this._lastY   = aWorld.y;
-        this._lastDir = 0;
+        // create sprites
+        this._dragonSprite = new CharacterSpriteRenderer( SpriteCache.DRAGON, DRAGON_SHEET );
+        this._playerSprite = new CharacterSpriteRenderer( SpriteCache.PLAYER, PLAYER_SHEET, aWorld.x, aWorld.y );
 
-        this.addChild( this._playerBitmap );
+        [ this._dragonSprite, this._playerSprite ].forEach( sprite => this.addChild( sprite ));
     }
 
     /**
@@ -234,9 +231,9 @@ export default class WorldRenderer extends sprite {
      * @param {CanvasRenderingContext2D} aCanvasContext to draw on
      */
     draw( aCanvasContext ) {
-        const world      = this._environment;
-        const vx         = world.x;
-        const vy         = world.y;
+        const world = this._environment;
+        const vx    = world.x;
+        const vy    = world.y;
 
         const { width, height }         = world;
         const { tileWidth, tileHeight } = WorldCache;
@@ -255,20 +252,6 @@ export default class WorldRenderer extends sprite {
         let targetY       = 0;
         const canvasWidth = this.canvas.getWidth(), canvasHeight = this.canvas.getHeight();
 
-        // if player is at world edge, stop scrolling terrain
-    /*
-        if ( world.x <= halfHorizontalTileAmount ) {
-            sourceX = 0;
-        } else if ( left > width - this.horizontalTileAmount - 1 ) {
-            sourceX = ( width - this.horizontalTileAmount ) * tileWidth;
-        }
-
-        if ( world.y <= halfVerticalTileAmount ) {
-            sourceY = 0;
-        } else if ( top > height - this.verticalTileAmount - 1 ) {
-            sourceY = ( height - this.verticalTileAmount ) * tileHeight;
-        }
-    */
         aCanvasContext.drawImage( SpriteCache.ENV_WORLD,
                                   sourceX, sourceY, canvasWidth, canvasHeight,
                                   targetX, targetY, canvasWidth, canvasHeight );
@@ -285,7 +268,7 @@ export default class WorldRenderer extends sprite {
         // render characters
 
         this.renderCharacters( aCanvasContext, characters, visibleTiles );
-        this.renderPlayer( aCanvasContext, left, top, halfHorizontalTileAmount, halfVerticalTileAmount );
+        this._playerSprite.render( aCanvasContext, vx, vy, left, top );
 
         // draw path when walking to waypoint
 
@@ -327,83 +310,34 @@ export default class WorldRenderer extends sprite {
         */
     }
 
-    renderPlayer( aCanvasContext, left, top, halfHorizontalTileAmount, halfVerticalTileAmount ) {
-        const { tileWidth, tileHeight } = WorldCache;
-        const world      = this._environment;
-        const vx         = world.x;
-        const vy         = world.y;
-        const worldWidth = world.width, worldHeight = world.height;
-
-        let x = ( world.x - left ) * tileWidth;
-        let y = ( world.y - top  ) * tileHeight;
-
-        // if player is at world edge draw player out of center
-    /*
-        if ( world.x <= halfHorizontalTileAmount - 1 ) {
-            x = ( world.x * tileWidth ) + vx;
-        } else if ( world.x >= ( worldWidth - halfHorizontalTileAmount - 1 )) {
-            x = (( this.horizontalTileAmount - ( worldWidth - world.x )) * tileWidth ) + vx;
-        }
-
-        if ( world.y <= halfVerticalTileAmount - 1 ) {
-            y = ( world.y * tileHeight ) + vy;
-        } else if ( world.y >= ( worldHeight - halfVerticalTileAmount - 1 )) {
-            y = (( this.verticalTileAmount - ( worldHeight - world.y )) * tileHeight ) + vy;
-        }
-    */
-        const targetX = x - ( CHARACTER_SIZE / 2 - tileWidth  / 2 );
-        const targetY = y - ( CHARACTER_SIZE / 2 - tileHeight / 2 );
-
-        // determine whether and in which direction we're moving by taking the
-        // world coordinate (represents player position) and compare it with the cached value
-        const isMoving = vx !== this._lastX || vy !== this._lastY;
-        if ( isMoving ) {
-            let dir = this._lastDir;
-            if ( vx > this._lastX ) {
-                dir = 3; // moving right
-            }
-            if ( vx < this._lastX ) {
-                dir = 2; // moving left
-            }
-            if ( vy > this._lastY ) {
-                dir = 1; // moving down
-            }
-            if ( vy < this._lastY ) {
-                dir = 0; // moving up
-            }
-            if ( dir !== this._lastDir ) {
-                this._playerBitmap.switchAnimation( dir );
-                this._lastDir = dir;
-            } else {
-                this._playerBitmap.update(); // updates spritesheet
-            }
-            this._lastX = vx;
-            this._lastY = vy;
-        }
-        this._playerBitmap.setBounds( targetX, targetY, CHARACTER_SIZE, CHARACTER_SIZE );
-        this._playerBitmap.draw( aCanvasContext );
-    }
-
     renderCharacters( aCanvasContext, characters = [], { left, top, right, bottom }) {
         const { tileWidth, tileHeight } = WorldCache;
-
         for ( let i = 0, l = characters.length; i < l; ++i ) {
             const character = characters[ i ];
-            if ( character.x >= left && character.x <= right &&
-                 character.y >= top  && character.y <= bottom )
+            const { x, y }  = character;
+
+            // determine whether character is within visual bounds
+            if ( x >= left && x <= right && y >= top  && y <= bottom )
             {
-                let x = ( character.x - left ) * tileWidth;
-                let y = ( character.y - top )  * tileHeight;
+                switch ( character.type ) {
+                    case QUEEN:
+                        // TODO: these should become CharacterSpriteRenderer instances too
+                        const characterWidth  = 24;
+                        const characterHeight = 24;
+                        const targetX = (( x - left ) * tileWidth  ) - ( characterWidth  * 0.5 - tileWidth  * 0.5 );
+                        const targetY = (( y - top )  * tileHeight ) - ( characterHeight * 0.5 - tileHeight * 0.5 );
 
-                const { width, height } = character.bitmap;
-                const xDelta = CHARACTER_SIZE / 2 - tileWidth / 2;
-                const yDelta = CHARACTER_SIZE / 2 - tileHeight / 2
+                        const { width, height } = character.bitmap;
+                        aCanvasContext.drawImage(
+                            character.bitmap, 0, 0, width, height,
+                            targetX, targetY, characterWidth, characterHeight
+                        );
+                        break;
 
-                aCanvasContext.drawImage(
-                    character.bitmap, 0, 0, width, height,
-                    Math.round( x - xDelta ), Math.round( y - yDelta ),
-                    CHARACTER_SIZE, CHARACTER_SIZE
-                );
+                    case DRAGON:
+                        this._dragonSprite.render( aCanvasContext, x, y, left, top );
+                        break;
+                }
             }
         }
     }
