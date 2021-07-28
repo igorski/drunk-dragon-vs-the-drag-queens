@@ -62,5 +62,8 @@ export default class BuildingRenderer extends WorldRenderer {
         if ( DEBUG ) {
             this.renderWaypoints( aCanvasContext, left, top, halfHorizontalTileAmount, halfVerticalTileAmount );
         }
+
+        // render UI
+        this.renderUI( aCanvasContext );
     }
 }

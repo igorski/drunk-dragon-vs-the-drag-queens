@@ -1,5 +1,5 @@
 <template>
-    <div ref="canvasContainer" />
+    <div ref="canvasContainer" class="world-canvas" />
 </template>
 
 <script>
@@ -121,3 +121,9 @@ export default {
     }
 };
 </script>
+
+<style scoped>
+.world-canvas {
+    cursor: none;
+}
+</style>

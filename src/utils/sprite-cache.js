@@ -17,6 +17,7 @@ export default
     WATER      : new Image(),
     TREE       : new Image(),
     FLOOR      : new Image(),
+    CROSSHAIRS : new Image(),
 
     PLAYER     : new Image(),
     DRAGON     : new Image()

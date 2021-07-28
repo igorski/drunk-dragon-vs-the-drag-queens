@@ -90,7 +90,9 @@ npm run test
 * Drag swag/charisma == mana
 ** Show in status view
 
-* When vacating building/shop as effect passes, close active screens before showing dialog
+* Update level of dragon too when defeated on fight end (or rather on new fight start?) (and relocate on map)
+* Walking left/right on overground does weird jumps?
+* When vacating building/shop as effect timeout is exceeded, close active screens before showing dialog
 * Animate player position on map (pulsating circle)
 * Waypoint path finder should not go over exits when calculating path inside building (exists are only valid as destination tile)
 * Ensure that on game create the player can find a path to a building and a shop
@@ -114,7 +116,6 @@ npm run test
 * Describe in manual how different properties of intoxication/boost affect charisma (also show this on-screen!)
 * should dragon get stronger / more drunk depending on hour of night ?
 * When fighting / entering building, environment coordinates are messed up?
-* Update level of dragon too when defeated on fight end (and relocate on map)
 * player-module use of dispatch( "updateCharacters" ); where do we want to do this ?
 * halt all character updates when switching environments/screen isn't game_screen
 * implement ambush (enemy attacks first)
@@ -136,7 +137,7 @@ npm run test
 * Don't generate scenery (trees) in front of doors!
 * Bug: When navigating by the world edge, tiles on the opposite end are also marked as visited
 * Create fast travel by introducing subway (can only travel to visited areas!)
-* Show navigation icon in interface (when showing target, but also as mouse cursor?)
+* Show different cursor types on successful / unsuccessful navigation click
 * When player clicks on non-navigate-able tile, navigate as close to the tile as possible (take dominant distance on x-y coordinate and keep reducing until path is found)
 * Buildings should occupy their full size on sidewalk/sand-only tiles?
 * Don't spawn/generate actionable object in empty tile surrounded by a closed path

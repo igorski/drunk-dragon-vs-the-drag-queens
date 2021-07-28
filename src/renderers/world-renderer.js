@@ -66,10 +66,20 @@ export default class WorldRenderer extends sprite {
 
         this._keyListener = this.handleKeyDown.bind( this );
         window.addEventListener( "keydown", this._keyListener );
+
+        this._mouseX = 0;
+        this._mouseY = 0;
+
+        this._mouseListener = ({ pageX, pageY }) => {
+            this._mouseX = pageX;
+            this._mouseY = pageY;
+        };
+        window.addEventListener( "mousemove", this._mouseListener );
     }
 
     dispose() {
-        window.removeEventListener( "keydown", this._keyListener );
+        window.removeEventListener( "keydown",   this._keyListener );
+        window.removeEventListener( "mousemove", this._mouseListener );
         super.dispose();
     }
 
@@ -275,6 +285,9 @@ export default class WorldRenderer extends sprite {
         if ( DEBUG ) {
             this.renderWaypoints( aCanvasContext, left, top, halfHorizontalTileAmount, halfVerticalTileAmount );
         }
+
+        // render UI
+        this.renderUI( aCanvasContext );
     }
 
     applyLighting( aCanvasContext, canvasWidth, canvasHeight ) {
@@ -283,7 +296,7 @@ export default class WorldRenderer extends sprite {
         aCanvasContext.globalAlpha = 0.8; // something between 0.3 and 0.95 as time progresses ?
         aCanvasContext.globalCompositeOperation = "multiply";
         aCanvasContext.fillStyle = "#262373"; // see _colors.scss
-        aCanvasContext.fillRect(0, 0, canvasWidth, canvasHeight);
+        aCanvasContext.fillRect( 0, 0, canvasWidth, canvasHeight );
 
         aCanvasContext.globalAlpha = 1;
         aCanvasContext.globalCompositeOperation = orgComp;
@@ -321,6 +334,9 @@ export default class WorldRenderer extends sprite {
             {
                 switch ( character.type ) {
                     case QUEEN:
+                        if ( !character.bitmap ) {
+                            continue; // likely renderer is disposed during render cycle
+                        }
                         // TODO: these should become CharacterSpriteRenderer instances too
                         const characterWidth  = 24;
                         const characterHeight = 24;
@@ -353,6 +369,17 @@ export default class WorldRenderer extends sprite {
                 aCanvasContext.fillRect( tLeft - 2, tTop - 2, 4, 4 );
             });
         }
+    }
+
+    renderUI( aCanvasContext ) {
+        if ( this._mouseX === 0 ) {
+            return; // likely on touch screen
+        }
+        const scale = this.canvas._scale;
+        aCanvasContext.drawImage(
+            SpriteCache.CROSSHAIRS, 0, 0, 25, 25,
+            Math.round(( this._mouseX - 12 ) / scale.x ), Math.round(( this._mouseY - 12 ) / scale.y ), 12, 12
+        );
     }
 
     /* event handlers */
