@@ -22,6 +22,14 @@ export default class BuildingRenderer extends WorldRenderer {
 
     /**
      * @override
+     * overrides as it uses the getMaxWalkableTile() method of a different factory !
+     */
+    getMaxWalkableTile() {
+        return getMaxWalkableTile( this._player );
+    }
+
+    /**
+     * @override
      * @param {CanvasRenderingContext2D} aCanvasContext to draw on
      */
     draw( aCanvasContext ) {

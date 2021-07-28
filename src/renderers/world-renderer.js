@@ -10,8 +10,12 @@ import { findPath } from "@/utils/path-finder";
 
 let commit, dispatch; // Vuex store hooks
 
-const DEBUG     = process.env.NODE_ENV === "development";
-const MOVE_KEYS = [ 37, 38, 39, 40 ];
+const DEBUG = process.env.NODE_ENV === "development";
+
+const MOVE_KEYS      = [ 37, 38, 39, 40 ];
+const CURSOR_NEUTRAL = 0;
+const CURSOR_LOCKED  = 1;
+const CURSOR_INVALID = 2;
 
 /* character sprites */
 
@@ -64,11 +68,17 @@ export default class WorldRenderer extends sprite {
         this._playerSprite = null;
         this._dragonSprite = null;
 
+        /* keyboard control */
+
         this._keyListener = this.handleKeyDown.bind( this );
         window.addEventListener( "keydown", this._keyListener );
 
-        this._mouseX = 0;
-        this._mouseY = 0;
+        /* mouse control */
+
+        this._mouseX   = 0;
+        this._mouseY   = 0;
+        this._cursor   = CURSOR_NEUTRAL;
+        this._cursorIt = 0;
 
         this._mouseListener = ({ pageX, pageY }) => {
             this._mouseX = pageX;
@@ -194,6 +204,7 @@ export default class WorldRenderer extends sprite {
         if ( waypoints.length > maxLen ) {
             // if the full walkable path isn't inside visual bounds, cancel navigation, player
             // must navigate to smaller steps (prevents automagically resolving of long distances)
+            this.setCursor( CURSOR_INVALID );
             return;
         }
         waypoints = await dispatch( "moveToDestination", { x, y, onProgress: () => {
@@ -375,11 +386,22 @@ export default class WorldRenderer extends sprite {
         if ( this._mouseX === 0 ) {
             return; // likely on touch screen
         }
-        const scale = this.canvas._scale;
+        const scale  = this.canvas._scale;
+        const offset = 8;
         aCanvasContext.drawImage(
-            SpriteCache.CROSSHAIRS, 0, 0, 25, 25,
-            Math.round(( this._mouseX - 12 ) / scale.x ), Math.round(( this._mouseY - 12 ) / scale.y ), 12, 12
+            SpriteCache.CROSSHAIRS, this._cursor * 25, 0, 25, 25,
+            Math.round(( this._mouseX / scale.x ) - offset ), Math.round(( this._mouseY / scale.y ) - offset ), 16, 16
         );
+        if ( this._cursor !== CURSOR_NEUTRAL && Math.max( 0, --this._cursorIt ) === 0 ) {
+            this._cursor = CURSOR_NEUTRAL;
+        }
+    }
+
+    setCursor( cursorType ) {
+        if ( this._cursor !== cursorType ) {
+            this._cursor   = cursorType; // set new cursor state
+            this._cursorIt = 60; // amount of frames new state will show
+        }
     }
 
     /* event handlers */
@@ -411,6 +433,9 @@ export default class WorldRenderer extends sprite {
 
         if ( this.isValidTarget( targetTile )) {
             this.navigateToTile( tx, ty );
+            this.setCursor( CURSOR_LOCKED );
+        } else {
+            this.setCursor( CURSOR_INVALID );
         }
     }
 

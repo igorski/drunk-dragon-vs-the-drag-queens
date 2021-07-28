@@ -109,6 +109,7 @@ npm run test
 * replace pines with more tropical trees
 * More attack types depending on item / level ? (certain levels learn new moves)
 * Images for shop products
+* At zoomed out levels click pointer sometimes won't react ?
 * Dynamic components need a loader
 * When drunk, characters should slur all 's' words
 * When drunk, attacks should occasionally miss!
