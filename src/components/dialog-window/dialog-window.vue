@@ -27,13 +27,15 @@
         <div class="button-container">
             <button
                 v-t="'ok'"
+                ref="confirmButton"
                 type="button"
                 class="rpg-button"
                 @click="handleConfirm"
             ></button>
             <button
-                v-t="'cancel'"
                 v-if="type === 'confirm'"
+                v-t="'cancel'"
+                ref="cancelButton"
                 type="button"
                 class="rpg-button"
                 @click="handleCancel"
@@ -71,10 +73,49 @@ export default {
             default: null,
         }
     },
+    data: () => ({
+        focus: -1,
+    }),
+    watch: {
+        focus( value ) {
+            if ( value === 0 ) {
+                this.$refs.confirmButton.focus();
+            } else if ( value === 1 ) {
+                this.$refs.cancelButton.focus();
+            }
+        },
+    },
+    created() {
+        this._keyHandler = this.handleKeys.bind( this );
+        window.addEventListener( "keyup", this._keyHandler );
+    },
+    destroyed() {
+        window.removeEventListener( "keyup", this._keyHandler );
+    },
     methods: {
         ...mapMutations([
             "closeDialog",
         ]),
+        handleKeys({ keyCode }) {
+            switch ( keyCode ) {
+                default:
+                    return;
+                case 9: // tab
+                    if ( ++this.focus === 1 ) {
+                        this.focus = 0;
+                    }
+                    break;
+                case 27: // escape
+                    this.handleCancel();
+                    break;
+                case 37: // left
+                    this.focus = 0;
+                    break;
+                case 39: // right
+                    this.focus = 1;
+                    break;
+            }
+        },
         handleConfirm() {
             this.close();
             if ( typeof this.confirmHandler === "function" ) {

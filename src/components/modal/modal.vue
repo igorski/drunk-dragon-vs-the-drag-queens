@@ -7,7 +7,7 @@
                 type="button"
                 class="close-button"
                 :title="$t('closeWindow')"
-                @click="$emit('close')"
+                @click="close()"
             >&times;</button>
         </div>
         <div class="modal__content">
@@ -17,7 +17,7 @@
 </template>
 
 <script>
-import messages from './messages.json';
+import messages from "./messages.json";
 
 export default {
     i18n: { messages },
@@ -30,7 +30,24 @@ export default {
             type: Boolean,
             default: true,
         },
-    }
+    },
+    created() {
+        this._keyHandler = this.handleKeys.bind( this );
+        window.addEventListener( "keyup", this._keyHandler );
+    },
+    destroyed() {
+        window.removeEventListener( "keyup", this._keyHandler );
+    },
+    methods: {
+        handleKeys({ keyCode }) {
+            if ( this.dismissible && keyCode === 27 ) {
+                this.close();
+            }
+        },
+        close() {
+            this.$emit( "close" );
+        }
+    },
 };
 </script>
 

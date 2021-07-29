@@ -46,10 +46,6 @@ export default class BuildingRenderer extends WorldRenderer {
             halfHorizontalTileAmount, halfVerticalTileAmount
         } = visibleTiles;
 
-        // flood fill the building with black
-        aCanvasContext.fillStyle = "#000000";
-        aCanvasContext.fillRect( 0, 0, width, height );
-
         // render terrain from cache
 
         const sourceX = left * tileWidth;

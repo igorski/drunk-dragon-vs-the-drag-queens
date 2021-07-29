@@ -90,8 +90,6 @@ npm run test
 * Drag swag/charisma == mana
 ** Show in status view
 
-* Escape to close dismissable dialogs
-* Arrow keys and esc/enter to work with confirm windows
 * Create cave level for extra excitement
 * Implement swamp ?
 * Do not save player walk effects when saving during walk (one save game got 'stuck')
