@@ -1,14 +1,5 @@
 # Drunk Dragon vs. the Drag Queens
 
-NAME IDEAS:
-
-Nocturbulent
-Nocturin
-Nocturmoil
-Nocturnopoly
-Ypnopoly / ypnopolio
-nykterinos
-
 A browser based adventure game in which the player should at all costs prevent
 seeing daylight. Instead the player is destined to forever live a hedonistic
 lifestyle during endless summer nights, looking for ways to keep a low profile
@@ -90,18 +81,20 @@ npm run test
 * Drag swag/charisma == mana
 ** Show in status view
 
+* Update level of dragon too when defeated on fight end (or rather on new fight start?)
+* Ensure that on game creation the player can find a path to both a building and a clothes shop
+* Create unique sprite for hotel counter
+* Queens inside buildings should either be woo'd or fought
+* Before generating door queens, ensure building was actually placed successfully!
+* Show building floor level
 * Create cave level for extra excitement
+* Regenerate characters when re-entering empty floors?
 * Implement swamp ?
 * Do not save player walk effects when saving during walk (one save game got 'stuck')
-* Update level of dragon too when defeated on fight end (or rather on new fight start?) (and relocate on map)
 * Walking left/right on overground does weird jumps?
 * When vacating building/shop as effect timeout is exceeded, close active screens before showing dialog
 * Animate player position on map (pulsating circle)
 * Waypoint path finder should not go over exits when calculating path inside building (exists are only valid as destination tile)
-* Ensure that on game creation the player can find a path to both a building and a shop
-* Create unique sprite for hotel counter
-* Queens inside buildings should either be woo'd or fought
-* Before generating door queens, ensure building was actually placed successfully!
 * When buying a clothes item, discard the existing one of the same type (show confirmation)
 * Add a base price to certain items (e.g. clothes shouldn't be too cheap, yo. heels and flippers are expensive items).
 * Display product capabilities in shop display

@@ -25,17 +25,17 @@ export const preloadAssets = () =>
 
     const assetRoot = `./assets/sprites/`;
     _queue = [
-        { src: `${assetRoot}building.png`, target: SpriteCache.BUILDING },
-        { src: `${assetRoot}floor.png`,    target: SpriteCache.FLOOR },
-        { src: `${assetRoot}grass.png`,    target: SpriteCache.GRASS },
-        { src: `${assetRoot}road.png`,     target: SpriteCache.ROAD },
-        { src: `${assetRoot}rock.png`,     target: SpriteCache.ROCK },
-        { src: `${assetRoot}sand.png`,     target: SpriteCache.SAND },
-        { src: `${assetRoot}shop.png`,     target: SpriteCache.SHOP },
-        { src: `${assetRoot}sidewalk.png`, target: SpriteCache.GROUND },
-        { src: `${assetRoot}tree.png`,     target: SpriteCache.TREE },
-        { src: `${assetRoot}water.png`,    target: SpriteCache.WATER },
-        { src: `${assetRoot}crosshairs.png`, target: SpriteCache.CROSSHAIRS },
+        { src: `${assetRoot}building.png`,        target: SpriteCache.BUILDING },
+        { src: `${assetRoot}floor.png`,           target: SpriteCache.FLOOR },
+        { src: `${assetRoot}grass.png`,           target: SpriteCache.GRASS },
+    //    { src: `${assetRoot}road.png`,            target: SpriteCache.ROAD },
+        { src: `${assetRoot}rock.png`,            target: SpriteCache.ROCK },
+        { src: `${assetRoot}sand.png`,            target: SpriteCache.SAND },
+        { src: `${assetRoot}shop.png`,            target: SpriteCache.SHOP },
+        { src: `${assetRoot}sidewalk.png`,        target: SpriteCache.GROUND },
+        { src: `${assetRoot}tree.png`,            target: SpriteCache.TREE },
+        { src: `${assetRoot}water.png`,           target: SpriteCache.WATER },
+        { src: `${assetRoot}crosshairs.png`,      target: SpriteCache.CROSSHAIRS },
         { src: `${assetRoot}character_sheet.png`, target: SpriteCache.PLAYER },
         { src: `${assetRoot}dragon_sheet.png`,    target: SpriteCache.DRAGON }
     ];

@@ -38,11 +38,13 @@
                     @close="handleScreenClose()"
                 />
             </div>
-            <world v-if="hasActiveGame"
-                   class="game-renderer"
+            <world
+                v-if="hasActiveGame"
+                class="game-renderer"
             />
             <!-- dialog window used for information messages, alerts and confirmations -->
-            <dialog-window v-if="dialog"
+            <dialog-window
+                v-if="dialog"
                 :type="dialog.type"
                 :title="dialog.title"
                 :message="dialog.message"

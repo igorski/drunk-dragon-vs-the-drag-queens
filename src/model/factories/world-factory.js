@@ -10,7 +10,8 @@ import CharacterFactory            from "./character-factory";
 import EnvironmentFactory          from "./environment-factory";
 import ShopFactory, { SHOP_TYPES } from "./shop-factory";
 import {
-    growTerrain, getSurroundingIndices, getSurroundingTiles, coordinateToIndex, distance
+    growTerrain, getSurroundingIndices, getSurroundingTiles, coordinateToIndex,
+    distance
 } from "@/utils/terrain-util";
 
 export const WORLD_TYPE = "Overground";
@@ -35,7 +36,10 @@ const MAX_WALKABLE_TILE = WORLD_TILES.ROAD;
  * Depending on our inventory / other character properties we can navigate over
  * different tiles (e.g. walk on water)
  */
-export const getMaxWalkableTile = character => {
+export const getMaxWalkableTile = ( character = null ) => {
+    if ( !character ) {
+        return MAX_WALKABLE_TILE;
+    }
     return character.inventory.items.find(({ name }) => name === SHOE_FLIPPERS ) ? WORLD_TILES.WATER : MAX_WALKABLE_TILE;
 };
 
@@ -63,19 +67,18 @@ const WorldFactory =
      * @param {string} hash MD5 hash 32 characters in length
      */
     populate( world, hash ) {
-        // calculate overworld dimensions
+        let size = 175; // amount of horizontal and vertical tiles in overworld
 
-        let size = HashUtil.charsToNum( hash );
         const { parsedResult } = Bowser.getParser( window.navigator.userAgent );
 
-        // on iOS we don"t exceed the 6 megapixel (2500 x 2500) limit on images, we COULD investigate
+        // on iOS we don't exceed the 6 megapixel (2500 x 2500) limit on images, we COULD investigate
         // in stitching multiple smaller images together, but this might just be a satisfactory world size :p
         // note on iPad OS 13 the platform is reported as macOS 10.15, hence the Safari check...
 
         if ( parsedResult?.os?.name === "iOS" || parsedResult?.browser?.name === "Safari" ) {
             size = Math.min( 2500 / WorldCache.tileWidth, size );
         }
-        world.width  =
+        world.width  = size;
         world.height = size;
 
         const centerX = Math.round( world.width  / 2 );
@@ -131,13 +134,12 @@ const WorldFactory =
             --world.y;
         }
 
-        // generate the drunk dragon
-        // TODO: for debugging purposes he is now close to the player
+        // generate the drunk dragon (will be positioned on overground environment enter by Vuex module)
 
         const dragon = CharacterFactory.create({
             type: DRAGON,
-            x: world.x + 2,
-            y: world.y - 1,
+            x: world.x,
+            y: world.y,
             hp: 5,
             level: 1,
         }, { name: "Drunk Dragon" });
@@ -386,7 +388,7 @@ function generateGroup( startX, startY, world, amountToCreate, typeFactoryCreate
             groupItem.y = reservedPosition.y;
 
             // bit of a cheat... add a wall around the object entrance (should be at the
-            // horizontal middle of the vertical bottom) so the player can"t enter from that side
+            // horizontal middle of the vertical bottom) so the player can't enter from that side
 
             for ( let xd = groupItem.x - ( halfWidth - 1 ); xd < groupItem.x + halfWidth; ++xd ) {
                 for ( let yd = groupItem.y - ( height - 1 ); yd <= groupItem.y; ++yd ) {
@@ -477,18 +479,18 @@ function digRoads( worldWidth, worldHeight ) {
  * @return {Object|null} coordinates at which Object has been reserved
  */
 function reserveObject( object, world, others = [] ) {
-    // assemble the list of Object we shouldn"t collide with
+    // assemble the list of Objects we shouldn't collide with
     const compare = [ ...world.shops, ...world.buildings, ...others ];
 
     let { x, y } = object;
     if ( !checkIfFree( object, world, compare )) {
 
-        // which direction we"ll try next
+        // which direction we'll try next
 
         const left  = x > world.width  / 2;
         const up    = y > world.height / 2;
 
-        let tries = 255; // fail-safe, let"s not recursive forever
+        let tries = 255; // fail-safe, let's not recursive forever
         while ( true ) {
             if ( left ) {
                 --x;
@@ -509,7 +511,7 @@ function reserveObject( object, world, others = [] ) {
                 break;
             }
 
-            // didn"t find a spot... :(
+            // didn't find a spot... :(
 
             if ( --tries === 0 ) {
                 return null;

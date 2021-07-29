@@ -1,6 +1,7 @@
 import merge            from "lodash/merge";
 import cloneDeep        from "lodash/cloneDeep";
 import { XP_PER_LEVEL, xpNeededForLevel } from "@/definitions/constants";
+import { DRAGON }       from "@/definitions/character-types";
 import { GAME_OVER }    from "@/definitions/game-states";
 import { SCREEN_GAME }  from "@/definitions/screens";
 import { random }       from "@/utils/random-util";
@@ -82,7 +83,7 @@ export default {
             commit( "setOpponent", opponent );
             commit( "setAward", opponent.level * ( XP_PER_LEVEL / 2 ));
         },
-        resolveBattle({ state, getters, commit }) {
+        resolveBattle({ state, getters, commit, dispatch }) {
             const { opponent } = state;
             // battle is resolved when the player or opponent have depleted their HP
             if ( opponent.hp === 0 ) {
@@ -98,6 +99,12 @@ export default {
                 }
                 commit( "setBattleWon", true );
                 commit( "setOpponent", null );
+                // dragon gets reset to a new position
+                if ( opponent.type === DRAGON ) {
+                    dispatch( "positionDragon", 50 );
+                } else {
+                    commit( "removeCharacter", opponent );
+                }
             } else if ( getters.player.hp === 0 ) {
                 commit( "setGameState", GAME_OVER );
             }

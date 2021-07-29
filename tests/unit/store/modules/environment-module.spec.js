@@ -2,6 +2,7 @@ import store               from "@/store/modules/environment-module";
 import { QUEEN, DRAGON }   from "@/definitions/character-types";
 import CharacterFactory    from "@/model/factories/character-factory";
 import EffectFactory       from "@/model/factories/effect-factory";
+import { WORLD_TYPE }      from "@/model/factories/world-factory";
 import { GAME_ACTIVE, GAME_OVER } from "@/definitions/game-states";
 import {
     SCREEN_SHOP, SCREEN_HOTEL, SCREEN_GAME, SCREEN_CHARACTER_INTERACTION, SCREEN_BATTLE
@@ -11,6 +12,7 @@ import { GAME_START_TIME, GAME_TIME_RATIO, VALIDITY_CHECK_INTERVAL } from "@/def
 const { getters, mutations, actions } = store;
 
 let mockUpdateFn;
+let mockValue;
 jest.mock("@/model/factories/building-factory", () => ({
     generateFloors: (...args) => mockUpdateFn("generateFloors", ...args),
     BUILDING_TILES: { GROUND: 0 },
@@ -28,6 +30,7 @@ jest.mock("@/services/environment-bitmap-cacher", () => ({
 }));
 jest.mock("@/utils/terrain-util", () => ({
     getFirstFreeTileOfTypeAroundPoint: () => ({ x: 0, y: 0 }),
+    positionInReachableDistanceFromPoint: () => mockValue,
 }));
 
 describe( "Vuex environment module", () => {
@@ -175,14 +178,65 @@ describe( "Vuex environment module", () => {
                 expect( state.character ).toEqual( character );
             });
 
-            it( "should be able to remove a Character from the currently active environment", () => {
+            it( "should be able to update an environments Character properties", () => {
                 const state = {
                     activeEnvironment: {
-                        characters: [{ foo: "bar" }, { baz: "qux" }]
+                        characters: [ CharacterFactory.create({ x: 10, y: 11, hp: 10, type: DRAGON }) ]
                     }
                 };
-                mutations.removeCharacter( state, state.activeEnvironment.characters[1] );
-                expect( state.activeEnvironment.characters ).toEqual([ { foo: "bar" }]);
+                const character = state.activeEnvironment.characters[0];
+                const { appearance, inventory, properties } = character;
+                const updatedCharacter = {
+                    hp: 195,
+                    maxHp: 200,
+                    xp: 100,
+                    x: 12,
+                    y: 13,
+                    level: 2,
+                    properties: {
+                        speed: 5,
+                    },
+                    inventory: {
+                        cash: 10
+                    },
+                };
+                mutations.updateCharacter( state, { ...character, ...updatedCharacter });
+                expect( state.activeEnvironment.characters[0] ).toEqual({
+                    id: expect.any( String ),
+                    hp: 195,
+                    maxHp: 200,
+                    xp: 100,
+                    x: 12,
+                    y: 13,
+                    type: DRAGON,
+                    level: 2,
+                    width: 1,
+                    height: 1,
+                    properties: {
+                        ...properties,
+                        speed: 5
+                    },
+                    inventory: {
+                        ...inventory,
+                        cash: 10
+                    },
+                    appearance
+                });
+            });
+
+            it( "should be able to remove a Character from the currently active environment", () => {
+                const character1 = { id: 1, foo: "bar" };
+                const character2 = { id: 2, baz: "qux" };
+                const state = {
+                    character: character2,
+                    activeEnvironment: {
+                        characters: [ character1, character2 ]
+                    }
+                };
+                mutations.removeCharacter( state, character2 );
+
+                expect( state.activeEnvironment.characters ).toEqual([ { id: 1, foo: "bar" }]);
+                expect( state.character ).toBeNull();
             });
 
             it( "should be able to mark the visited terrain for the current environment with deduplication", () => {
@@ -200,8 +254,8 @@ describe( "Vuex environment module", () => {
             const state = {
                 activeEnvironment: {
                     characters: [
-                        { foo: "bar", inventory: { items: [{ quz: "quuz" }] } },
-                        { baz: "qux", inventory: { items: [] } }
+                        { id: 1, foo: "bar", inventory: { items: [{ quz: "quuz" }] } },
+                        { id: 2, baz: "qux", inventory: { items: [] } }
                     ]
                 }
             };
@@ -209,8 +263,8 @@ describe( "Vuex environment module", () => {
             const character = state.activeEnvironment.characters[ 0 ];
             mutations.addItemToCharacterInventory( state, { item, character });
             expect(state.activeEnvironment.characters).toEqual([
-                { foo: "bar", inventory: { items: [{ quz: "quuz" }, item ] } },
-                { baz: "qux", inventory: { items: [] }}
+                { id: 1, foo: "bar", inventory: { items: [{ quz: "quuz" }, item ] } },
+                { id: 2, baz: "qux", inventory: { items: [] }}
             ]);
         });
 
@@ -314,11 +368,12 @@ describe( "Vuex environment module", () => {
                 const mockedGetters = { player: { baz: "qux" } };
                 mockUpdateFn        = jest.fn();
 
-                const newEnvironment = { baz: "qux" };
+                const newEnvironment = { type: WORLD_TYPE, baz: "qux" };
                 await actions.changeActiveEnvironment({ state, getters: mockedGetters, commit, dispatch }, newEnvironment );
 
                 expect( commit ).toHaveBeenNthCalledWith( 1, "flushBitmaps" );
                 expect( commit ).toHaveBeenNthCalledWith( 2, "setActiveEnvironment", newEnvironment );
+                expect( dispatch ).toHaveBeenNthCalledWith( 1, "positionDragon" );
                 expect( commit ).toHaveBeenNthCalledWith( 3, "setLoading", true );
                 expect( mockUpdateFn ).toHaveBeenCalledWith( "renderEnvironment", newEnvironment, mockedGetters.player );
                 expect( commit ).toHaveBeenNthCalledWith( 4, "setLoading", false );
@@ -388,6 +443,20 @@ describe( "Vuex environment module", () => {
                     expect( commit ).toHaveBeenNthCalledWith( 1, "setScreen", SCREEN_BATTLE );
                 });
             });
+        });
+
+        it( "should be able to update the Dragon position", () => {
+            const dragon = CharacterFactory.create({ type: DRAGON });
+            const mockedGetters = { world: { characters: [ dragon ]} };
+            const commit = jest.fn();
+
+            const x = 6;
+            const y = 7;
+            mockValue = { x, y };
+
+            actions.positionDragon({ getters: mockedGetters, commit }, 40 );
+
+            expect( commit ).toHaveBeenNthCalledWith( 1, "updateCharacter", { ...dragon, ...mockValue });
         });
     });
 });

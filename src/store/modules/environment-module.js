@@ -1,3 +1,7 @@
+import cloneDeep from "lodash/cloneDeep";
+import merge     from "lodash/merge";
+import Vue       from "vue";
+
 import AudioTracks                         from "@/definitions/audio-tracks";
 import { QUEEN, DRAGON }                   from "@/definitions/character-types";
 import EnvironmentActions                  from "@/model/actions/environment-actions";
@@ -5,9 +9,11 @@ import BuildingFactory, { BUILDING_TILES } from "@/model/factories/building-fact
 import EffectFactory                       from "@/model/factories/effect-factory";
 import IntentFactory                       from "@/model/factories/intent-factory";
 import ShopFactory                         from "@/model/factories/shop-factory";
+import { WORLD_TYPE, getMaxWalkableTile }  from "@/model/factories/world-factory";
 import { renderEnvironment }               from "@/services/environment-bitmap-cacher";
 import SpriteCache                         from "@/utils/sprite-cache";
-import { getFirstFreeTileOfTypeAroundPoint, distance } from "@/utils/terrain-util";
+
+import { getFirstFreeTileOfTypeAroundPoint, positionInReachableDistanceFromPoint, distance } from "@/utils/terrain-util";
 
 import {
     SCREEN_GAME, SCREEN_SHOP, SCREEN_HOTEL, SCREEN_CHARACTER_INTERACTION, SCREEN_BATTLE
@@ -87,18 +93,25 @@ export default {
                 state.shop.items.splice( index, 1 );
             }
         },
+        updateCharacter( state, character ) {
+            const { characters } = state.activeEnvironment;
+            const index = characters.findIndex(({ id }) => id === character.id );
+            if ( index > -1 ) {
+                Vue.set( characters, index, merge( cloneDeep( characters[ index ] ), character ));
+            }
+        },
         removeCharacter( state, character ) {
-            if ( state.character === character ) {
+            if ( state.character?.id === character.id ) {
                 state.character = null;
             }
             const { characters } = state.activeEnvironment;
-            const index = characters.indexOf( character );
+            const index = characters.findIndex(({ id }) => id === character.id );
             if ( index > -1 ) {
                 characters.splice( index, 1 );
             }
         },
         addItemToCharacterInventory( state, { item, character }) {
-            const char = state.activeEnvironment.characters.find( c => character );
+            const char = state.activeEnvironment.characters.find(({ id }) => id === character.id );
             if ( char ) {
                 char.inventory.items.push( item );
             }
@@ -183,12 +196,16 @@ export default {
             // change music to overground theme
             dispatch( "playSound", AudioTracks.OVERGROUND_THEME );
         },
-        async changeActiveEnvironment({ state, getters, commit }, environment ) {
+        async changeActiveEnvironment({ state, getters, commit, dispatch }, environment ) {
             if ( !!state.activeEnvironment ) {
                 // free memory allocated to Bitmaps
                 commit( "flushBitmaps" );
             }
             commit( "setActiveEnvironment", environment );
+            // whenever we enter the overground, the dragon must be repositioned
+            if ( environment.type === WORLD_TYPE ) {
+                dispatch( "positionDragon" );
+            }
             commit( "setLoading", true );
             await renderEnvironment( environment, getters.player );
             commit( "setLoading", false );
@@ -224,6 +241,15 @@ export default {
             const existing = getters.effects.filter(({ target }) => target === dragon.id );
             // calculate the waypoints and enqueue the movements
             EnvironmentActions.moveCharacter({ commit, getters }, dragon, activeEnvironment, x, y, existing );
+        },
+        positionDragon({ getters, commit }, distance = 20 ) {
+            const { world } = getters;
+            const dragon = world.characters.find(({ type }) => type === DRAGON );
+            const dragonCoords = positionInReachableDistanceFromPoint(
+                world, world.x, world.y, distance, getMaxWalkableTile()
+            ) || {};
+            console.warn(dragonCoords);
+            commit( "updateCharacter", { ...dragon, ...dragonCoords });
         },
     }
 };

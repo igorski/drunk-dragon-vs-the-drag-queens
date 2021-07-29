@@ -335,6 +335,24 @@ describe( "Vuex battle module", () => {
                 // expect to have risen
                 expect( commit ).toHaveBeenCalledWith( "setPlayerLevel", 4 );
             });
+
+            it( "should reposition the opponent if it was the Dragon or otherwise remove it from the environment", async () => {
+                const state   = { opponent: { hp: 0 }, award: XP_PER_LEVEL };
+                mockedGetters = { player: { xp: XP_PER_LEVEL, level: 2 }};
+                let dispatch  = jest.fn();
+                let commit    = jest.fn();
+
+                await actions.resolveBattle({ state, getters: mockedGetters, commit, dispatch });
+                expect( dispatch ).not.toHaveBeenCalled();
+                expect( commit ).toHaveBeenCalledWith( "removeCharacter", state.opponent );
+
+                state.opponent.type = DRAGON;
+                commit = jest.fn();
+
+                await actions.resolveBattle({ state, getters: mockedGetters, commit, dispatch });
+                expect( dispatch ).toHaveBeenCalledWith( "positionDragon", expect.any( Number ));
+                expect( commit ).not.toHaveBeenCalledWith( "removeCharacter", state.opponent );
+            });
         });
     });
 });

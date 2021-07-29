@@ -12,6 +12,7 @@ const { abs, max, pow, sqrt } = Math;
  * @param {number=} maxWalkableTileNum the terrain in an environment is represented
  *                  by integers defining the terrain type. This number defines which
  *                  types of terrain are deemed walkable (e.g. road, grass, mud, etc.)
+ * @return {Array<Object>}
  */
 export const findPath = ( world, startX, startY, targetX, targetY, maxWalkableTileNum = 0 ) => {
     const pathStart = [ startX,  startY  ];
