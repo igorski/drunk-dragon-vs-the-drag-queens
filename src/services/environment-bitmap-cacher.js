@@ -101,7 +101,7 @@ export const renderEnvironment = ( environment, player ) =>
 
             for ( let i = 0; i < stepsPerIteration; ++i ) {
                 if ( iterations >= MAX_ITERATIONS ) {
-                    // process the finalRenders and we"re done
+                    // process the finalRenders and we're done
                     while ( finalRenders.length ) {
                         finalRenders.shift()();
                     }
@@ -129,7 +129,7 @@ export const renderEnvironment = ( environment, player ) =>
  * @param {number} ty y index of the tile in the terrain map
  * @param {number} x targetX to draw the tile at on the ctx
  * @param {number} y targetY to draw the tile at on the ctx
- * @param {Object} environment the environment we"re rendering
+ * @param {Object} environment the environment we're rendering
  * @param {Array<Function>} finalRenders list of items to render last (above everything else)
  */
 function drawTileForSurroundings( ctx, tx, ty, x, y, environment, finalRenders ) {
@@ -278,10 +278,106 @@ export function getTileDescription( tx, ty, environment, blockRecursion ) {
     } = getSurroundingTiles( tile, tx, ty, environment );
 
     // TODO: make a generic tile index for "nothing" (e.g. -1)
-    const empty = (ct) => environment.type === BUILDING_TYPE && ct === BUILDING_TILES.NOTHING;
-    const emptyOrUnequal = (t1, ttc) => empty( ttc ) || t1 !== ttc;
-    const emptyOrNonExisting = ct => ct === NONE || empty(ct); // non existing implies current tile is at world edge
-    const emptyOrUnequalOrNonExisting = ct => ct === NONE || emptyOrNonExisting(ct);
+    const empty = ct => environment.type === BUILDING_TYPE && ct === BUILDING_TILES.NOTHING;
+    const emptyOrUnequal = ( t1, ttc ) => empty( ttc ) || t1 !== ttc;
+    const emptyOrNonExisting = ct => ct === NONE || empty( ct ); // non existing implies current tile is at world edge
+    const emptyOrUnequalOrNonExisting = ct => ct === NONE || emptyOrNonExisting( ct );
+
+    // special treatment for building walls
+    // depending on the surroundings tiles walls change their direction / shape
+
+    if ( environment.type === BUILDING_TYPE && tile === BUILDING_TILES.WALL ) {
+        const { GROUND, WALL } = BUILDING_TILES;
+        const isGroundType = ct => ct < WALL;
+        const emptyOrGroundType = ct => emptyOrNonExisting( ct ) || isGroundType( ct );
+        const groundOrWallType = ct => ct === WALL || emptyOrGroundType( ct );
+
+        // default : horizontal line
+        out.area = emptyOrNonExisting( tileBelow ) || isGroundType( tileAbove ) ? EMPTY_BOTTOM : [ 0, EMPTY_TOP ];
+
+        // 1. horizontals
+        if ( emptyOrNonExisting( tileAbove )) {
+            out.area = [ 0, EMPTY_TOP ];
+        }
+        if ( emptyOrNonExisting( tileBelow )) {
+            out.area = EMPTY_BOTTOM;
+        }
+
+        // 2. verticals
+        if ( emptyOrNonExisting( tileLeft )) {
+            out.area = emptyOrNonExisting( tileBelow ) ? TOP_RIGHT : EMPTY_LEFT;
+        }
+        if ( emptyOrNonExisting( tileRight )) {
+            out.area = emptyOrNonExisting( tileBelow ) ? TOP_LEFT : EMPTY_RIGHT;
+        }
+
+        // default : vertical line
+        if ( isGroundType( tileLeft ) && isGroundType( tileRight )) {
+            out.area = EMPTY_RIGHT;
+        }
+
+        // 3. corners
+
+        if ( isGroundType( tileLeft ) && ( emptyOrNonExisting( tileBelowRight ) || isGroundType( tileBelowRight ))) {
+            if ( emptyOrNonExisting( tileRight ) || emptyOrUnequalOrNonExisting( tileBelowRight )) {
+                out.area = [ out.area, EMPTY_RIGHT ]; // |
+            } else {
+                out.area = [ 0, out.area, EMPTY_RIGHT ]; // ┌
+            }
+        }
+
+        if ( isGroundType( tileRight ) && emptyOrNonExisting( tileBelowLeft )) {
+            out.area = [ out.area, EMPTY_LEFT ]; // ┐
+        }
+
+        if ( isGroundType( tileBelow ) && tileBelowLeft === WALL && tileLeft === WALL && !emptyOrNonExisting( tileAbove )) {
+            if ( isGroundType( tileRight )) {
+                out.area = [ 0, EMPTY_TOP ];
+            } else {
+                out.area = [ 0, EMPTY_BOTTOM ];
+            }
+        }
+
+        if ( tileAbove === WALL && tileLeft === WALL && isGroundType( tileRight ) && isGroundType( tileAboveRight )) {
+            out.area = [ 0, isGroundType( tileBelow ) && !emptyOrNonExisting( tileAboveLeft ) ? EMPTY_BOTTOM : EMPTY_TOP ]; // ┘
+        }
+
+        if ( tileAbove === WALL && tileRight === WALL && isGroundType( tileLeft ) && isGroundType( tileAboveLeft )) {
+            out.area = [ 0, isGroundType( tileBelow ) && !emptyOrNonExisting( tileAboveRight ) ? EMPTY_BOTTOM : EMPTY_TOP ]; // └
+        }
+
+        // 4. T sections
+
+        if ( isGroundType( tileRight ) && tileAbove === WALL && emptyOrNonExisting( tileBelowLeft ) && tileLeft === WALL ) {
+            out.area = [ EMPTY_BOTTOM, EMPTY_LEFT ]; // ┤
+        }
+
+        if ( isGroundType( tileLeft ) && tileAbove === WALL && emptyOrNonExisting( tileAboveRight ) && tileRight === WALL && tileBelow === WALL ) {
+            out.area = [ 0, EMPTY_TOP, EMPTY_RIGHT ]; // ├
+        }
+
+        // ┬
+        if ( isGroundType( tileAbove ) && tileBelow === WALL && tileLeft === WALL && tileRight === WALL ) {
+            if ( emptyOrNonExisting( tileBelowRight )) {
+                out.area = [ EMPTY_BOTTOM, EMPTY_RIGHT ];
+            } else if ( emptyOrNonExisting( tileBelowLeft )) {
+                out.area = [ EMPTY_BOTTOM, EMPTY_LEFT ];
+            }
+        }
+
+        // ┴
+        if ( isGroundType( tileBelow ) && tileAbove === WALL && tileLeft === WALL && tileRight === WALL ) {
+            if ( emptyOrUnequalOrNonExisting( tileAboveLeft )) {
+                out.area = [ 0, isGroundType( tileBelowLeft ) ? EMPTY_TOP : EMPTY_BOTTOM ];
+            } else if ( emptyOrNonExisting( tileAboveRight )) {
+                out.area = [ 0, EMPTY_BOTTOM ];
+            }
+        }
+        if ( tileBelow === WALL && emptyOrNonExisting( tileAboveLeft ) && tileLeft === WALL && isGroundType( tileRight )) {
+            out.area = [ 0, EMPTY_BOTTOM, EMPTY_RIGHT ];
+        }
+        return out;
+    }
 
     // when tile is between horizontally different tiles or at horizontal world ege
 
@@ -316,37 +412,6 @@ export function getTileDescription( tx, ty, environment, blockRecursion ) {
     } else if ( tileAbove !== tile && tileBelow === tile && tileRight === tile ) {
         out.area = EMPTY_BOTTOM_RIGHT;
     }
-
-    // special cases (likely adjust the terrain generator to not render walls next to each other)
-
-    // targeting the large W in the following wall setup:
-    // w - - -
-    // w W w w
-    // - w - -
-
-    if ( environment.type === BUILDING_TYPE && tile === BUILDING_TILES.WALL ) {
-        if ( tileLeft === tile && tileBelow === tile && tileRight === tile ) {
-            out.area = EMPTY_BOTTOM_LEFT;
-        }
-    }
-
-    // outer corners
-
-    if ( emptyOrUnequalOrNonExisting( tileAbove ) && emptyOrUnequalOrNonExisting( tileLeft )) {
-        out.area = BOTTOM_RIGHT;
-    }
-
-    if ( emptyOrUnequalOrNonExisting( tileAbove ) && emptyOrUnequalOrNonExisting( tileRight )) {
-        out.area = BOTTOM_LEFT;
-    }
-
-    if ( emptyOrUnequalOrNonExisting( tileBelow ) && emptyOrUnequalOrNonExisting( tileLeft )) {
-        out.area = TOP_RIGHT;
-    }
-
-    if ( emptyOrUnequalOrNonExisting( tileBelow ) && emptyOrUnequalOrNonExisting( tileRight )) {
-        out.area = TOP_LEFT;
-    }
     return out;
 }
 
@@ -359,12 +424,10 @@ function drawAdjacentTiles( tile, tx, ty, x, y, env, ctx ) {
         hasLeft, hasRight, hasAbove, hasBelow
     } = getSurroundingTiles( tile, tx, ty, env );
 
-    const tileLeft       = hasLeft              ? getTileDescription( tx - 1, ty,     env ) : NONE;
-    const tileRight      = hasRight             ? getTileDescription( tx + 1, ty,     env ) : NONE;
-    const tileAbove      = hasAbove             ? getTileDescription( tx,     ty - 1, env ) : NONE;
-    const tileBelow      = hasBelow             ? getTileDescription( tx,     ty + 1, env ) : NONE;
-    const tileBelowLeft  = hasLeft  && hasBelow ? getTileDescription( tx - 1, ty + 1, env ) : NONE;
-    const tileBelowRight = hasRight && hasBelow ? getTileDescription( tx + 1, ty + 1, env ) : NONE;
+    const tileLeft  = hasLeft  ? getTileDescription( tx - 1, ty,     env ) : NONE;
+    const tileRight = hasRight ? getTileDescription( tx + 1, ty,     env ) : NONE;
+    const tileAbove = hasAbove ? getTileDescription( tx,     ty - 1, env ) : NONE;
+    const tileBelow = hasBelow ? getTileDescription( tx,     ty + 1, env ) : NONE;
 
     if ( env.type === WORLD_TYPE ) {
         // alters the input tile t depending on its surroundings
@@ -407,41 +470,24 @@ function drawAdjacentTiles( tile, tx, ty, x, y, env, ctx ) {
                      compareTile.type !== type );
         }
 
-        // inner corner types
-
-        if ( area === EMPTY_BOTTOM_LEFT && inequalOrEmpty( tileBelowLeft )) {
-            drawTile( ctx, getSheet( env, tileBelowLeft ), getSheetOffset( tileBelowLeft ), x, y );
-        }
-        else if ( area === EMPTY_BOTTOM_RIGHT && inequalOrEmpty( tileBelowRight )) {
-            drawTile( ctx, getSheet( env, tileBelowRight ), getSheetOffset( tileBelowRight ), x, y );
+        function drawFloor( x, y ) {
+            drawTile( ctx, SpriteCache.FLOOR, 0, x, y );
         }
 
-        // outer edges
+        // vertical and horizontal walls in between ground tiles should always draw a floor background
 
-        // vertical types
-
-        if ( area === EMPTY_LEFT ) {
-            if ( tileRight === BUILDING_TILES.WALL && tileLeft.type !== type )
-                drawTile( ctx, getSheet( env, tileLeft ), getSheetOffset( tileLeft ), x, y );
-
-            else if ( inequalOrEmpty( tileLeft ))
-                drawTile( ctx, getSheet( env, tileLeft ), getSheetOffset( tileLeft ), x, y );
-        }
-        else if ( area === EMPTY_RIGHT && inequalOrEmpty( tileRight )) {
-            drawTile( ctx, getSheet( env, tileRight ), getSheetOffset( tileRight ), x, y );
+        if (( tileLeft?.type  === BUILDING_TILES.GROUND && tileRight?.type === BUILDING_TILES.GROUND ) ||
+            ( tileAbove?.type === BUILDING_TILES.GROUND && tileBelow?.type === BUILDING_TILES.GROUND )) {
+            drawFloor( x, y );
         }
 
-        // horizontal types
-
-        if ( area === EMPTY_BOTTOM && inequalOrEmpty( tileBelow )) {
-            drawTile( ctx, getSheet( env, tileBelow ), getSheetOffset( tileBelow ), x, y );
-        }
-        else if ( area === EMPTY_TOP && inequalOrEmpty( tileAbove )) {
-            drawTile( ctx, getSheet( env, tileAbove ), getSheetOffset( tileAbove ), x, y );
-        }
-
-        // draw tile
-        drawTile( ctx, getSheet( env, tile ), getSheetOffset( tile ), x, y );
+        const areas = Array.isArray( area ) ? area : [ area ];
+        areas.forEach( a => {
+            if ([ EMPTY_TOP_LEFT_ALT, EMPTY_TOP_RIGHT_ALT ].includes( a )) {
+                drawFloor( x, y );
+            }
+            drawTile( ctx, getSheet( env, tile ), getSheetOffset({ area: a }), x, y );
+        });
     }
 }
 
@@ -500,8 +546,6 @@ function getSheetOffset( tileDescription ) {
             break;
 
         default:
-        //case BUILDING_TILES.WALL:   // wall
-
             switch ( tileDescription.area ) {
                 case FULL_SIZE:
                     return 0;
@@ -541,6 +585,12 @@ function getSheetOffset( tileDescription ) {
 
                 case EMPTY_TOP_LEFT:
                     return 240;
+
+                case EMPTY_TOP_RIGHT_ALT:
+                    return 280;
+
+                case EMPTY_TOP_LEFT_ALT:
+                    return 300;
             }
     }
     return -1;
@@ -570,16 +620,18 @@ const TILE_SIZE = 20; // size of a single tile (in pixels, tiles are squares)
 // the visible area a tile can occupy, the spritesheets
 // should store these tiles in this order
 
-export const FULL_SIZE          = 0,
-             BOTTOM_RIGHT       = 1,
-             BOTTOM_LEFT        = 2,
-             TOP_RIGHT          = 3,
-             TOP_LEFT           = 4,
-             EMPTY_LEFT         = 5,
-             EMPTY_RIGHT        = 6,
-             EMPTY_TOP          = 7,
-             EMPTY_BOTTOM       = 8,
-             EMPTY_BOTTOM_RIGHT = 9,
-             EMPTY_BOTTOM_LEFT  = 10,
-             EMPTY_TOP_RIGHT    = 11,
-             EMPTY_TOP_LEFT     = 12;
+export const FULL_SIZE           = 0,
+             BOTTOM_RIGHT        = 1,
+             BOTTOM_LEFT         = 2,
+             TOP_RIGHT           = 3,
+             TOP_LEFT            = 4,
+             EMPTY_LEFT          = 5,
+             EMPTY_RIGHT         = 6,
+             EMPTY_TOP           = 7,
+             EMPTY_BOTTOM        = 8,
+             EMPTY_BOTTOM_RIGHT  = 9,
+             EMPTY_BOTTOM_LEFT   = 10,
+             EMPTY_TOP_RIGHT     = 11,
+             EMPTY_TOP_LEFT      = 12,
+             EMPTY_TOP_LEFT_ALT  = 13,
+             EMPTY_TOP_RIGHT_ALT = 14;

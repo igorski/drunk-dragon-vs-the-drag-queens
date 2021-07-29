@@ -52,6 +52,11 @@ export default {
                 href: "https://opengameart.org/content/16x16-dragon"
             },
             {
+                title: "[LPC] Misc tile atlas",
+                author: "Sharm, Janna, Tuomo Untinen, Casper Nilsson, Barbara Rivera and Daneeklu",
+                href: "https://opengameart.org/content/lpc-misc-tile-atlas-interior-exterior-trees-bridges-furniture"
+            },
+            {
                 title: "Crosshair pack (200x)",
                 author: "Kenney",
                 href: "https://opengameart.org/content/crosshair-pack-200%C3%97"

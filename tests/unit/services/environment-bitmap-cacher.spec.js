@@ -24,7 +24,7 @@ jest.mock( "zcanvas", () => ({
 }));
 
 describe("Environment bitmap cacher", () => {
-    it("should calculate the correct tile sheet indices for the floor terrain walls", () => {
+    it.skip("should calculate the correct tile sheet indices for the floor terrain walls", () => {
         const environment = BuildingFactory.create();
 
         // cache the building tile types (makes it easier to "view" the map

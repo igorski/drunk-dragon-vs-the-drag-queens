@@ -90,12 +90,17 @@ npm run test
 * Drag swag/charisma == mana
 ** Show in status view
 
+* Escape to close dismissable dialogs
+* Arrow keys and esc/enter to work with confirm windows
+* Create cave level for extra excitement
+* Implement swamp ?
+* Do not save player walk effects when saving during walk (one save game got 'stuck')
 * Update level of dragon too when defeated on fight end (or rather on new fight start?) (and relocate on map)
 * Walking left/right on overground does weird jumps?
 * When vacating building/shop as effect timeout is exceeded, close active screens before showing dialog
 * Animate player position on map (pulsating circle)
 * Waypoint path finder should not go over exits when calculating path inside building (exists are only valid as destination tile)
-* Ensure that on game create the player can find a path to a building and a shop
+* Ensure that on game creation the player can find a path to both a building and a shop
 * Create unique sprite for hotel counter
 * Queens inside buildings should either be woo'd or fought
 * Before generating door queens, ensure building was actually placed successfully!
@@ -146,3 +151,5 @@ npm run test
 * Keep track of important dates (Christmas, New Year)
 * Time should be able to speed up (when sleeping for instance)
 * world-renderer isValidTarget|maxWalkableTile|and pre calc of waypoints is duplicating environment-actions unnecessarily!
+* if you are feeling brave you can start using the unused tiles in the floor sheet in environment-bitmap-cacher for the corner types
+* skipped environment-bitmap-cacher unit test
