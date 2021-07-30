@@ -1,10 +1,11 @@
 import { Map }                     from "rot-js";
 import Bowser                      from "bowser";
 import MD5                         from "MD5";
-import { QUEEN, DRAB, DRAGON }     from "@/definitions/character-types";
+import { QUEEN, DRAGON }           from "@/definitions/character-types";
 import { SHOE_FLIPPERS }           from "@/definitions/item-types";
 import HashUtil                    from "@/utils/hash-util";
 import WorldCache                  from "@/utils/world-cache";
+import CharacterActions            from "@/model/actions/character-actions";
 import BuildingFactory             from "./building-factory";
 import CharacterFactory            from "./character-factory";
 import EnvironmentFactory          from "./environment-factory";
@@ -134,27 +135,13 @@ const WorldFactory =
             --world.y;
         }
 
-        // generate some drabs
-        generateGroup(
-            centerX, centerY, world, 15, () => {
-                const drab = CharacterFactory.create({
-                    type: DRAB,
-                    hp: 3,
-                    level: 1
-                });
-                world.characters.push( drab );
-                return drab;
-            }, 8, .33
-        );
-
         // generate the drunk dragon (will be positioned on overground environment enter by Vuex module)
 
         const dragon = CharacterFactory.create({
             type: DRAGON,
             x: world.x,
             y: world.y,
-            hp: 5,
-            level: 1,
+            ...CharacterActions.calculateOpponentLevel( CharacterFactory.create({ type: QUEEN }), DRAGON )
         }, { name: "Drunk Dragon" });
         world.characters.push( dragon );
     },

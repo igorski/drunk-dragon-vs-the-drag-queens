@@ -5,6 +5,7 @@ import { DRAGON }       from "@/definitions/character-types";
 import { GAME_OVER }    from "@/definitions/game-states";
 import { SCREEN_GAME }  from "@/definitions/screens";
 import { random }       from "@/utils/random-util";
+import CharacterActions from "@/model/actions/character-actions";
 import { getDamageForAttack } from "@/model/factories/attack-factory";
 
 function updateHP( damage, currentHP ) {
@@ -51,7 +52,7 @@ export default {
             }
             return damage;
         },
-        runFromOpponent({ state, getters, commit }) {
+        runFromOpponent({ state, getters, commit, dispatch }) {
             commit( "setPlayerTurn", false );
             const { level, properties } = getters.player;
             const { opponent } = state;
@@ -62,6 +63,7 @@ export default {
             // otherwise apply some randomization against the players boost status
             const success = level === 1 ? true : (( properties.boost + 1 ) * random() ) > 0.5;
             if ( success ) {
+                dispatch( "positionCharacter", { id: opponent.id, distance: 30 });
                 commit( "setOpponent", null );
                 commit( "setScreen", SCREEN_GAME );
             }
@@ -99,9 +101,13 @@ export default {
                 }
                 commit( "setBattleWon", true );
                 commit( "setOpponent", null );
-                // dragon gets reset to a new position
+                // dragon gets reset to a new position and renewed energy
                 if ( opponent.type === DRAGON ) {
-                    dispatch( "positionDragon", 50 );
+                    commit( "updateCharacter", {
+                        ...opponent,
+                        ...CharacterActions.calculateOpponentLevel( getters.player, DRAGON )
+                    });
+                    dispatch( "positionCharacter", { id: opponent.id, distance: 50 });
                 } else {
                     commit( "removeCharacter", opponent );
                 }

@@ -292,6 +292,7 @@ describe( "Vuex game module", () => {
             const mockedGetters = {
                 gameTime,
                 translate: jest.fn(),
+                activeEnvironment: {}
             };
             const createMockTimeCommit = () => {
                 // when advanceGameTime is committed, we advance the mocked gameTime

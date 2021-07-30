@@ -248,6 +248,16 @@ describe( "Vuex environment module", () => {
                 expect( mockUpdateFn ).toHaveBeenCalledWith( "flushSpriteForCharacter", character2 );
             });
 
+            it( "should be able to remove Characters by their type from the active environment", () => {
+                const state = {
+                    activeEnvironment: {
+                        characters: [{ id: 1, type: 0 }, { id: 2, type: 1 }, { id: 3, type: 0 }, { id: 4, type: 1 }]
+                    }
+                };
+                mutations.removeCharactersOfType( state, 1 );
+                expect( state.activeEnvironment.characters ).toEqual([ { id: 1, type: 0 }, { id: 3, type: 0 }]);
+            });
+
             it( "should be able to mark the visited terrain for the current environment with deduplication", () => {
                 const state = {
                     activeEnvironment: {
@@ -374,7 +384,7 @@ describe( "Vuex environment module", () => {
                 const state         = { activeEnvironment: { foo: "bar" } };
                 const commit        = jest.fn();
                 const dispatch      = jest.fn();
-                const mockedGetters = { player: { baz: "qux" } };
+                const mockedGetters = { player: { baz: "qux" }, dragon: { id: "dragonId" } };
                 mockUpdateFn        = jest.fn();
 
                 const newEnvironment = { type: WORLD_TYPE, baz: "qux" };
@@ -382,7 +392,7 @@ describe( "Vuex environment module", () => {
 
                 expect( commit ).toHaveBeenNthCalledWith( 1, "flushBitmaps" );
                 expect( commit ).toHaveBeenNthCalledWith( 2, "setActiveEnvironment", newEnvironment );
-                expect( dispatch ).toHaveBeenNthCalledWith( 1, "positionDragon" );
+                expect( dispatch ).toHaveBeenNthCalledWith( 1, "positionCharacter", { id: "dragonId" });
                 expect( commit ).toHaveBeenNthCalledWith( 3, "setLoading", true );
                 expect( mockUpdateFn ).toHaveBeenCalledWith( "renderEnvironment", newEnvironment, mockedGetters.player );
                 expect( commit ).toHaveBeenNthCalledWith( 4, "setLoading", false );
@@ -454,18 +464,18 @@ describe( "Vuex environment module", () => {
             });
         });
 
-        it( "should be able to update the Dragon position", () => {
-            const dragon = CharacterFactory.create({ type: DRAGON });
-            const mockedGetters = { world: { characters: [ dragon ]} };
+        it( "should be able to update a Characters position", () => {
+            const character = CharacterFactory.create({ type: DRAGON });
+            const mockedGetters = { world: { characters: [ character ]} };
             const commit = jest.fn();
 
             const x = 6;
             const y = 7;
             mockValue = { x, y };
 
-            actions.positionDragon({ getters: mockedGetters, commit }, 40 );
+            actions.positionCharacter({ getters: mockedGetters, commit }, { id: character.id, distance: 40 });
 
-            expect( commit ).toHaveBeenNthCalledWith( 1, "updateCharacter", { ...dragon, ...mockValue });
+            expect( commit ).toHaveBeenNthCalledWith( 1, "updateCharacter", { ...character, ...mockValue });
         });
 
         it( "should be able to cancel all pending Player and Character movements", () => {

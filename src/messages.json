@@ -9,7 +9,12 @@
         },
         "timeouts": {
             "shop": "You have been hanging around my shop not buying anything for long enough, scram!",
-            "building": "I am sorry, but we are closing the building. Unless you are staying at one of our facilities we have to escort you out."
+            "building": "I am sorry, but we are closing the building. Unless you are staying at one of our facilities we have to escort you out.",
+            "hour": "It is now {hour}:00.",
+            "midnight": "Midnight",
+            "midnightDrabWarning": "Uh-oh. At this hour the drabs come out of their hiding place to stir up trouble. Be careful!",
+            "lastValidHour": "Hotels are closing soon",
+            "lastValidHourWarning": "Within an hour all hotels are closing and sun will come up soon. Find a place to spend the day!"
         },
         "messages": {
             "stayedTheNight": "You feel replenished after a good days sleep. It's nighttime again, time to go out!"

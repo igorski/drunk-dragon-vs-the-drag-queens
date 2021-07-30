@@ -3,9 +3,10 @@ import storage          from "store/dist/store.modern";
 import Vue              from "vue";
 import CharacterFactory from "@/model/factories/character-factory";
 import GameFactory      from "@/model/factories/game-factory";
-import WorldFactory     from "@/model/factories/world-factory";
+import WorldFactory, { WORLD_TYPE } from "@/model/factories/world-factory";
 import EffectActions    from "@/model/actions/effect-actions";
-import { GAME_START_TIME, GAME_TIME_RATIO, VALIDITY_CHECK_INTERVAL } from "@/definitions/constants";
+import { DRAB }         from "@/definitions/character-types";
+import { GAME_START_TIME, GAME_TIME_RATIO, VALIDITY_CHECK_INTERVAL, VALID_HOURS_INSIDE } from "@/definitions/constants";
 import { GAME_ACTIVE, GAME_PAUSED, GAME_OVER } from "@/definitions/game-states";
 import { isValidHourToBeOutside, isValidHourToBeInside } from "@/utils/time-util";
 import {
@@ -174,8 +175,8 @@ export default {
             const delta = ( timestamp - state.lastRender ) * GAME_TIME_RATIO;
             commit( "advanceGameTime", delta );
 
+            // do we need to take clock related actions (relative to game's time scale)
             const gameTimestamp = getters.gameTime;
-
             if (( gameTimestamp - state.lastValidGameTime ) >= VALIDITY_CHECK_INTERVAL ) {
                 const date = new Date( gameTimestamp );
                 if ( getters.isOutside && !isValidHourToBeOutside( date )) {
@@ -184,7 +185,28 @@ export default {
                     dispatch( "leaveBuilding" );
                     commit( "openDialog", { message: getters.translate( "timeouts.building" ) });
                 } else {
+                    const hourNow  = date.getUTCHours();
+                    const lastHour = new Date( state.lastValidGameTime ).getUTCHours();
                     commit( "setLastValidGameTime", gameTimestamp );
+
+                    // did we reach a new hour ?
+                    if ( hourNow !== lastHour ) {
+                        commit( "showNotification", { message: getters.translate( "timeouts.hour", { hour: hourNow }) });
+                        if ( getters.activeEnvironment.type === WORLD_TYPE ) {
+                            if ( hourNow === 0 ) {
+                                commit( "openDialog", {
+                                    title: getters.translate( "timeouts.midnight" ),
+                                    message: getters.translate( "timeouts.midnightDrabWarning" )
+                                });
+                                dispatch( "generateCharacters", DRAB );
+                            } else if ( hourNow === VALID_HOURS_INSIDE[ VALID_HOURS_INSIDE.length - 1 ]) {
+                                commit( "openDialog", {
+                                    title: getters.translate( "timeouts.lastValidHour" ),
+                                    message: getters.translate( "timeouts.lastValidHourWarning" )
+                                });
+                            }
+                        }
+                    }
                 }
             }
 

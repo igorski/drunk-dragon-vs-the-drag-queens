@@ -1,6 +1,7 @@
 import cloneDeep           from "lodash/cloneDeep";
 import merge               from "lodash/merge";
 import isEqual             from "lodash/isEqual";
+import { DRAB }            from "@/definitions/character-types";
 import { GAME_START_HOUR } from "@/definitions/constants";
 import { SCREEN_GAME }     from "@/definitions/screens";
 import EnvironmentActions  from "@/model/actions/environment-actions";
@@ -115,7 +116,7 @@ export default
             commit( "removeItemFromInventory", item );
             return true;
         },
-        bookHotelRoom({ state, getters, commit, dispatch }, hotel ) {
+        async bookHotelRoom({ state, getters, commit, dispatch }, hotel ) {
             const { player } = state;
             if ( player.inventory.cash < hotel.price ) {
                 return false;
@@ -139,7 +140,8 @@ export default
             commit( "deductCash", hotel.price );
             commit( "setHotel", null );
             commit( "setScreen", SCREEN_GAME );
-            dispatch( "leaveBuilding" );
+            await dispatch( "leaveBuilding" );
+            commit( "removeCharactersOfType", DRAB ); // drabs only appear after midnight
             commit( "openDialog", { message: getters.translate( "messages.stayedTheNight" ) });
 
             return true;

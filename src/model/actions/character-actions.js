@@ -1,6 +1,7 @@
 import CharacterFactory from "@/model/factories/character-factory";
-import { DRAGON }       from "@/definitions/character-types";
+import { QUEEN, DRAB, DRAGON } from "@/definitions/character-types";
 import { SHOE_HEELS, SHOE_SNEAKERS } from "@/definitions/item-types";
+import { randomInRange } from "@/utils/random-util";
 import { validateProperties } from "../validator";
 
 export default
@@ -63,5 +64,41 @@ export default
         value += ( boost > .5 ) ? -( boost * .5 ) : boost * .5;
 
         return value;
+    },
+
+    /**
+     * Generates the appropriate HP and Level for an opponent of given type in
+     * relation to given characters level.
+     */
+    calculateOpponentLevel( character, opponentType ) {
+        let hp, level;
+        switch ( opponentType ) {
+            default:
+            case QUEEN:
+                // queens match the player in HP and level
+                hp    = character.maxHp;
+                level = character.level;
+                break;
+            case DRAB:
+                // these attack in numbers, we can afford to have these be weaker than the player
+                hp    = character.maxHp / 2;
+                level = character.level === 1 ? 1 : Math.ceil( character.level / 2 );
+                break;
+            case DRAGON:
+                // gets progressively stronger as the player rises in level
+                hp    = character.level === 1 ? 5 : 7.5 * character.level;
+                level = character.level;
+                break;
+        }
+        // randomize results a little
+        const randHp    = ( hp    / 4 ) - randomInRange( 0, hp / 2 );
+        const randLevel = ( level / 4 ) - randomInRange( 0, level / 2 );
+
+        const finalHP = Math.max( 1, Math.round( hp + randHp ));
+        return {
+            hp    : finalHP,
+            maxHp : finalHP,
+            level : Math.max( 1, Math.round( level + randLevel ))
+        };
     }
 };

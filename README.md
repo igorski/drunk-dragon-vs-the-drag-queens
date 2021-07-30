@@ -81,8 +81,12 @@ npm run test
 * Drag swag/charisma == mana
 ** Show in status view
 
-* Update level of dragon too when defeated on fight end (or rather on new fight start?)
-* When entering overground, check if there are sufficient DRABS
+* Take cash from defeated opponents!
+* When characters are drunk, attacks should occasionally miss!
+* Unit tests for hourNow !== lastHour in game-module.updateGame()
+* Unit tests for environment-module.generateCharacters()
+* Some shops are empty (have no type ?)
+* Should running away not completely reposition the opponent but keep it somewhere within the screen?
 * Regenerate characters when re-entering empty floors?
 * Ensure that on game creation the player can find a path to both a building and a clothes shop
 * Drabs should come out after midnight to add some menacing interest
@@ -97,6 +101,7 @@ npm run test
 * When vacating building/shop as effect timeout is exceeded, close active screens before showing dialog
 * Animate player position on map (pulsating circle)
 * Waypoint path finder should not go over exits when calculating path inside building (exists are only valid as destination tile)
+* Render map on status screen after opening screen (show message during render)
 * When buying a clothes item, discard the existing one of the same type (show confirmation)
 * Add a base price to certain items (e.g. clothes shouldn't be too cheap, yo. heels and flippers are expensive items).
 * Display product capabilities in shop display
@@ -110,7 +115,6 @@ npm run test
 * At zoomed out levels click pointer sometimes won't react ?
 * Dynamic components need a loader
 * When drunk, characters should slur all 's' words
-* When drunk, attacks should occasionally miss!
 * Create start screen when no game is saved, show intro
 * Describe in manual how different properties of intoxication/boost affect charisma (also show this on-screen!)
 * should dragon get stronger / more drunk depending on hour of night ?
@@ -130,6 +134,7 @@ npm run test
 * Can we give announcement of closing time when entering building?
 * Create floors that are bars chockfull of people!
 * Weird bug where leaving a building sets you in the middle of nowhere?? (most likely env x,y is updated for overground, not last floor)
+* Do not reposition when engaging in a battle (environmentactions.hitTest)
 * Identify shop types by their exterior
 * Item type elevator key to allow instant access to any floor
 * Intro text when starting a new game

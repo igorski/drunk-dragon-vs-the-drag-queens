@@ -4,13 +4,16 @@ import Vue       from "vue";
 
 import AudioTracks                         from "@/definitions/audio-tracks";
 import { QUEEN, DRAGON }                   from "@/definitions/character-types";
+import CharacterActions                    from "@/model/actions/character-actions";
 import EnvironmentActions                  from "@/model/actions/environment-actions";
 import BuildingFactory, { BUILDING_TILES } from "@/model/factories/building-factory";
+import CharacterFactory                    from "@/model/factories/character-factory";
 import EffectFactory                       from "@/model/factories/effect-factory";
 import IntentFactory                       from "@/model/factories/intent-factory";
 import ShopFactory                         from "@/model/factories/shop-factory";
 import { WORLD_TYPE, getMaxWalkableTile }  from "@/model/factories/world-factory";
 import { renderEnvironment }               from "@/services/environment-bitmap-cacher";
+import { getRandomFreeTilePosition }       from "@/utils/terrain-util";
 
 import SpriteCache, { flushSpriteForCharacter, flushAllSprites } from "@/utils/sprite-cache";
 import { getFirstFreeTileOfTypeAroundPoint, positionInReachableDistanceFromPoint, distance } from "@/utils/terrain-util";
@@ -112,6 +115,9 @@ export default {
             }
             flushSpriteForCharacter( character );
         },
+        removeCharactersOfType( state, type ) {
+            state.activeEnvironment.characters = state.activeEnvironment.characters.filter( c => c.type !== type );
+        },
         addItemToCharacterInventory( state, { item, character }) {
             const char = state.activeEnvironment.characters.find(({ id }) => id === character.id );
             if ( char ) {
@@ -206,7 +212,7 @@ export default {
             commit( "setActiveEnvironment", environment );
             // whenever we enter the overground, the dragon must be repositioned
             if ( environment.type === WORLD_TYPE ) {
-                dispatch( "positionDragon" );
+                dispatch( "positionCharacter", { id: getters.dragon?.id });
             }
             commit( "setLoading", true );
             await renderEnvironment( environment, getters.player );
@@ -228,6 +234,35 @@ export default {
         hitTest({ getters, commit, dispatch }) {
             EnvironmentActions.hitTest({ dispatch, commit, getters }, getters.activeEnvironment );
         },
+        generateCharacters({ getters }, type ) {
+            const { activeEnvironment, player } = getters;
+            const { characters } = activeEnvironment;
+            // TODO: check for limits on existing characters of same type?
+            const maxTile  = getMaxWalkableTile();
+            for ( let i = 0; i < 20; ++i ) {
+                // the first group should be guaranteed to be within walking distance
+                const coords = ( i < 5 ) ? positionInReachableDistanceFromPoint(
+                    activeEnvironment, activeEnvironment.x, activeEnvironment.y, 20 + ( i * 5 ), maxTile
+                ) : getRandomFreeTilePosition( activeEnvironment, 0 );
+                console.warn(i,coords);
+                if ( coords ) {
+                    const lvl = CharacterActions.calculateOpponentLevel( player, type );
+                    console.warn(lvl);
+                    characters.push( CharacterFactory.create({
+                        type, ...coords, ...lvl
+                    }));
+                }
+            }
+        },
+        positionCharacter({ getters, commit }, { id, distance = 20 }) {
+            const { world } = getters;
+            const character = world.characters.find( c => c.id === id );
+            const newCoords = positionInReachableDistanceFromPoint(
+                world, world.x, world.y, distance, getMaxWalkableTile()
+            ) || {};
+            console.warn( "character positioned", newCoords );
+            commit( "updateCharacter", { ...character, ...newCoords });
+        },
         /**
          * Run the game "AI". Non-queen Characters should walk towards you
          */
@@ -247,15 +282,6 @@ export default {
                 // calculate the waypoints and enqueue the movements
                 EnvironmentActions.moveCharacter({ commit, getters }, character, activeEnvironment, x, y, existing );
             });
-        },
-        positionDragon({ getters, commit }, distance = 20 ) {
-            const { world } = getters;
-            const dragon = world.characters.find(({ type }) => type === DRAGON );
-            const dragonCoords = positionInReachableDistanceFromPoint(
-                world, world.x, world.y, distance, getMaxWalkableTile()
-            ) || {};
-            console.warn( "dragon positioned", dragonCoords );
-            commit( "updateCharacter", { ...dragon, ...dragonCoords });
         },
         cancelCharacterMovements({ state, commit }) {
             const { activeEnvironment } = state;

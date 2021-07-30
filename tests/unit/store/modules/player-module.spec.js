@@ -1,5 +1,5 @@
 import store from "@/store/modules/player-module";
-import { QUEEN } from "@/definitions/character-types";
+import { QUEEN, DRAB } from "@/definitions/character-types";
 import { GAME_START_HOUR } from "@/definitions/constants";
 import { SCREEN_GAME } from "@/definitions/screens";
 import CharacterFactory from "@/model/factories/character-factory";
@@ -217,7 +217,8 @@ describe( "Vuex player module", () => {
                 expect( commit ).toHaveBeenNthCalledWith( 5, "setHotel", null );
                 expect( commit ).toHaveBeenNthCalledWith( 6, "setScreen", SCREEN_GAME );
                 expect( dispatch ).toHaveBeenCalledWith( "leaveBuilding" );
-                expect( commit ).toHaveBeenNthCalledWith( 7, "openDialog", expect.any( Object ));
+                expect( commit ).toHaveBeenNthCalledWith( 7, "removeCharactersOfType", DRAB );
+                expect( commit ).toHaveBeenNthCalledWith( 8, "openDialog", expect.any( Object ));
             });
 
             it( "should advance the clock to tomorrow when successfully booked before midnight", async () => {

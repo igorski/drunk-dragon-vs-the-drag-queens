@@ -147,7 +147,7 @@ describe( "Vuex battle module", () => {
 
             it( "should always end the players current turn, regardless of outcome", async () => {
                 const commit = jest.fn();
-                await actions.runFromOpponent({ state, getters: mockedGetters, commit });
+                await actions.runFromOpponent({ state, getters: mockedGetters, commit, dispatch: jest.fn() });
                 expect( commit ).toHaveBeenNthCalledWith( 1, "setPlayerTurn", false );
             });
 
@@ -163,9 +163,11 @@ describe( "Vuex battle module", () => {
             it( "should always allow escape to level 1 players", async () => {
                 player.properties.intoxication = 0;
                 player.level = 1;
-                const commit = jest.fn();
-                const escaped = await actions.runFromOpponent({ state, getters: mockedGetters, commit });
+                const commit   = jest.fn();
+                const dispatch = jest.fn();
+                const escaped = await actions.runFromOpponent({ state, getters: mockedGetters, commit, dispatch });
                 expect( escaped ).toBe( true );
+                expect( dispatch ).toHaveBeenCalledWith( "positionCharacter", { id: opponent.id, distance: expect.any( Number ) });
                 expect( commit ).toHaveBeenNthCalledWith( 2, "setOpponent", null );
                 expect( commit ).toHaveBeenNthCalledWith( 3, "setScreen",   SCREEN_GAME );
             });
@@ -174,11 +176,15 @@ describe( "Vuex battle module", () => {
                 player.level = 2;
                 mockRandomValue = .4;
 
-                let escaped = await actions.runFromOpponent({ state, getters: mockedGetters, commit: jest.fn() });
+                let escaped = await actions.runFromOpponent({
+                    state, getters: mockedGetters, commit: jest.fn(), dispatch: jest.fn()
+                });
                 expect( escaped ).toBe( false );
 
                 mockRandomValue = .6;
-                escaped = await actions.runFromOpponent({ state, getters: mockedGetters, commit: jest.fn() });
+                escaped = await actions.runFromOpponent({
+                    state, getters: mockedGetters, commit: jest.fn(), dispatch: jest.fn()
+                });
                 expect( escaped ).toBe( true );
             });
 
@@ -187,7 +193,9 @@ describe( "Vuex battle module", () => {
                 player.properties.boost = 1.5;
                 mockRandomValue = .4;
 
-                const escaped = await actions.runFromOpponent({ state, getters: mockedGetters, commit: jest.fn() });
+                const escaped = await actions.runFromOpponent({
+                    state, getters: mockedGetters, commit: jest.fn(), dispatch: jest.fn()
+                });
                 expect( escaped ).toBe( true );
             });
         });
@@ -336,8 +344,8 @@ describe( "Vuex battle module", () => {
                 expect( commit ).toHaveBeenCalledWith( "setPlayerLevel", 4 );
             });
 
-            it( "should reposition the opponent if it was the Dragon or otherwise remove it from the environment", async () => {
-                const state   = { opponent: { hp: 0 }, award: XP_PER_LEVEL };
+            it( "should reposition and update the opponent if it was the Dragon or otherwise remove it from the environment", async () => {
+                const state   = { opponent: { id: "opponentId", hp: 0 }, award: XP_PER_LEVEL };
                 mockedGetters = { player: { xp: XP_PER_LEVEL, level: 2 }};
                 let dispatch  = jest.fn();
                 let commit    = jest.fn();
@@ -350,7 +358,8 @@ describe( "Vuex battle module", () => {
                 commit = jest.fn();
 
                 await actions.resolveBattle({ state, getters: mockedGetters, commit, dispatch });
-                expect( dispatch ).toHaveBeenCalledWith( "positionDragon", expect.any( Number ));
+                expect( dispatch ).toHaveBeenCalledWith( "positionCharacter", { id: "opponentId", distance: expect.any( Number ) });
+                expect( commit ).toHaveBeenCalledWith( "updateCharacter", expect.any( Object ));
                 expect( commit ).not.toHaveBeenCalledWith( "removeCharacter", state.opponent );
             });
         });

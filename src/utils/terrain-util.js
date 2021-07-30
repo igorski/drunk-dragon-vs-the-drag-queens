@@ -165,6 +165,15 @@ export const getFirstFreeTileOfTypeAroundPoint = ( x, y, environment, tileType )
     return null;
 };
 
+export const getRandomFreeTilePosition = ( environment, tileType = 0 ) => {
+    try {
+        const index = positionAtRandomFreeTileType( environment.terrain, tileType );
+        return indexToCoordinate( index, environment );
+    } catch {
+        return null;
+    }
+};
+
 /**
  * Translates an x/y coordinate to the corresponding index in an environments terrain list
  *
@@ -193,10 +202,10 @@ export const indexToCoordinate = ( index, { width, height }) => ({
 export const distance = ( x1, y1, x2, y2 ) => Math.sqrt( Math.pow(( x1 - x2 ), 2) + Math.pow(( y1 - y2 ), 2 ));
 
 /**
- * Request to position an object within given minDistance from given coordinate. This
- * position is subsequently tested to verify whether a valid path can be traversed from
- * the start to calculated target coordinates. This keeps retrying until a navigateable path
- * is found, otherwise null is returned.
+ * Request to position an object within given minDistance from given coordinate (within a
+ * circular radius). This position is subsequently tested to verify whether a valid path can be
+ * traversed from the start to calculated target coordinates. This keeps retrying until a navigateable
+ * path is found, otherwise null is returned.
  *
  * @return {Object|null}
  */
@@ -209,14 +218,21 @@ export const positionInReachableDistanceFromPoint = ( env, startX, startY, minDi
     let distance = minDistance;
     let radians  = degToRad + ( incrementRadians * randomInRange( 0, 5 ));
 
-    let tries = 255;  // fail-safe, let's not recursive forever
+    let tries = 64;  // fail-safe, let's not recursive forever
     while ( tries-- ) {
         const circleRadius = Math.round( distance );
 
         const targetX = Math.round( startX + Math.sin( radians ) * circleRadius );
         const targetY = Math.round( startY + Math.cos( radians ) * circleRadius );
 
-        if ( checkIfCanReach( env, startX, startY, targetX, targetY, maxWalkableTile )) {
+        if (( targetX < 0 || targetX > env.width ) || ( targetY < 0 || targetY > env.height )) {
+            // out of bounds, shrink circle again
+            radians   = degToRad;
+            distance  = minDistance;
+            // TODO: starting from center, should this be an argument ?
+            startX = env.width / 2;
+            startY = env.height / 2;
+        } else if ( checkIfCanReach( env, startX, startY, targetX, targetY, maxWalkableTile )) {
             return { x: targetX, y: targetY };
         }
         radians  += incrementRadians;
