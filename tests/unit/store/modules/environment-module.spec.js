@@ -35,6 +35,7 @@ jest.mock("@/utils/terrain-util", () => ({
 jest.mock("@/utils/sprite-cache", () => ({
     ENV_BUILDING: {},
     flushSpriteForCharacter: (...args) => mockUpdateFn("flushSpriteForCharacter", ...args),
+    flushAllSprites: (...args) => mockUpdateFn("flushAllSprites", ...args),
 }));
 
 describe( "Vuex environment module", () => {
@@ -130,7 +131,9 @@ describe( "Vuex environment module", () => {
             it( "should be able to set the active environment", () => {
                 const state = { activeEnvironment: null };
                 const env = { foo: "bar" };
+                mockUpdateFn = jest.fn();
                 mutations.setActiveEnvironment( state, env );
+                expect( mockUpdateFn ).toHaveBeenCalledWith( "flushAllSprites" );
                 expect( state.activeEnvironment ).toEqual( env );
             });
 
@@ -463,6 +466,26 @@ describe( "Vuex environment module", () => {
             actions.positionDragon({ getters: mockedGetters, commit }, 40 );
 
             expect( commit ).toHaveBeenNthCalledWith( 1, "updateCharacter", { ...dragon, ...mockValue });
+        });
+
+        it( "should be able to cancel all pending Player and Character movements", () => {
+            const state = {
+                activeEnvironment: {
+                    characters: [{ id: 1 }, { id: 2 }]
+                }
+            };
+            const commit = jest.fn();
+            actions.cancelCharacterMovements({ state, commit });
+
+            expect( commit ).toHaveBeenNthCalledWith( 1, "removeEffectsByMutation", [ "setXPosition", "setYPosition" ]);
+            expect( commit ).toHaveBeenNthCalledWith( 2, "removeEffectsByTargetAndMutation", {
+                target: state.activeEnvironment.characters[ 0 ].id,
+                types: [ "setCharacterXPosition", "setCharacterYPosition" ]
+            });
+            expect( commit ).toHaveBeenNthCalledWith( 3, "removeEffectsByTargetAndMutation", {
+                target: state.activeEnvironment.characters[ 1 ].id,
+                types: [ "setCharacterXPosition", "setCharacterYPosition" ]
+            });
         });
     });
 });

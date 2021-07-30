@@ -201,8 +201,8 @@ function createFloor( width, height, terrain = [], floorType, player ) {
         }
     }
 
-    // create characters
-
+    // create characters (TODO)
+/*
     const totalCharacters  = Math.round( terrain.filter( type => type === BUILDING_TILES.GROUND ).length / 50 );
     const characterIndices = [];
 
@@ -226,7 +226,7 @@ function createFloor( width, height, terrain = [], floorType, player ) {
     if ( process.env.NODE_ENV === "development" ) {
         console.warn( `Generated ${characterIndices.length} characters for a possible max of ${totalCharacters}` );
     }
-
+*/
     // determine Players begin offset
 
     for ( let x = 0, y = 0; y < height; x = ( ++x === width ? ( x % width + ( ++y & 0 ) ) : x )) {

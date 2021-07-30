@@ -11,8 +11,8 @@ import IntentFactory                       from "@/model/factories/intent-factor
 import ShopFactory                         from "@/model/factories/shop-factory";
 import { WORLD_TYPE, getMaxWalkableTile }  from "@/model/factories/world-factory";
 import { renderEnvironment }               from "@/services/environment-bitmap-cacher";
-import SpriteCache, { flushSpriteForCharacter } from "@/utils/sprite-cache";
 
+import SpriteCache, { flushSpriteForCharacter, flushAllSprites } from "@/utils/sprite-cache";
 import { getFirstFreeTileOfTypeAroundPoint, positionInReachableDistanceFromPoint, distance } from "@/utils/terrain-util";
 
 import {
@@ -76,6 +76,7 @@ export default {
             }
         },
         setActiveEnvironment( state, environment ) {
+            flushAllSprites();
             state.activeEnvironment = environment;
         },
         setFloor( state, floor ) {
@@ -253,8 +254,17 @@ export default {
             const dragonCoords = positionInReachableDistanceFromPoint(
                 world, world.x, world.y, distance, getMaxWalkableTile()
             ) || {};
-            console.warn(dragonCoords);
+            console.warn( "dragon positioned", dragonCoords );
             commit( "updateCharacter", { ...dragon, ...dragonCoords });
         },
+        cancelCharacterMovements({ state, commit }) {
+            const { activeEnvironment } = state;
+            commit( "removeEffectsByMutation", [ "setXPosition", "setYPosition" ]); // player movements
+            activeEnvironment?.characters.forEach(({ id }) => {
+                commit( "removeEffectsByTargetAndMutation", {
+                    target: id, types: [ "setCharacterXPosition", "setCharacterYPosition" ]
+                });
+            });
+        }
     }
 };

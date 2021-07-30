@@ -83,16 +83,14 @@ npm run test
 
 * Update level of dragon too when defeated on fight end (or rather on new fight start?)
 * When entering overground, check if there are sufficient DRABS
-* When switching environments, flush all sprites from SpriteCache
+* Regenerate characters when re-entering empty floors?
 * Ensure that on game creation the player can find a path to both a building and a clothes shop
-* Characters should stop their waypoint path when player enters shop/battle (trigger "updateCharacters" on close)
 * Drabs should come out after midnight to add some menacing interest
 * Create unique sprite for hotel counter
 * Queens inside buildings should either be woo'd or fought
 * Before generating door queens, ensure building was actually placed successfully!
 * Show building floor level
 * Create cave level for extra excitement
-* Regenerate characters when re-entering empty floors?
 * Implement swamp ?
 * Do not save player walk effects when saving during walk (one save game got 'stuck')
 * Walking left/right on overground does weird jumps?

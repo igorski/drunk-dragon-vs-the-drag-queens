@@ -143,6 +143,14 @@ export default {
                 this.setScreen( SCREEN_GAME_OVER );
             }
         },
+        screen( value ) {
+            // start/stop path finding AI depending on current screen
+            if ( value === SCREEN_GAME ) {
+                this.updateCharacters();
+            } else {
+                this.cancelCharacterMovements();
+            }
+        }
     },
     async created() {
         this.setI18n( i18n );
@@ -174,6 +182,8 @@ export default {
             "prepareAudio",
             "createGame",
             "loadGame",
+            "updateCharacters",
+            "cancelCharacterMovements"
         ]),
         handleResize() {
             this.setDimensions({

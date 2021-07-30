@@ -7,7 +7,7 @@ import EnvironmentActions  from "@/model/actions/environment-actions";
 import CharacterActions    from "@/model/actions/character-actions";
 import InventoryActions    from "@/model/actions/inventory-actions";
 
-// cancel the pending movements TODO: this should target the effect "owner"!
+// cancel the pending player movements
 const cancelPendingMovement = commit => {
     commit( "removeEffectsByMutation", [ "setXPosition", "setYPosition" ]);
 };

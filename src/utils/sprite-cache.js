@@ -109,8 +109,11 @@ export function flushSpriteForCharacter( character ) {
     if ( sprites.has( id )) {
         const sprite = sprites.get( id );
         sprite.dispose();
-        console.warn("DIKKE DOEI");
         return sprites.delete( id );
     }
     return false;
+}
+
+export function flushAllSprites() {
+    sprites.clear();
 }
