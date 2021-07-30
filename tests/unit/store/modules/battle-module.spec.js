@@ -274,7 +274,7 @@ describe( "Vuex battle module", () => {
             });
 
             if( "should award XP, set the battle won status and clear the Opponent when the Player has won", async () => {
-                const state = { opponent: { hp: 0 }, award: 10 };
+                const state = { opponent: CharacterFactory.create({ hp: 0 }), award: 10 };
                 mockedGetters = { player: { hp: 1 } };
                 const commit = jest.fn();
                 await actions.resolveBattle({ state, commit, getters: mockedGetters });
@@ -283,9 +283,17 @@ describe( "Vuex battle module", () => {
                 expect( commit ).toHaveBeenNthCalledWith( 3, "setOpponent", null );
             });
 
+            if( "should steal the Opponents cash when the Player has won", async () => {
+                const state = { opponent: { hp: 0, inventory: { cash: 10 } }, award: 10 };
+                mockedGetters = { player: { hp: 1 } };
+                const commit = jest.fn();
+                await actions.resolveBattle({ state, commit, getters: mockedGetters });
+                expect( commit ).toHaveBeenNthCalledWith( 4, "awardCash", state.opponent.inventory.cash );
+            });
+
             it( "should increase the level when sufficient XP has been gathered", async () => {
                 const halfLevelXP = XP_PER_LEVEL / 2;
-                const state       = { opponent: { hp: 0 }, award: halfLevelXP };
+                const state       = { opponent: CharacterFactory.create({ hp: 0 }), award: halfLevelXP };
                 mockedGetters     = { player: { xp: 0, level: 1, hp: 3, maxHp: 5 } };
 
                 let commit = createMockAwardGetter();
@@ -308,7 +316,7 @@ describe( "Vuex battle module", () => {
             it( "should require increasingly more XP to raise subsequent levels", async () => {
                 // if XP_PER_LEVEL is 10, level 2 is reached at 10 XP, level 3 at 30 XP,
                 // level 4 at 70 XP, level 5 at 130 XP, etc.
-                const state   = { opponent: { hp: 0 }, award: XP_PER_LEVEL };
+                const state   = { opponent: CharacterFactory.create({ hp: 0 }), award: XP_PER_LEVEL };
                 mockedGetters = { player: { xp: XP_PER_LEVEL, level: 2 }};
                 let commit    = createMockAwardGetter();
 
@@ -345,7 +353,7 @@ describe( "Vuex battle module", () => {
             });
 
             it( "should reposition and update the opponent if it was the Dragon or otherwise remove it from the environment", async () => {
-                const state   = { opponent: { id: "opponentId", hp: 0 }, award: XP_PER_LEVEL };
+                const state   = { opponent: CharacterFactory.create({ id: "opponentId", hp: 0 }), award: XP_PER_LEVEL };
                 mockedGetters = { player: { xp: XP_PER_LEVEL, level: 2 }};
                 let dispatch  = jest.fn();
                 let commit    = jest.fn();

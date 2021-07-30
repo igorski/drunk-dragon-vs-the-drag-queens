@@ -81,7 +81,7 @@ npm run test
 * Drag swag/charisma == mana
 ** Show in status view
 
-* Take cash from defeated opponents!
+* Tweak attack efficiency against drabs
 * When characters are drunk, attacks should occasionally miss!
 * Generate the world in villages (clustered sections with shops and buildings) -> create walkable paths between these
 * Unit tests for hourNow !== lastHour in game-module.updateGame()
@@ -90,7 +90,6 @@ npm run test
 * Should running away not completely reposition the opponent but keep it somewhere within the screen?
 * Regenerate characters when re-entering empty floors?
 * Ensure that on game creation the player can find a path to both a building and a clothes shop
-* Drabs should come out after midnight to add some menacing interest
 * Create unique sprite for hotel counter
 * Queens inside buildings should either be woo'd or fought
 * Before generating door queens, ensure building was actually placed successfully!

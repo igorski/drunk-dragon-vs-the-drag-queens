@@ -17,7 +17,8 @@
             "lastValidHourWarning": "Within an hour all hotels are closing and sun will come up soon. Find a place to spend the day!"
         },
         "messages": {
-            "stayedTheNight": "You feel replenished after a good days sleep. It's nighttime again, time to go out!"
+            "stayedTheNight": "You feel replenished after a good days sleep. It's nighttime again, time to go out!",
+            "youTookMoneyFrom": "You took ${amount} from ${name}"
         }
     }
 }

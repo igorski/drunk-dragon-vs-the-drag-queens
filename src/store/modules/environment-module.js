@@ -10,9 +10,11 @@ import BuildingFactory, { BUILDING_TILES } from "@/model/factories/building-fact
 import CharacterFactory                    from "@/model/factories/character-factory";
 import EffectFactory                       from "@/model/factories/effect-factory";
 import IntentFactory                       from "@/model/factories/intent-factory";
+import InventoryFactory                    from "@/model/factories/inventory-factory";
 import ShopFactory                         from "@/model/factories/shop-factory";
 import { WORLD_TYPE, getMaxWalkableTile }  from "@/model/factories/world-factory";
 import { renderEnvironment }               from "@/services/environment-bitmap-cacher";
+import { randomInRange }                   from "@/utils/random-util";
 import { getRandomFreeTilePosition }       from "@/utils/terrain-util";
 
 import SpriteCache, { flushSpriteForCharacter, flushAllSprites } from "@/utils/sprite-cache";
@@ -246,11 +248,11 @@ export default {
                 ) : getRandomFreeTilePosition( activeEnvironment, 0 );
                 console.warn(i,coords);
                 if ( coords ) {
-                    const lvl = CharacterActions.calculateOpponentLevel( player, type );
+                    const lvl = CharacterActions.generateOpponentProps( player, type );
                     console.warn(lvl);
                     characters.push( CharacterFactory.create({
-                        type, ...coords, ...lvl
-                    }));
+                        type, ...coords, ...lvl,
+                    }, {}, {}, InventoryFactory.create( randomInRange( 0, 25 ))));
                 }
             }
         },

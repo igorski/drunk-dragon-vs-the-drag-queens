@@ -101,11 +101,16 @@ export default {
                 }
                 commit( "setBattleWon", true );
                 commit( "setOpponent", null );
+                if ( opponent.inventory.cash ) {
+                    const amount = opponent.inventory.cash;
+                    commit( "awardCash", amount );
+                    commit( "showNotification", { message: getters.translate( "messages.youTookMoneyFrom", { amount, name: opponent.appearance.name } ) });
+                }
                 // dragon gets reset to a new position and renewed energy
                 if ( opponent.type === DRAGON ) {
                     commit( "updateCharacter", {
                         ...opponent,
-                        ...CharacterActions.calculateOpponentLevel( getters.player, DRAGON )
+                        ...CharacterActions.generateOpponentProps( getters.player, DRAGON )
                     });
                     dispatch( "positionCharacter", { id: opponent.id, distance: 50 });
                 } else {

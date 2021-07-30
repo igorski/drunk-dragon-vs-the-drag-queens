@@ -141,7 +141,7 @@ const WorldFactory =
             type: DRAGON,
             x: world.x,
             y: world.y,
-            ...CharacterActions.calculateOpponentLevel( CharacterFactory.create({ type: QUEEN }), DRAGON )
+            ...CharacterActions.generateOpponentProps( CharacterFactory.create({ type: QUEEN }), DRAGON )
         }, { name: "Drunk Dragon" });
         world.characters.push( dragon );
     },

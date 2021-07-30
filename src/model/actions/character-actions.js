@@ -70,7 +70,7 @@ export default
      * Generates the appropriate HP and Level for an opponent of given type in
      * relation to given characters level.
      */
-    calculateOpponentLevel( character, opponentType ) {
+    generateOpponentProps( character, opponentType ) {
         let hp, level;
         switch ( opponentType ) {
             default:
