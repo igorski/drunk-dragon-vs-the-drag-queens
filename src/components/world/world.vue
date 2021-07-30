@@ -3,25 +3,25 @@
 </template>
 
 <script>
-import { mapGetters, mapMutations, mapActions } from 'vuex';
-import { canvas, loader } from 'zcanvas';
-import BuildingRenderer   from '@/renderers/building-renderer';
-import WorldRenderer      from '@/renderers/world-renderer';
-import SpriteCache        from '@/utils/sprite-cache';
-import WorldCache         from '@/utils/world-cache';
-import { BUILDING_TYPE }  from '@/model/factories/building-factory';
-import { WORLD_TYPE }     from '@/model/factories/world-factory';
+import { mapGetters, mapMutations, mapActions } from "vuex";
+import { canvas, loader } from "zcanvas";
+import BuildingRenderer   from "@/renderers/building-renderer";
+import OvergroundRenderer from "@/renderers/overground-renderer";
+import SpriteCache        from "@/utils/sprite-cache";
+import WorldCache         from "@/utils/world-cache";
+import { BUILDING_TYPE }  from "@/model/factories/building-factory";
+import { WORLD_TYPE }     from "@/model/factories/world-factory";
+
+let zcanvas, renderer;
 
 export default {
     data: () => ({
-        zcanvas: null,
-        renderer: null,
         handlers: [],
     }),
     computed: {
         ...mapGetters([
-            'activeEnvironment',
-            'player',
+            "activeEnvironment",
+            "player",
         ]),
     },
     watch: {
@@ -36,19 +36,18 @@ export default {
          * Construct zCanvas instance to render the game world. The zCanvas
          * also maintains the game loop that will update the world prior to each render cycle.
          */
-        this.zcanvas = new canvas({
+        zcanvas = new canvas({
             width: window.innerWidth,
             height: window.innerHeight,
             animate: true,
             smoothing: false,
-            stretchToFit: true,
             fps: 60,
             onUpdate: this.updateGame.bind( this )
         });
         this.setLastRender( Date.now() );
 
         // attach event handlers
-        const resizeEvent = 'onorientationchange' in window ? 'orientationchange' : 'resize';
+        const resizeEvent = "onorientationchange" in window ? "orientationchange" : "resize";
         this.handlers.push({ event: resizeEvent, callback: this.handleResize.bind( this ) });
         this.handlers.forEach(({ event, callback }) => {
             window.addEventListener( event, callback );
@@ -56,23 +55,23 @@ export default {
         this.handleEnvironment();
     },
     mounted() {
-        this.zcanvas.insertInPage( this.$refs.canvasContainer );
+        zcanvas.insertInPage( this.$refs.canvasContainer );
     },
     destroyed() {
         this.handlers.forEach(({ event, callback }) => {
             window.removeEventListener( event, callback );
         });
         this.handlers = [];
-        this.zcanvas.dispose();
-        this.renderer && this.renderer.dispose();
+        zcanvas.dispose();
+        renderer?.dispose();
     },
     methods: {
         ...mapMutations([
-            'setLastRender',
+            "setLastRender",
         ]),
         ...mapActions([
-            'movePlayer',
-            'updateGame',
+            "movePlayer",
+            "updateGame",
         ]),
         handleResize() {
             const { clientWidth, clientHeight } = document.documentElement;
@@ -81,18 +80,12 @@ export default {
             const tilesInWidth  = WorldCache.tileWidth * ( clientWidth > 800 ? 15 : 9 );
             const tilesInHeight = Math.round(( clientHeight / clientWidth ) * tilesInWidth );
 
-            //this.zcanvas.setDimensions( tilesInWidth, tilesInHeight );
-            this.zcanvas.scale( clientWidth / tilesInWidth, clientHeight / tilesInHeight );
-            this.renderer && this.renderer.setTileDimensions( tilesInWidth, tilesInHeight );
-
-            // nope, keep at given dimensions mentioned above
-            /*
-            this._canvas.setDimensions( windowWidth, windowHeight );
-            this.renderer.updateImage ( null, windowWidth, windowHeight );
-            */
+            zcanvas.setDimensions( tilesInWidth, tilesInHeight );
+            zcanvas.scale( clientWidth / tilesInWidth, clientHeight / tilesInHeight );
+            renderer?.setTileDimensions( tilesInWidth, tilesInHeight );
         },
         async handleEnvironment() {
-            this.renderer && this.renderer.dispose();
+            renderer?.dispose();
             const environment = this.activeEnvironment;
 
             if ( !environment ) return;
@@ -103,18 +96,18 @@ export default {
                     throw new Error(`No renderer for type '${environment.type}'`);
                     break;
                 case BUILDING_TYPE:
-                    this.renderer = new BuildingRenderer( this.$store, 100, 100 );
+                    renderer = new BuildingRenderer( this.$store, 100, 100 );
                     sprite = SpriteCache.ENV_BUILDING;
                     break;
                 case WORLD_TYPE:
-                    this.renderer = new WorldRenderer( this.$store, 100, 100 );
+                    renderer = new OvergroundRenderer( this.$store, 100, 100 );
                     sprite = SpriteCache.ENV_WORLD;
                     break;
             }
             await loader.onReady( sprite );
 
-            this.zcanvas.addChild( this.renderer );
-            this.renderer.render( environment, this.player );
+            zcanvas.addChild( renderer );
+            renderer.render( environment, this.player );
 
             this.handleResize( null ); // size to match device / browser dimensions
         },

@@ -3,7 +3,7 @@ import WorldCache from "@/utils/world-cache";
 
 /**
  * A wrapping class for zCanvas.Sprites that render animated
- * graphics using a sprite sheet. To be used with WorldRenderer classes.
+ * graphics using a sprite sheet. To be used with OvergroundRenderer classes.
  */
 export default class CharacterRenderer extends sprite {
     constructor( bitmap, sheetData, optX = 0, optY = 0 ) {

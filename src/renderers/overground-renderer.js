@@ -37,14 +37,14 @@ const SHOP = {
     height: sizeShop.height * tileHeight
 };
 
-export default class WorldRenderer extends sprite {
+export default class OvergroundRenderer extends sprite {
     /**
      * @param {Object} store Vuex store reference
      * @param {number} width
      * @param {number} height
      */
     constructor( store, width, height ) {
-        super({ width, height, interactive: true });
+        super({ width, height, interactive: false });
 
         commit   = store.commit;
         dispatch = store.dispatch;
@@ -83,12 +83,17 @@ export default class WorldRenderer extends sprite {
             this._mouseX = pageX;
             this._mouseY = pageY;
         };
+        this._clickListener = ({ offsetX, offsetY }) => {
+            this.handleRelease( offsetX, offsetY );
+        };
         window.addEventListener( "mousemove", this._mouseListener );
+        window.addEventListener( "pointerdown", this._clickListener );
     }
 
     dispose() {
         window.removeEventListener( "keydown",   this._keyListener );
         window.removeEventListener( "mousemove", this._mouseListener );
+        window.removeEventListener( "pointerdown", this._clickListener );
         super.dispose();
     }
 
@@ -105,46 +110,6 @@ export default class WorldRenderer extends sprite {
         // create sprites
         this._playerSprite = new CharacterRenderer( SpriteCache.QUEEN, QUEEN_SHEET, aWorld.x, aWorld.y );
         this.addChild( this._playerSprite );
-    }
-
-    /**
-     * @override
-     *
-     * @param {Image|string=} aImage image, can be either HTMLImageElement or base64 encoded string
-     * image is optional as we might be interested in just scaling the
-     *                        current image using aNewWidth and aNewHeight
-     * @param {number=} aNewWidth optional new width of the image
-     * @param {number=} aNewHeight optional new height of the image
-     */
-    updateImage( aImage, aNewWidth, aNewHeight ) {
-        WorldRenderer.super( this, "updateImage", aImage, aNewWidth, aNewHeight );
-
-        const isPortrait = aNewHeight > aNewWidth;
-
-        if ( !isPortrait ) {
-            this.horizontalTileAmount  = aNewWidth < 500 ? 7 : 15;
-
-            WorldCache.tileWidth  = this._bounds.width  / this.horizontalTileAmount;
-            WorldCache.tileHeight = WorldCache.tileWidth; // tiles are squares
-            this.verticalTileAmount = ( aNewHeight / WorldCache.tileHeight ) + 1;
-
-            // odd numbers please...
-            if ( this.verticalTileAmount % 2 === 0 )
-                ++this.verticalTileAmount;
-        }
-        else
-        {
-            this.verticalTileAmount = aNewHeight < 500 ? 7 : 15;
-
-            WorldCache.tileHeight = this._bounds.height / this.verticalTileAmount;
-            WorldCache.tileWidth  = WorldCache.tileHeight;   // tiles are squares
-            this.horizontalTileAmount  = ( aNewWidth / WorldCache.tileWidth ) + 1;
-
-            // odd numbers please...
-            if ( this.horizontalTileAmount % 2 === 0 ) {
-                ++this.horizontalTileAmount;
-            }
-        }
     }
 
     /**
@@ -415,18 +380,21 @@ export default class WorldRenderer extends sprite {
         // determine which tile has been clicked by translating the pointer coordinate
         // local to the current canvas size against the amount of tiles we can display for this size
 
-        let tx = Math.floor( left + ( pointerX / this.canvas.getWidth() )  * this.horizontalTileAmount );
-        let ty = Math.floor( top  + ( pointerY / this.canvas.getHeight() ) * this.verticalTileAmount );
+        const cvsWidth  = this.canvas.getWidth();
+        const cvsHeight = this.canvas.getHeight();
+
+        let tx = Math.floor( left + ( pointerX / cvsWidth )  * this.horizontalTileAmount );
+        let ty = Math.floor( top  + ( pointerY / cvsHeight ) * this.verticalTileAmount );
 
         // keep within bounds (necessary when player is at environment edges)
-        tx = Math.max( 0, Math.min( tx, this.canvas.getWidth()  * this.horizontalTileAmount ));
-        ty = Math.max( 0, Math.min( ty, this.canvas.getHeight() * this.verticalTileAmount ));
+        tx = Math.max( 0, Math.min( tx, cvsWidth  * this.horizontalTileAmount ));
+        ty = Math.max( 0, Math.min( ty, cvsHeight * this.verticalTileAmount ));
 
         const indexOfTile = coordinateToIndex( tx, ty, this._environment ); // translate coordinate to 1D list index
         const targetTile  = terrain[ indexOfTile ];
 
         if ( DEBUG ) {
-            console.warn( `Clicked tile at ${tx} x ${ty} (player is at ${x} x ${y}) (local click pointer coordinates ${pointerX} x ${pointerY}), underlying terrain type: ${targetTile}` );
+            console.warn( `Clicked tile at ${tx} x ${ty} (player is at ${x} x ${y}) (local click pointer coordinates ${Math.round(pointerX)} x ${Math.round(pointerY)}), underlying terrain type: ${targetTile}` );
         }
 
         if ( this.isValidTarget( targetTile )) {

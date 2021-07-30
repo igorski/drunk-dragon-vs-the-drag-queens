@@ -1,13 +1,13 @@
-import WorldRenderer from "./world-renderer";
-import TerrainUtil   from "@/utils/terrain-util";
-import WorldCache    from "@/utils/world-cache";
-import SpriteCache   from "@/utils/sprite-cache";
+import OvergroundRenderer from "./overground-renderer";
+import TerrainUtil from "@/utils/terrain-util";
+import WorldCache from "@/utils/world-cache";
+import SpriteCache from "@/utils/sprite-cache";
 
 import { BUILDING_TILES, getMaxWalkableTile } from "@/model/factories/building-factory";
 
 const DEBUG = process.env.NODE_ENV !== "production";
 
-export default class BuildingRenderer extends WorldRenderer {
+export default class BuildingRenderer extends OvergroundRenderer {
     /**
      * @param {Object} store Vuex store reference
      * @param {number} width
