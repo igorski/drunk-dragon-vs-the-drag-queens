@@ -44,7 +44,7 @@ export default class OvergroundRenderer extends sprite {
      * @param {number} height
      */
     constructor( store, width, height ) {
-        super({ width, height, interactive: false });
+        super({ width, height, interactive: false }); // we maintain our internal event handler
 
         commit   = store.commit;
         dispatch = store.dispatch;
@@ -79,6 +79,29 @@ export default class OvergroundRenderer extends sprite {
         this._cursor   = CURSOR_NEUTRAL;
         this._cursorIt = 0;
 
+        this.addListeners();
+    }
+
+    /* public methods */
+
+
+    dispose() {
+        this.removeListeners();
+        super.dispose();
+    }
+
+    setInteractive( value ) {
+        if ( value ) {
+            this.addListeners();
+        } else {
+            this.removeListeners();
+        }
+    }
+
+    addListeners() {
+        if ( this._hasListeners ) {
+            return;
+        }
         this._mouseListener = ({ pageX, pageY }) => {
             this._mouseX = pageX;
             this._mouseY = pageY;
@@ -88,16 +111,20 @@ export default class OvergroundRenderer extends sprite {
         };
         window.addEventListener( "mousemove", this._mouseListener );
         window.addEventListener( "pointerdown", this._clickListener );
+
+        this._hasListeners = true;
     }
 
-    dispose() {
+    removeListeners() {
+        if ( !this._hasListeners ) {
+            return;
+        }
         window.removeEventListener( "keydown",   this._keyListener );
         window.removeEventListener( "mousemove", this._mouseListener );
         window.removeEventListener( "pointerdown", this._clickListener );
-        super.dispose();
-    }
 
-    /* public methods */
+        this._hasListeners = false;
+    }
 
     /**
      * @param {Object} aWorld

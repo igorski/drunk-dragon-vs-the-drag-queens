@@ -3,8 +3,9 @@
 </template>
 
 <script>
-import { mapGetters, mapMutations, mapActions } from "vuex";
+import { mapState, mapGetters, mapMutations, mapActions } from "vuex";
 import { canvas, loader } from "zcanvas";
+import { SCREEN_GAME }    from "@/definitions/screens";
 import BuildingRenderer   from "@/renderers/building-renderer";
 import OvergroundRenderer from "@/renderers/overground-renderer";
 import SpriteCache        from "@/utils/sprite-cache";
@@ -19,6 +20,9 @@ export default {
         handlers: [],
     }),
     computed: {
+        ...mapState([
+            "screen",
+        ]),
         ...mapGetters([
             "activeEnvironment",
             "player",
@@ -29,6 +33,12 @@ export default {
             handler( value ) {
                 this.handleEnvironment();
             },
+        },
+        screen: {
+            immediate: true,
+            handler( value ) {
+                renderer?.setInteractive( value === SCREEN_GAME );
+            }
         },
     },
     created() {
