@@ -32,6 +32,10 @@ jest.mock("@/utils/terrain-util", () => ({
     getFirstFreeTileOfTypeAroundPoint: () => ({ x: 0, y: 0 }),
     positionInReachableDistanceFromPoint: () => mockValue,
 }));
+jest.mock("@/utils/sprite-cache", () => ({
+    ENV_BUILDING: {},
+    flushSpriteForCharacter: (...args) => mockUpdateFn("flushSpriteForCharacter", ...args),
+}));
 
 describe( "Vuex environment module", () => {
     describe( "getters", () => {
@@ -233,10 +237,12 @@ describe( "Vuex environment module", () => {
                         characters: [ character1, character2 ]
                     }
                 };
+                mockUpdateFn = jest.fn();
                 mutations.removeCharacter( state, character2 );
 
                 expect( state.activeEnvironment.characters ).toEqual([ { id: 1, foo: "bar" }]);
                 expect( state.character ).toBeNull();
+                expect( mockUpdateFn ).toHaveBeenCalledWith( "flushSpriteForCharacter", character2 );
             });
 
             it( "should be able to mark the visited terrain for the current environment with deduplication", () => {
@@ -430,7 +436,7 @@ describe( "Vuex environment module", () => {
                     expect( commit ).toHaveBeenNthCalledWith( 2, "setScreen", SCREEN_CHARACTER_INTERACTION );
                 });
 
-                it( "should start a battle when interacting with a Dragon", () => {
+                it( "should start a battle when interacting with a non-Queen character", () => {
                     const commit    = jest.fn();
                     const dispatch  = jest.fn();
                     const character = CharacterFactory.create({ type: DRAGON });

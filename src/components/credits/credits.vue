@@ -52,6 +52,11 @@ export default {
                 href: "https://opengameart.org/content/16x16-dragon"
             },
             {
+                title: "Twelve 16x18 RPG sprites, plus base",
+                author: "Antifarea",
+                href: "https://opengameart.org/content/twelve-16x18-rpg-sprites-plus-base",
+            },
+            {
                 title: "[LPC] Misc tile atlas",
                 author: "Sharm, Janna, Tuomo Untinen, Casper Nilsson, Barbara Rivera and Daneeklu",
                 href: "https://opengameart.org/content/lpc-misc-tile-atlas-interior-exterior-trees-bridges-furniture"

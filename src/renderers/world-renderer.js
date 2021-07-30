@@ -1,9 +1,9 @@
 import { sprite } from "zcanvas";
-import { QUEEN, DRAGON } from "@/definitions/character-types";
+import { QUEEN, DRAB, DRAGON } from "@/definitions/character-types";
 import { WORLD_TILES, getMaxWalkableTile } from "@/model/factories/world-factory";
 import { SHOP_TYPES } from "@/model/factories/shop-factory";
-import CharacterSpriteRenderer from "@/renderers/character-sprite-renderer";
-import SpriteCache, { PLAYER_SHEET, DRAGON_SHEET } from "@/utils/sprite-cache";
+import CharacterRenderer from "@/renderers/character-renderer";
+import SpriteCache, { QUEEN_SHEET, getSpriteForCharacter } from "@/utils/sprite-cache";
 import WorldCache from "@/utils/world-cache";
 import { coordinateToIndex, indexToCoordinate } from "@/utils/terrain-util";
 import { findPath } from "@/utils/path-finder";
@@ -19,8 +19,8 @@ const CURSOR_INVALID = 2;
 
 /* character sprites */
 
-const CHARACTER_WIDTH  = PLAYER_SHEET.tileWidth;
-const CHARACTER_HEIGHT = PLAYER_SHEET.tileHeight;
+const CHARACTER_WIDTH  = QUEEN_SHEET.tileWidth;
+const CHARACTER_HEIGHT = QUEEN_SHEET.tileHeight;
 
 const { tileWidth, tileHeight, sizeBuilding, sizeShop } = WorldCache;
 
@@ -63,10 +63,9 @@ export default class WorldRenderer extends sprite {
         this.validNavigationTargets = [ WORLD_TILES.GROUND, WORLD_TILES.GRASS, WORLD_TILES.SAND, WORLD_TILES.ROAD ];
 
         /**
-         * zCanvas.sprite-instances that will render the world characters.
+         * zCanvas.sprite-instance that will render the Player characters
          */
         this._playerSprite = null;
-        this._dragonSprite = null;
 
         /* keyboard control */
 
@@ -104,10 +103,8 @@ export default class WorldRenderer extends sprite {
         this._player      = aPlayer;
 
         // create sprites
-        this._dragonSprite = new CharacterSpriteRenderer( SpriteCache.DRAGON, DRAGON_SHEET );
-        this._playerSprite = new CharacterSpriteRenderer( SpriteCache.PLAYER, PLAYER_SHEET, aWorld.x, aWorld.y );
-
-        [ this._dragonSprite, this._playerSprite ].forEach( sprite => this.addChild( sprite ));
+        this._playerSprite = new CharacterRenderer( SpriteCache.QUEEN, QUEEN_SHEET, aWorld.x, aWorld.y );
+        this.addChild( this._playerSprite );
     }
 
     /**
@@ -344,11 +341,16 @@ export default class WorldRenderer extends sprite {
             if ( x >= left && x <= right && y >= top  && y <= bottom )
             {
                 switch ( character.type ) {
+                    default:
+                        getSpriteForCharacter( this, character )?.render( aCanvasContext, x, y, left, top );
+                        break;
+                    // Queen is special for the time being (should render like the _playerSprite
+                    // once the tilesheet is complete to match all character creation options)
                     case QUEEN:
                         if ( !character.bitmap ) {
                             continue; // likely renderer is disposed during render cycle
                         }
-                        // TODO: these should become CharacterSpriteRenderer instances too
+                        // TODO: these should become CharacterRenderer instances too
                         const characterWidth  = 24;
                         const characterHeight = 24;
                         const targetX = (( x - left ) * tileWidth  ) - ( characterWidth  * 0.5 - tileWidth  * 0.5 );
@@ -359,10 +361,6 @@ export default class WorldRenderer extends sprite {
                             character.bitmap, 0, 0, width, height,
                             targetX, targetY, characterWidth, characterHeight
                         );
-                        break;
-
-                    case DRAGON:
-                        this._dragonSprite.render( aCanvasContext, x, y, left, top );
                         break;
                 }
             }

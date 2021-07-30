@@ -1,7 +1,8 @@
 /* types of Character available in the game */
 
 export const QUEEN  = 1;
-export const DRAGON = 2;
+export const DRAB   = 2;
+export const DRAGON = 3;
 
 /* assets */
 

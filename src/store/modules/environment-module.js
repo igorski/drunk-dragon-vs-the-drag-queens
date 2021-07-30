@@ -11,7 +11,7 @@ import IntentFactory                       from "@/model/factories/intent-factor
 import ShopFactory                         from "@/model/factories/shop-factory";
 import { WORLD_TYPE, getMaxWalkableTile }  from "@/model/factories/world-factory";
 import { renderEnvironment }               from "@/services/environment-bitmap-cacher";
-import SpriteCache                         from "@/utils/sprite-cache";
+import SpriteCache, { flushSpriteForCharacter } from "@/utils/sprite-cache";
 
 import { getFirstFreeTileOfTypeAroundPoint, positionInReachableDistanceFromPoint, distance } from "@/utils/terrain-util";
 
@@ -109,6 +109,7 @@ export default {
             if ( index > -1 ) {
                 characters.splice( index, 1 );
             }
+            flushSpriteForCharacter( character );
         },
         addItemToCharacterInventory( state, { item, character }) {
             const char = state.activeEnvironment.characters.find(({ id }) => id === character.id );
@@ -211,36 +212,40 @@ export default {
             commit( "setLoading", false );
         },
         interactWithCharacter({ state, commit, dispatch }, character ) {
-            if ( character.type === DRAGON ) {
-                dispatch( "startBattle", character );
-                commit( "setScreen", SCREEN_BATTLE );
-            } else if ( character.type === QUEEN ) {
+            if ( character.type === QUEEN ) {
                 let { intent } = character.properties;
                 if ( !intent ) {
                     character.properties.intent = IntentFactory.create();
                 }
                 commit( "setCharacter", character );
                 commit( "setScreen", SCREEN_CHARACTER_INTERACTION );
+            } else {
+                dispatch( "startBattle", character );
+                commit( "setScreen", SCREEN_BATTLE );
             }
         },
         hitTest({ getters, commit, dispatch }) {
             EnvironmentActions.hitTest({ dispatch, commit, getters }, getters.activeEnvironment );
         },
+        /**
+         * Run the game "AI". Non-queen Characters should walk towards you
+         */
         updateCharacters({ getters, commit }) {
-            const { dragon, activeEnvironment } = getters;
-            if ( !dragon ) {
-                return; // TODO: at this moment we only update the Dragon
-            }
-            const { x, y } = activeEnvironment;
-
-            // check if dragon is within range of player
-            if ( distance( dragon.x, dragon.y, x, y ) > 25 ) {
-                return;
-            }
-            // get existing movements so we can seemlessly update these to the new destination
-            const existing = getters.effects.filter(({ target }) => target === dragon.id );
-            // calculate the waypoints and enqueue the movements
-            EnvironmentActions.moveCharacter({ commit, getters }, dragon, activeEnvironment, x, y, existing );
+            const { activeEnvironment } = getters;
+            const { x, y, characters }  = activeEnvironment;
+            characters.forEach( character => {
+                if ( character.type === QUEEN ) {
+                    return;
+                }
+                // check if Character is within range of player
+                if ( distance( character.x, character.y, x, y ) > 25 ) {
+                    return;
+                }
+                // get existing movements so we can seemlessly update these to the new destination
+                const existing = getters.effects.filter(({ target }) => target === character.id );
+                // calculate the waypoints and enqueue the movements
+                EnvironmentActions.moveCharacter({ commit, getters }, character, activeEnvironment, x, y, existing );
+            });
         },
         positionDragon({ getters, commit }, distance = 20 ) {
             const { world } = getters;

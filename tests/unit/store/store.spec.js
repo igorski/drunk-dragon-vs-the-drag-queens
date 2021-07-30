@@ -8,6 +8,7 @@ jest.mock( "zcanvas", () => ({
     loader: {
         onReady: new Promise(resolve => resolve())
     },
+    sprite: jest.fn()
 }));
 
 describe("Vuex store", () => {

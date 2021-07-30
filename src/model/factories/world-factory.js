@@ -1,7 +1,7 @@
 import { Map }                     from "rot-js";
 import Bowser                      from "bowser";
 import MD5                         from "MD5";
-import { QUEEN, DRAGON }           from "@/definitions/character-types";
+import { QUEEN, DRAB, DRAGON }     from "@/definitions/character-types";
 import { SHOE_FLIPPERS }           from "@/definitions/item-types";
 import HashUtil                    from "@/utils/hash-util";
 import WorldCache                  from "@/utils/world-cache";
@@ -133,6 +133,19 @@ const WorldFactory =
             --world.x;
             --world.y;
         }
+
+        // generate some drabs
+        generateGroup(
+            centerX, centerY, world, 15, () => {
+                const drab = CharacterFactory.create({
+                    type: DRAB,
+                    hp: 3,
+                    level: 1
+                });
+                world.characters.push( drab );
+                return drab;
+            }, 8, .33
+        );
 
         // generate the drunk dragon (will be positioned on overground environment enter by Vuex module)
 
