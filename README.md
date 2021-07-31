@@ -81,13 +81,13 @@ npm run test
 * Drag swag/charisma == mana
 ** Show in status view
 
+* When drunk, characters should slur all 's' words
+* Add a base price to certain items (e.g. clothes shouldn't be too cheap, yo. heels and flippers are expensive items).
+* Character interaction should not show intent in thought bubble, but have a subtle tip in conversation (e.g. slurrrr when drunk)
 * Some shops are empty (have no type ? or is LOAN ?)
-* Create bald hairstyle
 * Create heavily made up eyes style
 * Generate objects on city roads and inside buildings similar to trees (make sure no roads are blocked!)
-
-* When drunk, characters should slur all 's' words
-* Character interaction should not show intent in thought bubble, but have a subtle tip in conversation (e.g. slurrrr when drunk)
+* Buildings broken in Safari ?
 * When characters are drunk, attacks should occasionally miss!
 * Show message when leveling up
 * Create unique sprite for hotel counter
@@ -107,7 +107,6 @@ npm run test
 * Waypoint path finder should not go over exits when calculating path inside building (exists are only valid as destination tile)
 * Render map on status screen only after opening the screen (show message during render)
 * When buying a clothes item, discard the existing one of the same type (show confirmation)
-* Add a base price to certain items (e.g. clothes shouldn't be too cheap, yo. heels and flippers are expensive items).
 * Display product capabilities in shop display
 * Allow to loan money, starts action by which you need to have repaid the person OR ELSE!
 * status screen implement handleInventoryClick for liquor types (also see item-actions)

@@ -8,16 +8,18 @@ export const generateBitmap = async queenToRender => {
     const scale = TARGET_SIZE / QUEEN_DIMENSIONS.bounds.width;
     const { appearance } = queenToRender;
 
+    const hasHair = appearance.hair !== 8; // hairstyle 8 is optional
+
     const bodySvg = { src: `${QUEEN_ASSET_PATH}body.svg` };
     const shadows = { src: `${QUEEN_ASSET_PATH}shadows.png` };
     const nose    = { src: `${QUEEN_ASSET_PATH}nose_${fileSuffix(appearance.nose)}.png` };
     const eyes    = { src: `${QUEEN_ASSET_PATH}eyes_${fileSuffix(appearance.eyes)}.png` };
-    const hair    = { src: `${QUEEN_ASSET_PATH}hair_${fileSuffix(appearance.hair)}.png` };
+    const hair    = hasHair ? { src: `${QUEEN_ASSET_PATH}hair_${fileSuffix(appearance.hair)}.png` } : null;
     const mouth   = { src: `${QUEEN_ASSET_PATH}mouth_${fileSuffix(appearance.mouth)}.png` };
     const clothes = { src: `${QUEEN_ASSET_PATH}clothes_${fileSuffix(appearance.clothes)}.png` };
     const jewelry = { src: `${QUEEN_ASSET_PATH}jewelry_${fileSuffix(appearance.jewelry)}.png` };
 
-    const imagesToLoad = [ bodySvg, shadows, nose, eyes, hair, mouth, clothes, jewelry ];
+    const imagesToLoad = [ bodySvg, shadows, nose, eyes, hair, mouth, clothes, jewelry ].filter( Boolean );
 
     for ( let i = 0; i < imagesToLoad.length; ++i ) {
         const itl = imagesToLoad[ i ];
@@ -58,7 +60,10 @@ export const generateBitmap = async queenToRender => {
 
     renderBodyPart( ctx, nose,    scale, parts.nose );
     renderBodyPart( ctx, eyes,    scale, parts.eyes );
-    renderBodyPart( ctx, hair,    scale, parts.hair );
+
+    if ( hasHair ) {
+        renderBodyPart( ctx, hair,    scale, parts.hair );
+    }
     renderBodyPart( ctx, mouth,   scale, parts.mouth );
     renderBodyPart( ctx, jewelry, scale, parts.jewelry );
 

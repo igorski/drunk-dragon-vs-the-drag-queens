@@ -61,6 +61,9 @@ export default {
             return `${QUEEN_ASSET_PATH}nose_${fileSuffix(this.appearance.nose)}.png`;
         },
         hair() {
+            if ( this.appearance.hair === 8 ) {
+                return; // last hair type is the bald look
+            }
             return `${QUEEN_ASSET_PATH}hair_${fileSuffix(this.appearance.hair)}.png`;
         },
         eyes() {
@@ -94,16 +97,18 @@ export default {
         scaledBodyParts() {
             const { parts } = QUEEN_DIMENSIONS;
             return Object.keys( parts ).reduce(( acc, key ) => {
-                const { top, left, width, height } = parts[ key ];
-                acc[ key ] = {
-                    src: this[key],
-                    style: {
-                        top: `${top * this.scale}px`,
-                        left: `${left * this.scale}px`,
-                        width: `${width * this.scale}px`,
-                        height: `${height * this.scale}px`
-                    }
-                };
+                const { top, left, width, height } = parts[ key ]
+                if ( this[ key ]) {
+                    acc[ key ] = {
+                        src: this[key],
+                        style: {
+                            top: `${top * this.scale}px`,
+                            left: `${left * this.scale}px`,
+                            width: `${width * this.scale}px`,
+                            height: `${height * this.scale}px`
+                        }
+                    };
+                }
                 return acc;
             }, {});
         },

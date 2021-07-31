@@ -6,7 +6,7 @@ import { validateProperties } from "../validator";
 import { randomInRange, randomFromList } from "@/utils/random-util";
 import { getUid } from "@/utils/uid-util";
 
-const QUEEN_HAIR_TOTAL    = 8;
+const QUEEN_HAIR_TOTAL    = 9;
 const QUEEN_JEWELRY_TOTAL = 5;
 const QUEEN_EYE_TOTAL     = 3;
 const QUEEN_NOSE_TOTAL    = 3;
