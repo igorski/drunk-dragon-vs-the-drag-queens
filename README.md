@@ -81,7 +81,7 @@ npm run test
 * Drag swag/charisma == mana
 ** Show in status view
 
-* When drunk, characters should slur all 's' words
+* Add explanation to first drunk dragon fight
 * Add a base price to certain items (e.g. clothes shouldn't be too cheap, yo. heels and flippers are expensive items).
 * Character interaction should not show intent in thought bubble, but have a subtle tip in conversation (e.g. slurrrr when drunk)
 * Some shops are empty (have no type ? or is LOAN ?)
@@ -92,7 +92,7 @@ npm run test
 * Show message when leveling up
 * Create unique sprite for hotel counter
 * Show building floor level
-* Prevent creating double walls when generating floors
+* Prevent creating double walls when generating floors (and restore skipped unit test)
 * Queens inside buildings should either be woo'd or fought (and be generated again ;)
 * Unit tests for hourNow !== lastHour in game-module.updateGame()
 * Tweak attack efficiency against drabs

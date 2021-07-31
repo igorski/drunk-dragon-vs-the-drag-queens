@@ -68,7 +68,8 @@ import InventoryList      from "@/components/shared/inventory-list/inventory-lis
 import ItemTypes          from "@/definitions/item-types";
 import PriceTypes         from "@/definitions/price-types";
 import { SHOP_TYPES }     from "@/model/factories/shop-factory";
-import { randomFromList } from "@/utils/random-util";
+import { randomFromList, randomFloatInRange } from "@/utils/random-util";
+import { slurWords }      from "@/utils/string-util";
 import messages           from "./messages.json";
 
 const INTENT_TIMEOUT = 4000;
@@ -106,6 +107,9 @@ export default {
             return Math.min( ideal, width * .9 );
         },
     },
+    created() {
+        this.intoxication = this.intent.type === ItemTypes.LIQUOR ? randomFloatInRange( 0.35, 1 ) : this.character.properties.intoxication;
+    },
     beforeDestroy() {
         this.clearIntentTimeout();
     },
@@ -124,16 +128,16 @@ export default {
             this.clearIntentTimeout();
             switch ( type ) {
                 case 0:
-                    list = this.$t("answers.hi");
+                    list = this.$t( "answers.hi" );
                     break;
                 case 1:
-                    list = this.$t("answers.whatsInHere");
+                    list = this.$t( "answers.whatsInHere" );
                     break;
                 case 2:
-                    list = this.$t("answers.canIEnter");
+                    list = this.$t( "answers.canIEnter" );
                     break;
             }
-            this.message = randomFromList( list );
+            this.message = slurWords( randomFromList( list ), this.intoxication );
 
             // persistent bugging shows the Characters intent in a thought balloon
             if ( ++this.askedQuestions > 1 && this.intentTimeout === null ) {

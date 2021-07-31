@@ -1,5 +1,5 @@
 import { findPath }      from "@/utils/path-finder";
-import { randomInRange } from "@/utils/random-util";
+import { randomInRangeInt } from "@/utils/random-util";
 
 /**
  * grow the amount of terrain of given type on the given map
@@ -216,7 +216,7 @@ export const positionInReachableDistanceFromPoint = ( env, startX, startY, minDi
     const degToRad = Math.PI / 180;
     let incrementRadians = (( 360 / 8 /* points around player center */ ) * degToRad );
     let distance = minDistance;
-    let radians  = degToRad + ( incrementRadians * randomInRange( 0, 5 ));
+    let radians  = degToRad + ( incrementRadians * randomInRangeInt( 0, 5 ));
 
     let tries = 64;  // fail-safe, let's not recursive forever
     while ( tries-- ) {

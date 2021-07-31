@@ -12,7 +12,7 @@ let mockRandomValue;
 jest.mock( "@/utils/random-util", () => ({
     random: () => mockRandomValue,
     randomFromList: list => list[0],
-    randomInRange: (min, max) => min,
+    randomInRangeInt: (min, max) => min,
 }));
 let mockDamageForAttack;
 jest.mock( "@/model/factories/attack-factory", () => ({

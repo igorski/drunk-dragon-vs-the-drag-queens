@@ -14,7 +14,7 @@ import InventoryFactory                    from "@/model/factories/inventory-fac
 import ShopFactory                         from "@/model/factories/shop-factory";
 import { WORLD_TYPE, getMaxWalkableTile }  from "@/model/factories/world-factory";
 import { renderEnvironment }               from "@/services/environment-bitmap-cacher";
-import { randomInRange }                   from "@/utils/random-util";
+import { randomInRangeInt }                   from "@/utils/random-util";
 import { getRandomFreeTilePosition }       from "@/utils/terrain-util";
 
 import SpriteCache, { flushSpriteForCharacter, flushAllSprites } from "@/utils/sprite-cache";
@@ -252,7 +252,7 @@ export default {
                     console.warn(lvl);
                     characters.push( CharacterFactory.create({
                         type, ...coords, ...lvl,
-                    }, {}, {}, InventoryFactory.create( randomInRange( 0, 25 ))));
+                    }, {}, {}, InventoryFactory.create( randomInRangeInt( 0, 25 ))));
                 }
             }
         },

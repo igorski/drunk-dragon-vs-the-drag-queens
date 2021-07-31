@@ -1,7 +1,7 @@
 import CharacterFactory from "@/model/factories/character-factory";
 import { QUEEN, DRAB, DRAGON } from "@/definitions/character-types";
 import { SHOE_HEELS, SHOE_SNEAKERS } from "@/definitions/item-types";
-import { randomInRange } from "@/utils/random-util";
+import { randomInRangeInt } from "@/utils/random-util";
 import { validateProperties } from "../validator";
 
 export default
@@ -91,8 +91,8 @@ export default
                 break;
         }
         // randomize results a little
-        const randHp    = ( hp    / 4 ) - randomInRange( 0, hp / 2 );
-        const randLevel = ( level / 4 ) - randomInRange( 0, level / 2 );
+        const randHp    = ( hp    / 4 ) - randomInRangeInt( 0, hp / 2 );
+        const randLevel = ( level / 4 ) - randomInRangeInt( 0, level / 2 );
 
         const finalHP = Math.max( 1, Math.round( hp + randHp ));
         return {

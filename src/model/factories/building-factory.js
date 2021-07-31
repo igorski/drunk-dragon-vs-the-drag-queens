@@ -6,7 +6,7 @@ import { generateDragQueenName } from "@/utils/name-generator";
 import CharacterFactory   from "./character-factory";
 import EnvironmentFactory from "./environment-factory";
 import {
-    random, randomInRange, randomFromList, randomBool
+    random, randomInRangeInt, randomFromList, randomBool
 } from "@/utils/random-util";
 import {
     positionAtFirstFreeTileType, positionAtLastFreeTileType, positionAtRandomFreeTileType,
@@ -74,14 +74,14 @@ const BuildingFactory =
         let i, floorWidth, floorHeight, minRoomWidth, minRoomHeight, maxRoomWidth, maxRoomHeight;
 
         for ( i = 0; i < floorAmount; ++i ) {
-            floorWidth    = Math.round( randomInRange( 0, 50 )) + 10;
-            floorHeight   = Math.round( randomInRange( 0, 50 )) + 10;
+            floorWidth    = Math.round( randomInRangeInt( 0, 50 )) + 10;
+            floorHeight   = Math.round( randomInRangeInt( 0, 50 )) + 10;
             // size of the rooms / corridors within the floor
             // the only thing that makes a room a corridor is when its size if belows the MIN_ROOM_SIZE
-            minRoomWidth  = Math.round( randomInRange( MIN_CORRIDOR_SIZE, MIN_ROOM_SIZE ));
-            minRoomHeight = Math.round( randomInRange( MIN_CORRIDOR_SIZE, MIN_ROOM_SIZE ));
-            maxRoomWidth  = Math.min( randomInRange( minRoomWidth, MAX_ROOM_SIZE ),  floorWidth  );
-            maxRoomHeight = Math.min( randomInRange( minRoomHeight, MAX_ROOM_SIZE ), floorHeight );
+            minRoomWidth  = Math.round( randomInRangeInt( MIN_CORRIDOR_SIZE, MIN_ROOM_SIZE ));
+            minRoomHeight = Math.round( randomInRangeInt( MIN_CORRIDOR_SIZE, MIN_ROOM_SIZE ));
+            maxRoomWidth  = Math.min( randomInRangeInt( minRoomWidth, MAX_ROOM_SIZE ),  floorWidth  );
+            maxRoomHeight = Math.min( randomInRangeInt( minRoomHeight, MAX_ROOM_SIZE ), floorHeight );
 
             // make sure the maximum dimensions exceed the minimum dimensions !
 
@@ -208,8 +208,8 @@ function createFloor( width, height, terrain = [], floorType, player ) {
     const characterIndices = [];
 
     for ( let i = 0; i < totalCharacters; ++i ) {
-        let x = randomInRange( 0, width - 1 );
-        let y = randomInRange( 0, height - 1 );
+        let x = randomInRangeInt( 0, width - 1 );
+        let y = randomInRangeInt( 0, height - 1 );
         for ( ; y < height; x = ( ++x === width ? ( x % width + ( ++y & 0 ) ) : x )) {
             const index = coordinateToIndex( x, y, environment );
             if ( terrain[ index ] === BUILDING_TILES.GROUND ) {

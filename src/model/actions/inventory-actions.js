@@ -1,5 +1,5 @@
 import ItemFactory       from '@/model/factories/item-factory';
-import { randomInRange } from '@/utils/random-util';
+import { randomInRangeInt } from '@/utils/random-util';
 
 export default
 {
@@ -48,7 +48,7 @@ export default
      * @return {Number}
      */
     getPriceForItemSale( item, min = .4, max = .8 ) {
-        const multiplier = randomInRange( min, max );
+        const multiplier = randomInRangeInt( min, max );
         return Math.ceil( item.price * multiplier );
     }
 };

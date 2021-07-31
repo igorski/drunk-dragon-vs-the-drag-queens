@@ -7,7 +7,7 @@ import HashUtil                    from "@/utils/hash-util";
 import WorldCache                  from "@/utils/world-cache";
 import { generateDragQueenName }   from "@/utils/name-generator";
 import { findPath }                from "@/utils/path-finder";
-import { random, randomInRange }   from "@/utils/random-util";
+import { random, randomInRangeInt }   from "@/utils/random-util";
 import CharacterActions            from "@/model/actions/character-actions";
 import BuildingFactory             from "./building-factory";
 import CharacterFactory            from "./character-factory";
@@ -309,8 +309,8 @@ function generateCities( hash, world ) {
     for ( let i = 1; i < MAX_ZONES; ++i ) {
         const x      = random() * world.width;
         const y      = random() * world.height;
-        const width  = randomInRange( minZoneWidth, maxZoneWidth );
-        const height = randomInRange( minZoneHeight, maxZoneHeight );
+        const width  = randomInRangeInt( minZoneWidth, maxZoneWidth );
+        const height = randomInRangeInt( minZoneHeight, maxZoneHeight );
         const zone   = generateZone( x, y, width, height );
         // slightly bigger to allow space between cities (currently broken??)
         const zoneBounds = generateZone( x, y, width * 2, height * 2 );
@@ -359,8 +359,8 @@ function generateCities( hash, world ) {
             // should we need to cross large bodies of water)
 
             const shop = ShopFactory.create(
-                left + randomInRange( 0, width  - WorldCache.sizeShop.width ),
-                top  + randomInRange( 0, height - WorldCache.sizeShop.height ),
+                left + randomInRangeInt( 0, width  - WorldCache.sizeShop.width ),
+                top  + randomInRangeInt( 0, height - WorldCache.sizeShop.height ),
                 SHOP_TYPES.CLOTHES
             );
             if ( reserveObject( shop, world )) {
@@ -371,13 +371,13 @@ function generateCities( hash, world ) {
         // create buildings or shops every other each zone
 
         if ( index % 2 === 0 ) {
-            const amount = randomInRange( 2, Math.ceil( width / WorldCache.sizeBuilding.width ));
+            const amount = randomInRangeInt( 2, Math.ceil( width / WorldCache.sizeBuilding.width ));
 console.warn("generate " + amount + " buildings for " + index + " iteration at coords " + centerX + " x " + centerY);
             world.buildings.push(...generateGroup(
                 centerX, centerY, world, amount, BuildingFactory.create, width, 4, .33, [ WORLD_TILES.GROUND ]
             ));
         } else {
-            const amount = randomInRange( 2, Math.ceil( width / WorldCache.sizeShop.width ));
+            const amount = randomInRangeInt( 2, Math.ceil( width / WorldCache.sizeShop.width ));
 console.warn("generate " + amount + " shops for " + index + " iteration at coords " + centerX + " x " + centerY);
             world.shops.push(...generateGroup(
                 centerX, centerY, world, amount, ( x, y, ) => {

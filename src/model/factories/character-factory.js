@@ -3,7 +3,7 @@ import { QUEEN }        from "@/definitions/character-types";
 import IntentFactory    from "@/model/factories/intent-factory";
 import InventoryFactory from "@/model/factories/inventory-factory";
 import { validateProperties } from "../validator";
-import { randomInRange, randomFromList } from "@/utils/random-util";
+import { randomInRangeInt, randomFromList } from "@/utils/random-util";
 import { getUid } from "@/utils/uid-util";
 
 const QUEEN_HAIR_TOTAL    = 9;
@@ -70,12 +70,12 @@ const CharacterFactory =
     generateAppearance() {
         return {
             skin: randomFromList( QUEEN_SKIN_COLORS ),
-            hair: randomInRange( 0, QUEEN_HAIR_TOTAL - 1 ),
-            jewelry: randomInRange( 0, QUEEN_JEWELRY_TOTAL - 1 ),
-            eyes: randomInRange( 0, QUEEN_EYE_TOTAL - 1 ),
-            mouth: randomInRange( 0, QUEEN_MOUTH_TOTAL - 1 ),
-            nose: randomInRange( 0, QUEEN_NOSE_TOTAL - 1 ),
-            clothes: randomInRange( 0, QUEEN_CLOTHES_TOTAL - 1 ),
+            hair: randomInRangeInt( 0, QUEEN_HAIR_TOTAL - 1 ),
+            jewelry: randomInRangeInt( 0, QUEEN_JEWELRY_TOTAL - 1 ),
+            eyes: randomInRangeInt( 0, QUEEN_EYE_TOTAL - 1 ),
+            mouth: randomInRangeInt( 0, QUEEN_MOUTH_TOTAL - 1 ),
+            nose: randomInRangeInt( 0, QUEEN_NOSE_TOTAL - 1 ),
+            clothes: randomInRangeInt( 0, QUEEN_CLOTHES_TOTAL - 1 ),
         };
     },
 
