@@ -81,12 +81,15 @@ npm run test
 * Drag swag/charisma == mana
 ** Show in status view
 
-* When characters are drunk, attacks should occasionally miss!
-* Generate the world in villages (clustered sections with shops and buildings) -> create walkable paths between these
-* Ensure that on game creation the player can find a path to both a building and a clothes shop
-* Before generating door queens, ensure building was actually placed successfully!
-* Some shops are empty (have no type ?)
+* Some shops are empty (have no type ? or is LOAN ?)
+* Create bald hairstyle
+* Create heavily made up eyes style
+* Generate objects on city roads and inside buildings similar to trees (make sure no roads are blocked!)
 
+* When drunk, characters should slur all 's' words
+* Character interaction should not show intent in thought bubble, but have a subtle tip in conversation (e.g. slurrrr when drunk)
+* When characters are drunk, attacks should occasionally miss!
+* Show message when leveling up
 * Create unique sprite for hotel counter
 * Show building floor level
 * Prevent creating double walls when generating floors
@@ -114,7 +117,6 @@ npm run test
 * More attack types depending on item / level ? (certain levels learn new moves)
 * Images for shop products
 * Dynamic components need a loader
-* When drunk, characters should slur all 's' words
 * Create start screen when no game is saved, show intro
 * Describe in manual how different properties of intoxication/boost affect charisma (also show this on-screen!)
 * should dragon get stronger / more drunk depending on hour of night ?

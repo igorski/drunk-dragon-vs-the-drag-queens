@@ -24,13 +24,14 @@
                         <button
                             v-t="'randomName'"
                             type="button"
+                            :title="$t('randomize')"
                             class="rpg-button rpg-button--submit"
                             @click="generateRandomName()"
                         ></button>
                         <button
                             v-t="'thatsMe'"
                             type="submit"
-                            title="$t('save')"
+                            :title="$t('save')"
                             class="rpg-button rpg-button--submit"
                             :disabled="!isValid"
                         ></button>
@@ -75,7 +76,7 @@
                         </template>
                         <button v-t="'randomize'"
                                 type="button"
-                                title="$t('randomize')"
+                                :title="$t('randomize')"
                                 class="rpg-button"
                                 @click="randomize"
                         ></button>
@@ -83,7 +84,7 @@
                     <button
                         v-t="'looksGood'"
                         type="submit"
-                        title="$t('save')"
+                        :title="$t('save')"
                         class="rpg-button rpg-button--submit"
                         :disabled="!isValid"
                     ></button>

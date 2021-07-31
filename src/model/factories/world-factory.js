@@ -6,6 +6,8 @@ import { SHOE_FLIPPERS }           from "@/definitions/item-types";
 import HashUtil                    from "@/utils/hash-util";
 import WorldCache                  from "@/utils/world-cache";
 import { generateDragQueenName }   from "@/utils/name-generator";
+import { findPath }                from "@/utils/path-finder";
+import { random, randomInRange }   from "@/utils/random-util";
 import CharacterActions            from "@/model/actions/character-actions";
 import BuildingFactory             from "./building-factory";
 import CharacterFactory            from "./character-factory";
@@ -90,33 +92,29 @@ const WorldFactory =
 
         generateTerrain( hash, world );
 
-        // generate some buildings and shops
+        // generate cities
 
-        const buildingHash   = hash.substr( 6, 8 );
-        const amountToCreate = HashUtil.charsToNum( buildingHash );
+        const cities = generateCities( hash, world );
 
-        // ensure we create them for each available type
+        // generate some buildings outside the cities
+/*
+        const shopHash   = hash.substr( 8, 10 );
+        const types      = Object.values( SHOP_TYPES ); // ensure we crate them for each available type
+        let createdShops = 0;
 
-        const types         = Object.values( SHOP_TYPES );
-        let createdShops    = 0;
-
-        world.shops = generateGroup(
-            centerX, centerY, world, amountToCreate, ( x, y, ) => {
+        world.shops.push( ...generateGroup(
+            centerX, centerY, world, HashUtil.charsToNum( shopHash ), ( x, y, ) => {
                 const shop = ShopFactory.create( x, y, types[ createdShops % types.length ]);
                 ++createdShops;
                 return shop;
-            }, 4, .6
-        );
-
-        world.buildings = generateGroup(
-            centerX, centerY, world, amountToCreate, BuildingFactory.create, 4, .33
-        );
-
+            }, Math.round( world.width / 5 ), 4, .6, [ WORLD_TILES.SAND, WORLD_TILES.GRASS ] // exclude GROUND (city only)
+        ));
+*/
         // generate some characters that occupy some of the building entrances
 
         const characterHash      = hash.substr( 8, 8 );
         const amountOfCharacters = Math.round(
-            Math.min( world.buildings.length * .75, HashUtil.charsToNum( characterHash ) * Math.random() )
+            Math.min( world.buildings.length * .75, HashUtil.charsToNum( characterHash ) * random() )
         );
 
         for ( let i = 0; i < amountOfCharacters; ++i ) {
@@ -181,7 +179,7 @@ export default WorldFactory;
 
 /**
  * generate the terrain for the given world
- * blatantly stolen from code by Igor Kogan
+ * blatantly stolen from code by Igor Kogan (okay, he kindly donated it)
  *
  * @param {string} hash
  * @param {Object} world
@@ -191,28 +189,17 @@ function generateTerrain( hash, world ) {
 
     // first create the GROUND
 
-    world.terrain = new Array( MAP_WIDTH * MAP_HEIGHT ).fill( WORLD_TILES.GROUND );
+    world.terrain = new Array( MAP_WIDTH * MAP_HEIGHT ).fill( WORLD_TILES.SAND );//GROUND );
 
-    // create some roads
-/*
-    try {
-        const roadMap = digRoads( MAP_WIDTH, MAP_HEIGHT );
-        roadMap.forEach(( tile, index ) => {
-            if ( tile !== WORLD_TILES.NOTHING ) {
-                world.terrain[ index ] = tile;
-            }
-        });
-    } catch {
-        // never mind...
-    }
-*/
+    //digRoads( MAP_WIDTH, MAP_HEIGHT );
+
     let x, y, i, index;
 
     function genSeed( type, size ) {
         const WS = Math.ceil( MAP_WIDTH * MAP_HEIGHT / 1000 );
         for ( i = 0; i < WS; i++ ) {
-            x = Math.floor( Math.random() * MAP_WIDTH );
-            y = Math.floor( Math.random() * MAP_HEIGHT );
+            x = Math.floor( random() * MAP_WIDTH );
+            y = Math.floor( random() * MAP_HEIGHT );
             index = coordinateToIndex( x, y, world );
             world.terrain[ index ] = type;
         }
@@ -221,7 +208,7 @@ function generateTerrain( hash, world ) {
         }
     }
 
-    genSeed( WORLD_TILES.WATER,    8 ); // plant water seeds (lake)
+    genSeed( WORLD_TILES.WATER,    10 ); // plant water seeds (lake)
     genSeed( WORLD_TILES.GRASS,    6 );  // plant grass seeds (park)
     genSeed( WORLD_TILES.MOUNTAIN, 3 );  // plant rock seeds (mountain)
 
@@ -235,22 +222,21 @@ function generateTerrain( hash, world ) {
         if ( world.terrain[ index ] === WORLD_TILES.GROUND ) {
             const around = getSurroundingIndices( x, y, MAP_WIDTH, MAP_HEIGHT, true, beachSize );
             for ( i = 0; i < around.length; i++ ) {
-                if ( world.terrain[ around[ i ]] === WORLD_TILES.WATER && Math.random() > .7 ) {
+                if ( world.terrain[ around[ i ]] === WORLD_TILES.WATER && random() > .7 ) {
                     world.terrain[ index ] = WORLD_TILES.SAND;
                     break;
                 }
             }
         }
     }
-    growTerrain( world.terrain, MAP_WIDTH, MAP_HEIGHT, WORLD_TILES.SAND, 0.9 );
 
     // plant some trees in the parks
 
     const TS = Math.ceil( MAP_WIDTH * MAP_HEIGHT * 0.1 );
 
     for ( i = 0; i < TS; i++ ) {
-        x     = Math.floor( Math.random() * MAP_WIDTH );
-        y     = Math.floor( Math.random() * MAP_HEIGHT );
+        x     = Math.floor( random() * MAP_WIDTH );
+        y     = Math.floor( random() * MAP_HEIGHT );
         index = coordinateToIndex( x, y, world );
 
         if ( world.terrain[ index ] === WORLD_TILES.GRASS ) {
@@ -277,6 +263,165 @@ function generateTerrain( hash, world ) {
             }
         }
     }
+}
+
+/**
+ * @param {string} hash
+ * @param {Object} world
+ * @return {Array<Object>} generated cities (bounding boxes)
+ */
+function generateCities( hash, world ) {
+    const { terrain } = world;
+    const centerX = Math.round( world.width  / 2 );
+    const centerY = Math.round( world.height / 2 );
+    const zones   = [];
+
+    const MAX_ZONES = 20;
+
+    const minZoneWidth  = WorldCache.sizeBuilding.width  * 2;
+    const minZoneHeight = WorldCache.sizeBuilding.height * 2;
+    const maxZoneWidth  = Math.floor( world.width  / 5);
+    const maxZoneHeight = Math.floor( world.height / 5 );
+
+    const generateZone = ( zoneCenterX, zoneCenterY, zoneWidth, zoneHeight ) => {
+        const x = Math.round( zoneCenterX - ( zoneWidth  / 2 ));
+        const y = Math.round( zoneCenterY - ( zoneHeight / 2 ));
+        return {
+            left    : x,
+            top     : y,
+            right   : Math.round( zoneCenterX + ( zoneWidth  / 2 )),
+            bottom  : Math.round( zoneCenterY + ( zoneHeight / 2 )),
+            width   : zoneWidth,
+            height  : zoneHeight,
+            centerX : Math.round( zoneCenterX ),
+            centerY : Math.round( zoneCenterY ),
+            x, y
+        }
+    };
+
+    // first create center zone (player starts here)
+
+    const centerZone = generateZone( centerX, centerY, maxZoneWidth, maxZoneHeight );
+    zones.push( centerZone );
+
+    // generate surrounding zones
+
+    for ( let i = 1; i < MAX_ZONES; ++i ) {
+        const x      = random() * world.width;
+        const y      = random() * world.height;
+        const width  = randomInRange( minZoneWidth, maxZoneWidth );
+        const height = randomInRange( minZoneHeight, maxZoneHeight );
+        const zone   = generateZone( x, y, width, height );
+        // slightly bigger to allow space between cities (currently broken??)
+        const zoneBounds = generateZone( x, y, width * 2, height * 2 );
+        if ( checkIfFree( zoneBounds, world, zones, false )) {
+            zones.push( zone );
+        }
+    }
+
+    // ensure we can reach the second zone from the first
+
+    const secondZone = zones[ 1 ];
+    if ( !connectZones( world, centerZone, secondZone, MAX_WALKABLE_TILE )) {
+        // could not connect via natural path, force creation of a new path
+        connectZones( world, centerZone, secondZone, Infinity );
+    }
+
+    // generate all zone contents
+
+    const buildingHash = hash.substr( 6, 8 );
+    const shopHash     = hash.substr( 8, 10 );
+    const shopTypes    = Object.values( SHOP_TYPES ); // ensure we crate shops for each available type
+    let createdShops   = 0;
+
+    zones.forEach(({ left, right, top, bottom, width, height, centerX, centerY }, index ) => {
+        // create terrain for all generated zones
+        for ( let x = left; x < right; ++x ) {
+            for ( let y = top; y < bottom; ++y ) {
+                terrain[ coordinateToIndex( x, y, world )] = WORLD_TILES.GROUND;
+            }
+        }
+
+        // each city should have a building dead in the center
+
+        const building = BuildingFactory.create(
+            Math.round( centerX + WorldCache.sizeBuilding.width / 2 ),
+            Math.round( centerY + WorldCache.sizeBuilding.height / 2 )
+        );
+        if ( reserveObject( building, world )) {
+            world.buildings.push( building );
+        } else {
+            console.warn("could not add building to " +index);
+        }
+
+        if ( index === 0 ) {
+            // in the first city we also create a clothes shop (so flippers can be bought
+            // should we need to cross large bodies of water)
+
+            const shop = ShopFactory.create(
+                left + randomInRange( 0, width  - WorldCache.sizeShop.width ),
+                top  + randomInRange( 0, height - WorldCache.sizeShop.height ),
+                SHOP_TYPES.CLOTHES
+            );
+            if ( reserveObject( shop, world )) {
+                world.shops.push( shop );
+            }
+        }
+
+        // create buildings or shops every other each zone
+
+        if ( index % 2 === 0 ) {
+            const amount = randomInRange( 2, Math.ceil( width / WorldCache.sizeBuilding.width ));
+console.warn("generate " + amount + " buildings for " + index + " iteration at coords " + centerX + " x " + centerY);
+            world.buildings.push(...generateGroup(
+                centerX, centerY, world, amount, BuildingFactory.create, width, 4, .33, [ WORLD_TILES.GROUND ]
+            ));
+        } else {
+            const amount = randomInRange( 2, Math.ceil( width / WorldCache.sizeShop.width ));
+console.warn("generate " + amount + " shops for " + index + " iteration at coords " + centerX + " x " + centerY);
+            world.shops.push(...generateGroup(
+                centerX, centerY, world, amount, ( x, y, ) => {
+                    const shop = ShopFactory.create( x, y, shopTypes[ createdShops % shopTypes.length ]);
+                    ++createdShops;
+                    return shop;
+                }, width, 4, .6, [ WORLD_TILES.GROUND ]
+            ));
+        }
+    });
+    return zones;
+}
+
+function connectZones( world, firstZone, secondZone, maxWalkableTile, tileType = WORLD_TILES.SAND ) {
+    const toTheRight = secondZone.x > firstZone.x;
+    const isBelow    = secondZone.y > firstZone.y;
+
+    const waypoints = findPath(
+        world,
+        firstZone.x  + Math.round( firstZone.width   / 2 ),
+        firstZone.y  + Math.round( firstZone.height  / 2 ),
+        secondZone.x + Math.round( secondZone.width  / 2 ),
+        secondZone.y + Math.round( secondZone.height / 2 ),
+        maxWalkableTile,
+    );
+
+    if ( waypoints.length === 0 ) {
+        return false; // could not connect zones
+    }
+
+    // create path connecting the zones
+
+    const PATH_PADDING = 2; // make path wider
+    const { width, height } = world;
+    const { terrain } = world;
+
+    waypoints.forEach(({ x, y }) => {
+        for ( let xi = Math.max( 0, x - PATH_PADDING ), xt = Math.min( width, x + PATH_PADDING ); xi < xt; ++xi ) {
+            for ( let yi = Math.max( 0, y - PATH_PADDING ), yt = Math.min( height, y + PATH_PADDING ); yi < yt; ++yi ) {
+                terrain[ coordinateToIndex( xi, yi, world )] = tileType;
+            }
+        }
+    });
+    return true;
 }
 
 /**
@@ -329,98 +474,87 @@ function generateNumArrayFromSeed( aHash, aHashOffset, aHashEndOffset, aResultLe
 /**
  * Generate a group of Objects of the same type, these will be laid out in a circular pattern
  *
- * @param {number} startX x-coordinate around which the group radius will be calculated
- * @param {number} startY y-coordinate around which the group radius will be calculated
+ * @param {number} centerX x-coordinate around which the group radius will be calculated
+ * @param {number} centerY y-coordinate around which the group radius will be calculated
  * @param {Object} world
  * @param {number} amountToCreate
  * @param {Function} typeFactoryCreateFn factory function to create a new instance of the type
- * @param {number} amountInCircle the amount of Objects within a single circle radius
+ * @param {number} circleRadius the radius of the circle
+ * @param {number=} amountInCircle the amount of Objects within a single circle radius
+ * @param {number=} radiusIncrement the multiplier by which the circle radius increments
+ * @param {Array<Number>=} optTileWhitelist optional list of tiles the group can be placed on
  */
-function generateGroup( startX, startY, world, amountToCreate, typeFactoryCreateFn, amountInCircle = 4, radiusIncrement = .6 ) {
+function generateGroup( centerX, centerY, world, amountToCreate, typeFactoryCreateFn,
+    circleRadius, amountInCircle = 4, radiusIncrement = .6, optTileWhitelist = null ) {
     const { width, height } = typeFactoryCreateFn(); // tile dimensions implied by factory method
-    const halfWidth = Math.round( width  / 2 );
     const out = [];
-    const degToRad = Math.PI / 180;
+
+    const degToRad  = Math.PI / 180;
     const maxDistanceFromEdge = width + height; // in tiles
     let incrementRadians      = ( 360 / amountInCircle ) * degToRad;
 
-    let radians      = degToRad;
-    let circleRadius = Math.round( world.width / 5 );
-    let circle       = 0;
-    let x, y;
+    let radians = degToRad;
+    let circle  = 0;
 
-    for ( let i = 0; i < amountToCreate; ++i, ++circle ) {
-        x = startX + Math.sin( radians ) * circleRadius;
-        y = startY + Math.cos( radians ) * circleRadius;
+    const horEdge = world.width;// */  circleRadius;
+    const verEdge = world.height;// */ circleRadius;
+
+    for ( let i = 0; i < amountToCreate; ++i ) {
+        let x = centerX + Math.sin( radians ) * circleRadius;
+        let y = centerY + Math.cos( radians ) * circleRadius;
 
         // keep within bounds of map
 
         if ( x < maxDistanceFromEdge ) {
             x = maxDistanceFromEdge;
         }
-        else if ( x > world.width - maxDistanceFromEdge ) {
-            x = world.width - maxDistanceFromEdge;
+        else if ( x > horEdge - maxDistanceFromEdge ) {
+            x = horEdge - maxDistanceFromEdge;
             circleRadius *= radiusIncrement;
         }
 
         if ( y < maxDistanceFromEdge ) {
             y = maxDistanceFromEdge;
         }
-        else if ( y > world.height - maxDistanceFromEdge ) {
-            y = world.height - maxDistanceFromEdge;
+        else if ( y > verEdge - maxDistanceFromEdge ) {
+            y = verEdge - maxDistanceFromEdge;
             circleRadius *= radiusIncrement;
         }
 
         radians += incrementRadians;
 
-        const targetX = Math.round( x );
-        const targetY = Math.round( y );
-
         // generate instance of item
-        const groupItem = typeFactoryCreateFn( targetX, targetY );
+        const groupItem = typeFactoryCreateFn( Math.round( x ), Math.round( y ));
 
         // reserve object at position nearest to targetX and targetY
-        // note we increase the height by one tile to ensure we have a walkway towards the object
-        const reservedPosition = reserveObject({ ...groupItem, height: groupItem.height + 1 }, world, out );
+        const reservedPosition = reserveObject( groupItem, world, out, optTileWhitelist );
 
         if ( reservedPosition !== null ) {
             // Object has been placed, set its final position
             groupItem.x = reservedPosition.x;
             groupItem.y = reservedPosition.y;
-
-            // bit of a cheat... add a wall around the object entrance (should be at the
-            // horizontal middle of the vertical bottom) so the player can't enter from that side
-
-            for ( let xd = groupItem.x - ( halfWidth - 1 ); xd < groupItem.x + halfWidth; ++xd ) {
-                for ( let yd = groupItem.y - ( height - 1 ); yd <= groupItem.y; ++yd ) {
-                    if ( xd === groupItem.x && yd === groupItem.y ) {
-                        continue;
-                    }
-                    world.terrain[ coordinateToIndex( xd, yd, world )] = WORLD_TILES.MOUNTAIN;
-                }
-            }
             out.push( groupItem );
+            ++circle;
         }
 
         if ( circle === amountInCircle ) {
-            circle           = 0;
-            circleRadius    *= 2;
+            circle = 0;
+            circleRadius *= 2;
             incrementRadians = ( 270 / amountInCircle ) * degToRad;
-            radians = 360 * degToRad * Math.random();
+            radians = 360 * degToRad * random();
         }
     }
     return out;
 }
 
-
 /**
  * Generate roads
  */
 function digRoads( worldWidth, worldHeight ) {
-    const minRoadWidth  = Math.min( Math.round( Math.random() ) + 2, worldWidth );
-    const minRoadHeight = Math.min( Math.round( Math.random() ) + 2, worldHeight );
-    let maxRoadWidth    = Math.min( Math.round( Math.random() ) + 2, worldWidth  );
-    let maxRoadHeight   = Math.min( Math.round( Math.random() ) + 2, worldHeight );
+    const minRoadWidth  = Math.min( Math.round( random() ) + 2, worldWidth );
+    const minRoadHeight = Math.min( Math.round( random() ) + 2, worldHeight );
+    let maxRoadWidth    = Math.min( Math.round( random() ) + 2, worldWidth  );
+    let maxRoadHeight   = Math.min( Math.round( random() ) + 2, worldHeight );
 
     // make sure the maximum dimensions exceed the minimum dimensions !
 
@@ -468,7 +602,7 @@ function digRoads( worldWidth, worldHeight ) {
 }
 
 /**
- * reserve a given object at the given coordinate
+ * Reserves space for a given object at the given coordinate
  *
  * if the requested coordinate isn't free/available, this method
  * will search for the next free position as close as possible to
@@ -477,76 +611,98 @@ function digRoads( worldWidth, worldHeight ) {
  * @param {Object} object to place
  * @param {Object} world the current world the object should fit in
  * @param {Array<Object>=} others Array of Objects that should be checked against
+ * @param {Array<Number>=} optTileWhitelist optional list of tiles the group can be placed on
  * @return {Object|null} coordinates at which Object has been reserved
  */
-function reserveObject( object, world, others = [] ) {
+function reserveObject( object, world, others = [], optTileWhitelist ) {
     // assemble the list of Objects we shouldn't collide with
     const compare = [ ...world.shops, ...world.buildings, ...others ];
-
     let { x, y } = object;
-    if ( !checkIfFree( object, world, compare )) {
+
+    let tries = 255; // fail-safe, let's not recursive forever
+    while ( tries-- > 0 )
+    {
+        if ( checkIfFree({ ...object, x, y }, world, compare, true, optTileWhitelist )) {
+
+            // bit of a cheat... add a wall around the object entrance (which is always at the
+            // horizontal middle of the vertical bottom) so the player can't enter/walk outside of the entrace
+
+            const halfWidth = Math.round( object.width / 2 );
+            for ( let xd = x - ( halfWidth - 1 ); xd < x + halfWidth; ++xd ) {
+                for ( let yd = y - ( object.height - 1 ); yd <= y; ++yd ) {
+                    if ( xd === x && yd === y ) {
+                        continue;
+                    }
+                    world.terrain[ coordinateToIndex( xd, yd, world )] = WORLD_TILES.MOUNTAIN;
+                }
+            }
+            return { x, y };
+        }
 
         // which direction we'll try next
 
         const left  = x > world.width  / 2;
         const up    = y > world.height / 2;
 
-        let tries = 255; // fail-safe, let's not recursive forever
-        while ( true ) {
-            if ( left ) {
-                --x;
-            } else {
-                ++x;
-            }
-            if ( up ) {
-                --y;
-            } else {
-                ++y;
-            }
-            // keep within world bounds
-
-            x = Math.max( 0, Math.min( x, world.width ));
-            y = Math.max( 0, Math.min( y, world.height ));
-
-            if ( checkIfFree({ ...object, x, y }, world, compare )) {
-                break;
-            }
-
-            // didn't find a spot... :(
-
-            if ( --tries === 0 ) {
-                return null;
-            }
+        if ( left ) {
+            --x;
+        } else {
+            ++x;
         }
+        if ( up ) {
+            --y;
+        } else {
+            ++y;
+        }
+
+        // keep within world bounds though
+
+        x = Math.max( 0, Math.min( x, world.width ));
+        y = Math.max( 0, Math.min( y, world.height ));
     }
-    return { x, y };
+    return null; // didn't find a spot... :(
 }
 
 /**
  * check whether there is nothing occupying the given
- * coordinate in the world
+ * bounding box in the world
  *
- * @param {number} area rectangle to verify if is free
+ * @param {Object} area rectangle to verify if is free
  * @param {Object} world
  * @param {Array<Object>} objects
+ * @param {boolean=} assertTiles default to true, ensures the tiles at the coordinate ara available
+ * @param {Array<Number>=} optTileWhitelist optional list of tiles the group can be placed on
  * @return {boolean} whether the position is free
  */
-function checkIfFree({ x, y, width, height }, world, objects ) {
-    // check if the underlying tile type is available for Object placement
-    const tile = world.terrain[ coordinateToIndex( x, y, world )];
+function checkIfFree( area, world, objects, assertTiles = true, optTileWhitelist = null ) {
+    const { width, height } = area;
 
-    if ( ![ WORLD_TILES.GROUND, WORLD_TILES.SAND ].includes( tile )) {
-        return false;
+    // check if the underlying tile types around the object coordinate are valid for placement
+    if ( assertTiles ) {
+        const whitelist = Array.isArray( optTileWhitelist ) ? optTileWhitelist : [ WORLD_TILES.GROUND, WORLD_TILES.SAND ];
+        // ensure we have this amount of tiles around the object entrance (ensures we can walk there)
+        const PADDING = 2;
+        // uncomment width and height in below loop conditions if the ENTIRE object surface
+        // needs to be on top of the whitelisted tiles
+        for ( let x = Math.max( 0, area.x - PADDING ), xt = Math.min( world.width, area.x + /*width +*/ PADDING ); x < xt; ++x ) {
+            for ( let y = Math.max( 0, area.y - PADDING ), yt = Math.min( world.height, area.y + /*height +*/ PADDING ); y < yt; ++y ) {
+                const tile = world.terrain[ coordinateToIndex( x, y, world )];
+                if ( !whitelist.includes( tile )) {
+                    return false;
+                }
+            }
+        }
     }
 
     // check if there is no other Object registered at this position
-
-    const radius = Math.round( Math.max( width, height ) / 2 );
+    const { x, y } = area;
+    const radius = Math.max( width, height ) / 2;
     for ( let i = 0, l = objects.length; i < l; ++i ) {
-        const { x: cx, y: cy, width: cwidth, height: cheight } = objects[ i ];
-        const cRadius = Math.round( Math.max( cwidth, cheight ));
-        const dist = distance( x, y, cx, cy );
-        if ( dist < radius + cRadius ) {
+        const compare = objects[ i ];
+        const compareRadius = Math.max( compare.width, compare.height );
+        const dist = distance( x, y, compare.x, compare.y );
+
+        if ( dist < radius + compareRadius ) {
             return false;
         }
     }

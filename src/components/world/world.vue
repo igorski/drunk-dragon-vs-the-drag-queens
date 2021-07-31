@@ -1,5 +1,5 @@
 <template>
-    <div ref="canvasContainer" class="world-canvas" />
+    <div v-show="!DEBUG" ref="canvasContainer" class="world-canvas" />
 </template>
 
 <script>
@@ -18,6 +18,8 @@ let zcanvas, renderer;
 export default {
     data: () => ({
         handlers: [],
+        // in development mode debug mode toggles between the world renderer and the full map
+        DEBUG: false,
     }),
     computed: {
         ...mapState([
@@ -40,6 +42,21 @@ export default {
                 renderer?.setInteractive( value === SCREEN_GAME );
             }
         },
+        DEBUG( value ) {
+            if ( process.env.NODE_ENV === "development" ) {
+                if ( value ) {
+                    if ( !this._debugSprite ) {
+                        this._debugSprite = new Image();
+                        this._debugSprite.style.width  = "auto";
+                        this._debugSprite.style.height = "550px";
+                    }
+                    this._debugSprite.src = ( this.activeEnvironment.type === BUILDING_TYPE ? SpriteCache.ENV_BUILDING : SpriteCache.ENV_WORLD ).src;
+                    document.body.appendChild( this._debugSprite );
+                } else if ( this._debugSprite ){
+                    document.body.removeChild( this._debugSprite );
+                }
+            }
+        }
     },
     created() {
         /**
@@ -63,6 +80,14 @@ export default {
             window.addEventListener( event, callback );
         });
         this.handleEnvironment();
+
+        if ( process.env.NODE_ENV === "development" ) {
+            window.addEventListener( "keyup", ({ keyCode }) => {
+                if ( keyCode === 68 ) {
+                    this.DEBUG = !this.DEBUG; // toggle debug mode with D key
+                }
+            });
+        }
     },
     mounted() {
         zcanvas.insertInPage( this.$refs.canvasContainer );
@@ -118,7 +143,6 @@ export default {
 
             zcanvas.addChild( renderer );
             renderer.render( environment, this.player );
-
             this.handleResize( null ); // size to match device / browser dimensions
         },
     }
