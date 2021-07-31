@@ -1,8 +1,8 @@
-import store               from "@/store/modules/environment-module";
-import { QUEEN, DRAGON }   from "@/definitions/character-types";
-import CharacterFactory    from "@/model/factories/character-factory";
-import EffectFactory       from "@/model/factories/effect-factory";
-import { WORLD_TYPE }      from "@/model/factories/world-factory";
+import store from "@/store/modules/environment-module";
+import { QUEEN, DRAB, DRAGON } from "@/definitions/character-types";
+import CharacterFactory from "@/model/factories/character-factory";
+import EffectFactory from "@/model/factories/effect-factory";
+import { WORLD_TYPE } from "@/model/factories/world-factory";
 import { GAME_ACTIVE, GAME_OVER } from "@/definitions/game-states";
 import {
     SCREEN_SHOP, SCREEN_HOTEL, SCREEN_GAME, SCREEN_CHARACTER_INTERACTION, SCREEN_BATTLE
@@ -31,6 +31,7 @@ jest.mock("@/services/environment-bitmap-cacher", () => ({
 jest.mock("@/utils/terrain-util", () => ({
     getFirstFreeTileOfTypeAroundPoint: () => ({ x: 0, y: 0 }),
     positionInReachableDistanceFromPoint: () => mockValue,
+    getRandomFreeTilePosition: () => mockValue
 }));
 jest.mock("@/utils/sprite-cache", () => ({
     ENV_BUILDING: {},
@@ -462,6 +463,21 @@ describe( "Vuex environment module", () => {
                     expect( commit ).toHaveBeenNthCalledWith( 1, "setScreen", SCREEN_BATTLE );
                 });
             });
+        });
+
+        it( "should be able to generate a requested amount of Characters by type", () => {
+            const mockedGetters = {
+                activeEnvironment: {
+                    // one pre-existing Character
+                    characters: [ CharacterFactory.create({ type: DRAGON }) ],
+                },
+                player: { maxHp: 10, level: 1 }
+            };
+            mockValue = { x: 6, y: 6 }; // for positionInReachableDistanceFromPoint
+
+            const amount = 10;
+            actions.generateCharacters({ getters: mockedGetters }, { type: DRAB, amount });
+            expect( mockedGetters.activeEnvironment.characters ).toHaveLength( amount + 1 );
         });
 
         it( "should be able to update a Characters position", () => {

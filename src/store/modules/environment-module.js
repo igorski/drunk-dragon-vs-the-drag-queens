@@ -236,14 +236,14 @@ export default {
         hitTest({ getters, commit, dispatch }) {
             EnvironmentActions.hitTest({ dispatch, commit, getters }, getters.activeEnvironment );
         },
-        generateCharacters({ getters }, type ) {
+        generateCharacters({ getters }, { type, amount = 20 }) {
             const { activeEnvironment, player } = getters;
             const { characters } = activeEnvironment;
             // TODO: check for limits on existing characters of same type?
             const maxTile  = getMaxWalkableTile();
-            for ( let i = 0; i < 20; ++i ) {
+            for ( let i = 0; i < amount; ++i ) {
                 // the first group should be guaranteed to be within walking distance
-                const coords = ( i < 5 ) ? positionInReachableDistanceFromPoint(
+                const coords = ( i < ( amount / 4 )) ? positionInReachableDistanceFromPoint(
                     activeEnvironment, activeEnvironment.x, activeEnvironment.y, 20 + ( i * 5 ), maxTile
                 ) : getRandomFreeTilePosition( activeEnvironment, 0 );
                 console.warn(i,coords);

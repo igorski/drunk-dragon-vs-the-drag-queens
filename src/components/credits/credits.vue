@@ -2,10 +2,8 @@
     <modal :title="$t('credits')" @close="$emit('close')">
         <p>
             Unless otherwise stated, programming, illustrations and music by
-            <a href="https://www.igorski.nl" target="_blank" title="igorski.nl website">igorski</a>.
-        </p>
-        <p>
-            Title and concept kindly donated by Lucas van Heerikhuizen. World sprite tiles by Joost Huijbers.
+            <a href="https://www.igorski.nl" target="_blank" title="igorski.nl website">igorski</a>.<br />
+            Title and concept kindly donated by Lucas van Heerikhuizen. Overground sprite tiles by Joost Huijbers.
         </p>
         <h3 v-t="'artwork'"></h3>
         <ul>

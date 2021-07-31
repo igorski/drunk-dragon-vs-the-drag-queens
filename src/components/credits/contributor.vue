@@ -1,13 +1,13 @@
 <template functional>
     <span>
-        "<a
+        <a
             :href="props.href"
             :title="props.title"
             target="_blank"
             rel="noopener noreferrer"
         >
             {{ props.title }}
-        </a>" {{ parent.$t('by') }} {{ props.author }}
+        </a> {{ parent.$t('by') }} <span class="author">{{ props.author }}</span>
     </span>
 </template>
 
@@ -29,3 +29,9 @@ export default {
     }
 };
 </script>
+
+<style scoped>
+.author {
+    font-style: italic;
+}
+</style>

@@ -85,7 +85,6 @@ npm run test
 * When characters are drunk, attacks should occasionally miss!
 * Generate the world in villages (clustered sections with shops and buildings) -> create walkable paths between these
 * Unit tests for hourNow !== lastHour in game-module.updateGame()
-* Unit tests for environment-module.generateCharacters()
 * Some shops are empty (have no type ?)
 * Should running away not completely reposition the opponent but keep it somewhere within the screen?
 * Regenerate characters when re-entering empty floors?

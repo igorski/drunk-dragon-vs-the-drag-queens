@@ -198,7 +198,7 @@ export default {
                                     title: getters.translate( "timeouts.midnight" ),
                                     message: getters.translate( "timeouts.midnightDrabWarning" )
                                 });
-                                dispatch( "generateCharacters", DRAB );
+                                dispatch( "generateCharacters", { type: DRAB });
                             } else if ( hourNow === VALID_HOURS_INSIDE[ VALID_HOURS_INSIDE.length - 1 ]) {
                                 commit( "openDialog", {
                                     title: getters.translate( "timeouts.lastValidHour" ),
