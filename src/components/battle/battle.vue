@@ -157,10 +157,10 @@ export default {
             this.messages = [];
             const { level, xp } = this.player;
             if ( xp > this.playerStats.xp ) {
-                this.messages.push( this.$t( "youEarnedXp", { xp: xp - this.playerStats.xp } ));
+                this.showNotification({ message: this.$t( "youEarnedXp", { xp: xp - this.playerStats.xp } ) });
             }
             if ( level > this.playerStats.level ) {
-                this.messages.push( this.$t( "youAdvancedToLevel", { level }));
+                this.showNotification({ message: this.$t( "youAdvancedToLevel", { level }) });
             }
             window.setTimeout(() => {
                 this.close();
