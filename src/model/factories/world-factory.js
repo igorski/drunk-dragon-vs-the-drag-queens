@@ -5,6 +5,7 @@ import { QUEEN, DRAGON }           from "@/definitions/character-types";
 import { SHOE_FLIPPERS }           from "@/definitions/item-types";
 import HashUtil                    from "@/utils/hash-util";
 import WorldCache                  from "@/utils/world-cache";
+import { generateDragQueenName }   from "@/utils/name-generator";
 import CharacterActions            from "@/model/actions/character-actions";
 import BuildingFactory             from "./building-factory";
 import CharacterFactory            from "./character-factory";
@@ -120,7 +121,7 @@ const WorldFactory =
 
         for ( let i = 0; i < amountOfCharacters; ++i ) {
             const { x, y } = world.buildings[ i ];
-            world.characters.push( CharacterFactory.create({ x, y: y + 1, type: QUEEN }));
+            world.characters.push( CharacterFactory.create({ x, y: y + 1, type: QUEEN }, { name: generateDragQueenName() }));
         }
 
         // center player within world

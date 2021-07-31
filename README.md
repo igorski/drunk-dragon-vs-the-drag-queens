@@ -81,26 +81,28 @@ npm run test
 * Drag swag/charisma == mana
 ** Show in status view
 
-* Tweak attack efficiency against drabs
 * When characters are drunk, attacks should occasionally miss!
 * Generate the world in villages (clustered sections with shops and buildings) -> create walkable paths between these
-* Unit tests for hourNow !== lastHour in game-module.updateGame()
+* Ensure that on game creation the player can find a path to both a building and a clothes shop
+* Before generating door queens, ensure building was actually placed successfully!
 * Some shops are empty (have no type ?)
+
+* Create unique sprite for hotel counter
+* Show building floor level
+* Prevent creating double walls when generating floors
+* Queens inside buildings should either be woo'd or fought (and be generated again ;)
+* Unit tests for hourNow !== lastHour in game-module.updateGame()
+* Tweak attack efficiency against drabs
 * Should running away not completely reposition the opponent but keep it somewhere within the screen?
 * Regenerate characters when re-entering empty floors?
-* Ensure that on game creation the player can find a path to both a building and a clothes shop
-* Create unique sprite for hotel counter
-* Queens inside buildings should either be woo'd or fought
-* Before generating door queens, ensure building was actually placed successfully!
-* Show building floor level
 * Create cave level for extra excitement
-* Implement swamp ?
+* Implement swamp for extra excitement?
 * Do not save player walk effects when saving during walk (one save game got 'stuck')
-* Walking left/right on overground does weird jumps?
+* Walking left/right on overground does weird jumps when using keyboard control?
 * When vacating building/shop as effect timeout is exceeded, close active screens before showing dialog
 * Animate player position on map (pulsating circle)
 * Waypoint path finder should not go over exits when calculating path inside building (exists are only valid as destination tile)
-* Render map on status screen after opening screen (show message during render)
+* Render map on status screen only after opening the screen (show message during render)
 * When buying a clothes item, discard the existing one of the same type (show confirmation)
 * Add a base price to certain items (e.g. clothes shouldn't be too cheap, yo. heels and flippers are expensive items).
 * Display product capabilities in shop display
@@ -111,7 +113,6 @@ npm run test
 * replace pines with more tropical trees
 * More attack types depending on item / level ? (certain levels learn new moves)
 * Images for shop products
-* At zoomed out levels click pointer sometimes won't react ?
 * Dynamic components need a loader
 * When drunk, characters should slur all 's' words
 * Create start screen when no game is saved, show intro

@@ -12,20 +12,29 @@
                     <fieldset class="rpg-fieldset">
                         <div class="input">
                             <label v-t="'name'" for="name"></label>
-                            <input ref="nameInput"
-                                   type="text" name="name"
-                                   v-model="appearance.name"
-                                   autocomplete="false"
+                            <input
+                                ref="nameInput"
+                                type="text" name="name"
+                                v-model="appearance.name"
+                                autocomplete="false"
                             />
                         </div>
                     </fieldset>
-                    <button
-                        v-t="'thatsMe'"
-                        type="submit"
-                        title="$t('save')"
-                        class="rpg-button rpg-button--submit"
-                        :disabled="!isValid"
-                    ></button>
+                    <div class="button-group">
+                        <button
+                            v-t="'randomName'"
+                            type="button"
+                            class="rpg-button rpg-button--submit"
+                            @click="generateRandomName()"
+                        ></button>
+                        <button
+                            v-t="'thatsMe'"
+                            type="submit"
+                            title="$t('save')"
+                            class="rpg-button rpg-button--submit"
+                            :disabled="!isValid"
+                        ></button>
+                    </div>
                 </form>
                 <!-- form 2 character design -->
                 <form v-if="form === 1"
@@ -96,6 +105,7 @@ import PriceTypes from "@/definitions/price-types";
 import CharacterFactory, { QUEEN_APPEARANCE, QUEEN_SKIN_COLORS } from "@/model/factories/character-factory";
 import InventoryFactory from "@/model/factories/inventory-factory";
 import Character from "@/renderers/character-queen";
+import { generateDragQueenName } from "@/utils/name-generator";
 import messages from "./messages.json";
 
 // a little pocket money to begin with
@@ -139,13 +149,6 @@ export default {
             return this.character && this.appearance.name;
         },
     },
-    watch: {
-        name( value ) {
-            if ( this.character ) {
-                this.appearance.name = value;
-            }
-        }
-    },
     mounted() {
         this.$refs.nameInput.focus();
     },
@@ -164,6 +167,9 @@ export default {
         goToForm( index ) {
             this.form = !this.isValid ? 0 : Math.max( 0, index );
         },
+        generateRandomName() {
+            this.appearance.name = generateDragQueenName();
+        },
         saveCharacter() {
             this.$emit( "input", this.character );
         },
@@ -172,33 +178,42 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-    @import "@/styles/_layout.scss";
-    @import "@/styles/forms.scss";
-    @import "@/styles/animations.scss";
+@import "@/styles/_layout.scss";
+@import "@/styles/forms.scss";
+@import "@/styles/animations.scss";
 
-    .character-creator {
-        @include window();
-        width: 100%;
-        vertical-align: top;
+.character-creator {
+    @include window();
+    width: 100%;
+    vertical-align: top;
 
-        @include large() {
-            &__wrapper {
-                position: relative;
-            }
-            &__preview {
-                position: absolute;
-                left: 375px;
-                top: -125px;
-            }
+    @include large() {
+        &__wrapper {
+            position: relative;
         }
-
-        @include mobile() {
-            fieldset {
-                width: 100%;
-            }
-            &__form {
-                width: 100%;
-            }
+        &__preview {
+            position: absolute;
+            left: 375px;
+            top: -125px;
         }
     }
+
+    @include mobile() {
+        fieldset {
+            width: 100%;
+        }
+        &__form {
+            width: 100%;
+        }
+    }
+
+    .button-group {
+        margin-left: $spacing-large;
+
+        .rpg-button {
+            display: inline-block;
+            margin: $spacing-small $spacing-medium 0 0;
+        }
+    }
+}
 </style>

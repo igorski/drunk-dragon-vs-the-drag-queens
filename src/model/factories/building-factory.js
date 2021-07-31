@@ -2,6 +2,7 @@ import { Map }            from "rot-js";
 import PriceTypes         from "@/definitions/price-types";
 import HashUtil           from "@/utils/hash-util";
 import WorldCache         from "@/utils/world-cache";
+import { generateDragQueenName } from "@/utils/name-generator";
 import CharacterFactory   from "./character-factory";
 import EnvironmentFactory from "./environment-factory";
 import {
@@ -215,7 +216,7 @@ function createFloor( width, height, terrain = [], floorType, player ) {
                 if ( assertSurroundingTilesOfTypeAroundPoint( x, y, environment, BUILDING_TILES.GROUND )
                      && !characterIndices.includes( index ))
                  {
-                    out.characters.push( CharacterFactory.create({ x, y }));
+                    out.characters.push( CharacterFactory.create({ x, y }, { name: generateDragQueenName() }));
                     characterIndices.push( index );
                     break; // on to next character
                 }
