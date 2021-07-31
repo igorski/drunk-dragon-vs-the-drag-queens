@@ -70,9 +70,19 @@ export default class OvergroundRenderer extends sprite {
         /* keyboard control */
 
         this._keyListener = this.handleKeyDown.bind( this );
-        window.addEventListener( "keydown", this._keyListener );
 
         /* mouse control */
+
+        this._mouseListener = ({ pageX, pageY }) => {
+            this._mouseX = pageX;
+            this._mouseY = pageY;
+        };
+
+        this._clickListener = ({ offsetX, offsetY, target }) => {
+            if ( target.tagName === "CANVAS" ) {
+                this.handleRelease( offsetX, offsetY );
+            }
+        };
 
         this._mouseX   = 0;
         this._mouseY   = 0;
@@ -102,14 +112,8 @@ export default class OvergroundRenderer extends sprite {
         if ( this._hasListeners ) {
             return;
         }
-        this._mouseListener = ({ pageX, pageY }) => {
-            this._mouseX = pageX;
-            this._mouseY = pageY;
-        };
-        this._clickListener = ({ offsetX, offsetY }) => {
-            this.handleRelease( offsetX, offsetY );
-        };
-        window.addEventListener( "mousemove", this._mouseListener );
+        window.addEventListener( "keydown",     this._keyListener );
+        window.addEventListener( "mousemove",   this._mouseListener );
         window.addEventListener( "pointerdown", this._clickListener );
 
         this._hasListeners = true;
@@ -119,8 +123,8 @@ export default class OvergroundRenderer extends sprite {
         if ( !this._hasListeners ) {
             return;
         }
-        window.removeEventListener( "keydown",   this._keyListener );
-        window.removeEventListener( "mousemove", this._mouseListener );
+        window.removeEventListener( "keydown",     this._keyListener );
+        window.removeEventListener( "mousemove",   this._mouseListener );
         window.removeEventListener( "pointerdown", this._clickListener );
 
         this._hasListeners = false;
