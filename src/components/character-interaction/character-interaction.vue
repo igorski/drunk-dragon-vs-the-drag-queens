@@ -45,7 +45,7 @@
             <div v-if="message"
                  class="speech-bubble"
                  @click="message = null"
-             >{{ message }}</div>
+             >{{ processedMessage }}</div>
              <div v-if="thought"
                   class="thought-bubble"
                   @click="thought = null"
@@ -106,6 +106,9 @@ export default {
             const { width } = this.dimensions;
             return Math.min( ideal, width * .9 );
         },
+        processedMessage() {
+            return slurWords( this.message, this.intoxication );
+        }
     },
     created() {
         this.intoxication = this.intent.type === ItemTypes.LIQUOR ? randomFloatInRange( 0.35, 1 ) : this.character.properties.intoxication;
@@ -137,7 +140,7 @@ export default {
                     list = this.$t( "answers.canIEnter" );
                     break;
             }
-            this.message = slurWords( randomFromList( list ), this.intoxication );
+            this.message = randomFromList( list );
 
             // persistent bugging shows the Characters intent in a thought balloon
             if ( ++this.askedQuestions > 1 && this.intentTimeout === null ) {

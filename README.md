@@ -84,7 +84,6 @@ npm run test
 Move positioning utilities out of world-factory and into util so it can be
 reused in building-factor (we need to position the bed on a free spot)
 
-* Character interaction wrap all messages in slur
 * Alternate colour scheme for bar/hotel floors inside buildings
 * World-factory > Overground-factory ??
 * Add explanation to first drunk dragon fight
