@@ -6,6 +6,7 @@ const dirAssets = `${dirSrc}/assets`;
 module.exports = {
     lintOnSave: false,
     publicPath: './',
+    productionSourceMap: false,
     pages: {
         // self contained page
         index: {
