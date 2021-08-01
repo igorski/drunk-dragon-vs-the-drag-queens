@@ -1,6 +1,7 @@
 import { Map }            from "rot-js";
 import PriceTypes         from "@/definitions/price-types";
 import HashUtil           from "@/utils/hash-util";
+import { FURNITURE }      from "@/utils/sprite-cache"
 import WorldCache         from "@/utils/world-cache";
 import { generateDragQueenName } from "@/utils/name-generator";
 import CharacterFactory   from "./character-factory";
@@ -10,8 +11,9 @@ import {
 } from "@/utils/random-util";
 import {
     positionAtFirstFreeTileType, positionAtLastFreeTileType, positionAtRandomFreeTileType,
-    coordinateToIndex, assertSurroundingTilesOfTypeAroundPoint
+    coordinateToIndex, getRandomFreeTilePosition, assertSurroundingTilesOfTypeAroundPoint
 } from "@/utils/terrain-util";
+import { reserveObject } from "@/utils/map-util";
 
 export const BUILDING_TYPE = "Building";
 export const FLOOR_TYPES = {
@@ -25,16 +27,15 @@ export const FLOOR_TYPES = {
 export const BUILDING_TILES = {
     GROUND  : 0,
     STAIRS  : 1,
-    HOTEL   : 2,
-    WALL    : 3,
-    NOTHING : 4
+    WALL    : 2,
+    NOTHING : 3
 };
 /**
  * Get the highest index within the tiles list that given character can walk on.
  * Depending on our inventory / other character properties we can navigate over
  * different tiles (e.g. walk on water)
  */
-export const getMaxWalkableTile = character => BUILDING_TILES.HOTEL;
+export const getMaxWalkableTile = character => BUILDING_TILES.STAIRS;
 
 const MIN_FLOOR_AMOUNT  = 3;
 const MIN_CORRIDOR_SIZE = 1;
@@ -118,14 +119,11 @@ const BuildingFactory =
 
             let floorType = randomBool() ? FLOOR_TYPES.BAR : FLOOR_TYPES.HOTEL;
             if ( i === maxFloor ) {
-                // the last floor should always be a hotel, create the hotel counter
+                // the last floor should always be a hotel, ensure there is a hotel tile
                 floorType = FLOOR_TYPES.HOTEL;
             } else {
                 // all floors except for the last one have an the exit to the next floor
                 terrain[ positionAtLastFreeTileType( terrain, BUILDING_TILES.GROUND ) ] = BUILDING_TILES.STAIRS;
-            }
-            if ( floorType === FLOOR_TYPES.HOTEL ) {
-                terrain[ positionAtRandomFreeTileType( terrain, BUILDING_TILES.GROUND ) ] = BUILDING_TILES.HOTEL;
             }
             floors.push( createFloor( floorWidth, floorHeight, terrain, floorType, player ));
         }
@@ -189,16 +187,36 @@ function createFloor( width, height, terrain = [], floorType, player ) {
         hotels: [],
     };
 
-    // create exits / hotels
+    // create exits
 
     for ( let x = 0, y = 0; y < height; x = ( ++x === width ? ( x % width + ( ++y & 0 ) ) : x )) {
         const tile = terrain[ coordinateToIndex( x, y, environment ) ];
         if ( tile === BUILDING_TILES.STAIRS ) {
             out.exits.push({ x, y });
-        } else if ( tile === BUILDING_TILES.HOTEL ) {
+        }
+    }
+
+    // create hotel
+
+    if ( floorType === FLOOR_TYPES.HOTEL ) {
+        let tries = 255; // let's not recurse forever
+        while ( true ) {
             const priceList = [ PriceTypes.AVERAGE, PriceTypes.EXPENSIVE, PriceTypes.LUXURY ];
             const price = Math.round(( randomFromList( priceList ) * Math.random() ) + ( player.level * 2 ));
-            out.hotels.push({ x, y, price });
+            const { x, y } = getRandomFreeTilePosition( out, BUILDING_TILES.GROUND );
+            const hotel = { x, y, ...WorldCache.sizeHotel, price };
+            const position = reserveObject( hotel, out );
+            if ( position ) {
+console.warn("generated hotel.");
+                hotel.x = position.x;
+                hotel.y = position.y;
+                out.hotels.push( hotel );
+                break;
+            } else if ( --tries === 0 ) {
+console.error("DRAT! (could not place hotel)");
+                floorType = out.floorType = FLOOR_TYPES.BAR;
+                break;
+            }
         }
     }
 

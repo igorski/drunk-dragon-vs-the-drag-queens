@@ -240,6 +240,7 @@ export default {
     // menu is horizontal bar aligned to the top of the screen on resolutions above mobile width
 
     .menu {
+        @include noSelect();
         width: 100%;
         height: $menu-height;
         box-sizing: border-box;

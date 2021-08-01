@@ -2,6 +2,13 @@ import MD5          from "MD5";
 import { DRAGON }   from "@/definitions/character-types";
 import WorldFactory from "@/model/factories/world-factory";
 
+jest.mock( "zcanvas", () => ({
+    loader: {
+        onReady: new Promise(resolve => resolve())
+    },
+    sprite: jest.fn()
+}));
+
 describe("World factory", () => {
     it( "should be able to assemble and disassemble a serialized world without loss of data", () => {
         const world = WorldFactory.create();

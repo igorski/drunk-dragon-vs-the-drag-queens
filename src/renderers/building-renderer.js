@@ -1,7 +1,7 @@
 import OvergroundRenderer from "./overground-renderer";
 import TerrainUtil from "@/utils/terrain-util";
 import WorldCache from "@/utils/world-cache";
-import SpriteCache from "@/utils/sprite-cache";
+import SpriteCache, { FURNITURE } from "@/utils/sprite-cache";
 
 import { BUILDING_TILES, getMaxWalkableTile } from "@/model/factories/building-factory";
 
@@ -15,7 +15,7 @@ export default class BuildingRenderer extends OvergroundRenderer {
      */
     constructor( store, width, height ) {
         super( store, width, height );
-        this.validNavigationTargets = [ BUILDING_TILES.GROUND, BUILDING_TILES.STAIRS, BUILDING_TILES.HOTEL ];
+        this.validNavigationTargets = [ BUILDING_TILES.GROUND, BUILDING_TILES.STAIRS ];
     }
 
     /* public methods */
@@ -58,6 +58,14 @@ export default class BuildingRenderer extends OvergroundRenderer {
                                   sourceX, sourceY, canvasWidth, canvasHeight,
                                   targetX, targetY, canvasWidth, canvasHeight );
 
+        // render objects
+
+        const { hotels } = floor;
+
+        renderObjects( aCanvasContext, hotels, visibleTiles, FURNITURE.bed );
+
+        // render characters
+
         this.renderCharacters( aCanvasContext, floor.characters, visibleTiles );
         this._playerSprite.render( aCanvasContext, vx, vy, left, top );
 
@@ -69,5 +77,39 @@ export default class BuildingRenderer extends OvergroundRenderer {
 
         // render UI
         this.renderUI( aCanvasContext );
+    }
+}
+
+/* internal methods */
+
+function renderObjects( aCanvasContext, objectList, { left, top, right, bottom }, spriteObject ) {
+    const { tileWidth, tileHeight } = WorldCache;
+    const { width, height } = spriteObject;
+    let targetX, targetY;
+
+    // to broaden the visible range, add one whole coordinate
+    // NOTE: this is just for determining visibility, when rendering
+    // use the actual values !!
+
+    const w = width  / tileWidth;
+    const h = height / tileHeight;
+
+    const l = left - w;
+    const r = right + w;
+    const t = top - h;
+    const b = bottom + h;
+
+    for ( let i = 0, l = objectList.length; i < l; ++i ) {
+        const { x, y, type } = objectList[ i ];
+        if ( x >= l && x <= r &&
+             y >= t && y <= b )
+        {
+            targetX = ( x - left ) * tileWidth;
+            targetY = ( y - top )  * tileHeight;
+            targetX -= (( width  - tileWidth )  * .5 ); // align horizontally
+            targetY -= (( height - tileHeight )); // entrance is on lowest side
+
+            aCanvasContext.drawImage( SpriteCache.FURNITURE, spriteObject.x, spriteObject.y, width, height, targetX, targetY, width, height );
+        }
     }
 }

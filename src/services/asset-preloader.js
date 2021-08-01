@@ -36,6 +36,7 @@ export const preloadAssets = () =>
         { src: `${assetRoot}tree.png`,            target: SpriteCache.TREE },
         { src: `${assetRoot}water.png`,           target: SpriteCache.WATER },
         { src: `${assetRoot}crosshairs.png`,      target: SpriteCache.CROSSHAIRS },
+        { src: `${assetRoot}furniture.png`,       target: SpriteCache.FURNITURE },
         { src: `${assetRoot}sheet_drab.png`,      target: SpriteCache.DRAB },
         { src: `${assetRoot}sheet_queen.png`,     target: SpriteCache.QUEEN },
         { src: `${assetRoot}sheet_dragon.png`,    target: SpriteCache.DRAGON }

@@ -14,6 +14,13 @@ jest.mock( "@/utils/path-finder", () => ({
     },
 }));
 
+jest.mock( "zcanvas", () => ({
+    loader: {
+        onReady: new Promise(resolve => resolve())
+    },
+    sprite: jest.fn()
+}));
+
 describe( "Environment actions", () => {
     describe( "When the movement of a Character to a target coordinate is requested", () => {
         const getters     = { gameTime: 5000 };
@@ -119,7 +126,8 @@ describe( "Environment actions", () => {
                 type: WORLD_TYPE,
                 characters: [{ x: 10, y: 11 }],
                 shops: [{ x: 11, y: 10 }],
-                buildings: [{ x: 11, y: 11 }]
+                buildings: [{ x: 11, y: 11 }],
+                terrain: []
             };
             expect( EnvironmentActions.hitTest({ commit, dispatch, getters }, environment )).toBe( false );
             expect( dispatch ).not.toHaveBeenCalled();
@@ -136,11 +144,11 @@ describe( "Environment actions", () => {
                 type: WORLD_TYPE,
                 characters: [{ x: 10, y: 10 }],
                 shops: [],
-                buildings: []
+                buildings: [],
+                terrain: []
             };
             expect( EnvironmentActions.hitTest({ commit, dispatch, getters }, environment )).toBe( true );
             expect( dispatch ).toHaveBeenCalledWith( "interactWithCharacter", environment.characters[ 0 ]);
-            expect( commit ).toHaveBeenCalledWith( "setYPosition", { value: environment.y + 1 });
         });
 
         it( "should enter a shop when the player collides with said shop", () => {
@@ -153,11 +161,11 @@ describe( "Environment actions", () => {
                 type: WORLD_TYPE,
                 characters: [],
                 shops: [{ x: 10, y: 10 }],
-                buildings: []
+                buildings: [],
+                terrain: []
             };
             expect( EnvironmentActions.hitTest({ commit, dispatch, getters }, environment )).toBe( true );
             expect( dispatch ).toHaveBeenCalledWith( "enterShop", environment.shops[ 0 ]);
-            expect( commit ).toHaveBeenCalledWith( "setYPosition", { value: environment.y + 1 });
         });
 
         it( "should enter a building when the player collides with said building", () => {
@@ -170,11 +178,11 @@ describe( "Environment actions", () => {
                 type: WORLD_TYPE,
                 characters: [],
                 shops: [],
-                buildings: [{ x: 10, y: 10 }]
+                buildings: [{ x: 10, y: 10 }],
+                terrain: []
             };
             expect( EnvironmentActions.hitTest({ commit, dispatch, getters }, environment )).toBe( true );
             expect( dispatch ).toHaveBeenCalledWith( "enterBuilding", environment.buildings[ 0 ]);
-            expect( commit ).toHaveBeenCalledWith( "setYPosition", { value: environment.y + 1 });
         });
 
         it( "should move to a lower floor when the player collides with the first exit inside a building", () => {
@@ -187,11 +195,11 @@ describe( "Environment actions", () => {
                 type: BUILDING_TYPE,
                 characters: [],
                 shops: [],
-                exits: [{ x: 10, y: 10 }, { x: 12, y: 12 }]
+                exits: [{ x: 10, y: 10 }, { x: 12, y: 12 }],
+                terrain: []
             };
             expect( EnvironmentActions.hitTest({ commit, dispatch, getters }, environment )).toBe( true );
             expect( dispatch ).toHaveBeenCalledWith( "changeFloor", getters.floor - 1 );
-            expect( commit ).toHaveBeenCalledWith( "setYPosition", { value: environment.y + 1 });
         });
 
         it( "should move to a higher floor when the player collides with the last exit inside a building", () => {
@@ -204,11 +212,11 @@ describe( "Environment actions", () => {
                 type: BUILDING_TYPE,
                 characters: [],
                 shops: [],
-                exits: [{ x: 8, y: 8 }, { x: 10, y: 10 }]
+                exits: [{ x: 8, y: 8 }, { x: 10, y: 10 }],
+                terrain: []
             };
             expect( EnvironmentActions.hitTest({ commit, dispatch, getters }, environment )).toBe( true );
             expect( dispatch ).toHaveBeenCalledWith( "changeFloor", getters.floor + 1 );
-            expect( commit ).toHaveBeenCalledWith( "setYPosition", { value: environment.y + 1 });
         });
 
         it ( "should enter the hotel when the player collides with a hotel counter", () => {
@@ -222,7 +230,8 @@ describe( "Environment actions", () => {
                 characters: [],
                 shops: [],
                 exits: [],
-                hotels: [{ x: 10, y: 10 }]
+                hotels: [{ x: 10, y: 10 }],
+                terrain: []
             };
             expect( EnvironmentActions.hitTest({ commit, dispatch, getters }, environment )).toBe( true );
             expect( dispatch ).toHaveBeenCalledWith( "enterHotel", environment.hotels[ 0 ]);

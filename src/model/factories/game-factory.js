@@ -1,8 +1,8 @@
-import LZString         from 'lz-string';
-import BuildingFactory  from './building-factory';
-import CharacterFactory from './character-factory';
-import EffectFactory    from './effect-factory';
-import WorldFactory     from './world-factory';
+import LZString         from "lz-string";
+import BuildingFactory  from "./building-factory";
+import CharacterFactory from "./character-factory";
+import EffectFactory    from "./effect-factory";
+import WorldFactory     from "./world-factory";
 
 export default
 {
@@ -31,7 +31,7 @@ export default
         const json = JSON.stringify( out );
         try {
             const compressed = LZString.compressToUTF16( json );
-            if ( process.env.NODE_ENV === 'development' ) {
+            if ( process.env.NODE_ENV === "development" ) {
                 console.log(
                     `Compressed ${json.length} to ${compressed.length}
                     (${(( compressed.length / json.length ) * 100 ).toFixed( 2 )}% of original size)`
@@ -59,7 +59,7 @@ export default
             return null;
         }
 
-        if ( !data || typeof data.h !== 'string' ) {
+        if ( !data || typeof data.h !== "string" ) {
             return null;
         }
         const game = {

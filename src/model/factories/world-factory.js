@@ -1,21 +1,22 @@
-import { Map }                     from "rot-js";
-import Bowser                      from "bowser";
-import MD5                         from "MD5";
-import { QUEEN, DRAGON }           from "@/definitions/character-types";
-import { SHOE_FLIPPERS }           from "@/definitions/item-types";
-import HashUtil                    from "@/utils/hash-util";
-import WorldCache                  from "@/utils/world-cache";
-import { generateDragQueenName }   from "@/utils/name-generator";
-import { findPath }                from "@/utils/path-finder";
+import { Map } from "rot-js";
+import Bowser  from "bowser";
+import MD5     from "MD5";
+
+import { QUEEN, DRAGON }              from "@/definitions/character-types";
+import { SHOE_FLIPPERS }              from "@/definitions/item-types";
+import HashUtil                       from "@/utils/hash-util";
+import WorldCache                     from "@/utils/world-cache";
+import { reserveObject, checkIfFree } from "@/utils/map-util";
+import { generateDragQueenName }      from "@/utils/name-generator";
+import { findPath }                   from "@/utils/path-finder";
 import { random, randomInRangeInt }   from "@/utils/random-util";
-import CharacterActions            from "@/model/actions/character-actions";
-import BuildingFactory             from "./building-factory";
-import CharacterFactory            from "./character-factory";
-import EnvironmentFactory          from "./environment-factory";
-import ShopFactory, { SHOP_TYPES } from "./shop-factory";
+import CharacterActions               from "@/model/actions/character-actions";
+import BuildingFactory                from "./building-factory";
+import CharacterFactory               from "./character-factory";
+import EnvironmentFactory             from "./environment-factory";
+import ShopFactory, { SHOP_TYPES }    from "./shop-factory";
 import {
-    growTerrain, getSurroundingIndices, getSurroundingTiles, coordinateToIndex,
-    distance
+    growTerrain, getSurroundingIndices, getSurroundingTiles, coordinateToIndex
 } from "@/utils/terrain-util";
 
 export const WORLD_TYPE = "Overground";
@@ -599,112 +600,4 @@ function digRoads( worldWidth, worldHeight ) {
         }
     }
     return terrain;
-}
-
-/**
- * Reserves space for a given object at the given coordinate
- *
- * if the requested coordinate isn't free/available, this method
- * will search for the next free position as close as possible to
- * the the requested coordinate
- *
- * @param {Object} object to place
- * @param {Object} world the current world the object should fit in
- * @param {Array<Object>=} others Array of Objects that should be checked against
- * @param {Array<Number>=} optTileWhitelist optional list of tiles the group can be placed on
- * @return {Object|null} coordinates at which Object has been reserved
- */
-function reserveObject( object, world, others = [], optTileWhitelist ) {
-    // assemble the list of Objects we shouldn't collide with
-    const compare = [ ...world.shops, ...world.buildings, ...others ];
-    let { x, y } = object;
-
-    let tries = 255; // fail-safe, let's not recursive forever
-    while ( tries-- > 0 )
-    {
-        if ( checkIfFree({ ...object, x, y }, world, compare, true, optTileWhitelist )) {
-
-            // bit of a cheat... add a wall around the object entrance (which is always at the
-            // horizontal middle of the vertical bottom) so the player can't enter/walk outside of the entrace
-
-            const halfWidth = Math.round( object.width / 2 );
-            for ( let xd = x - ( halfWidth - 1 ); xd < x + halfWidth; ++xd ) {
-                for ( let yd = y - ( object.height - 1 ); yd <= y; ++yd ) {
-                    if ( xd === x && yd === y ) {
-                        continue;
-                    }
-                    world.terrain[ coordinateToIndex( xd, yd, world )] = WORLD_TILES.MOUNTAIN;
-                }
-            }
-            return { x, y };
-        }
-
-        // which direction we'll try next
-
-        const left  = x > world.width  / 2;
-        const up    = y > world.height / 2;
-
-        if ( left ) {
-            --x;
-        } else {
-            ++x;
-        }
-        if ( up ) {
-            --y;
-        } else {
-            ++y;
-        }
-
-        // keep within world bounds though
-
-        x = Math.max( 0, Math.min( x, world.width ));
-        y = Math.max( 0, Math.min( y, world.height ));
-    }
-    return null; // didn't find a spot... :(
-}
-
-/**
- * check whether there is nothing occupying the given
- * bounding box in the world
- *
- * @param {Object} area rectangle to verify if is free
- * @param {Object} world
- * @param {Array<Object>} objects
- * @param {boolean=} assertTiles default to true, ensures the tiles at the coordinate ara available
- * @param {Array<Number>=} optTileWhitelist optional list of tiles the group can be placed on
- * @return {boolean} whether the position is free
- */
-function checkIfFree( area, world, objects, assertTiles = true, optTileWhitelist = null ) {
-    const { width, height } = area;
-
-    // check if the underlying tile types around the object coordinate are valid for placement
-    if ( assertTiles ) {
-        const whitelist = Array.isArray( optTileWhitelist ) ? optTileWhitelist : [ WORLD_TILES.GROUND, WORLD_TILES.SAND ];
-        // ensure we have this amount of tiles around the object entrance (ensures we can walk there)
-        const PADDING = 2;
-        // uncomment width and height in below loop conditions if the ENTIRE object surface
-        // needs to be on top of the whitelisted tiles
-        for ( let x = Math.max( 0, area.x - PADDING ), xt = Math.min( world.width, area.x + /*width +*/ PADDING ); x < xt; ++x ) {
-            for ( let y = Math.max( 0, area.y - PADDING ), yt = Math.min( world.height, area.y + /*height +*/ PADDING ); y < yt; ++y ) {
-                const tile = world.terrain[ coordinateToIndex( x, y, world )];
-                if ( !whitelist.includes( tile )) {
-                    return false;
-                }
-            }
-        }
-    }
-
-    // check if there is no other Object registered at this position
-    const { x, y } = area;
-    const radius = Math.max( width, height ) / 2;
-    for ( let i = 0, l = objects.length; i < l; ++i ) {
-        const compare = objects[ i ];
-        const compareRadius = Math.max( compare.width, compare.height );
-        const dist = distance( x, y, compare.x, compare.y );
-
-        if ( dist < radius + compareRadius ) {
-            return false;
-        }
-    }
-    return true;
 }

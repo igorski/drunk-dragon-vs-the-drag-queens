@@ -46,7 +46,7 @@ import Inventory from "@/components/inventory/inventory";
 import { xpNeededForLevel } from "@/definitions/constants";
 import { BUILDING_TYPE } from "@/model/factories/building-factory";
 import { timestampToFormattedDate, timestampToTimeString } from "@/utils/time-util";
-import renderWorld from "@/renderers/world-map-renderer";
+import renderWorld from "@/renderers/overground-map-renderer";
 import renderBuilding from "@/renderers/building-map-renderer";
 import messages from "./messages.json";
 

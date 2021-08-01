@@ -1,6 +1,6 @@
-import { BUILDING_TILES }    from '@/model/factories/building-factory';
-import { coordinateToIndex } from '@/utils/terrain-util';
-import { createPixelCanvas } from '@/utils/canvas-util';
+import { BUILDING_TILES }    from "@/model/factories/building-factory";
+import { coordinateToIndex } from "@/utils/terrain-util";
+import { createPixelCanvas } from "@/utils/canvas-util";
 
 /**
  * @param {Object} environment (is building floor)
@@ -15,11 +15,11 @@ export default function( environment, targetWidth ) {
     let x, y;
 
     // floodfill the background with black
-    ctx.fillStyle = '#000';
+    ctx.fillStyle = "#000";
     ctx.fillRect( 0, 0, targetWidth, targetHeight );
 
     // outline
-    ctx.strokeStyle = 'green';
+    ctx.strokeStyle = "green";
     ctx.beginPath();
     ctx.moveTo( 0, 0 );
     ctx.lineTo( targetWidth, 0 );
@@ -43,22 +43,22 @@ export default function( environment, targetWidth ) {
         tileWidth  = Math.round( targetWidth  / cols );
         tileHeight = Math.round( targetHeight / rows );
 
-        color = '#F00';
+        color = "#F00";
 
         switch ( terrain[ index ] ) {
             case BUILDING_TILES.NOTHING:
                 continue;
 
             case BUILDING_TILES.GROUND:
-                color = '#0066FF';
+                color = "#0066FF";
                 break;
 
             case BUILDING_TILES.WALL:
-                color = '#AAA';
+                color = "#AAA";
                 break;
 
             case BUILDING_TILES.STAIRS:
-                color = '#FF00FF';
+                color = "#FF00FF";
                 tileWidth = tileHeight = 4;
                 break;
         }
@@ -70,9 +70,15 @@ export default function( environment, targetWidth ) {
         );
     }
 
+    // draw hotels
+
+    const { hotels } = environment;
+
+    drawItems( ctx, environment, hotels, 4, tileWidth, tileHeight, "purple" );
+
     // draw player
 
-    ctx.fillStyle = 'white';
+    ctx.fillStyle = "white";
     const dotSize = 4;
     ctx.fillRect(
         ( environment.x * tileWidth )  - dotSize / 2,
@@ -80,7 +86,21 @@ export default function( environment, targetWidth ) {
         dotSize, dotSize
     );
     const out = new Image();
-    out.src = cvs.toDataURL( 'image/png' );
+    out.src = cvs.toDataURL( "image/png" );
 
     return out;
 };
+
+function drawItems( ctx, environment, items, size, tileWidth, tileHeight, color ) {
+    items.forEach(({ x, y }) => {
+        const tx = x * tileWidth;
+        const ty = y * tileHeight;
+
+        const index = coordinateToIndex( tx, ty, environment);
+        if ( !environment.visitedTerrain.includes( index )) {
+            return; // only render visited items
+        }
+        ctx.fillStyle = color;
+        ctx.fillRect( tx, ty, size, size );
+    });
+}

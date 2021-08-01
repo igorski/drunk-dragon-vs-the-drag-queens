@@ -25,6 +25,7 @@ const SpriteCache =
     TREE       : new Image(),
     FLOOR      : new Image(),
     CROSSHAIRS : new Image(),
+    FURNITURE  : new Image(),
 
     QUEEN      : new Image(),
     DRAB       : new Image(),
@@ -65,6 +66,10 @@ const DRAGON_SHEET = {
         { row: 2, col: 0, amount: 4, fpt: 4 }, // walk left
         { row: 3, col: 0, amount: 4, fpt: 4 }, // walk right
     ]
+};
+
+export const FURNITURE = {
+    bed: { x: 0, y: 0, width: 48, height: 82 }
 };
 
 /* render utilities */

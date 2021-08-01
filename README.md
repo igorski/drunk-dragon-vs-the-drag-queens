@@ -81,15 +81,22 @@ npm run test
 * Drag swag/charisma == mana
 ** Show in status view
 
+Move positioning utilities out of world-factory and into util so it can be
+reused in building-factor (we need to position the bed on a free spot)
+
+* Character interaction wrap all messages in slur
+* Alternate colour scheme for bar/hotel floors inside buildings
+* World-factory > Overground-factory ??
 * Add explanation to first drunk dragon fight
 * Add a base price to certain items (e.g. clothes shouldn't be too cheap, yo. heels and flippers are expensive items).
 * Character interaction should not show intent in thought bubble, but have a subtle tip in conversation (e.g. slurrrr when drunk)
+* Code duplication between overground- and building-renderer.renderObjects
 * Some shops are empty (have no type ? or is LOAN ?)
 * Create heavily made up eyes style
 * Generate objects on city roads and inside buildings similar to trees (make sure no roads are blocked!)
 * Buildings broken in Safari ?
 * When characters are drunk, attacks should occasionally miss!
-* Create unique sprite for hotel counter
+* Hotel/bed should be fully navigatble, not just bottom center tile
 * Show building floor level
 * Prevent creating double walls when generating floors (and restore skipped unit test)
 * Queens inside buildings should either be woo'd or fought (and be generated again ;)

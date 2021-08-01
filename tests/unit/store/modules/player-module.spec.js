@@ -7,6 +7,13 @@ import EnvironmentFactory from "@/model/factories/environment-factory";
 
 const { getters, mutations, actions } = store;
 
+jest.mock( "zcanvas", () => ({
+    loader: {
+        onReady: new Promise(resolve => resolve())
+    },
+    sprite: jest.fn()
+}));
+
 describe( "Vuex player module", () => {
     describe( "getters", () => {
         it( "should return the player Character", () => {

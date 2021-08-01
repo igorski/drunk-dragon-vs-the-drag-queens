@@ -60,6 +60,11 @@ export default {
                 href: "https://opengameart.org/content/lpc-misc-tile-atlas-interior-exterior-trees-bridges-furniture"
             },
             {
+                title: "[LPC] House Insides",
+                author: "Sharm",
+                href: "https://opengameart.org/content/lpc-house-insides"
+            },
+            {
                 title: "Crosshair pack (200x)",
                 author: "Kenney",
                 href: "https://opengameart.org/content/crosshair-pack-200%C3%97"

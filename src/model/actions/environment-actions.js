@@ -139,9 +139,9 @@ export default {
             }
         }
         if ( hit ) {
-            // here we ensures that when we're done with the action (e.g. leaving
-            // a building) we don't collide with the same object (re-entering the building again)
-            commit( "setYPosition", { value: y + 1 });
+            // here we ensure that when we're done with the action (e.g. leaving
+            // a building) we don't collide with the same object (re-triggering the action again)
+            repositionPlayer( commit, environment, x, y );
             // dispatch after updating position (otherwise y is changed for new environment)
             dispatch( dispatchFn, dispatchValue ?? hit );
         }
@@ -164,4 +164,25 @@ function internalHitTest( x, y, collection = [] ) {
         }
     }
     return null;
+}
+
+function repositionPlayer( commit, environment, x, y ) {
+    const { terrain } = environment;
+    const maxTile = ( environment.type === BUILDING_TYPE ? buildingWalkableTile : overGroundWalkableTile )();
+    if ( terrain[ coordinateToIndex( x, y + 1, environment )] <= maxTile ) {
+        return commit( "setYPosition", { value: y + 1 });
+    }
+    if ( terrain[ coordinateToIndex( x + 1, y, environment )] <= maxTile ) {
+        return commit( "setXPosition", { value: x + 1 });
+    }
+    if ( terrain[ coordinateToIndex( x - 1, y, environment )] <= maxTile ) {
+        return commit( "setXPosition", { value: x - 1 });
+    }
+    if ( terrain[ coordinateToIndex( x, y - 1, environment )] <= maxTile ) {
+        return commit( "setYPosition", { value: y - 1 });
+    }
+    if ( process.env.NODE_ENV === "development" ) {
+        // this would imply that the player is cornered, maybe that's not bad at all ?
+        console.error( "EnvironmentActions:repositionPlayer could not find a free spot" );
+    }
 }
