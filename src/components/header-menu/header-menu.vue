@@ -163,15 +163,15 @@ export default {
         async handleSave() {
             try {
                 await this.saveGame();
-                this.showNotification({ message: this.$t("gameSavedSuccessfully") });
+                this.showNotification( this.$t( "gameSavedSuccessfully" ));
             } catch {
-                this.showError( this.$t("error.unknownError"));
+                this.showError( this.$t( "error.unknownError" ));
             }
         },
         async handleExport() {
             try {
                 await this.exportGame();
-                this.showNotification({ message: this.$t("gameExportedSuccessfully") });
+                this.showNotification( this.$t( "gameExportedSuccessfully" ));
             } catch {
                 this.showError( this.$t("error.unknownError"));
             }

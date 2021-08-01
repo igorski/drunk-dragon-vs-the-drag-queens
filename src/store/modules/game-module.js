@@ -191,7 +191,7 @@ export default {
 
                     // did we reach a new hour ?
                     if ( hourNow !== lastHour ) {
-                        commit( "showNotification", { message: getters.translate( "timeouts.hour", { hour: hourNow }) });
+                        commit( "showNotification", getters.translate( "timeouts.hour", { hour: hourNow }));
                         if ( getters.activeEnvironment.type === WORLD_TYPE ) {
                             if ( hourNow === 0 ) {
                                 commit( "openDialog", {

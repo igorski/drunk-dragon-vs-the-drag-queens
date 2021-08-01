@@ -4,8 +4,7 @@
             "unknownError": "An unknown error has occurred."
         },
         "title": {
-            "error": "Error",
-            "success": "Operation completed"
+            "error": "Error"
         },
         "timeouts": {
             "shop": "You have been hanging around my shop not buying anything for long enough, scram!",

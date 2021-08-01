@@ -82,19 +82,16 @@ describe("Vuex store", () => {
         });
 
         describe("when showing notifications", () => {
-            const title = "foo";
             const message = "bar";
 
             it("should be able to add a notification into the queue", () => {
                 const state = { notifications: [] };
-                mutations.showNotification( state, { title, message });
-                expect( state.notifications ).toEqual([{
-                    title, message
-                }]);
+                mutations.showNotification( state, message );
+                expect( state.notifications ).toEqual([ message ]);
             });
 
             it("should be able to close all open notifications", () => {
-                const state = { notifications: [ { title: "foo" }, { title: "bar" } ] };
+                const state = { notifications: [ "foo", "bar" ] };
                 mutations.clearNotifications( state );
                 expect( state.notifications ).toHaveLength( 0 );
             });

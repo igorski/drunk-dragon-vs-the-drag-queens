@@ -104,7 +104,7 @@ export default {
                 if ( opponent.inventory.cash ) {
                     const amount = opponent.inventory.cash;
                     commit( "awardCash", amount );
-                    commit( "showNotification", { message: getters.translate( "messages.youTookMoneyFrom", { amount, name: opponent.appearance.name } ) });
+                    commit( "showNotification", getters.translate( "messages.youTookMoneyFrom", { amount, name: opponent.appearance.name } ));
                 }
                 // dragon gets reset to a new position and renewed energy
                 if ( opponent.type === DRAGON ) {

@@ -91,7 +91,6 @@ export default {
     methods: {
         ...mapMutations([
             "openDialog",
-            "showNotification",
         ]),
         ...mapActions([
             "buyItem",
@@ -117,7 +116,7 @@ export default {
                 message: this.$t( "buyItemForPrice", { name: this.itemTitle( item ), price: item.price }),
                 confirm: async () => {
                     const success = await this.buyItem( item );
-                    this.showNotification({ message: this.$t( success ? "thanksForTransaction" : "insufficientFunds" ) });
+                    this.openDialog({ message: this.$t( success ? "thanksForTransaction" : "insufficientFunds" ) });
                 },
             });
         },
@@ -132,7 +131,7 @@ export default {
                 message: this.$t( "sellItemForPrice", { name: this.itemTitle( item ), price }),
                 confirm: async () => {
                     await this.sellItem({ item, price });
-                    this.showNotification({ message: this.$t( "thanksForTransaction" ) });
+                    this.openDialog({ message: this.$t( "thanksForTransaction" ) });
                 },
             });
         },

@@ -84,8 +84,8 @@ export default {
          * shows a notification containing given title and message.
          * multiple notifications can be stacked.
          */
-        showNotification( state, { message = "", title = null }) {
-            state.notifications.push({ title: title || translate("title.success"), message });
+        showNotification( state, message ) {
+            state.notifications.push( message );
         },
         clearNotifications( state) {
             state.notifications = [];

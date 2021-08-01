@@ -67,14 +67,14 @@ export default {
                         // certain items have no extra action beyond the abilities they provide when present
                         case ITEM_TYPES.JEWELRY:
                         case ITEM_TYPES.CLOTHES:
-                            return this.showNotification({ message: this.$t( "itemIsAlreadyInUse", { item: text }) });
+                            return this.showNotification( this.$t( "itemIsAlreadyInUse", { item: text }));
                             break;
                         case ITEM_TYPES.LIQUOR:
                             break;
                     }
                     ItemActions.applyItemToPlayer( this.$store, value, this.player );
                     this.removeItemFromInventory( value );
-                    this.showNotification({ message: this.$t( "appliedItem", { item: text }) });
+                    this.showNotification( this.$t( "appliedItem", { item: text }));
                     this.$emit( "select", value );
                 },
             });

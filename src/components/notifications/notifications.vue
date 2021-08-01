@@ -1,7 +1,7 @@
 /**
 * The MIT License (MIT)
 *
-* Igor Zinken 2019-2020 - https://www.igorski.nl
+* Igor Zinken 2019-2021 - https://www.igorski.nl
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy of
 * this software and associated documentation files (the "Software"), to deal in
@@ -22,20 +22,19 @@
 */
 <template>
     <div id="notifications">
-        <div v-for="(notification, index) in queue"
+        <div v-for="( notification, index ) in queue"
              :key="`notification_${index}`"
              class="notification-window"
              :class="{ active: notification.visible, destroyed: notification.destroyed }"
-             @click="closeNotification(notification)"
+             @click="closeNotification( notification )"
         >
-            <h3>{{ notification.title }}</h3>
             <p>{{ notification.message }}</p>
         </div>
     </div>
 </template>
 
 <script>
-import { mapState, mapMutations } from 'vuex';
+import { mapState, mapMutations } from "vuex";
 
 export default {
     data: () => ({
@@ -43,22 +42,23 @@ export default {
     }),
     computed: {
         ...mapState([
-            'notifications'
+            "notifications",
         ])
     },
     watch: {
         notifications: {
             immediate: true,
-            handler(value = []) {
-                if (!value.length) return;
-
-                value.forEach(notification => {
-                    // create Value Object for the message
-                    const notificationVO = { ...notification, visible: true, destroyed: false };
-                    this.queue.push(notificationVO);
+            handler( value = []) {
+                if ( !value.length ) {
+                    return;
+                }
+                value.forEach( notification => {
+                    // create internal Value Object for the message
+                    const notificationVO = { message: notification, visible: true, destroyed: false };
+                    this.queue.push( notificationVO );
 
                     // auto close after a short delay
-                    window.setTimeout( this.closeNotification.bind(this, notificationVO), 5000 );
+                    window.setTimeout( this.closeNotification.bind( this, notificationVO ), 5000 );
                 });
                 this.clearNotifications();
             }
@@ -66,21 +66,22 @@ export default {
     },
     methods: {
         ...mapMutations([
-            'clearNotifications',
+            "clearNotifications",
         ]),
-        closeNotification(notificationVO) {
-            if (!notificationVO.visible) return;
-
+        closeNotification( notificationVO ) {
+            if ( !notificationVO.visible ) {
+                return;
+            }
             // trigger 1 sec close animation (see css)
             notificationVO.visible = false;
-            window.setTimeout(this.removeNotification.bind(this, notificationVO), 1000 );
+            window.setTimeout( this.removeNotification.bind( this, notificationVO ), 1000 );
         },
-        removeNotification(notificationVO) {
+        removeNotification( notificationVO ) {
             notificationVO.destroyed = true;
             // only clear queue once all notifications have been destroyed
             // (v-for does not guarantee order so clearing when there are multiple notifications
             // causes weird jumps in remaining notification windows)
-            if (!this.queue.find(notificationVO => !notificationVO.destroyed)) {
+            if ( !this.queue.find( notificationVO => !notificationVO.destroyed )) {
                 this.queue = [];
             }
         }

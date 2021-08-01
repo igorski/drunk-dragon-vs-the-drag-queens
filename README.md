@@ -89,7 +89,6 @@ npm run test
 * Generate objects on city roads and inside buildings similar to trees (make sure no roads are blocked!)
 * Buildings broken in Safari ?
 * When characters are drunk, attacks should occasionally miss!
-* Notification window should not have a title. Simplify mutation to accept String directly.
 * Create unique sprite for hotel counter
 * Show building floor level
 * Prevent creating double walls when generating floors (and restore skipped unit test)

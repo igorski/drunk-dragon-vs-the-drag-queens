@@ -157,10 +157,10 @@ export default {
             this.messages = [];
             const { level, xp } = this.player;
             if ( xp > this.playerStats.xp ) {
-                this.showNotification({ message: this.$t( "youEarnedXp", { xp: xp - this.playerStats.xp } ) });
+                this.showNotification( this.$t( "youEarnedXp", { xp: xp - this.playerStats.xp } ));
             }
             if ( level > this.playerStats.level ) {
-                this.showNotification({ message: this.$t( "youAdvancedToLevel", { level }) });
+                this.showNotification( this.$t( "youAdvancedToLevel", { level }) );
             }
             window.setTimeout(() => {
                 this.close();
@@ -197,7 +197,7 @@ export default {
         async run() {
             const { name } = this.opponent.appearance;
             if ( await this.runFromOpponent() ) {
-                this.showNotification({ message: this.$t( "youEscapedFromBattlingName", { name }) });
+                this.showNotification( this.$t( "youEscapedFromBattlingName", { name }));
             } else {
                 this.messages = [ this.$t( "cannotEscapeFromName", { name }) ];
                 this.executeOpponentAttack();
