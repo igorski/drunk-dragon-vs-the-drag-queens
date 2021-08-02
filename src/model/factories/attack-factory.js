@@ -1,6 +1,24 @@
 import { QUEEN, DRAGON } from "@/definitions/character-types";
-import AttackTypes       from "@/definitions/attack-types";
-import { SHOE_HEELS }    from "@/definitions/item-types";
+import AttackTypes, { ATTACK_PREPARED, ATTACK_MISSED, ATTACK_DODGED } from "@/definitions/attack-types";
+import { SHOE_HEELS } from "@/definitions/item-types";
+import { randomBool } from "@/utils/random-util";
+
+/**
+ * Prepare an attack against a Character. Depending on the state
+ * of the attacking Character, this can result in a miss. A successfully
+ * prepared attack can execute using getDamageForAttack() in a subsequent call
+ */
+export const prepareAttack = ( character, targetCharacter ) => {
+    const { intoxication } = character.properties;
+    if ( intoxication > 0.25 && randomBool() ) {
+        return ATTACK_MISSED;
+    }
+    const { boost } = targetCharacter.properties;
+    if ( boost > 0.25 && randomBool() ) {
+        return ATTACK_DODGED;
+    }
+    return ATTACK_PREPARED;
+};
 
 /**
  * Calculate the damage given character does when executing

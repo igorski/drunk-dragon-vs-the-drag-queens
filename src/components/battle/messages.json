@@ -6,6 +6,10 @@
         "actions": "Actions",
         "attack": "Attack",
         "chooseAttackType": "Choose attack type",
+        "nameDodgedAttack": "{name} dodged the attack!",
+        "attackMissed": "Attach missed!",
+        "nameMissedAttack": "{name} missed their attack!",
+        "you": "You",
         "youDealtDamageToName": "You dealt {damage} HP damage to {name}",
         "nameDealtDamage": "{name} dealt {damage} HP damage",
         "runAway": "Run away",
@@ -16,6 +20,7 @@
         "youWon": "You won!",
         "youEarnedXp": "You earned {xp} experience points",
         "youAdvancedToLevel": "You advanced to level {level}",
-        "useItem": "Use item"
+        "useItem": "Use item",
+        "youDefeatedDragon": "You gave that dragon a good beating! Sadly this is not the last we've seen of him. He'll likely be sobering up a little now, only to come back stronger. Better move with haste."
     }
 }

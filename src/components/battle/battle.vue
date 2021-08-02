@@ -101,7 +101,7 @@
 
 <script>
 import { mapGetters, mapMutations, mapActions } from "vuex";
-import AttackTypes     from "@/definitions/attack-types";
+import AttackTypes, { ATTACK_DODGED } from "@/definitions/attack-types";
 import { DRAGON }      from "@/definitions/character-types";
 import { SCREEN_GAME } from "@/definitions/screens";
 import Modal           from "@/components/modal/modal";
@@ -163,6 +163,9 @@ export default {
             if ( level > this.playerStats.level ) {
                 this.showNotification( this.$t( "youAdvancedToLevel", { level }) );
             }
+            if ( this.isFirstDragonBattle ) {
+                this.openDialog({ message: this.$t( "youDefeatedDragon" ) });
+            }
             window.setTimeout(() => {
                 this.close();
                 // TODO: reset dragon
@@ -177,6 +180,7 @@ export default {
 
         // first battle against dragon ?
         if ( xp === 0 && this.opponent.type === DRAGON ) {
+            this.isFirstDragonBattle = true;
             this.openDialog({
                 title: this.$t( "uhoh" ),
                 message: this.$t( "firstDragonBattleExpl" )
@@ -199,9 +203,14 @@ export default {
             this.hoverItem = item;
         },
         async attack( type ) {
-            const damage = await this.attackOpponent({ type });
+            const { success, prepareResult, damage } = await this.attackOpponent({ type });
+            const name = this.opponent?.appearance?.name;
+            if ( !success ) {
+                this.messages = [ prepareResult === ATTACK_DODGED ? this.$t( "nameDodgedAttack", { name }) : this.$t( "attackMissed" ) ];
+                return;
+            }
             if ( this.opponent?.hp > 0 ) {
-                this.messages = [ this.$t( "youDealtDamageToName", { damage, name: this.opponent.appearance.name }) ];
+                this.messages = [ this.$t( "youDealtDamageToName", { damage, name }) ];
             }
         },
         async run() {
@@ -218,10 +227,16 @@ export default {
                 return;
             }
             this.timeout = window.setTimeout( async () => {
-                const damage = await this.attackPlayer({ type: AttackTypes.BITE });
-                this.messages = [ this.$t( "nameDealtDamage", { name: this.opponent.appearance.name, damage }) ];
                 window.clearTimeout( this.timeout );
                 this.timeout = null;
+
+                const { success, prepareResult, damage } = await this.attackPlayer({ type: AttackTypes.BITE });
+                const { name } = this.opponent.appearance;
+                if ( !success ) {
+                    this.messages = [ prepareResult === ATTACK_DODGED ? this.$t( "nameDodgedAttack", { name: this.$t( "you" ) }) : this.$t( "nameMissedAttack", { name } ) ];
+                    return;
+                }
+                this.messages = [ this.$t( "nameDealtDamage", { name, damage }) ];
             }, 2000 );
         },
         close() {

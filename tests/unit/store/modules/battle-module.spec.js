@@ -1,5 +1,5 @@
 import store            from "@/store/modules/battle-module";
-import AttackTypes      from "@/definitions/attack-types";
+import AttackTypes, { ATTACK_PREPARED, ATTACK_MISSED } from "@/definitions/attack-types";
 import { DRAGON }       from "@/definitions/character-types";
 import { XP_PER_LEVEL } from "@/definitions/constants";
 import { GAME_OVER }    from "@/definitions/game-states";
@@ -15,7 +15,9 @@ jest.mock( "@/utils/random-util", () => ({
     randomInRangeInt: (min, max) => min,
 }));
 let mockDamageForAttack;
+let mockPrepareAttack;
 jest.mock( "@/model/factories/attack-factory", () => ({
+    prepareAttack: () => mockPrepareAttack,
     getDamageForAttack: () => mockDamageForAttack,
 }));
 
@@ -112,18 +114,40 @@ describe( "Vuex battle module", () => {
             const state         = { opponent };
             const mockedGetters = { player };
 
-            it( "should always end the players current turn, regardless of outcome", async () => {
+            it( "should be unsuccessful when the attack preparation failed", async () => {
                 const commit = jest.fn();
+                mockPrepareAttack = ATTACK_MISSED;
+                const { success, prepareResult } = await actions.attackOpponent(
+                    { state, getters: mockedGetters, commit }, { type: AttackTypes.SLAP }
+                );
+                expect( success ).toBe( false );
+                expect( prepareResult ).toEqual( mockPrepareAttack );
+                expect( commit ).toHaveBeenCalledTimes( 1 );
+            });
+
+            it( "should always end the players current turn, regardless of outcome", async () => {
+                let commit = jest.fn();
+                mockPrepareAttack = ATTACK_PREPARED;
+                await actions.attackOpponent({ state, getters: mockedGetters, commit }, { type: AttackTypes.SLAP });
+                expect( commit ).toHaveBeenNthCalledWith( 1, "setPlayerTurn", false );
+
+                mockPrepareAttack = ATTACK_MISSED;
+                commit = jest.fn();
                 await actions.attackOpponent({ state, getters: mockedGetters, commit }, { type: AttackTypes.SLAP });
                 expect( commit ).toHaveBeenNthCalledWith( 1, "setPlayerTurn", false );
             });
 
-            it( "should update the opponent HP and return the damage for the given attack type", async () => {
+            it( "should update the opponent HP and return the damage for the given attack type when successful", async () => {
                 const commit = jest.fn();
                 const dispatch = jest.fn();
                 opponent.hp = 10;
                 mockDamageForAttack = 5;
-                const damage = await actions.attackOpponent({ state, getters: mockedGetters, commit, dispatch }, { type: AttackTypes.SLAP });
+                mockPrepareAttack = ATTACK_PREPARED;
+
+                const { success, damage } = await actions.attackOpponent(
+                    { state, getters: mockedGetters, commit, dispatch }, { type: AttackTypes.SLAP }
+                );
+                expect( success ).toBe( true );
                 expect( commit ).toHaveBeenNthCalledWith( 2, "updateOpponent", { hp: opponent.hp - mockDamageForAttack });
                 expect( damage ).toEqual( mockDamageForAttack );
                 expect( dispatch ).not.toHaveBeenCalledWith( "resolveBattle" );
@@ -134,6 +158,8 @@ describe( "Vuex battle module", () => {
                 const dispatch = jest.fn();
                 opponent.hp = 1;
                 mockDamageForAttack = 1;
+                mockPrepareAttack = ATTACK_PREPARED;
+
                 await actions.attackOpponent({ state, getters: mockedGetters, commit, dispatch }, { type: AttackTypes.SLAP });
                 expect( dispatch ).toHaveBeenCalledWith( "resolveBattle" );
             });
@@ -206,39 +232,58 @@ describe( "Vuex battle module", () => {
             const state         = { opponent };
             const mockedGetters = { player };
 
-            it( "should activate the Players turn if the Player still has HP left after attack", async () => {
+            it( "should be unsuccessful when the attack preparation failed", async () => {
+                const commit = jest.fn();
+                mockPrepareAttack = ATTACK_MISSED;
+                const { success, prepareResult } = await actions.attackPlayer(
+                    { state, getters: mockedGetters, commit }, { type: AttackTypes.SLAP }
+                );
+                expect( success ).toBe( false );
+                expect( prepareResult ).toEqual( mockPrepareAttack );
+                expect( commit ).toHaveBeenCalledWith( "setPlayerTurn", true );
+                expect( commit ).toHaveBeenCalledTimes( 1 );
+            });
+
+            it( "should activate the Players turn if the Player still has HP left after a successful attack", async () => {
                 const commit = jest.fn();
                 const dispatch = jest.fn();
                 player.hp = 10;
                 mockDamageForAttack = 1;
+                mockPrepareAttack = ATTACK_PREPARED;
                 await actions.attackPlayer({ state, getters: mockedGetters, commit }, { type: AttackTypes.SLAP });
                 expect( commit ).toHaveBeenNthCalledWith( 2, "setPlayerTurn", true );
                 expect( dispatch ).not.toHaveBeenCalledWith( "resolveBattle" );
             });
 
-            it( "should not activate the Players turn if the Player has no HP left after attack", async () => {
+            it( "should not activate the Players turn if the Player has no HP left after a successful attack", async () => {
                 const commit = jest.fn();
                 const dispatch = jest.fn();
                 player.hp = 1;
                 mockDamageForAttack = 1;
+                mockPrepareAttack = ATTACK_PREPARED;
                 await actions.attackPlayer({ state, getters: mockedGetters, commit, dispatch }, { type: AttackTypes.SLAP });
                 expect( commit ).toHaveBeenNthCalledWith( 2, "setPlayerTurn", false );
             });
 
-            it( "should resolve the battle if the Player has no HP left after attack", async () => {
+            it( "should resolve the battle if the Player has no HP left after a successful attack", async () => {
                 const commit = jest.fn();
                 const dispatch = jest.fn();
                 player.hp = 1;
                 mockDamageForAttack = 1;
+                mockPrepareAttack = ATTACK_PREPARED;
                 await actions.attackPlayer({ state, getters: mockedGetters, commit, dispatch }, { type: AttackTypes.SLAP });
                 expect( dispatch ).toHaveBeenCalledWith( "resolveBattle" );
             });
 
-            it( "should update the opponent HP and return the damage for the given attack type", async () => {
+            it( "should update the opponent HP and return the damage for the given attack type after a successful attack", async () => {
                 const commit = jest.fn();
                 player.hp = 10;
                 mockDamageForAttack = 5;
-                const damage = await actions.attackPlayer({ state, getters: mockedGetters, commit }, { type: AttackTypes.SLAP });
+                mockPrepareAttack = ATTACK_PREPARED;
+
+                const { success, damage } = await actions.attackPlayer({ state, getters: mockedGetters, commit }, { type: AttackTypes.SLAP });
+
+                expect( success ).toBe( true );
                 expect( commit ).toHaveBeenNthCalledWith( 1, "updatePlayer", { hp: player.hp - mockDamageForAttack });
                 expect( damage ).toEqual( mockDamageForAttack );
             });

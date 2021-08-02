@@ -1,12 +1,13 @@
 import merge            from "lodash/merge";
 import cloneDeep        from "lodash/cloneDeep";
+import { ATTACK_PREPARED } from "@/definitions/attack-types";
 import { XP_PER_LEVEL, xpNeededForLevel } from "@/definitions/constants";
 import { DRAGON }       from "@/definitions/character-types";
 import { GAME_OVER }    from "@/definitions/game-states";
 import { SCREEN_GAME }  from "@/definitions/screens";
 import { random }       from "@/utils/random-util";
 import CharacterActions from "@/model/actions/character-actions";
-import { getDamageForAttack } from "@/model/factories/attack-factory";
+import { prepareAttack, getDamageForAttack } from "@/model/factories/attack-factory";
 
 function updateHP( damage, currentHP ) {
     return Math.max( 0, currentHP - damage );
@@ -44,13 +45,19 @@ export default {
     actions: {
         attackOpponent({ state, getters, commit, dispatch }, { type }) {
             commit( "setPlayerTurn", false );
-            const damage = getDamageForAttack( getters.player, state.opponent, type );
-            const hp = updateHP( damage, state.opponent.hp );
+            const { player } = getters;
+            const { opponent } = state;
+            const prepareResult = prepareAttack( player, opponent );
+            if ( prepareResult !== ATTACK_PREPARED ) {
+                return { success: false, prepareResult };
+            }
+            const damage = getDamageForAttack( player, opponent, type );
+            const hp = updateHP( damage, opponent.hp );
             commit( "updateOpponent", { hp });
             if ( hp === 0 ) {
                 dispatch( "resolveBattle" );
             }
-            return damage;
+            return { success: true, damage };
         },
         runFromOpponent({ state, getters, commit, dispatch }) {
             commit( "setPlayerTurn", false );
@@ -70,15 +77,22 @@ export default {
             return success;
         },
         attackPlayer({ state, getters, commit, dispatch }, { type }) {
-            const damage = getDamageForAttack( state.opponent, getters.player, type );
-            const hp = updateHP( damage, getters.player.hp );
+            const { player } = getters;
+            const { opponent } = state;
+            const prepareResult = prepareAttack( opponent, player );
+            if ( prepareResult !== ATTACK_PREPARED ) {
+                commit( "setPlayerTurn", true );
+                return { success: false, prepareResult };
+            }
+            const damage = getDamageForAttack( opponent, player, type );
+            const hp = updateHP( damage, player.hp );
             commit( "updatePlayer", { hp });
             const playerAlive = hp > 0;
             commit( "setPlayerTurn", playerAlive );
             if ( !playerAlive ) {
                 dispatch( "resolveBattle" );
             }
-            return damage;
+            return { success: true, damage };
         },
         startBattle({ commit }, opponent ) {
             commit( "setBattleWon", false );

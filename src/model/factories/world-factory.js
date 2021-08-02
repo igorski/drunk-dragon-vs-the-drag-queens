@@ -136,14 +136,14 @@ const WorldFactory =
         }
 
         // generate the drunk dragon (will be positioned on overground environment enter by Vuex module)
-        // drunk dragon will be permanently intoxicated at an advanced level
+        // drunk dragon will be permanently intoxicated at an advanced level, hence the custom speed
 
         const dragon = CharacterFactory.create({
             type: DRAGON,
             x: world.x,
             y: world.y,
             ...CharacterActions.generateOpponentProps( CharacterFactory.create({ type: QUEEN }), DRAGON )
-        }, { name: "Drunk Dragon" }, { intoxication: 0.75 });
+        }, { name: "Drunk Dragon" }, { intoxication: 0.75, speed: 1.75 });
         world.characters.push( dragon );
     },
 

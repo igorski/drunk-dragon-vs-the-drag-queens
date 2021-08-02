@@ -81,17 +81,20 @@ npm run test
 * Drag swag/charisma == mana
 ** Show in status view
 
+* Show % of map travelled in status screen
 * Add a base price to certain items (e.g. clothes shouldn't be too cheap, yo. heels and flippers are expensive items).
+* Weird bug where leaving a building sets you in the middle of nowhere?? (most likely env x,y is updated for overground, not last floor)
 * Character interaction should not show intent in thought bubble, but have a subtle tip in conversation (e.g. slurrrr when drunk, drop hints in conversation)
 * Some shops are empty (have no type ? or is LOAN - to be implemented - ?)
+* Implement drinking for intoxication (needs Effect to reduce over time, reset effect when drinking more)
+* Implement drugs for boost (increases chance of attacker missing)
+* Show intoxication and boost on status screen
 
 * Alternate colour scheme for bar/hotel floors inside buildings
-* World-factory > Overground-factory ??
 * Code duplication between overground- and building-renderer.renderObjects
 * Create heavily made up eyes style
 * Generate objects on city roads and inside buildings similar to trees (make sure no roads are blocked!)
 * Buildings broken in Safari (must be similar to-render-at-edges-issue)?
-* When characters are drunk, attacks should occasionally miss!
 * When buying a clothes item, discard the existing one of the same type (show confirmation)
 * Hotel/bed should be fully navigatable, not just bottom center tile
 
@@ -137,7 +140,6 @@ npm run test
 * Don't enter exit unless path ends at its exact coordinate
 * Can we give announcement of closing time when entering building?
 * Create floors that are bars chockfull of people!
-* Weird bug where leaving a building sets you in the middle of nowhere?? (most likely env x,y is updated for overground, not last floor)
 * Do not reposition when engaging in a battle (environmentactions.hitTest)
 * Identify shop types by their exterior
 * Item type elevator key to allow instant access to any floor
@@ -150,3 +152,4 @@ npm run test
 * Keep track of important dates (Christmas, New Year)
 * world-renderer isValidTarget|maxWalkableTile|and pre calc of waypoints is duplicating environment-actions unnecessarily!
 * if you are feeling brave you can start using the unused tiles in the floor sheet in environment-bitmap-cacher for the corner types
+* Should we rename World-factory > Overground-factory ?? world.vue > map.vue ?

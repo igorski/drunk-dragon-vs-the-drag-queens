@@ -1,12 +1,23 @@
-import { getDamageForAttack } from "@/model/factories/attack-factory";
+import { prepareAttack, getDamageForAttack } from "@/model/factories/attack-factory";
 import CharacterFactory  from "@/model/factories/character-factory";
 import InventoryFactory  from "@/model/factories/inventory-factory";
-import AttackTypes       from "@/definitions/attack-types";
+import AttackTypes, { ATTACK_PREPARED, ATTACK_MISSED, ATTACK_DODGED } from "@/definitions/attack-types";
 import { QUEEN, DRAGON } from "@/definitions/character-types";
 import { SHOE_HEELS }    from "@/definitions/item-types";
 
 describe( "Attack factory", () => {
-    describe( "When a Queen attacks", () => {
+    describe( "when preparing an attack", () => {
+        const character = CharacterFactory.create();
+        const opponent  = CharacterFactory.create();
+
+        it( "should return the prepared state for unintoxicated and unboosted characters", () => {
+            expect( prepareAttack( character, opponent )).toBe( ATTACK_PREPARED );
+        });
+
+        // how test random results ?
+    });
+
+    describe( "when a Queen attacks", () => {
         const opponent = CharacterFactory.create({ type: DRAGON });
         const character = CharacterFactory.create({ type: QUEEN });
 

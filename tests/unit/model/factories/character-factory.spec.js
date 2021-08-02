@@ -7,7 +7,7 @@ describe("Character factory", () => {
     describe("when creating a character structure", () => {
         it("should throw when an invalid property configuration is passed", () => {
             const properties = {
-                speed: 2, // out of range value, so should be invalid
+                intoxication: 2, // out of range value, so should be invalid
             };
             expect(() => CharacterFactory.create({ x: 0, y: 0 }, {}, properties )).toThrow();
         });

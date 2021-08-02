@@ -393,7 +393,7 @@ describe( "Vuex environment module", () => {
 
                 expect( commit ).toHaveBeenNthCalledWith( 1, "flushBitmaps" );
                 expect( commit ).toHaveBeenNthCalledWith( 2, "setActiveEnvironment", newEnvironment );
-                expect( dispatch ).toHaveBeenNthCalledWith( 1, "positionCharacter", { id: "dragonId" });
+                expect( dispatch ).toHaveBeenNthCalledWith( 1, "positionCharacter", { id: "dragonId", distance: expect.any( Number ) });
                 expect( commit ).toHaveBeenNthCalledWith( 3, "setLoading", true );
                 expect( mockUpdateFn ).toHaveBeenCalledWith( "renderEnvironment", newEnvironment, mockedGetters.player );
                 expect( commit ).toHaveBeenNthCalledWith( 4, "setLoading", false );

@@ -214,7 +214,8 @@ export default {
             commit( "setActiveEnvironment", environment );
             // whenever we enter the overground, the dragon must be repositioned
             if ( environment.type === WORLD_TYPE ) {
-                dispatch( "positionCharacter", { id: getters.dragon?.id });
+                const distance = getters.player.xp === 0 ? 25 : 20;
+                dispatch( "positionCharacter", { id: getters.dragon?.id, distance });
             }
             commit( "setLoading", true );
             await renderEnvironment( environment, getters.player );
