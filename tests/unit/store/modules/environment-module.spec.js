@@ -392,8 +392,9 @@ describe( "Vuex environment module", () => {
                 await actions.changeActiveEnvironment({ state, getters: mockedGetters, commit, dispatch }, newEnvironment );
 
                 expect( commit ).toHaveBeenNthCalledWith( 1, "flushBitmaps" );
+                expect( dispatch ).toHaveBeenNthCalledWith( 1, "cancelCharacterMovements" );
                 expect( commit ).toHaveBeenNthCalledWith( 2, "setActiveEnvironment", newEnvironment );
-                expect( dispatch ).toHaveBeenNthCalledWith( 1, "positionCharacter", { id: "dragonId", distance: expect.any( Number ) });
+                expect( dispatch ).toHaveBeenNthCalledWith( 2, "positionCharacter", { id: "dragonId", distance: expect.any( Number ) });
                 expect( commit ).toHaveBeenNthCalledWith( 3, "setLoading", true );
                 expect( mockUpdateFn ).toHaveBeenCalledWith( "renderEnvironment", newEnvironment, mockedGetters.player );
                 expect( commit ).toHaveBeenNthCalledWith( 4, "setLoading", false );

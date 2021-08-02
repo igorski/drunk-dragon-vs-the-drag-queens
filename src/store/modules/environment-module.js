@@ -208,8 +208,8 @@ export default {
         },
         async changeActiveEnvironment({ state, getters, commit, dispatch }, environment ) {
             if ( !!state.activeEnvironment ) {
-                // free memory allocated to Bitmaps
-                commit( "flushBitmaps" );
+                commit( "flushBitmaps" ); // free memory allocated to Bitmaps
+                dispatch( "cancelCharacterMovements" ); // cancel pending movement
             }
             commit( "setActiveEnvironment", environment );
             // whenever we enter the overground, the dragon must be repositioned
