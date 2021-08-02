@@ -202,7 +202,7 @@ function createFloor( width, height, terrain = [], floorType, player ) {
         let tries = 255; // let's not recurse forever
         while ( true ) {
             const priceList = [ PriceTypes.AVERAGE, PriceTypes.EXPENSIVE, PriceTypes.LUXURY ];
-            const price = Math.round(( randomFromList( priceList ) * Math.random() ) + ( player.level * 2 ));
+            const price = Math.round(( randomFromList( priceList ) * random() ) + ( player.level * 2 ));
             const { x, y } = getRandomFreeTilePosition( out, BUILDING_TILES.GROUND );
             const hotel = { x, y, ...WorldCache.sizeHotel, price };
             const position = reserveObject( hotel, out );

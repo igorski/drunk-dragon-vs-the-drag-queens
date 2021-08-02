@@ -86,17 +86,15 @@ npm run test
 * Character interaction should not show intent in thought bubble, but have a subtle tip in conversation (e.g. slurrrr when drunk, drop hints in conversation)
 * Some shops are empty (have no type ? or is LOAN - to be implemented - ?)
 * Implement drinking for intoxication (needs Effect to reduce over time, reset effect when drinking more)
-* Implement drugs for boost (increases chance of attacker missing)
+* Implement drugs for boost (increases chance of dodging attacks)
 * Show intoxication and boost on status screen
-
+* New attacks at higher levels (e.g. nail slash)
 * Alternate colour scheme for bar/hotel floors inside buildings
-* Code duplication between overground- and building-renderer.renderObjects
 * Create heavily made up eyes style
 * Generate objects on city roads and inside buildings similar to trees (make sure no roads are blocked!)
 * Buildings broken in Safari (must be similar to-render-at-edges-issue)?
 * When buying a clothes item, discard the existing one of the same type (show confirmation)
 * Hotel/bed should be fully navigatable, not just bottom center tile
-
 * Show building floor level
 * Prevent creating double walls when generating floors (and restore skipped unit test)
 * Queens inside buildings should either be woo'd or fought (and be generated again ;)
@@ -130,7 +128,6 @@ npm run test
 * add store to sell shoes / fake nails (increases attack, certain shoes increase speed, but decrease drag swag/charisma)
 * add hamburger joint (can increase hp slowly but cheaply, medicine is more expensive but more potent)
 * changes to opponent should also reflect to appropriate world.characters instance (e.g. battle after run away should not restore health of dragon!)
-* replace all Math.random() with random-util.random()
 * Implement ambush in battle
 * Implement run away (uses boost/intoxication for outcome)
 * There is only a single dragon throughout the game, it should path find you in the overworld and fight you, winning the fight resets the dragon to a far side of the map
@@ -141,7 +138,6 @@ npm run test
 * Do not reposition when engaging in a battle (environmentactions.hitTest)
 * Identify shop types by their exterior
 * Item type elevator key to allow instant access to any floor
-* Intro text when starting a new game
 * Don't generate scenery (trees) in front of doors!
 * Bug: When navigating by the world edge, tiles on the opposite end are also marked as visited
 * Create fast travel by introducing subway (can only travel to visited areas!)
@@ -151,3 +147,4 @@ npm run test
 * world-renderer isValidTarget|maxWalkableTile|and pre calc of waypoints is duplicating environment-actions unnecessarily!
 * if you are feeling brave you can start using the unused tiles in the floor sheet in environment-bitmap-cacher for the corner types
 * Should we rename World-factory > Overground-factory ?? world.vue > map.vue ?
+* Code duplication between overground- and building-renderer.renderObjects

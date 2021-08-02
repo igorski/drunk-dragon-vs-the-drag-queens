@@ -1,5 +1,5 @@
 import PriceTypes from "@/definitions/price-types";
-import { randomBool, randomFromList } from "@/utils/random-util";
+import { random, randomBool, randomFromList } from "@/utils/random-util";
 import ItemTypes, { JEWELRY_TYPES, CLOTHING_TYPES, LIQUOR_TYPES, HEALTHCARE_TYPES } from "@/definitions/item-types";
 
 const ItemFactory =
@@ -12,7 +12,7 @@ const ItemFactory =
             price = basePrice;
 
             if ( randomBool() ) {
-                price *= ( Math.random() + 1 )
+                price *= ( random() + 1 )
                 price = parseFloat( price.toFixed( 2 ));
             }
         }

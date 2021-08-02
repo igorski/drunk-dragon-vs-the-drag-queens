@@ -1,5 +1,5 @@
 import { findPath }      from "@/utils/path-finder";
-import { randomInRangeInt } from "@/utils/random-util";
+import { random, randomInRangeInt } from "@/utils/random-util";
 
 /**
  * grow the amount of terrain of given type on the given map
@@ -18,9 +18,9 @@ export const growTerrain = ( map, mapWidth, mapHeight, type, optChanceThreshhold
     for ( x = 0, y = 0; y < mapHeight; x = ( ++x === mapWidth ? ( x % mapWidth + ( ++y & 0 ) ) : x )) {
         index = coordinateToIndex( x, y, { width: mapWidth });
         if ( map[ index ] === type ) {
-            const pi = getSurroundingIndices( x, y, mapWidth, mapHeight, Math.random() > .7, 3 );
+            const pi = getSurroundingIndices( x, y, mapWidth, mapHeight, random() > .7, 3 );
             for ( i = 0; i < pi.length; i++ ) {
-                if ( Math.random() > threshold ) {
+                if ( random() > threshold ) {
                     map[ pi[ i ] ] = type;
                 }
             }
@@ -105,7 +105,7 @@ export const positionAtRandomFreeTileType = ( terrain, tileType ) => {
     let tries = 255, i;
 
     while ( tries-- ) {
-        i = Math.round( Math.random() * terrain.length );
+        i = Math.round( random() * terrain.length );
         while ( i-- ) {
             if ( terrain[ i ] === tileType ) {
                 return i;

@@ -8,6 +8,7 @@ import EffectActions    from "@/model/actions/effect-actions";
 import { DRAB }         from "@/definitions/character-types";
 import { GAME_START_TIME, GAME_TIME_RATIO, VALIDITY_CHECK_INTERVAL, VALID_HOURS_INSIDE } from "@/definitions/constants";
 import { GAME_ACTIVE, GAME_PAUSED, GAME_OVER } from "@/definitions/game-states";
+import { random } from "@/utils/random-util";
 import { isValidHourToBeOutside, isValidHourToBeInside } from "@/utils/time-util";
 import {
     SCREEN_CHARACTER_CREATE
@@ -89,7 +90,7 @@ export default {
         async createGame({ getters, commit, dispatch }, player = CharacterFactory.create() ) {
             const now = Date.now();
             // generate unique hash for the world
-            const hash = MD5( now + Math.random());
+            const hash = MD5( now + random());
             // create world
             const world = WorldFactory.create();
             WorldFactory.populate( world, hash );
