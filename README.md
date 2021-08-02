@@ -81,7 +81,6 @@ npm run test
 * Drag swag/charisma == mana
 ** Show in status view
 
-* Show % of map travelled in status screen
 * Add a base price to certain items (e.g. clothes shouldn't be too cheap, yo. heels and flippers are expensive items).
 * Weird bug where leaving a building sets you in the middle of nowhere?? (most likely env x,y is updated for overground, not last floor)
 * Character interaction should not show intent in thought bubble, but have a subtle tip in conversation (e.g. slurrrr when drunk, drop hints in conversation)
@@ -112,7 +111,6 @@ npm run test
 * When vacating building/shop as effect timeout is exceeded, close active screens before showing dialog
 * Animate player position on map (pulsating circle)
 * Waypoint path finder should not go over exits when calculating path inside building (exists are only valid as destination tile)
-* Render map on status screen only after opening the screen (show message during render)
 * Display product capabilities in shop display
 * Allow to loan money, starts action by which you need to have repaid the person OR ELSE!
 * status screen implement handleInventoryClick for liquor types (also see item-actions)

@@ -6,6 +6,7 @@
             </div>
             <div class="status-content__map status-content--inline">
                 <img ref="map" class="map-image" />
+                <p>{{ $t( "visitedPercent", { percentVisited }) }}</p>
             </div>
             <div class="status-content__inventory status-content--inline">
                 <inventory :player="player" />
@@ -56,6 +57,9 @@ export default {
         Modal,
         Inventory,
     },
+    data: () => ({
+        percentVisited: 0,
+    }),
     computed: {
         ...mapState([
             "dimensions",
@@ -83,17 +87,27 @@ export default {
             return xpNeededForLevel( this.player.level ) - this.player.xp;
         },
     },
-    async mounted() {
-        let renderFn;
-        switch ( this.activeEnvironment.type ) {
-            default:
-                renderFn = renderWorld;
-                break;
-            case BUILDING_TYPE:
-                renderFn = renderBuilding;
-                break;
-        }
-        this.$refs.map.src = renderFn( this.activeEnvironment, 210 ).src;
+    mounted() {
+        // let modal paint before rendering map
+        setTimeout(() => {
+            let renderFn;
+            switch ( this.activeEnvironment.type ) {
+                default:
+                    renderFn = renderWorld;
+                    break;
+                case BUILDING_TYPE:
+                    renderFn = renderBuilding;
+                    break;
+            }
+            const { src, rendered } = renderFn( this.activeEnvironment, 210 );
+            if ( this.$refs?.map ) {
+                this.$refs.map.src = src;
+            }
+            const { terrain, visitedTerrain } = this.activeEnvironment;
+            const pct = ( rendered / terrain.length ) * 100;
+            this.percentVisited = pct === 100 ? 100 : pct.toFixed( 2 );
+
+        }, 10 );
     },
 };
 </script>

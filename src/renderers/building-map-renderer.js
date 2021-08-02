@@ -29,6 +29,7 @@ export default function( environment, targetWidth ) {
     ctx.stroke();
 
     let tx, ty, color, tileWidth, tileHeight;
+    let rendered = 0;
 
     for ( x = 0, y = 0; y < rows; x = ( ++x == cols ? ( x % cols + ( ++y & 0 ) ) : x )) {
         const index = coordinateToIndex( x, y, { width: cols });
@@ -36,6 +37,8 @@ export default function( environment, targetWidth ) {
         if ( !environment.visitedTerrain.includes( index )) {
             continue; // only render visited tiles
         }
+
+        ++rendered;
 
         tx = Math.round( x * tileWidth );
         ty = Math.round( y * tileHeight );
@@ -85,10 +88,7 @@ export default function( environment, targetWidth ) {
         ( environment.y * tileHeight ) - dotSize / 2,
         dotSize, dotSize
     );
-    const out = new Image();
-    out.src = cvs.toDataURL( "image/png" );
-
-    return out;
+    return { src: cvs.toDataURL( "image/png" ), rendered };
 };
 
 function drawItems( ctx, environment, items, size, tileWidth, tileHeight, color ) {

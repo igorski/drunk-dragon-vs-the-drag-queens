@@ -4,6 +4,7 @@
         "level": "Level",
         "hp": "HP",
         "xp": "XP",
-        "xpNeededToLevelUp": "{xp} XP needed to reach next level"
+        "xpNeededToLevelUp": "{xp} XP needed to reach next level",
+        "visitedPercent": "Visited {percentVisited}% of environment"
     }
 }
