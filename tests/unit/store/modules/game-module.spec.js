@@ -176,7 +176,7 @@ describe( "Vuex game module", () => {
             const dispatch  = jest.fn();
             mockUpdateFn    = jest.fn(() => world );
 
-            await actions.createGame({ commit, dispatch }, character );
+            await actions.createGame({ getters: { translate: jest.fn() }, commit, dispatch }, character );
 
             expect( commit ).toHaveBeenNthCalledWith( 1, "setGame", expect.any( Object ));
             expect( commit ).toHaveBeenNthCalledWith( 2, "setBuilding", null );

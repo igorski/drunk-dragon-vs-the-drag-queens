@@ -102,6 +102,7 @@
 <script>
 import { mapGetters, mapMutations, mapActions } from "vuex";
 import AttackTypes     from "@/definitions/attack-types";
+import { DRAGON }      from "@/definitions/character-types";
 import { SCREEN_GAME } from "@/definitions/screens";
 import Modal           from "@/components/modal/modal";
 import Inventory       from "@/components/inventory/inventory";
@@ -173,9 +174,18 @@ export default {
         const { xp, level } = this.player;
         this.$set( this.playerStats, { xp, level });
         this.setPlayerTurn( true ); // TODO: implement ambush (should be Vuex action on battle creation)
+
+        // first battle against dragon ?
+        if ( xp === 0 && this.opponent.type === DRAGON ) {
+            this.openDialog({
+                title: this.$t( "uhoh" ),
+                message: this.$t( "firstDragonBattleExpl" )
+            });
+        }
     },
     methods: {
         ...mapMutations([
+            "openDialog",
             "setScreen",
             "setPlayerTurn",
             "showNotification",

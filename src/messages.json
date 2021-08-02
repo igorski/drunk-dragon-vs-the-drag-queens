@@ -4,6 +4,7 @@
             "unknownError": "An unknown error has occurred."
         },
         "title": {
+            "welcomeName": "Welcome miss {name}!",
             "error": "Error"
         },
         "timeouts": {
@@ -16,6 +17,7 @@
             "lastValidHourWarning": "Within an hour all hotels are closing and sun will come up soon. Find a place to spend the day!"
         },
         "messages": {
+            "gameStartExpl": "Well, here you are. This is your home town and in a sense the only world you have ever known... so far, that is. It's late in the evening and the sun won't come up for another few hours, exposing the flaws in your makeup.",
             "stayedTheNight": "You feel replenished after a good days sleep. It's nighttime again, time to go out!",
             "youTookMoneyFrom": "You took ${amount} from ${name}"
         }

@@ -81,21 +81,20 @@ npm run test
 * Drag swag/charisma == mana
 ** Show in status view
 
-Move positioning utilities out of world-factory and into util so it can be
-reused in building-factor (we need to position the bed on a free spot)
+* Add a base price to certain items (e.g. clothes shouldn't be too cheap, yo. heels and flippers are expensive items).
+* Character interaction should not show intent in thought bubble, but have a subtle tip in conversation (e.g. slurrrr when drunk, drop hints in conversation)
+* Some shops are empty (have no type ? or is LOAN - to be implemented - ?)
 
 * Alternate colour scheme for bar/hotel floors inside buildings
 * World-factory > Overground-factory ??
-* Add explanation to first drunk dragon fight
-* Add a base price to certain items (e.g. clothes shouldn't be too cheap, yo. heels and flippers are expensive items).
-* Character interaction should not show intent in thought bubble, but have a subtle tip in conversation (e.g. slurrrr when drunk)
 * Code duplication between overground- and building-renderer.renderObjects
-* Some shops are empty (have no type ? or is LOAN ?)
 * Create heavily made up eyes style
 * Generate objects on city roads and inside buildings similar to trees (make sure no roads are blocked!)
-* Buildings broken in Safari ?
+* Buildings broken in Safari (must be similar to-render-at-edges-issue)?
 * When characters are drunk, attacks should occasionally miss!
-* Hotel/bed should be fully navigatble, not just bottom center tile
+* When buying a clothes item, discard the existing one of the same type (show confirmation)
+* Hotel/bed should be fully navigatable, not just bottom center tile
+
 * Show building floor level
 * Prevent creating double walls when generating floors (and restore skipped unit test)
 * Queens inside buildings should either be woo'd or fought (and be generated again ;)
@@ -111,7 +110,6 @@ reused in building-factor (we need to position the bed on a free spot)
 * Animate player position on map (pulsating circle)
 * Waypoint path finder should not go over exits when calculating path inside building (exists are only valid as destination tile)
 * Render map on status screen only after opening the screen (show message during render)
-* When buying a clothes item, discard the existing one of the same type (show confirmation)
 * Display product capabilities in shop display
 * Allow to loan money, starts action by which you need to have repaid the person OR ELSE!
 * status screen implement handleInventoryClick for liquor types (also see item-actions)
@@ -147,13 +145,8 @@ reused in building-factor (we need to position the bed on a free spot)
 * Don't generate scenery (trees) in front of doors!
 * Bug: When navigating by the world edge, tiles on the opposite end are also marked as visited
 * Create fast travel by introducing subway (can only travel to visited areas!)
-* Show different cursor types on successful / unsuccessful navigation click
 * When player clicks on non-navigate-able tile, navigate as close to the tile as possible (take dominant distance on x-y coordinate and keep reducing until path is found)
-* Buildings should occupy their full size on sidewalk/sand-only tiles?
-* Don't spawn/generate actionable object in empty tile surrounded by a closed path
 * Overworld must become lighter when morning comes
 * Keep track of important dates (Christmas, New Year)
-* Time should be able to speed up (when sleeping for instance)
 * world-renderer isValidTarget|maxWalkableTile|and pre calc of waypoints is duplicating environment-actions unnecessarily!
 * if you are feeling brave you can start using the unused tiles in the floor sheet in environment-bitmap-cacher for the corner types
-* skipped environment-bitmap-cacher unit test

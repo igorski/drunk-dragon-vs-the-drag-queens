@@ -86,7 +86,7 @@ export default {
     },
     actions: {
         /* game management / storage */
-        async createGame({ commit, dispatch }, player = CharacterFactory.create() ) {
+        async createGame({ getters, commit, dispatch }, player = CharacterFactory.create() ) {
             const now = Date.now();
             // generate unique hash for the world
             const hash = MD5( now + Math.random());
@@ -110,6 +110,10 @@ export default {
             commit( "setPlayer", player );
             commit( "setLastRender", Date.now() );
             await dispatch( "changeActiveEnvironment", world );
+            commit( "openDialog", {
+                title   : getters.translate( "title.welcomeName", { name: player.appearance.name?.split( " " )[ 0 ]} ),
+                message : getters.translate( "messages.gameStartExpl" )
+            });
         },
         async loadGame({ state, commit, dispatch }) {
             const data = storage.get( STORAGE_KEY );
