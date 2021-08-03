@@ -7,11 +7,40 @@
  *
  * @see ItemFactory, IntentFactory
  */
-export default {
+const ItemTypes = {
     JEWELRY    : 0,
     CLOTHES    : 1,
     LIQUOR     : 2,
     HEALTHCARE : 3
+};
+export default ItemTypes;
+
+export const namesForType = type => {
+    switch ( type ) {
+        case ItemTypes.JEWELRY:
+            return JEWELRY_TYPES;
+        case ItemTypes.LIQUOR:
+            return LIQUOR_TYPES;
+        case ItemTypes.HEALTCHARE:
+            return HEALTHCARE_TYPES;
+        case ItemTypes.CLOTHES:
+            return CLOTHING_TYPES;
+    }
+    return [];
+};
+
+export const getItemsForType = type => {
+    switch ( type ) {
+        default:
+        case ItemTypes.HEALTHCARE:
+            return HEALTHCARE_TYPES;
+        case ItemTypes.CLOTHES:
+            return CLOTHING_TYPES;
+        case ItemTypes.JEWELRY:
+            return JEWELRY_TYPES;
+        case ItemTypes.LIQUOR:
+            return LIQUOR_TYPES;
+    }
 };
 
 /* jewelry */

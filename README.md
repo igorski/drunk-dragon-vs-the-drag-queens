@@ -81,13 +81,15 @@ npm run test
 * Drag swag/charisma == mana
 ** Show in status view
 
-* Add a base price to certain items (e.g. clothes shouldn't be too cheap, yo. heels and flippers are expensive items).
+* sometimes no shop is generated on first city > needs to be clothing!! and are there enough shops elsewhere?
+* status screen implement handleInventoryClick for liquor types (also see item-actions)
+* liquor should be more potent when its more expensive
 * Character interaction should not show intent in thought bubble, but have a subtle tip in conversation (e.g. slurrrr when drunk, drop hints in conversation)
 * Some shops are empty (have no type ? or is LOAN - to be implemented - ?)
 * Implement drinking for intoxication (needs Effect to reduce over time, reset effect when drinking more)
 * Implement drugs for boost (increases chance of dodging attacks)
 * Show intoxication and boost on status screen
-* New attacks at higher levels (e.g. nail slash)
+* Introduce new attack types at higher levels (e.g. nail slash)
 * Alternate colour scheme for bar/hotel floors inside buildings
 * Create heavily made up eyes style
 * Generate objects on city roads and inside buildings similar to trees (make sure no roads are blocked!)
@@ -110,7 +112,6 @@ npm run test
 * Waypoint path finder should not go over exits when calculating path inside building (exists are only valid as destination tile)
 * Display product capabilities in shop display
 * Allow to loan money, starts action by which you need to have repaid the person OR ELSE!
-* status screen implement handleInventoryClick for liquor types (also see item-actions)
 * make door drags expose their intent immediately, offer option to fight them (they should be stronger by a few levels)
 * stop character movement effects when screen isn't SCREEN_GAME (time should keep running though!)
 * replace pines with more tropical trees

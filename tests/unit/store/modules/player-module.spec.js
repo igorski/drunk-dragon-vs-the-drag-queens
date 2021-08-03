@@ -165,26 +165,21 @@ describe( "Vuex player module", () => {
 
         describe( "when giving an inventory item to another Character", () => {
             const character = {
-                properties: {
-                    intent: {
-                        type: 1,
-                        price: 10
-                    }
-                }
+                properties: { intent: { type: 1, name: 1 } }
             };
 
-            if("should not give the item when it does not meet the Characters intent", () => {
-                const item = { type: 0, price: 1 };
+            if( "should not give the item when the type or name does not meet the Characters intent", () => {
+                const item = { type: 0, name: 0 };
                 const commit = jest.fn();
 
                 expect( actions.giveItemToCharacter({ commit }, { item, character })).toBe( false );
-                item.type = 1; // type is equal to intent, but price isn't
+                item.type = 1; // type is now equal, but name isn't
                 expect( actions.giveItemToCharacter({ commit }, { item, character })).toBe( false );
                 expect( commit ).not.toHaveBeenCalled();
             });
 
-            it( "should give the item when it meets the Characters intent", () => {
-                const item = { type: 1, price: 10 };
+            it( "should give the item when its type and name meets the Characters intent", () => {
+                const item = { type: 1, name: 1 };
                 const commit = jest.fn();
 
                 expect( actions.giveItemToCharacter({ commit }, { item, character })).toBe( true );

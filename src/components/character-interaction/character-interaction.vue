@@ -66,7 +66,6 @@ import sortBy             from "lodash/sortBy";
 import Modal              from "@/components/modal/modal";
 import InventoryList      from "@/components/shared/inventory-list/inventory-list";
 import ItemTypes          from "@/definitions/item-types";
-import PriceTypes         from "@/definitions/price-types";
 import { SHOP_TYPES }     from "@/model/factories/shop-factory";
 import { randomFromList, randomFloatInRange } from "@/utils/random-util";
 import { slurWords }      from "@/utils/string-util";
@@ -170,17 +169,17 @@ export default {
         async giveItem() {
             this.thought = "";
             if ( this.intent.type !== this.selectedItem.type ) {
-                this.message = this.$t("noThankYou");
+                this.message = this.$t( "noThankYou" );
                 return;
             }
             if ( await this.giveItemToCharacter({ item: this.selectedItem, character: this.character }) ) {
-                this.message = this.$t("justWhatINeeded");
+                this.message = this.$t( "justWhatINeeded" );
                 window.setTimeout(() => {
                     this.close();
                     this.removeCharacter( this.character );
                 }, 4000 );
             } else {
-                this.message = this.$t("tooCheap");
+                this.message = this.$t( "wrongItem" );
             }
             this.selectedItem = null;
         },

@@ -109,7 +109,7 @@ export default
         },
         giveItemToCharacter({ commit }, { item, character }) {
             const { intent } = character.properties;
-            if ( intent.type !== item.type || intent.price > item.price ) {
+            if ( intent.type !== item.type || intent.name !== item.name ) {
                 return false;
             }
             commit( "addItemToCharacterInventory", { item, character });

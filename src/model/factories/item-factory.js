@@ -1,21 +1,13 @@
-import PriceTypes from "@/definitions/price-types";
+import PriceTypes, { getPriceTypeForPrice, getPriceRangeForItemType } from "@/definitions/price-types";
 import { random, randomBool, randomFromList } from "@/utils/random-util";
-import ItemTypes, { JEWELRY_TYPES, CLOTHING_TYPES, LIQUOR_TYPES, HEALTHCARE_TYPES } from "@/definitions/item-types";
+import ItemTypes, {
+    JEWELRY_TYPES, CLOTHING_TYPES, LIQUOR_TYPES, HEALTHCARE_TYPES,
+    SHOE_HEELS, SHOE_SNEAKERS, SHOE_FLIPPERS, namesForType
+} from "@/definitions/item-types";
 
 const ItemFactory =
 {
     create( type, optName = "", optPrice = -1 ) {
-        let price = optPrice;
-        if ( price === -1 ) {
-            const prices    = Object.values( PriceTypes );
-            const basePrice = randomFromList( prices );
-            price = basePrice;
-
-            if ( randomBool() ) {
-                price *= ( random() + 1 )
-                price = parseFloat( price.toFixed( 2 ));
-            }
-        }
         let name = optName;
         if ( !optName ) {
             switch ( type ) {
@@ -33,17 +25,35 @@ const ItemFactory =
                     break;
             }
         }
+
+        let price = optPrice;
+        if ( price === -1 ) {
+            price = getPriceForItem( type, name );
+        }
+
         return {
             type, name, price
         };
     },
 
+    /**
+     * Creates a randomized list of given type.
+     * The amountToCreate is the ideal amount, depending on the amount
+     * of items and price ranges available for the type there is a deduplication
+     * to prevent the same item name and price type appearing twice
+     */
     createList( type, amountToCreate ) {
         const out   = [];
         const names = namesForType( type );
 
         for ( let i = 0; i < amountToCreate; ++i ) {
-            out.push( ItemFactory.create( type, names[ i ] ));
+            const name = names[ i % names.length ];
+            const item = ItemFactory.create( type, name );
+            const priceType = getPriceTypeForPrice( item.price );
+            // same item for same price type should not appear twice
+            if ( !out.some( ci => ci.name === name && getPriceTypeForPrice( ci.price ) === priceType )) {
+                out.push( item );
+            }
         }
         return out;
     },
@@ -71,16 +81,32 @@ export default ItemFactory;
 
 /* internal methods */
 
-function namesForType( type ) {
+function getPriceForItem( type, name ) {
+    // some items have a deliberate price range as these items can provide a
+    // big benefit to gameplay and should not occur in the early stages of the game
     switch ( type ) {
-        case ItemTypes.JEWELRY:
-            return JEWELRY_TYPES;
-        case ItemTypes.LIQUOR:
-            return LIQUOR_TYPES;
-        case ItemTypes.HEALTCHARE:
-            return HEALTHCARE_TYPES;
+        default:
+            break;
         case ItemTypes.CLOTHES:
-            return CLOTHING_TYPES;
+            switch ( name ) {
+                case SHOE_SNEAKERS:
+                case SHOE_HEELS:
+                    return PriceTypes.EXPENSIVE;
+                case SHOE_FLIPPERS:
+                    return PriceTypes.LUXURY;
+            }
+            break;
     }
-    return [];
+
+    // randomize from base price defined in price range
+
+    const prices    = getPriceRangeForItemType( type );
+    const basePrice = randomFromList( prices );
+    let price = basePrice;
+
+    if ( randomBool() ) {
+        price *= ( random() + 1 )
+        price = parseFloat( price.toFixed( 2 ).replace( ".00", "" ));
+    }
+    return price;
 }

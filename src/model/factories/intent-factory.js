@@ -1,12 +1,18 @@
-import ItemTypes          from "@/definitions/item-types";
-import PriceTypes         from "@/definitions/price-types";
+import ItemTypes, { getItemsForType } from "@/definitions/item-types";
+import PriceTypes from "@/definitions/price-types";
 import { randomFromList } from "@/utils/random-util";
 
 const IntentFactory = {
-    create( type, price ) {
+    /**
+     * Creates a "wanted" item
+     * Unless specified, the item type and name will be randomized
+     * from the available types.
+     */
+    create( type, name ) {
+        type = type ?? randomFromList( Object.values( ItemTypes ));
         return {
-            type:  type  ?? randomFromList( Object.values( ItemTypes )),
-            price: price ?? randomFromList( Object.values( PriceTypes ))
+            type,
+            name : name  ?? randomFromList( getItemsForType( type ))
         };
     },
 
@@ -15,7 +21,7 @@ const IntentFactory = {
      * back into a Intent instance
      */
     assemble( data ) {
-        return IntentFactory.create( data.t, data.p );
+        return IntentFactory.create( data.t, data.n );
     },
 
     /**
@@ -24,7 +30,7 @@ const IntentFactory = {
     disassemble( intent ) {
         return {
             t: intent.type,
-            p: intent.price
+            n: intent.name
         };
     }
 };

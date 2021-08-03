@@ -36,7 +36,7 @@ import { mapGetters, mapMutations, mapActions } from "vuex";
 import sortBy           from "lodash/sortBy";
 import Modal            from "@/components/modal/modal";
 import InventoryList    from "@/components/shared/inventory-list/inventory-list";
-import PriceTypes       from "@/definitions/price-types";
+import PriceTypes, { getPriceTypeForPrice } from "@/definitions/price-types";
 import { SHOP_TYPES }   from "@/model/factories/shop-factory";
 import InventoryActions from "@/model/actions/inventory-actions";
 import sharedMessages   from "@/i18n/items.json";
@@ -85,6 +85,9 @@ export default {
             return this.player.inventory.items;
         },
     },
+    created() {
+        this.showPriceTypeClass = new Set( this.shop.items.map(({ name }) => name )).size < this.shop.items.length;
+    },
     beforeDestroy() {
         this.leaveShop();
     },
@@ -98,10 +101,14 @@ export default {
             "leaveShop",
         ]),
         itemTitle({ name, price }) {
+            if ( !this.showPriceTypeClass ) {
+                return this.$t( name );
+            }
             let i18n = "";
-            if ( price >= PriceTypes.LUXURY ) {
+            const priceType = getPriceTypeForPrice( price );
+            if ( priceType === PriceTypes.LUXURY ) {
                 i18n = `${this.$t( "luxury" )} `;
-            } else if ( price >= PriceTypes.EXPENSIVE ) {
+            } else if ( priceType === PriceTypes.EXPENSIVE ) {
                 i18n = `${this.$t( "quality" )} `;
             }
             return `${i18n}${this.$t( name )}`;
