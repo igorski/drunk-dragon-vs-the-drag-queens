@@ -528,6 +528,9 @@ function renderObjects( aCanvasContext, objectList, { left, top, right, bottom }
                     case SHOP_TYPES.CLOTHES:
                         text = "Clothing";
                         break;
+                    case SHOP_TYPES.DEALER:
+                        text = "Dealer";
+                        break;
                 }
                 aCanvasContext.font = "30px Arial";
                 aCanvasContext.fillStyle = "#FFF";

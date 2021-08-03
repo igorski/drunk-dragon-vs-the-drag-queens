@@ -49,6 +49,9 @@ export default
         setIntoxication( state, { value }) {
             state.player.properties.intoxication = value;
         },
+        setBoost( state, { value }) {
+            state.player.properties.boost = value;
+        },
         addItemToInventory( state, item ) {
             const { items } = state.player.inventory;
             if ( !items.includes( item )) {
@@ -148,6 +151,9 @@ export default
             if ( player.properties.intoxication > 0 ) {
                 dispatch( "soberUp" );
             }
+            if ( player.properties.boost > 0 ) {
+                dispatch( "cleanUp" );
+            }
             commit( "openDialog", { message: getters.translate( "messages.stayedTheNight" ) });
 
             return true;
@@ -157,5 +163,10 @@ export default
             commit( "setIntoxication", { value: 0 });
             commit( "showNotification", getters.translate( "timeouts.soberedUp" ));
         },
+        cleanUp({ state, getters, commit }) {
+            commit( "removeEffectsByTargetAndMutation", { target: state.player.id, types: [ "setBoost" ]});
+            commit( "setBoost", { value: 0 });
+            commit( "showNotification", getters.translate( "timeouts.cleanedUp" ));
+        }
     },
 };

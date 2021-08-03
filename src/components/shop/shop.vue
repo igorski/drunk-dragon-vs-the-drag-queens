@@ -72,14 +72,20 @@ export default {
                 case SHOP_TYPES.PAWN:
                     type = "pawnShop";
                     break;
+                case SHOP_TYPES.DEALER:
+                    type = "dealer";
+                    break;
             }
-            return this.$t("welcomeToOur", { type: this.$t( type ) });
+            return this.$t( "welcomeToOur", { type: this.$t( type ) });
         },
         sortedItems() {
             return sortBy( this.shop.items, [ "price" ]);
         },
         canSell() {
             return this.shop.type === SHOP_TYPES.PAWN;
+        },
+        canLoan() {
+            return this.shop.type === SHOP_TYPES.DEALER;
         },
         inventoryItems() {
             return this.player.inventory.items;

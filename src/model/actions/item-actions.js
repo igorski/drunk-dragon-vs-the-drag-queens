@@ -1,4 +1,4 @@
-import { TWENTY_FOUR_HOURS } from "@/definitions/constants";
+import { HALF_HOUR, TWENTY_FOUR_HOURS } from "@/definitions/constants";
 import PriceTypes, { getItemEffectivityByPriceType } from "@/definitions/price-types";
 import ItemTypes from "@/definitions/item-types";
 import EffectFactory from "@/model/factories/effect-factory";
@@ -31,6 +31,17 @@ export default {
                 // start "sobering up" effect
                 commit( "addEffect", EffectFactory.create(
                     "setIntoxication", getters.gameTime, TWENTY_FOUR_HOURS * intoxication, intoxication, 0, "soberUp", player.id
+                ));
+                break;
+
+            case ItemTypes.DRUGS:
+                effectivityRange = [ 0.25, 1.0 ];
+                const boost = Math.min( 1, effectivityRange[ priceType ] + player.properties.boost );
+                commit( "removeEffectsByTargetAndMutation", { target: player.id, types: [ "setBoost" ]});
+                commit( "setBoost", { value: boost });
+                // start "sobering up" effect
+                commit( "addEffect", EffectFactory.create(
+                    "setBoost", getters.gameTime, HALF_HOUR * boost, boost, 0, "cleanUp", player.id
                 ));
                 break;
         }

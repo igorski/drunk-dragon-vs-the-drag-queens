@@ -37,20 +37,27 @@ export const getDamageForAttack = ( character, targetCharacter, attackType ) => 
 /* internal methods */
 
 function getDamageForAttackByQueen( queenCharacter, targetCharacter, attackType ) {
-    // TODO multiply/divide attack damage by carried items
+    // TODO also multiply/divide attack damage by carried items
     let baseValue = 1;
     const { items } = queenCharacter.inventory;
+    const { boost } = queenCharacter.properties;
     switch ( attackType ) {
         default:
         case AttackTypes.SLAP:
-            return queenCharacter.level * 1;
+            baseValue = queenCharacter.level * 1;
+            break;
         case AttackTypes.KICK:
             baseValue = queenCharacter.level * 2;
             if ( items.find(({ name }) => name === SHOE_HEELS )) {
                 baseValue *= 2.5;
             }
-            return baseValue;
+            break;
     }
+    // add multiplier when boosted
+    if ( boost > 0 ) {
+        baseValue *= ( 1 + boost );
+    }
+    return Math.round( baseValue );
 }
 
 function getDamageForAttackByDragon( dragonCharacter, targetCharacter, attackType ) {

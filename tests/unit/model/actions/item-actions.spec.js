@@ -1,7 +1,7 @@
 import ItemActions from "@/model/actions/item-actions";
 import { randomBool, randomFromList } from "@/utils/random-util";
-import { TWENTY_FOUR_HOURS, GAME_TIME_RATIO } from "@/definitions/constants";
-import ItemTypes, { HEALTHCARE_TYPES, LIQUOR_TYPES } from "@/definitions/item-types";
+import { HALF_HOUR, TWENTY_FOUR_HOURS, GAME_TIME_RATIO } from "@/definitions/constants";
+import ItemTypes, { HEALTHCARE_TYPES, LIQUOR_TYPES, DRUG_TYPES } from "@/definitions/item-types";
 import PriceTypes, { getPriceRangeForItemType } from "@/definitions/price-types";
 import ItemFactory from "@/model/factories/item-factory";
 import CharacterFactory from "@/model/factories/character-factory";
@@ -67,6 +67,50 @@ describe( "Item actions", () => {
                 startValue: 1,
                 endValue: 0,
                 callback: "soberUp",
+                target: player.id,
+                increment: expect.any( Number )
+            });
+        });
+    });
+
+    describe( "when taking drugs", () => {
+        const priceRange = getPriceRangeForItemType( ItemTypes.DRUGS );
+
+        it( "should increase the players boost and start/update an Effect to clean up over time", () => {
+            const player = CharacterFactory.create({}, {}, { boost: 0.25 });
+            const item = ItemFactory.create( ItemTypes.DRUGS, DRUG_TYPES[ 0 ], priceRange[ 0 ]);
+            const store = { commit: jest.fn(), getters: { gameTime: 1000 } };
+
+            ItemActions.applyItemToPlayer( store, item, player );
+            expect( store.commit ).toHaveBeenNthCalledWith( 1, "removeEffectsByTargetAndMutation", { target: player.id, types: [ "setBoost" ] } );
+            expect( store.commit ).toHaveBeenNthCalledWith( 2, "setBoost", { value: 0.5 });
+            expect( store.commit ).toHaveBeenNthCalledWith( 3, "addEffect", {
+                mutation: "setBoost",
+                startTime: store.getters.gameTime,
+                duration: HALF_HOUR * 0.5 * GAME_TIME_RATIO,
+                startValue: 0.5,
+                endValue: 0,
+                callback: "cleanUp",
+                target: player.id,
+                increment: expect.any( Number )
+            });
+        });
+
+        it( "should not increase the players intoxication beyond the maximum half hour buzz", () => {
+            const player = CharacterFactory.create({}, {}, { boost: 0.5 });
+            const item = ItemFactory.create( ItemTypes.DRUGS, DRUG_TYPES[ 1 ], priceRange[ 1 ]);
+            const store = { commit: jest.fn(), getters: { gameTime: 1000 } };
+
+            ItemActions.applyItemToPlayer( store, item, player );
+            expect( store.commit ).toHaveBeenNthCalledWith( 1, "removeEffectsByTargetAndMutation", { target: player.id, types: [ "setBoost" ] } );
+            expect( store.commit ).toHaveBeenNthCalledWith( 2, "setBoost", { value: 1 });
+            expect( store.commit ).toHaveBeenNthCalledWith( 3, "addEffect", {
+                mutation: "setBoost",
+                startTime: store.getters.gameTime,
+                duration: HALF_HOUR * GAME_TIME_RATIO,
+                startValue: 1,
+                endValue: 0,
+                callback: "cleanUp",
                 target: player.id,
                 increment: expect.any( Number )
             });

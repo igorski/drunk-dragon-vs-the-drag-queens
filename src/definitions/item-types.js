@@ -11,27 +11,15 @@ const ItemTypes = {
     JEWELRY    : 0,
     CLOTHES    : 1,
     LIQUOR     : 2,
-    HEALTHCARE : 3
+    HEALTHCARE : 3,
+    DRUGS      : 4
 };
 export default ItemTypes;
-
-export const namesForType = type => {
-    switch ( type ) {
-        case ItemTypes.JEWELRY:
-            return JEWELRY_TYPES;
-        case ItemTypes.LIQUOR:
-            return LIQUOR_TYPES;
-        case ItemTypes.HEALTCHARE:
-            return HEALTHCARE_TYPES;
-        case ItemTypes.CLOTHES:
-            return CLOTHING_TYPES;
-    }
-    return [];
-};
 
 export const getItemsForType = type => {
     switch ( type ) {
         default:
+            return [];
         case ItemTypes.HEALTHCARE:
             return HEALTHCARE_TYPES;
         case ItemTypes.CLOTHES:
@@ -40,6 +28,8 @@ export const getItemsForType = type => {
             return JEWELRY_TYPES;
         case ItemTypes.LIQUOR:
             return LIQUOR_TYPES;
+        case ItemTypes.DRUGS:
+            return DRUG_TYPES;
     }
 };
 
@@ -71,3 +61,9 @@ export const LIQUOR_TYPES =  [ LIQUOR_WINE, LIQUOR_GIN, LIQUOR_COGNAC ];
 export const HEALTHCARE_BANDAID = "bandaid";
 export const HEALTHCARE_ASPIRIN = "aspirin";
 export const HEALTHCARE_TYPES   = [ HEALTHCARE_BANDAID, HEALTHCARE_ASPIRIN ];
+
+/* drugs */
+
+export const DRUG_STIMULANT_A = "stimulantA";
+export const DRUG_NOSE_CANDY  = "noseCandy";
+export const DRUG_TYPES       = [ DRUG_STIMULANT_A, DRUG_NOSE_CANDY ];

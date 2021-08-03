@@ -9,7 +9,7 @@ export const SHOP_TYPES = {
     JEWELLER: 2,
     CLOTHES: 3,
     PAWN: 4,
-    LOAN: 5
+    DEALER: 5
 };
 
 const ShopFactory =
@@ -21,14 +21,15 @@ const ShopFactory =
      * @param {number} y position in the world
      * @param {number=} type optional shop type @see SHOP_TYPES will be randomized when null
      * @param {Array<Object>=} items optional list of shop items
+     * @param {number=} debt optional debt owed to the shop
      */
-    create( x, y, type = null, items = [] ) {
+    create( x, y, type = null, items = [], debt = 0 ) {
         if ( type === null ) {
             type = randomFromList( Object.keys( SHOP_TYPES ));
         }
         const { width, height } = WorldCache.sizeShop;
         return {
-            x, y, width, height, type, items
+            x, y, width, height, type, items, debt
         };
     },
 
@@ -38,7 +39,7 @@ const ShopFactory =
      */
     assemble( data ) {
         return ShopFactory.create(
-            data.x, data.y, data.t, data.i.map( i => ItemFactory.assemble( i ))
+            data.x, data.y, data.t, data.i.map( i => ItemFactory.assemble( i )), data.d
         );
     },
 
@@ -50,7 +51,8 @@ const ShopFactory =
             x: shop.x,
             y: shop.y,
             t: shop.type,
-            i: shop.items.map( i => ItemFactory.disassemble( i ))
+            i: shop.items.map( i => ItemFactory.disassemble( i )),
+            d: shop.debt
         };
     },
 
@@ -75,9 +77,11 @@ const ShopFactory =
             case SHOP_TYPES.LIQUOR:
                 items = ItemFactory.createList( ItemTypes.LIQUOR, amountToCreate );
                 break;
+            case SHOP_TYPES.DEALER:
+                items = ItemFactory.createList( ItemTypes.DRUGS, amountToCreate );
+                break;
             default:
             case SHOP_TYPES.PAWN:
-            case SHOP_TYPES.LOAN:
                 // no items
                 return;
         }

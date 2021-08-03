@@ -8,6 +8,7 @@
         "jewelryStore": "Jewelry store",
         "liquorStore": "Liquor store",
         "pawnShop": "Pawn shop",
+        "dealer": "Dealer",
         "itemsForSale": "Right now, we have the following items for sale:",
         "noItemsForSale": "Right now we are completely out of stock.",
         "buy": "Buy",

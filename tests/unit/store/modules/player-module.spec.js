@@ -101,6 +101,12 @@ describe( "Vuex player module", () => {
             expect( state.player.properties.intoxication ).toEqual( 1 );
         });
 
+        it( "should be able to set the player boost level", () => {
+            const state = { player: { properties: { boost: 0 } } };
+            mutations.setBoost( state, { value: 1 });
+            expect( state.player.properties.boost ).toEqual( 1 );
+        });
+
         it( "should be able to add an item to the players inventory", () => {
             const state = { player: { inventory: { cash: 50, items: [{ foo: "bar" }] } } };
             const item  = { baz: "qux" };
@@ -232,7 +238,7 @@ describe( "Vuex player module", () => {
             it( "should advance the clock to tomorrow when successfully booked before midnight", async () => {
                 const commit   = jest.fn();
                 const dispatch = jest.fn();
-                const state    = { player: { inventory: { cash: 10 }, properties: { intoxication: 0 }  } };
+                const state    = { player: CharacterFactory.create({}, {}, {} , { cash: 10 }) };
                 const mockedGetters = { gameTime: new Date( "1986-08-29T23:59:31.000Z" ), translate: jest.fn() };
 
                 await actions.bookHotelRoom({ state, getters: mockedGetters, commit, dispatch }, hotel );
@@ -242,7 +248,7 @@ describe( "Vuex player module", () => {
             it( "should advance the clock to the start hour on the same day when successfully booked after midnight", async () => {
                 const commit   = jest.fn();
                 const dispatch = jest.fn();
-                const state    = { player: { inventory: { cash: 10 }, properties: { intoxication: 0 } } };
+                const state    = { player: CharacterFactory.create({}, {}, {} , { cash: 10 }) };
                 const mockedGetters = { gameTime: new Date( "1986-08-30T01:59:31.000Z" ), translate: jest.fn() };
 
                 await actions.bookHotelRoom({ state, getters: mockedGetters, commit, dispatch }, hotel );
@@ -252,11 +258,21 @@ describe( "Vuex player module", () => {
             it( "should sober up the player if the player was intoxicated", async () => {
                 const commit   = jest.fn();
                 const dispatch = jest.fn();
-                const state = { player: { inventory: { cash: 10 }, properties: { intoxication: 0.25 } } };
+                const state    = { player: CharacterFactory.create({}, {}, { intoxication: 0.25 }, { cash: 10 }) };
 
                 await actions.bookHotelRoom({ state, getters: { translate: jest.fn() }, commit, dispatch }, hotel );
 
                 expect( dispatch ).toHaveBeenCalledWith( "soberUp" );
+            });
+
+            it( "should clean up the player if the player was boosted", async () => {
+                const commit   = jest.fn();
+                const dispatch = jest.fn();
+                const state    = { player: CharacterFactory.create({}, {}, { boost: 0.25 }, { cash: 10 }) };
+
+                await actions.bookHotelRoom({ state, getters: { translate: jest.fn() }, commit, dispatch }, hotel );
+
+                expect( dispatch ).toHaveBeenCalledWith( "cleanUp" );
             });
         });
 
@@ -268,6 +284,17 @@ describe( "Vuex player module", () => {
 
             expect( commit ).toHaveBeenNthCalledWith( 1, "removeEffectsByTargetAndMutation", { target: "foo", types: [ "setIntoxication" ] });
             expect( commit ).toHaveBeenNthCalledWith( 2, "setIntoxication", { value: 0 });
+            expect( commit ).toHaveBeenNthCalledWith( 3, "showNotification", expect.any( String ));
+        });
+
+        it( "should be able to clean up a boosted player", async () => {
+            const commit = jest.fn()
+            const state  = { player: { id: "foo", properties: { boost: 1 } } };
+
+            await actions.cleanUp({ state, commit, getters: { translate: jest.fn(() => "" ) } });
+
+            expect( commit ).toHaveBeenNthCalledWith( 1, "removeEffectsByTargetAndMutation", { target: "foo", types: [ "setBoost" ] });
+            expect( commit ).toHaveBeenNthCalledWith( 2, "setBoost", { value: 0 });
             expect( commit ).toHaveBeenNthCalledWith( 3, "showNotification", expect.any( String ));
         });
     });

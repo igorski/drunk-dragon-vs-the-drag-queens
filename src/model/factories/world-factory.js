@@ -97,10 +97,10 @@ const WorldFactory =
 
         const cities = generateCities( hash, world );
 
-        // generate some buildings outside the cities
-/*
+        // generate some shops outside the cities
+
         const shopHash   = hash.substr( 8, 10 );
-        const types      = Object.values( SHOP_TYPES ); // ensure we crate them for each available type
+        const types      = [ SHOP_TYPES.DEALER, SHOP_TYPES.PHARMACY, SHOP_TYPES.PAWN ];
         let createdShops = 0;
 
         world.shops.push( ...generateGroup(
@@ -110,7 +110,7 @@ const WorldFactory =
                 return shop;
             }, Math.round( world.width / 5 ), 4, .6, [ WORLD_TILES.SAND, WORLD_TILES.GRASS ] // exclude GROUND (city only)
         ));
-*/
+
         // generate some characters that occupy some of the building entrances
 
         const characterHash      = hash.substr( 8, 8 );

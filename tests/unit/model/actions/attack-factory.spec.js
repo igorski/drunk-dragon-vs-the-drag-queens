@@ -18,8 +18,12 @@ describe( "Attack factory", () => {
     });
 
     describe( "when a Queen attacks", () => {
-        const opponent = CharacterFactory.create({ type: DRAGON });
-        const character = CharacterFactory.create({ type: QUEEN });
+        let opponent, character;
+
+        beforeEach(() => {
+            opponent  = CharacterFactory.create({ type: DRAGON });
+            character = CharacterFactory.create({ type: QUEEN });
+        });
 
         it( "should be able to perform a slap where the attack damage equals the player level", () => {
             character.level = 1;
@@ -50,6 +54,16 @@ describe( "Attack factory", () => {
             character.level = 2;
             damage = getDamageForAttack( character, opponent, AttackTypes.KICK );
             expect( damage ).toBe( 10 );
+        });
+
+        it( "should perform a stronger attack when the player is boosted", () => {
+            let damage = getDamageForAttack( character, opponent, AttackTypes.SLAP );
+            expect( damage ).toBe( 1 );
+
+            character.properties.boost = 1;
+
+            damage = getDamageForAttack( character, opponent, AttackTypes.SLAP );
+            expect( damage ).toBe( 2 );
         });
     });
 });

@@ -7,7 +7,7 @@
         "attack": "Attack",
         "chooseAttackType": "Choose attack type",
         "nameDodgedAttack": "{name} dodged the attack!",
-        "attackMissed": "Attach missed!",
+        "attackMissed": "Attack missed!",
         "nameMissedAttack": "{name} missed their attack!",
         "you": "You",
         "youDealtDamageToName": "You dealt {damage} HP damage to {name}",

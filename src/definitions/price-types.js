@@ -23,6 +23,7 @@ export const getPriceRangeForItemType = type => {
         case ItemTypes.HEALTHCARE:
             return [ PRICE_TYPES.AVERAGE, PRICE_TYPES.EXPENSIVE ];
         case ItemTypes.LIQUOR:
+        case ItemTypes.DRUGS:
             return [ PRICE_TYPES.AVERAGE, PRICE_TYPES.EXPENSIVE ];
         case ItemTypes.CLOTHES:
         case ItemTypes.JEWELRY:

@@ -75,19 +75,18 @@ npm run test
 
 ## TODO
 
-* getDamageForAttack needs to take character attack and opponent defense into account
-** Clothing can increase defense, jewelry swag
+* getDamageForAttack needs to take opponent defense properties into account, e.g.: clothing can increase defense
 
 * Drag swag/charisma == mana
 ** Show in status view
 
-* Fix popup of objects at screen edge
-* Alternate colour scheme for bar/hotel floors inside buildings
-* Generate loan shark with pay back Effect
 * Character interaction should not show intent in thought bubble, but have a subtle tip in conversation (e.g. slurrrr when drunk, drop hints in conversation)
+* Implement intent for drugs (create i18n per intent type)
+* Generate loan shark with pay back Effect (inside DEALER shop type)
+
+* Alternate colour scheme for bar/hotel floors inside buildings
 * Generate drag queens in hotel bars
 * sometimes no shop is generated on first city > needs to be clothing!! and are there enough shops elsewhere?
-* Implement drugs for boost (increases chance of dodging attacks)
 * Introduce new attack types at higher levels (e.g. nail slash)
 * Create heavily made up eyes style
 * Generate objects on city roads and inside buildings similar to trees (make sure no roads are blocked!)
@@ -127,7 +126,6 @@ npm run test
 * add hamburger joint (can increase hp slowly but cheaply, medicine is more expensive but more potent)
 * changes to opponent should also reflect to appropriate world.characters instance (e.g. battle after run away should not restore health of dragon!)
 * Implement ambush in battle
-* Implement run away (uses boost/intoxication for outcome)
 * There is only a single dragon throughout the game, it should path find you in the overworld and fight you, winning the fight resets the dragon to a far side of the map
 * When fighting other queens, make "flirt" an action (using drag swag)
 * Don't enter exit unless path ends at its exact coordinate
@@ -142,6 +140,7 @@ npm run test
 * When player clicks on non-navigate-able tile, navigate as close to the tile as possible (take dominant distance on x-y coordinate and keep reducing until path is found)
 * Overworld must become lighter when morning comes
 * Keep track of important dates (Christmas, New Year)
+* Fix popup of objects at screen edge
 * world-renderer isValidTarget|maxWalkableTile|and pre calc of waypoints is duplicating environment-actions unnecessarily!
 * if you are feeling brave you can start using the unused tiles in the floor sheet in environment-bitmap-cacher for the corner types
 * setIntoxication should be generic update character effect (so it works with any character, not just player)?

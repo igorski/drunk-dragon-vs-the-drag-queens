@@ -1,8 +1,9 @@
 import PriceTypes, { getPriceTypeForPrice, getPriceRangeForItemType } from "@/definitions/price-types";
 import { random, randomBool, randomFromList } from "@/utils/random-util";
 import ItemTypes, {
-    JEWELRY_TYPES, CLOTHING_TYPES, LIQUOR_TYPES, HEALTHCARE_TYPES,
-    SHOE_HEELS, SHOE_SNEAKERS, SHOE_FLIPPERS, namesForType
+    getItemsForType,
+    JEWELRY_TYPES, CLOTHING_TYPES, LIQUOR_TYPES, DRUG_TYPES, HEALTHCARE_TYPES,
+    SHOE_HEELS, SHOE_SNEAKERS, SHOE_FLIPPERS, DRUG_STIMULANT_A, DRUG_NOSE_CANDY,
 } from "@/definitions/item-types";
 
 const ItemFactory =
@@ -22,6 +23,9 @@ const ItemFactory =
                     break;
                 case ItemTypes.CLOTHES:
                     name = randomFromList( CLOTHING_TYPES );
+                    break;
+                case ItemTypes.DRUGS:
+                    name = randomFromList( DRUG_TYPES );
                     break;
             }
         }
@@ -44,7 +48,7 @@ const ItemFactory =
      */
     createList( type, amountToCreate ) {
         const out   = [];
-        const names = namesForType( type );
+        const names = getItemsForType( type );
 
         for ( let i = 0; i < amountToCreate; ++i ) {
             const name = names[ i % names.length ];
@@ -94,6 +98,14 @@ function getPriceForItem( type, name ) {
                     return PriceTypes.EXPENSIVE;
                 case SHOE_FLIPPERS:
                     return PriceTypes.LUXURY;
+            }
+            break;
+        case ItemTypes.DRUGS:
+            switch ( name ) {
+                case DRUG_STIMULANT_A:
+                    return PriceTypes.AVERAGE;
+                case DRUG_NOSE_CANDY:
+                    return PriceTypes.EXPENSIVE;
             }
             break;
     }
