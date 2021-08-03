@@ -67,11 +67,9 @@ import Modal              from "@/components/modal/modal";
 import InventoryList      from "@/components/shared/inventory-list/inventory-list";
 import ItemTypes          from "@/definitions/item-types";
 import { SHOP_TYPES }     from "@/model/factories/shop-factory";
-import { randomFromList, randomFloatInRange } from "@/utils/random-util";
+import { randomBool, randomFromList, randomFloatInRange } from "@/utils/random-util";
 import { slurWords }      from "@/utils/string-util";
 import messages           from "./messages.json";
-
-const INTENT_TIMEOUT = 4000;
 
 export default {
     i18n: { messages },
@@ -80,8 +78,6 @@ export default {
         InventoryList,
     },
     data: () => ({
-        askedQuestions: 0,
-        intentTimeout: null,
         message: "",
         thought: "",
         selectedItem: null,
@@ -95,6 +91,21 @@ export default {
         ]),
         intent() {
             return this.character.properties.intent;
+        },
+        i18nKeyForIntent() {
+            switch ( this.intent.type ) {
+                case ItemTypes.JEWELRY:
+                    return "jewelry";
+                case ItemTypes.CLOTHES:
+                    return "clothes";
+                case ItemTypes.LIQUOR:
+                    return "liquor";
+                case ItemTypes.DRUGS:
+                    return "drugs";
+                case ItemTypes.HEALTHCARE:
+                    return "healthcare";
+            }
+            return "generic";
         },
         characterComponent() {
             // TODO: currently we only interact with queens?
@@ -112,9 +123,6 @@ export default {
     created() {
         this.intoxication = this.intent.type === ItemTypes.LIQUOR ? randomFloatInRange( 0.35, 1 ) : this.character.properties.intoxication;
     },
-    beforeDestroy() {
-        this.clearIntentTimeout();
-    },
     methods: {
         ...mapMutations([
             "openDialog",
@@ -127,44 +135,22 @@ export default {
         ]),
         interact( type ) {
             let list;
-            this.clearIntentTimeout();
+            // the characters intent reflects in the answers
+            // we mix up with some generic replies, but certain intents make a Queen be very direct
+            const isDirect    = [ ItemTypes.DRUGS, ItemTypes.LIQUOR ].includes( this.intent.type );
+            const messageType = isDirect || randomBool() ? this.i18nKeyForIntent : "generic";
             switch ( type ) {
                 case 0:
-                    list = this.$t( "answers.hi" );
+                    list = this.$t( `answers.hi.${messageType}` );
                     break;
                 case 1:
-                    list = this.$t( "answers.whatsInHere" );
+                    list = this.$t( `answers.whatsInHere.${messageType}` );
                     break;
                 case 2:
-                    list = this.$t( "answers.canIEnter" );
+                    list = this.$t( `answers.canIEnter.${messageType}` );
                     break;
             }
             this.message = randomFromList( list );
-
-            // persistent bugging shows the Characters intent in a thought balloon
-            if ( ++this.askedQuestions > 1 && this.intentTimeout === null ) {
-                this.intentTimeout = window.setTimeout(() => {
-                    switch ( this.intent.type ) {
-                        case ItemTypes.JEWELRY:
-                            this.thought = this.$t( "convinceMeWithAPresent" );
-                            break;
-                        case ItemTypes.CLOTHES:
-                            this.thought = this.$t( "needNewClothes" );
-                            break;
-                        case ItemTypes.LIQUOR:
-                            this.thought = this.$t( "couldUseADrink" );
-                            break;
-                        case ItemTypes.HEALTHCARE:
-                            this.thought = this.$t( "feelingSick" );
-                            break;
-                    }
-                    this.message = "";
-                }, INTENT_TIMEOUT );
-            }
-        },
-        clearIntentTimeout() {
-            window.clearTimeout( this.intentTimeout );
-            this.intentTimeout = null;
         },
         async giveItem() {
             this.thought = "";

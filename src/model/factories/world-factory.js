@@ -99,12 +99,16 @@ const WorldFactory =
 
         // generate some shops outside the cities
 
-        const shopHash   = hash.substr( 8, 10 );
+        const shopHash   = hash.substr( 8, 1 );
         const types      = [ SHOP_TYPES.DEALER, SHOP_TYPES.PHARMACY, SHOP_TYPES.PAWN ];
         let createdShops = 0;
 
+        const minShopAmount = types.length * 3;
+        const amountOfShopsToCreate = randomInRangeInt( minShopAmount, minShopAmount + HashUtil.charsToNum( shopHash ));
+        console.warn(amountOfShopsToCreate + " < shops to create");
+
         world.shops.push( ...generateGroup(
-            centerX, centerY, world, HashUtil.charsToNum( shopHash ), ( x, y, ) => {
+            centerX, centerY, world, amountOfShopsToCreate, ( x, y, ) => {
                 const shop = ShopFactory.create( x, y, types[ createdShops % types.length ]);
                 ++createdShops;
                 return shop;

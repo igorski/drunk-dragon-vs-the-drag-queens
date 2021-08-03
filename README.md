@@ -80,8 +80,6 @@ npm run test
 * Drag swag/charisma == mana
 ** Show in status view
 
-* Character interaction should not show intent in thought bubble, but have a subtle tip in conversation (e.g. slurrrr when drunk, drop hints in conversation)
-* Implement intent for drugs (create i18n per intent type)
 * Generate loan shark with pay back Effect (inside DEALER shop type)
 
 * Alternate colour scheme for bar/hotel floors inside buildings
