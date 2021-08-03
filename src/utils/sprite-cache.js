@@ -9,27 +9,28 @@ const SpriteCache =
 {
     // these will contain a cached version of the world / buildings pre-rendered with their terrain
 
-    ENV_WORLD      : new Image(),
-    ENV_BUILDING   : new Image(),
+    ENV_WORLD       : new Image(),
+    ENV_BUILDING    : new Image(),
 
     // cached version of all sprite sheets
 
-    BUILDING   : new Image(),
-    GROUND     : new Image(),
-    GRASS      : new Image(),
-    ROAD       : new Image(),
-    ROCK       : new Image(),
-    SAND       : new Image(),
-    SHOP       : new Image(),
-    WATER      : new Image(),
-    TREE       : new Image(),
-    FLOOR      : new Image(),
-    CROSSHAIRS : new Image(),
-    FURNITURE  : new Image(),
+    BUILDING        : new Image(),
+    GROUND          : new Image(),
+    GRASS           : new Image(),
+    ROAD            : new Image(),
+    ROCK            : new Image(),
+    SAND            : new Image(),
+    SHOP            : new Image(),
+    WATER           : new Image(),
+    TREE            : new Image(),
+    FLOOR_BAR       : new Image(),
+    FLOOR_HOTEL     : new Image(),
+    CROSSHAIRS      : new Image(),
+    FURNITURE       : new Image(),
 
-    QUEEN      : new Image(),
-    DRAB       : new Image(),
-    DRAGON     : new Image()
+    QUEEN           : new Image(),
+    DRAB            : new Image(),
+    DRAGON          : new Image()
 };
 export default SpriteCache;
 

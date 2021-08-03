@@ -26,7 +26,8 @@ export const preloadAssets = () =>
     const assetRoot = `./assets/sprites/`;
     _queue = [
         { src: `${assetRoot}building.png`,        target: SpriteCache.BUILDING },
-        { src: `${assetRoot}floor.png`,           target: SpriteCache.FLOOR },
+        { src: `${assetRoot}floor_bar.png`,       target: SpriteCache.FLOOR_BAR },
+        { src: `${assetRoot}floor_hotel.png`,     target: SpriteCache.FLOOR_HOTEL },
         { src: `${assetRoot}grass.png`,           target: SpriteCache.GRASS },
     //    { src: `${assetRoot}road.png`,            target: SpriteCache.ROAD },
         { src: `${assetRoot}rock.png`,            target: SpriteCache.ROCK },

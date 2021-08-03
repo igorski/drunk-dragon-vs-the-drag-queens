@@ -5,8 +5,8 @@ import SpriteCache            from "@/utils/sprite-cache";
 import WorldCache             from "@/utils/world-cache";
 import { generateBitmap }     from "@/renderers/character-queen-bitmap";
 
-import { BUILDING_TYPE, BUILDING_TILES } from "@/model/factories/building-factory";
-import { WORLD_TYPE, WORLD_TILES }       from "@/model/factories/world-factory";
+import { BUILDING_TYPE, BUILDING_TILES, FLOOR_TYPES } from "@/model/factories/building-factory";
+import { WORLD_TYPE, WORLD_TILES } from "@/model/factories/world-factory";
 
 const NONE = undefined;
 
@@ -187,15 +187,14 @@ function drawTileForSurroundings( ctx, tx, ty, x, y, environment, finalRenders )
     else if ( environment.type === BUILDING_TYPE ) {
         switch ( tileType ) {
             case BUILDING_TILES.GROUND:
-                return drawTile( ctx, SpriteCache.FLOOR, 0, x, y );
+                return drawTile( ctx, getFloorSprite( environment ), 0, x, y );
 
             case BUILDING_TILES.WALL:
                 drawAdjacentTiles( tile, tx, ty, x, y, environment, ctx  );
                 break;
 
-            case BUILDING_TILES.HOTEL: // TODO: unique tile
             case BUILDING_TILES.STAIRS:
-                return drawTile( ctx, SpriteCache.FLOOR, 260, x, y );
+                return drawTile( ctx, getFloorSprite( environment ), 260, x, y );
 
             default:
             case BUILDING_TILES.NOTHING:
@@ -471,7 +470,7 @@ function drawAdjacentTiles( tile, tx, ty, x, y, env, ctx ) {
         }
 
         function drawFloor( x, y ) {
-            drawTile( ctx, SpriteCache.FLOOR, 0, x, y );
+            drawTile( ctx, getFloorSprite( env ), 0, x, y );
         }
 
         // vertical and horizontal walls in between ground tiles should always draw a floor background
@@ -501,7 +500,7 @@ function drawAdjacentTiles( tile, tx, ty, x, y, env, ctx ) {
 function getSheet( environment, tileDescription )
 {
     if ( environment.type === BUILDING_TYPE ) {
-        return SpriteCache.FLOOR;   // there is only a single sheet for buildings
+        return getFloorSprite( environment );   // there is only a single sheet for buildings
     }
     else if ( environment.type === WORLD_TYPE ) {
         switch ( tileDescription.type ) {
@@ -529,6 +528,10 @@ function getSheet( environment, tileDescription )
         }
     }
     throw new Error( `could not find sheet for tiletype "${tileDescription.type}" for given environment "${environment.type}"` );
+}
+
+function getFloorSprite({ floorType }) {
+    return floorType === FLOOR_TYPES.HOTEL ? SpriteCache.FLOOR_HOTEL : SpriteCache.FLOOR_BAR;
 }
 
 /**
