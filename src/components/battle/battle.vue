@@ -175,7 +175,10 @@ export default {
     created() {
         this.title = this.$t( "battleAgainstName", { name: this.opponent.appearance.name });
         const { xp, level } = this.player;
-        this.$set( this.playerStats, { xp, level });
+
+        this.playerStats.xp = xp;
+        this.playerStats.level = level;
+        
         this.setPlayerTurn( true ); // TODO: implement ambush (should be Vuex action on battle creation)
 
         // first battle against dragon ?

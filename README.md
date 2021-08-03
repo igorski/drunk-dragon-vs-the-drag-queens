@@ -81,7 +81,6 @@ npm run test
 * Drag swag/charisma == mana
 ** Show in status view
 
-* battle.vue > only show "you advanced to" message when the level actually changed during the battle!
 * sometimes no shop is generated on first city > needs to be clothing!! and are there enough shops elsewhere?
 * Character interaction should not show intent in thought bubble, but have a subtle tip in conversation (e.g. slurrrr when drunk, drop hints in conversation)
 * Some shops are empty (have no type ? or is LOAN - to be implemented - ?)
