@@ -5,6 +5,8 @@
         "hp": "HP",
         "xp": "XP",
         "xpNeededToLevelUp": "{xp} XP needed to reach next level",
-        "visitedPercent": "Visited {percentVisited}% of environment"
+        "visitedPercent": "Visited {percentVisited}% of environment",
+        "intoxicationPercentage": "{pct}% intoxicated",
+        "boostPercentage": "{pct}% boosted"
     }
 }

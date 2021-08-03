@@ -150,6 +150,7 @@ describe( "Vuex game module", () => {
                         { id: 3, target: "bar", mutation: "barMut2" },
                         { id: 4, target: "baz", mutation: "bazMut" },
                         { id: 5, target: "baz", mutation: "bazMut2" },
+                        { id: 6, target: "baz", mutation: "barMut" }
                     ]
                 };
                 mutations.removeEffectsByTargetAndMutation( state, { target: "bar", types: [ "barMut" ] });
@@ -158,11 +159,13 @@ describe( "Vuex game module", () => {
                     { id: 3, target: "bar", mutation: "barMut2" },
                     { id: 4, target: "baz", mutation: "bazMut" },
                     { id: 5, target: "baz", mutation: "bazMut2" },
+                    { id: 6, target: "baz", mutation: "barMut" }
                 ]);
                 mutations.removeEffectsByTargetAndMutation( state, { target: "baz", types: [ "bazMut", "bazMut2" ] });
                 expect( state.effects ).toEqual([
                     { id: 1, target: "foo", mutation: "fooMut" },
                     { id: 3, target: "bar", mutation: "barMut2" },
+                    { id: 6, target: "baz", mutation: "barMut" }
                 ]);
             });
         });

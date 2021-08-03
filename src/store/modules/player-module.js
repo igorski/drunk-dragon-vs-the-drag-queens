@@ -46,6 +46,9 @@ export default
         setPlayerLevel( state, level ) {
             state.player.level = level;
         },
+        setIntoxication( state, { value }) {
+            state.player.properties.intoxication = value;
+        },
         addItemToInventory( state, item ) {
             const { items } = state.player.inventory;
             if ( !items.includes( item )) {
@@ -142,9 +145,17 @@ export default
             commit( "setScreen", SCREEN_GAME );
             await dispatch( "leaveBuilding" );
             commit( "removeCharactersOfType", DRAB ); // drabs only appear after midnight
+            if ( player.properties.intoxication > 0 ) {
+                dispatch( "soberUp" );
+            }
             commit( "openDialog", { message: getters.translate( "messages.stayedTheNight" ) });
 
             return true;
+        },
+        soberUp({ state, getters, commit }) {
+            commit( "removeEffectsByTargetAndMutation", { target: state.player.id, types: [ "setIntoxication" ]});
+            commit( "setIntoxication", { value: 0 });
+            commit( "showNotification", getters.translate( "timeouts.soberedUp" ));
         },
     },
 };

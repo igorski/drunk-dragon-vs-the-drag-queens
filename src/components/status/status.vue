@@ -34,6 +34,12 @@
                     <span class="status-content--block">
                         {{ $t("xpNeededToLevelUp", { xp: xpNeededToLevelUp }) }}
                     </span>
+                    <div class="status-content--inline">
+                        {{ $t( "intoxicationPercentage", { pct: intoxicationPercentage }) }}
+                    </div>
+                    <div class="status-content--inline">
+                        {{ $t( "boostPercentage", { pct: boostPercentage }) }}
+                    </div>
                 </div>
             </div>
         </div>
@@ -49,6 +55,7 @@ import { BUILDING_TYPE } from "@/model/factories/building-factory";
 import { timestampToFormattedDate, timestampToTimeString } from "@/utils/time-util";
 import renderWorld from "@/renderers/overground-map-renderer";
 import renderBuilding from "@/renderers/building-map-renderer";
+import { formatPercentage } from "@/utils/string-util";
 import messages from "./messages.json";
 
 export default {
@@ -86,6 +93,12 @@ export default {
         xpNeededToLevelUp() {
             return xpNeededForLevel( this.player.level ) - this.player.xp;
         },
+        intoxicationPercentage() {
+            return formatPercentage( this.player.properties.intoxication );
+        },
+        boostPercentage() {
+            return formatPercentage( this.player.properties.boost );
+        }
     },
     mounted() {
         // let modal paint before rendering map
@@ -104,9 +117,7 @@ export default {
                 this.$refs.map.src = src;
             }
             const { terrain, visitedTerrain } = this.activeEnvironment;
-            const pct = ( rendered / terrain.length ) * 100;
-            this.percentVisited = pct === 100 ? 100 : pct.toFixed( 2 );
-
+            this.percentVisited = formatPercentage( rendered / terrain.length );
         }, 10 );
     },
 };

@@ -29,16 +29,23 @@ export const slurWords = ( text, intoxication = 0 ) => {
     });
     let ret = out.join( " " );
         if ( highlyIntoxicated ) {
-        replacements.forEach(([ key, replacement ]) => {
+        SLUR_REPLACEMENTS.forEach(([ key, replacement ]) => {
             ret = ret.split( key ).join( replacement );
         });
     }
     return ret.charAt( 0 ).toUpperCase() + ret.slice( 1 );
 };
 
+/**
+ * Formats a value in 0 - 1 range as a percentile String
+ */
+export const formatPercentage = number => parseFloat(( number * 100 ).toFixed( 2 ).replace( ".00", "" ));
+
+/* internal properties */
+
 // TODO: these are very English centered
 
-const replacements = [
+const SLUR_REPLACEMENTS = [
     [ "what the", "wadda" ],
     [ "ter", "'er'" ],
     [ "ing", "in'" ],

@@ -9,6 +9,7 @@ export const GAME_START_TIME         = `1986-08-29T${GAME_START_HOUR}:00:00.000Z
 export const GAME_START_TIME_UNIX    = new Date( GAME_START_TIME ).getTime();
 export const GAME_TIME_RATIO         = 20; // how much faster the clock ticks in game time vs real time
 export const VALIDITY_CHECK_INTERVAL = 10000 * GAME_TIME_RATIO;
+export const TWENTY_FOUR_HOURS       = 1000 * 60 * 60 * 24;
 
 /* levelling mechanism */
 

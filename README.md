@@ -81,14 +81,11 @@ npm run test
 * Drag swag/charisma == mana
 ** Show in status view
 
+* battle.vue > only show "you advanced to" message when the level actually changed during the battle!
 * sometimes no shop is generated on first city > needs to be clothing!! and are there enough shops elsewhere?
-* status screen implement handleInventoryClick for liquor types (also see item-actions)
-* liquor should be more potent when its more expensive
 * Character interaction should not show intent in thought bubble, but have a subtle tip in conversation (e.g. slurrrr when drunk, drop hints in conversation)
 * Some shops are empty (have no type ? or is LOAN - to be implemented - ?)
-* Implement drinking for intoxication (needs Effect to reduce over time, reset effect when drinking more)
 * Implement drugs for boost (increases chance of dodging attacks)
-* Show intoxication and boost on status screen
 * Introduce new attack types at higher levels (e.g. nail slash)
 * Alternate colour scheme for bar/hotel floors inside buildings
 * Create heavily made up eyes style
@@ -146,5 +143,7 @@ npm run test
 * Keep track of important dates (Christmas, New Year)
 * world-renderer isValidTarget|maxWalkableTile|and pre calc of waypoints is duplicating environment-actions unnecessarily!
 * if you are feeling brave you can start using the unused tiles in the floor sheet in environment-bitmap-cacher for the corner types
+* setIntoxication should be generic update character effect (so it works with any character, not just player)?
 * Should we rename World-factory > Overground-factory ?? world.vue > map.vue ?
 * Code duplication between overground- and building-renderer.renderObjects
+* Character-actions doesn't actually commit mutations, is more of a utility or factory...

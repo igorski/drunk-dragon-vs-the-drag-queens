@@ -1,9 +1,12 @@
+import { TWENTY_FOUR_HOURS } from "@/definitions/constants";
 import PriceTypes, { getItemEffectivityByPriceType } from "@/definitions/price-types";
 import ItemTypes from "@/definitions/item-types";
+import EffectFactory from "@/model/factories/effect-factory";
 
 export default {
-    applyItemToPlayer({ commit }, item, player ) {
+    applyItemToPlayer({ getters, commit }, item, player ) {
         const priceType = getItemEffectivityByPriceType( item );
+        let effectivityRange;
 
         switch ( item.type ) {
             default:
@@ -11,12 +14,24 @@ export default {
                     throw new Error( `item type "%{item.type}" not implemented"` );
                 }
                 break;
+
             case ItemTypes.HEALTHCARE:
-                const effectivityRange = [ 5, 25 ];
+                effectivityRange = [ 5, 25 ];
                 const hpToApply = effectivityRange[ priceType ];
                 commit( "updatePlayer", {
                     hp: ( Math.min( player.hp + hpToApply, player.maxHp ))
                 });
+                break;
+
+            case ItemTypes.LIQUOR:
+                effectivityRange = [ 0.25, 0.75 ];
+                const intoxication = Math.min( 1, effectivityRange[ priceType ] + player.properties.intoxication );
+                commit( "removeEffectsByTargetAndMutation", { target: player.id, types: [ "setIntoxication" ]});
+                commit( "setIntoxication", { value: intoxication });
+                // start "sobering up" effect
+                commit( "addEffect", EffectFactory.create(
+                    "setIntoxication", getters.gameTime, TWENTY_FOUR_HOURS * intoxication, intoxication, 0, "soberUp", player.id
+                ));
                 break;
         }
     }

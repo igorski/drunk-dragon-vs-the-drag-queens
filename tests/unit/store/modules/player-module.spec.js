@@ -95,6 +95,12 @@ describe( "Vuex player module", () => {
             expect( state.player.level ).toEqual( 2 );
         });
 
+        it( "should be able to set the player intoxication level", () => {
+            const state = { player: { properties: { intoxication: 0 } } };
+            mutations.setIntoxication( state, { value: 1 });
+            expect( state.player.properties.intoxication ).toEqual( 1 );
+        });
+
         it( "should be able to add an item to the players inventory", () => {
             const state = { player: { inventory: { cash: 50, items: [{ foo: "bar" }] } } };
             const item  = { baz: "qux" };
@@ -206,7 +212,7 @@ describe( "Vuex player module", () => {
             it( "should complete the booking, restore health, deduct cash and leave the building when the player has sufficient funds", async () => {
                 const commit   = jest.fn();
                 const dispatch = jest.fn();
-                const state    = { player: { hp: 1, maxHp: 10, inventory: { cash: 10 } } };
+                const state    = { player: { hp: 1, maxHp: 10, inventory: { cash: 10 }, properties: { intoxication: 0 } } };
                 const mockedGetters = { gameTime: new Date( "1986-08-29T23:59:31.000Z" ), translate: jest.fn() };
 
                 const success = await actions.bookHotelRoom({ state, getters: mockedGetters, commit, dispatch }, hotel );
@@ -226,7 +232,7 @@ describe( "Vuex player module", () => {
             it( "should advance the clock to tomorrow when successfully booked before midnight", async () => {
                 const commit   = jest.fn();
                 const dispatch = jest.fn();
-                const state    = { player: { inventory: { cash: 10 } } };
+                const state    = { player: { inventory: { cash: 10 }, properties: { intoxication: 0 }  } };
                 const mockedGetters = { gameTime: new Date( "1986-08-29T23:59:31.000Z" ), translate: jest.fn() };
 
                 await actions.bookHotelRoom({ state, getters: mockedGetters, commit, dispatch }, hotel );
@@ -236,12 +242,33 @@ describe( "Vuex player module", () => {
             it( "should advance the clock to the start hour on the same day when successfully booked after midnight", async () => {
                 const commit   = jest.fn();
                 const dispatch = jest.fn();
-                const state    = { player: { inventory: { cash: 10 } } };
+                const state    = { player: { inventory: { cash: 10 }, properties: { intoxication: 0 } } };
                 const mockedGetters = { gameTime: new Date( "1986-08-30T01:59:31.000Z" ), translate: jest.fn() };
 
                 await actions.bookHotelRoom({ state, getters: mockedGetters, commit, dispatch }, hotel );
                 expect( commit ).toHaveBeenCalledWith( "setGameTime", new Date( `1986-08-30T${GAME_START_HOUR}:00:00.000Z` ).getTime() );
             });
+
+            it( "should sober up the player if the player was intoxicated", async () => {
+                const commit   = jest.fn();
+                const dispatch = jest.fn();
+                const state = { player: { inventory: { cash: 10 }, properties: { intoxication: 0.25 } } };
+
+                await actions.bookHotelRoom({ state, getters: { translate: jest.fn() }, commit, dispatch }, hotel );
+
+                expect( dispatch ).toHaveBeenCalledWith( "soberUp" );
+            });
+        });
+
+        it( "should be able to sober up an intoxicated player", async () => {
+            const commit = jest.fn()
+            const state  = { player: { id: "foo", properties: { intoxication: 1 } } };
+
+            await actions.soberUp({ state, commit, getters: { translate: jest.fn(() => "" ) } });
+
+            expect( commit ).toHaveBeenNthCalledWith( 1, "removeEffectsByTargetAndMutation", { target: "foo", types: [ "setIntoxication" ] });
+            expect( commit ).toHaveBeenNthCalledWith( 2, "setIntoxication", { value: 0 });
+            expect( commit ).toHaveBeenNthCalledWith( 3, "showNotification", expect.any( String ));
         });
     });
 });
