@@ -13,6 +13,7 @@ import WorldCache         from "@/utils/world-cache";
 import { BUILDING_TYPE }  from "@/model/factories/building-factory";
 import { WORLD_TYPE }     from "@/model/factories/world-factory";
 
+const MIN_AMOUNT_OF_TILES = 9; // minimum amount of tiles visible on the dominant axis of the screen
 let zcanvas, renderer;
 
 export default {
@@ -110,11 +111,17 @@ export default {
         ]),
         handleResize() {
             const { clientWidth, clientHeight } = document.documentElement;
+            let tilesInWidth, tilesInHeight;
 
-            // we'd like at least 9 horizontal tiles please
-            const tilesInWidth  = WorldCache.tileWidth * ( clientWidth > 800 ? 15 : 9 );
-            const tilesInHeight = Math.round(( clientHeight / clientWidth ) * tilesInWidth );
-
+            if ( clientWidth > clientHeight ) {
+                // landscape (like in the 80's!)
+                tilesInHeight = WorldCache.tileHeight * MIN_AMOUNT_OF_TILES;
+                tilesInWidth  = Math.round(( clientWidth / clientHeight ) * tilesInHeight );
+            } else {
+                // portrait (ah, a modern phone...)
+                tilesInWidth  = WorldCache.tileWidth * ( clientWidth > 800 ? MIN_AMOUNT_OF_TILES * 1.5 : MIN_AMOUNT_OF_TILES );
+                tilesInHeight = Math.round(( clientHeight / clientWidth ) * tilesInWidth );
+            }
             zcanvas.setDimensions( tilesInWidth, tilesInHeight );
             zcanvas.scale( clientWidth / tilesInWidth, clientHeight / tilesInHeight );
             renderer?.setTileDimensions( tilesInWidth, tilesInHeight );

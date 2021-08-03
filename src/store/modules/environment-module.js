@@ -184,7 +184,7 @@ export default {
 
             if ( floor < 0 ) {
                 // was first stairway, go back to outside world
-                dispatch( "leaveBuilding" );
+                await dispatch( "leaveBuilding" );
             } else {
                 // ascend/descend to requested level
                 commit( "setFloor", floor );

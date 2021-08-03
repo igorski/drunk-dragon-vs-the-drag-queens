@@ -81,12 +81,14 @@ npm run test
 * Drag swag/charisma == mana
 ** Show in status view
 
-* sometimes no shop is generated on first city > needs to be clothing!! and are there enough shops elsewhere?
+* Fix popup of objects at screen edge
+* Alternate colour scheme for bar/hotel floors inside buildings
+* Generate loan shark with pay back Effect
 * Character interaction should not show intent in thought bubble, but have a subtle tip in conversation (e.g. slurrrr when drunk, drop hints in conversation)
-* Some shops are empty (have no type ? or is LOAN - to be implemented - ?)
+* Generate drag queens in hotel bars
+* sometimes no shop is generated on first city > needs to be clothing!! and are there enough shops elsewhere?
 * Implement drugs for boost (increases chance of dodging attacks)
 * Introduce new attack types at higher levels (e.g. nail slash)
-* Alternate colour scheme for bar/hotel floors inside buildings
 * Create heavily made up eyes style
 * Generate objects on city roads and inside buildings similar to trees (make sure no roads are blocked!)
 * Buildings broken in Safari (must be similar to-render-at-edges-issue)?
