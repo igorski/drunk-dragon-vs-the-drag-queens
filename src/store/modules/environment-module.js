@@ -6,7 +6,7 @@ import AudioTracks                         from "@/definitions/audio-tracks";
 import { QUEEN, DRAGON }                   from "@/definitions/character-types";
 import CharacterActions                    from "@/model/actions/character-actions";
 import EnvironmentActions                  from "@/model/actions/environment-actions";
-import BuildingFactory, { BUILDING_TILES } from "@/model/factories/building-factory";
+import BuildingFactory, { BUILDING_TILES, FLOOR_TYPES, generateBarQueens } from "@/model/factories/building-factory";
 import CharacterFactory                    from "@/model/factories/character-factory";
 import EffectFactory                       from "@/model/factories/effect-factory";
 import IntentFactory                       from "@/model/factories/intent-factory";
@@ -188,10 +188,14 @@ export default {
             } else {
                 // ascend/descend to requested level
                 commit( "setFloor", floor );
-                await dispatch( "changeActiveEnvironment", floors[ floor ]);
+                const environment = floors[ floor ];
+                // generate characters for empty bars
+                if ( environment.floorType === FLOOR_TYPES.BAR && environment.characters.length === 0 ) {
+                    generateBarQueens( environment, getters.player );
+                }
+                await dispatch( "changeActiveEnvironment", environment );
                 // position player next to stairway
-                const environment = getters.activeEnvironment;
-                const firstExit   = environment.exits[ isDown ? 1 : 0 ];
+                const firstExit        = environment.exits[ isDown ? 1 : 0 ];
                 const startCoordinates = getFirstFreeTileOfTypeAroundPoint( firstExit.x, firstExit.y, environment, BUILDING_TILES.GROUND );
                 commit( "setXPosition", { value: startCoordinates.x });
                 commit( "setYPosition", { value: startCoordinates.y });

@@ -1,5 +1,7 @@
 import { Map }            from "rot-js";
+import { QUEEN }          from "@/definitions/character-types";
 import PriceTypes         from "@/definitions/price-types";
+import CharacterActions   from "@/model/actions/character-actions";
 import HashUtil           from "@/utils/hash-util";
 import { FURNITURE }      from "@/utils/sprite-cache"
 import WorldCache         from "@/utils/world-cache";
@@ -7,7 +9,7 @@ import { generateDragQueenName } from "@/utils/name-generator";
 import CharacterFactory   from "./character-factory";
 import EnvironmentFactory from "./environment-factory";
 import {
-    random, randomInRangeInt, randomFromList, randomBool
+    random, randomInRangeInt, randomInRangeFloat, randomFromList, randomBool
 } from "@/utils/random-util";
 import {
     positionAtFirstFreeTileType, positionAtLastFreeTileType, positionAtRandomFreeTileType,
@@ -165,6 +167,42 @@ const BuildingFactory =
 };
 export default BuildingFactory;
 
+export function generateBarQueens( environment, player ) {
+    const { width, height, terrain, characters } = environment;
+    const totalCharacters  = Math.round( terrain.filter( type => type === BUILDING_TILES.GROUND ).length / 50 );
+    const characterIndices = [];
+
+    for ( let i = 0; i < totalCharacters; ++i ) {
+        let x = randomInRangeInt( 0, width - 1 );
+        let y = randomInRangeInt( 0, height - 1 );
+        for ( ; y < height; x = ( ++x === width ? ( x % width + ( ++y & 0 ) ) : x )) {
+            const index = coordinateToIndex( x, y, environment );
+            if ( terrain[ index ] === BUILDING_TILES.GROUND ) {
+                if ( assertSurroundingTilesOfTypeAroundPoint( x, y, environment, BUILDING_TILES.GROUND )
+                     && !characterIndices.includes( index ))
+                 {
+                    characters.push(
+                        CharacterFactory.create({
+                            x, y,
+                            ...CharacterActions.generateOpponentProps( player, QUEEN )
+                        },
+                        { name: generateDragQueenName() },
+                        {
+                            intoxication: randomInRangeFloat( 0, 1 ),
+                            boost: randomInRangeFloat( 0, 1 )
+                        }, { cash: randomInRangeInt( 0, 50 ) })
+                    );
+                    characterIndices.push( index );
+                    break; // on to next character
+                }
+            }
+        }
+    }
+    if ( process.env.NODE_ENV === "development" ) {
+        console.warn( `Generated ${characters.length} characters for a possible max of ${totalCharacters}` );
+    }
+}
+
 /* internal methods */
 
 /**
@@ -220,32 +258,6 @@ console.error("DRAT! (could not place hotel)");
         }
     }
 
-    // create characters (TODO)
-/*
-    const totalCharacters  = Math.round( terrain.filter( type => type === BUILDING_TILES.GROUND ).length / 50 );
-    const characterIndices = [];
-
-    for ( let i = 0; i < totalCharacters; ++i ) {
-        let x = randomInRangeInt( 0, width - 1 );
-        let y = randomInRangeInt( 0, height - 1 );
-        for ( ; y < height; x = ( ++x === width ? ( x % width + ( ++y & 0 ) ) : x )) {
-            const index = coordinateToIndex( x, y, environment );
-            if ( terrain[ index ] === BUILDING_TILES.GROUND ) {
-                if ( assertSurroundingTilesOfTypeAroundPoint( x, y, environment, BUILDING_TILES.GROUND )
-                     && !characterIndices.includes( index ))
-                 {
-                    out.characters.push( CharacterFactory.create({ x, y }, { name: generateDragQueenName() }));
-                    characterIndices.push( index );
-                    break; // on to next character
-                }
-            }
-        }
-    }
-
-    if ( process.env.NODE_ENV === "development" ) {
-        console.warn( `Generated ${characterIndices.length} characters for a possible max of ${totalCharacters}` );
-    }
-*/
     // determine Players begin offset
 
     for ( let x = 0, y = 0; y < height; x = ( ++x === width ? ( x % width + ( ++y & 0 ) ) : x )) {

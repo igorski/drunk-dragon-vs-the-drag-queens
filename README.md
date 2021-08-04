@@ -80,20 +80,24 @@ npm run test
 * Drag swag/charisma == mana
 ** Show in status view
 
-* Generate loan shark with pay back Effect (inside DEALER shop type)
+* Queens inside buildings should either be woo'd or fought (and be generated again ;)
+* When fighting other queens, make "vogue" an action (using drag swag)
+* Coked up queens should come find you for fighting
+* Place bar queens in building-factory according to same logic as drabs
 
-* Alternate colour scheme for bar/hotel floors inside buildings
-* Generate drag queens in hotel bars
+* Randomize attackType for opponents
+* Generate loan shark with pay back Effect (inside DEALER shop type, creates positive debt on store)
+* When buying a clothes item, discard the existing one of the same type (show confirmation)
+* Different background colour for bar floors
+* Leaving building from exit can put you somewhere completely else on the map!!
 * sometimes no shop is generated on first city > needs to be clothing!! and are there enough shops elsewhere?
 * Introduce new attack types at higher levels (e.g. nail slash)
 * Create heavily made up eyes style
 * Generate objects on city roads and inside buildings similar to trees (make sure no roads are blocked!)
-* Buildings broken in Safari (must be similar to-render-at-edges-issue)?
-* When buying a clothes item, discard the existing one of the same type (show confirmation)
+* Buildings (and world edges) broken in Safari (must be similar to-render-at-edges-issue)?
 * Hotel/bed should be fully navigatable, not just bottom center tile
 * Show building floor level
 * Prevent creating double walls when generating floors (and restore skipped unit test)
-* Queens inside buildings should either be woo'd or fought (and be generated again ;)
 * Unit tests for hourNow !== lastHour in game-module.updateGame()
 * Tweak attack efficiency against drabs
 * Should running away not completely reposition the opponent but keep it somewhere within the screen?
@@ -125,7 +129,6 @@ npm run test
 * changes to opponent should also reflect to appropriate world.characters instance (e.g. battle after run away should not restore health of dragon!)
 * Implement ambush in battle
 * There is only a single dragon throughout the game, it should path find you in the overworld and fight you, winning the fight resets the dragon to a far side of the map
-* When fighting other queens, make "flirt" an action (using drag swag)
 * Don't enter exit unless path ends at its exact coordinate
 * Can we give announcement of closing time when entering building?
 * Create floors that are bars chockfull of people!

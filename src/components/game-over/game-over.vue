@@ -15,7 +15,7 @@
                     <span class="stat">{{ $t( "level", { level: player.level }) }}</span>
                 </i18n>
                 <i18n path="yourWalletContains" tag="li">
-                    <span class="stat">{{ $t( "dollars", { dollars: player.inventory.cash }) }}</span>
+                    <span class="stat">{{ $t( "dollars", { dollars: player.inventory.cash.toFixed( 2 ) }) }}</span>
                 </i18n>
             </ul>
         </div>

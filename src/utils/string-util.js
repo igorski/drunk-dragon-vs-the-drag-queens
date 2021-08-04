@@ -21,7 +21,7 @@ export const slurWords = ( text, intoxication = 0 ) => {
             transformed = highlyIntoxicated ? `zss${middle}` : `zs${middle}`;
         }
         if ( last === "s" ) {
-            transformed = highlyIntoxicated ? `${transformed}sss` : `${transformed}s`
+            transformed = highlyIntoxicated ? `${transformed}ss` : `${transformed}s`
         } else if ( transformed !== word ) {
             transformed = `${transformed}${last}`;
         }
@@ -51,5 +51,6 @@ const SLUR_REPLACEMENTS = [
     [ "ing", "in'" ],
     [ "I'm", "Imma" ],
     [ "ai", "ey" ],
-    [ "'ll'", "'lll'" ]
+    [ "'ll'", "'lll'" ],
+    [ "Th", "Th-th" ]
 ];

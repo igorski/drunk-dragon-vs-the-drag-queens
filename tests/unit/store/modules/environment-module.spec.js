@@ -13,9 +13,12 @@ const { getters, mutations, actions } = store;
 
 let mockUpdateFn;
 let mockValue;
+const mockFloorTypes = { BAR: 0, HOTEL: 1 };
 jest.mock("@/model/factories/building-factory", () => ({
     generateFloors: (...args) => mockUpdateFn("generateFloors", ...args),
+    generateBarQueens: (...args) => mockUpdateFn("generateBarQueens", ...args),
     BUILDING_TILES: { GROUND: 0 },
+    FLOOR_TYPES: { BAR: 0, HOTEL: 1 }
 }));
 jest.mock("@/model/factories/intent-factory", () => ({
     create: (...args) => mockUpdateFn("create", ...args),
@@ -403,7 +406,13 @@ describe( "Vuex environment module", () => {
             describe( "when changing floors within a building", () => {
                 const state  = {
                     activeEnvironment: { foo : "bar" },
-                    building: { baz: "qux", floors: [{ quux: "quz" }, { corge: "grault" }] }
+                    building: {
+                        baz: "qux",
+                        floors: [
+                            { floorType: mockFloorTypes.HOTEL, exits: [{ x: 0 }, { y: 0 }], characters: [] },
+                            { floorType: mockFloorTypes.HOTEL, exits: [{ x: 0 }, { y: 0 }], characters: [] }
+                        ]
+                    }
                 };
 
                 it( "should leave the building when going back up the first stairway", () => {
@@ -416,14 +425,42 @@ describe( "Vuex environment module", () => {
                 });
 
                 it( "should be able to change floors within a building", async () => {
-                    const commit        = jest.fn();
-                    const dispatch      = jest.fn();
-                    const mockedGetters = { activeEnvironment: { exits: [{ x: 0 }, { y: 0 }] } };
+                    const commit   = jest.fn();
+                    const dispatch = jest.fn();
+                    mockUpdateFn   = jest.fn();
 
-                    await actions.changeFloor({ state, getters: mockedGetters, commit, dispatch }, 1 );
+                    await actions.changeFloor({ state, commit, dispatch }, 1 );
 
                     expect( commit ).toHaveBeenCalledWith( "setFloor", 1 );
-                    expect( dispatch ).toHaveBeenCalledWith( "changeActiveEnvironment", expect.any( Object ));
+                    expect( dispatch ).toHaveBeenCalledWith( "changeActiveEnvironment", state.building.floors[ 1 ] );
+                    expect( mockUpdateFn ).not.toHaveBeenCalledWith( "generateBarQueens" );
+                });
+
+                it( "should generate bar Queens when the floor is a bar without characters", async () => {
+                    const commit   = jest.fn();
+                    const dispatch = jest.fn();
+                    mockUpdateFn   = jest.fn();
+                    const mockedGetters = {
+                        player: { id: "playerId" }
+                    };
+                    state.building.floors[ 1 ].floorType = mockFloorTypes.BAR;
+                    await actions.changeFloor({ state, getters: mockedGetters, commit, dispatch }, 1 );
+
+                    expect( mockUpdateFn ).toHaveBeenCalledWith( "generateBarQueens", state.building.floors[ 1 ], mockedGetters.player );
+                });
+
+                it( "should generate bar Queens when the floor is a bar", async () => {
+                    const commit   = jest.fn();
+                    const dispatch = jest.fn();
+                    mockUpdateFn   = jest.fn();
+                    const mockedGetters = {
+                        player: { id: "playerId" }
+                    };
+                    state.building.floors[ 1 ].floorType  = mockFloorTypes.BAR;
+                    state.building.floors[ 1 ].characters = [ { id: "characterId" }]
+                    await actions.changeFloor({ state, getters: mockedGetters, commit, dispatch }, 1 );
+
+                    expect( mockUpdateFn ).not.toHaveBeenCalledWith( "generateBarQueens" );
                 });
             });
 

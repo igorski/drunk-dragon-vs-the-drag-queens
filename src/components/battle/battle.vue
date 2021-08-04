@@ -84,11 +84,8 @@
             <character-status :character="player" class="character-status" />
             <character-status v-if="opponent" :character="opponent" class="character-status" />
         </div>
-        <div v-if="battleWon">
-            {{ $t('youWon') }}
-        </div>
         <!-- battle progress update messages -->
-        <div v-else-if="messages.length" class="battle-messages">
+        <div v-if="messages.length" class="battle-messages">
             <p
                 v-for="(message, index) in messages"
                 :key="`msg_${index}`"
@@ -166,10 +163,7 @@ export default {
             if ( this.isFirstDragonBattle ) {
                 this.openDialog({ message: this.$t( "youDefeatedDragon" ) });
             }
-            window.setTimeout(() => {
-                this.close();
-                // TODO: reset dragon
-            }, 3000 );
+            this.close();
         }
     },
     created() {
@@ -178,7 +172,7 @@ export default {
 
         this.playerStats.xp = xp;
         this.playerStats.level = level;
-        
+
         this.setPlayerTurn( true ); // TODO: implement ambush (should be Vuex action on battle creation)
 
         // first battle against dragon ?
