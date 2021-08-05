@@ -2,7 +2,6 @@ import cloneDeep from "lodash/cloneDeep";
 import merge     from "lodash/merge";
 import Vue       from "vue";
 
-import AudioTracks                         from "@/definitions/audio-tracks";
 import { QUEEN, DRAGON }                   from "@/definitions/character-types";
 import CharacterActions                    from "@/model/actions/character-actions";
 import EnvironmentActions                  from "@/model/actions/environment-actions";
@@ -173,8 +172,6 @@ export default {
 
             // enter building at the first floor
             await dispatch( "changeFloor", 0 );
-            // change music to building theme
-            dispatch( "playSound", AudioTracks.BUILDING_THEME );
         },
         // change floor inside building
         async changeFloor({ state, getters, commit, dispatch }, floor ) {
@@ -206,9 +203,6 @@ export default {
             SpriteCache.ENV_BUILDING.src = ""; // reset building level cache
 
             await dispatch( "changeActiveEnvironment", state.world );
-
-            // change music to overground theme
-            dispatch( "playSound", AudioTracks.OVERGROUND_THEME );
         },
         async changeActiveEnvironment({ state, getters, commit, dispatch }, environment ) {
             if ( !!state.activeEnvironment ) {
@@ -224,6 +218,7 @@ export default {
             commit( "setLoading", true );
             await renderEnvironment( environment, getters.player );
             commit( "setLoading", false );
+            dispatch( "playMusicForEnvironment", environment );
         },
         interactWithCharacter({ state, commit, dispatch }, character ) {
             if ( character.type === QUEEN && !CharacterActions.isAggressive( character )) {

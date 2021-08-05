@@ -1,34 +1,38 @@
-import scriptLoader from 'promised-script-loader';
+import scriptLoader from "promised-script-loader";
+import { TRACK_TYPES, OVERGROUND_THEMES, BATTLE_THEMES } from "@/definitions/audio-tracks";
+import { WORLD_TYPE } from "@/model/factories/world-factory";
+import { BUILDING_TYPE } from "@/model/factories/building-factory";
+import { randomFromList } from "@/utils/random-util";
 
-const SOUNDCLOUD_SDK = 'https://connect.soundcloud.com/sdk.js';
-const SC_API_ID      = '0028757d978a9473e5310125967e7e47'; // roll your own!
+const SOUNDCLOUD_SDK = "https://connect.soundcloud.com/sdk.js";
+const SC_API_ID      = ""; // request your own at https://soundcloud.com/you/apps
 
 // automatic audio playback is blocked until a user interaction
 
 const prepare = ({ state, commit }, optCallback ) => {
     if ( !state.sdkReady ) {
-        throw new Error('Soundcloud SDK not yet loaded');
+        throw new Error( "Soundcloud SDK not yet loaded" );
     }
     const handler = () => {
-        document.removeEventListener( 'keyup', handler );
-        document.removeEventListener( 'click', handler );
-        SC.initialize({ client_id: SC_API_ID });
+        document.removeEventListener( "keyup", handler );
+        document.removeEventListener( "click", handler );
+        SC.initialize({ client_id: SC_API_ID || window.soundCloudApiKey });
 
-        commit( 'setPrepared', true );
+        commit( "setPrepared", true );
 
-        if ( typeof optCallback === 'function' ) optCallback();
+        if ( typeof optCallback === "function" ) optCallback();
     };
-    document.addEventListener( 'keyup', handler );
-    document.addEventListener( 'click', handler );
+    document.addEventListener( "keyup", handler );
+    document.addEventListener( "click", handler );
 };
 
 export default {
     state: {
-        sdkReady: false,
-        prepared: false,
-        muted: window.location.href.includes( 'localhost' ),
-        playing: false,
-        lastTrackId: null,
+        sdkReady    : false,
+        prepared    : false,
+        muted       : process.env.NODE_ENV === "development",
+        playing     : false,
+        lastTrackId : null,
     },
     getters: {
         muted: state => state.muted,
@@ -57,31 +61,41 @@ export default {
         async prepareAudio({ state, commit }) {
             try {
                 await scriptLoader([ SOUNDCLOUD_SDK ]);
-                commit( 'setSDKReady', true );
+                commit( "setSDKReady", true );
                 prepare({ state, commit });
             } catch {
                 // non critical, continue.
             }
         },
-        playSound({ state, commit, dispatch }, trackId = null ) {
-            if ( state.muted || state.playing ) {
+        playSound({ state, commit, dispatch }, trackType = null ) {
+            if ( state.muted ) {
                 return;
             }
-            if ( !trackId ) {
-                trackId = state.lastTrackId;
+            let trackId = state.lastTrackId;
+            if ( typeof trackType === "number" ) {
+                let list;
+                switch ( trackType ) {
+                    default:
+                    case TRACK_TYPES.OVERGROUND:
+                        list = OVERGROUND_THEMES;
+                        break;
+                    case TRACK_TYPES.BATTLE:
+                        list = BATTLE_THEMES;
+                }
+                trackId = randomFromList( list );
             }
             const start = () => {
                 if ( state.lastTrackId === trackId ) {
                     return;  // already playing this tune!
                 }
-                dispatch( 'stopSound' ); // stop playing the current track (TODO : fade out?)
-                commit( 'setLastTrackId', trackId );
+                dispatch( "stopSound" ); // stop playing the current track (TODO : fade out?)
+                commit( "setLastTrackId", trackId );
 
                 SC.stream( `/tracks/${trackId}`, sound => {
-                    commit( 'setSound', sound );
+                    commit( "setSound", sound );
                     sound.play();
                 });
-                commit( 'setPlaying', true );
+                commit( "setPlaying", true );
             };
 
             if ( !state.prepared ) {
@@ -93,9 +107,22 @@ export default {
         stopSound({ state, commit }) {
             if ( state.sound ) {
                 state.sound.stop();
-                commit( 'setSound', null );
+                commit( "setSound", null );
             }
-            commit( 'setPlaying', false );
+            commit( "setPlaying", false );
+        },
+        playMusicForEnvironment({ dispatch }, environment ) {
+            let trackType;
+            switch ( environment.type ) {
+                default:
+                    case WORLD_TYPE:
+                    trackType = TRACK_TYPES.OVERGROUND;
+                    break;
+                case BUILDING_TYPE:
+                    trackType = TRACK_TYPES.BUILDING;
+                    break;
+            }
+            dispatch( "playSound", trackType );
         }
     },
 };

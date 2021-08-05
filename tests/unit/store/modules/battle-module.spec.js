@@ -290,14 +290,16 @@ describe( "Vuex battle module", () => {
         });
 
         it( "should be able to start a battle setting the appropriate values", async () => {
-            const commit = jest.fn();
+            const commit   = jest.fn();
+            const dispatch = jest.fn();
             const opponent = { foo: "bar" };
 
-            await actions.startBattle({ commit }, opponent );
+            await actions.startBattle({ commit, dispatch }, opponent );
 
             expect( commit ).toHaveBeenNthCalledWith( 1, "setBattleWon", false );
             expect( commit ).toHaveBeenNthCalledWith( 2, "setOpponent", opponent );
             expect( commit ).toHaveBeenNthCalledWith( 3, "setAward", expect.any( Number ));
+            expect( dispatch ).toHaveBeenNthCalledWith( 1, "playSound", expect.any( Number ));
         });
 
         describe( "When resolving a battle", () => {
@@ -318,14 +320,17 @@ describe( "Vuex battle module", () => {
                 expect( commit ).toHaveBeenCalledWith( "setGameState", GAME_OVER );
             });
 
-            if( "should award XP, set the battle won status and clear the Opponent when the Player has won", async () => {
+            if( "should award XP, set the battle won status, clear the Opponent and start environment music when the Player has won", async () => {
                 const state = { opponent: CharacterFactory.create({ hp: 0 }), award: 10 };
-                mockedGetters = { player: { hp: 1 } };
+                mockedGetters = { player: { hp: 1 }, activeEnvironment: { foo: "bar" } };
                 const commit = jest.fn();
-                await actions.resolveBattle({ state, commit, getters: mockedGetters });
+                const dispatch = jest.fn();
+
+                await actions.resolveBattle({ state, commit, getters: mockedGetters, dispatch });
                 expect( commit ).toHaveBeenNthCalledWith( 1, "awardXP", state.award );
                 expect( commit ).toHaveBeenNthCalledWith( 2, "setBattleWon", true );
                 expect( commit ).toHaveBeenNthCalledWith( 3, "setOpponent", null );
+                expect( dispatch ).toHaveBeenNthCalledWith( 1, "playMusicForEnvironment", mockedGetters.activeEnvironment );
             });
 
             if( "should steal the Opponents cash when the Player has won", async () => {
@@ -339,10 +344,11 @@ describe( "Vuex battle module", () => {
             it( "should increase the level when sufficient XP has been gathered", async () => {
                 const halfLevelXP = XP_PER_LEVEL / 2;
                 const state       = { opponent: CharacterFactory.create({ hp: 0 }), award: halfLevelXP };
+                const dispatch    = jest.fn();
                 mockedGetters     = { player: { xp: 0, level: 1, hp: 3, maxHp: 5 } };
 
                 let commit = createMockAwardGetter();
-                await actions.resolveBattle({ state, getters: mockedGetters, commit });
+                await actions.resolveBattle({ state, getters: mockedGetters, commit, dispatch });
 
                 // expected level not to have risen yet
                 expect( commit ).not.toHaveBeenCalledWith( "setPlayerLevel", expect.any( Number ));
@@ -350,7 +356,7 @@ describe( "Vuex battle module", () => {
                 mockedGetters.player.xp = 0;
                 state.award = XP_PER_LEVEL;
                 commit = createMockAwardGetter();
-                await actions.resolveBattle({ state, getters: mockedGetters, commit });
+                await actions.resolveBattle({ state, getters: mockedGetters, commit, dispatch });
 
                 // expected level to have risen
                 expect( commit ).toHaveBeenNthCalledWith( 2, "setPlayerLevel", 2 );
@@ -361,11 +367,12 @@ describe( "Vuex battle module", () => {
             it( "should require increasingly more XP to raise subsequent levels", async () => {
                 // if XP_PER_LEVEL is 10, level 2 is reached at 10 XP, level 3 at 30 XP,
                 // level 4 at 70 XP, level 5 at 130 XP, etc.
-                const state   = { opponent: CharacterFactory.create({ hp: 0 }), award: XP_PER_LEVEL };
-                mockedGetters = { player: { xp: XP_PER_LEVEL, level: 2 }};
-                let commit    = createMockAwardGetter();
+                const state    = { opponent: CharacterFactory.create({ hp: 0 }), award: XP_PER_LEVEL };
+                mockedGetters  = { player: { xp: XP_PER_LEVEL, level: 2 }};
+                const dispatch = jest.fn();
+                let commit     = createMockAwardGetter();
 
-                await actions.resolveBattle({ state, getters: mockedGetters, commit });
+                await actions.resolveBattle({ state, getters: mockedGetters, commit, dispatch });
 
                 // expect not have to have risen yet
                 expect( commit ).not.toHaveBeenCalledWith( "setPlayerLevel", expect.any( Number ));
@@ -375,7 +382,7 @@ describe( "Vuex battle module", () => {
                 mockedGetters.player = { xp: XP_PER_LEVEL, level: 2 };
                 state.award = XP_PER_LEVEL * 2;
                 commit = createMockAwardGetter();
-                await actions.resolveBattle({ state, getters: mockedGetters, commit });
+                await actions.resolveBattle({ state, getters: mockedGetters, commit, dispatch });
 
                 // expect to have risen
                 expect( commit ).toHaveBeenCalledWith( "setPlayerLevel", 3 );
@@ -383,7 +390,7 @@ describe( "Vuex battle module", () => {
                 mockedGetters.player = { xp: XP_PER_LEVEL * 3, level: 3 };
                 state.award = XP_PER_LEVEL * 2;
                 commit = createMockAwardGetter();
-                await actions.resolveBattle({ state, getters: mockedGetters, commit });
+                await actions.resolveBattle({ state, getters: mockedGetters, commit, dispatch });
 
                 // expect not have to have risen yet
                 expect( commit ).not.toHaveBeenCalledWith( "setPlayerLevel", expect.any( Number ));
@@ -391,7 +398,7 @@ describe( "Vuex battle module", () => {
                 // to advance from level 3 to 4, you need four times the XP_PER_LEVEL above
                 // the amount needed to advance from level 2 to 3 (which is XP_PER_LEVEL * 3)
                 state.award = XP_PER_LEVEL * 2;
-                await actions.resolveBattle({ state, getters: mockedGetters, commit });
+                await actions.resolveBattle({ state, getters: mockedGetters, commit, dispatch });
 
                 // expect to have risen
                 expect( commit ).toHaveBeenCalledWith( "setPlayerLevel", 4 );
@@ -404,7 +411,7 @@ describe( "Vuex battle module", () => {
                 let commit    = jest.fn();
 
                 await actions.resolveBattle({ state, getters: mockedGetters, commit, dispatch });
-                expect( dispatch ).not.toHaveBeenCalled();
+                expect( dispatch ).not.toHaveBeenCalledWith( "positionCharacter", expect.any( Object ));
                 expect( commit ).toHaveBeenCalledWith( "removeCharacter", state.opponent );
 
                 state.opponent.type = DRAGON;

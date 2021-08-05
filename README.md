@@ -82,14 +82,14 @@ npm run test
 
 * Do not repeat the same sentence in conversation
 * Queens inside buildings should either be woo'd or fought (and be generated again ;)
-* When fighting other queens, make "vogue" an action (using drag swag)
-* Coked up queens should come find you for fighting
 * Place bar queens in building-factory according to same logic as drabs, ideally blocking a path
 
+* When fighting other queens, make "vogue" an action (using drag swag)
 * Randomize attackType for opponents
 * Generate loan shark with pay back Effect (inside DEALER shop type, creates positive debt on store)
 * When buying a clothes item, discard the existing one of the same type (show confirmation)
 * Different background colour for bar floors
+* Move WORLD_TYPE, BUILDING_TYPE, ...TILES etc out of factories and into definitions file
 * Leaving building from exit can put you somewhere completely else on the map!!
 * sometimes no shop is generated on first city > needs to be clothing!! and are there enough shops elsewhere?
 * Introduce new attack types at higher levels (e.g. nail slash)
@@ -102,7 +102,6 @@ npm run test
 * Unit tests for hourNow !== lastHour in game-module.updateGame()
 * Tweak attack efficiency against drabs
 * Should running away not completely reposition the opponent but keep it somewhere within the screen?
-* Regenerate characters when re-entering empty floors?
 * Create cave level for extra excitement
 * Implement swamp for extra excitement?
 * Do not save player walk effects when saving during walk (one save game got 'stuck')

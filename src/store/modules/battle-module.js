@@ -8,6 +8,7 @@ import { SCREEN_GAME }  from "@/definitions/screens";
 import { random }       from "@/utils/random-util";
 import CharacterActions from "@/model/actions/character-actions";
 import { prepareAttack, getDamageForAttack } from "@/model/factories/attack-factory";
+import { TRACK_TYPES } from "@/definitions/audio-tracks";
 
 function updateHP( damage, currentHP ) {
     return Math.max( 0, currentHP - damage );
@@ -94,10 +95,11 @@ export default {
             }
             return { success: true, damage };
         },
-        startBattle({ commit }, opponent ) {
+        startBattle({ commit, dispatch }, opponent ) {
             commit( "setBattleWon", false );
             commit( "setOpponent", opponent );
             commit( "setAward", opponent.level * ( XP_PER_LEVEL / 2 ));
+            dispatch( "playSound", TRACK_TYPES.BATTLE );
         },
         resolveBattle({ state, getters, commit, dispatch }) {
             const { opponent } = state;
@@ -120,6 +122,7 @@ export default {
                     commit( "awardCash", amount );
                     commit( "showNotification", getters.translate( "messages.youTookMoneyFrom", { amount, name: opponent.appearance.name } ));
                 }
+                dispatch( "playMusicForEnvironment", getters.activeEnvironment );
                 // dragon gets reset to a new position and renewed energy
                 if ( opponent.type === DRAGON ) {
                     commit( "updateCharacter", {
