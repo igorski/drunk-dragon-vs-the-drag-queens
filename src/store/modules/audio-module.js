@@ -5,7 +5,8 @@ import { BUILDING_TYPE } from "@/model/factories/building-factory";
 import { randomFromList } from "@/utils/random-util";
 
 const SOUNDCLOUD_SDK = "https://connect.soundcloud.com/sdk.js";
-const SC_API_ID      = ""; // request your own at https://soundcloud.com/you/apps
+// request your own at https://soundcloud.com/you/apps
+const SC_API_ID      = "" || localStorage?.getItem( "soundCloudApiKey" );
 
 // automatic audio playback is blocked until a user interaction
 
@@ -67,14 +68,14 @@ export default {
                 // non critical, continue.
             }
         },
-        playSound({ state, commit, dispatch }, trackType = null ) {
+        playSound({ state, commit, dispatch }, trackTypeIdOrTrackId = null ) {
             if ( state.muted ) {
                 return;
             }
             let trackId = state.lastTrackId;
-            if ( typeof trackType === "number" ) {
+            if ( typeof trackTypeIdOrTrackId === "number" ) {
                 let list;
-                switch ( trackType ) {
+                switch ( trackTypeIdOrTrackId ) {
                     default:
                     case TRACK_TYPES.OVERGROUND:
                         list = OVERGROUND_THEMES;
@@ -83,6 +84,8 @@ export default {
                         list = BATTLE_THEMES;
                 }
                 trackId = randomFromList( list );
+            } else if ( typeof trackTypeIdOrTrackId === "string" ) {
+                trackId = trackTypeIdOrTrackId;
             }
             const start = () => {
                 if ( state.lastTrackId === trackId ) {

@@ -64,6 +64,7 @@ import VueI18n from "vue-i18n";
 import VueRadioToggleButtons from "vue-radio-toggle-buttons";
 import "vue-radio-toggle-buttons/dist/vue-radio-toggle-buttons.css";
 import { preloadAssets } from "@/services/asset-preloader";
+import { INTRO_THEME }   from "@/definitions/audio-tracks";
 import DialogWindow      from "@/components/dialog-window/dialog-window";
 import HeaderMenu        from "@/components/header-menu/header-menu";
 import Notifications     from "@/components/notifications/notifications";
@@ -81,7 +82,7 @@ Vue.use( VueI18n );
 const i18n = new VueI18n({
     messages
 });
-Vue.use(VueRadioToggleButtons, {
+Vue.use( VueRadioToggleButtons, {
 	color: "#333",
 	textColor: "#333",
 	selectedTextColor: "#eee"
@@ -167,6 +168,7 @@ export default {
             hasGame = await this.loadGame();
         }
         if ( !hasGame ) {
+            this.playSound( INTRO_THEME );
             this.setScreen( SCREEN_CHARACTER_CREATE );
         }
         this.setLoading( false );
@@ -180,6 +182,7 @@ export default {
         ]),
         ...mapActions([
             "prepareAudio",
+            "playSound",
             "createGame",
             "loadGame",
             "updateCharacters",

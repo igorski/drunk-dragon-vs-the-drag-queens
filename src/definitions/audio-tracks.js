@@ -2,6 +2,7 @@
  * SoundCloud track identifiers for songs used
  * throughout the game.
  */
+export const INTRO_THEME = '1100809948';
 export const OVERGROUND_THEMES = [ '1100685391' ];
 export const BATTLE_THEMES = [ '1100685400' ];
 
