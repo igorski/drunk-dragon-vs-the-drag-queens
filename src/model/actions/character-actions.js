@@ -66,6 +66,11 @@ export default
         return value;
     },
 
+    isAggressive( character ) {
+        const { intoxication, boost } = character.properties;
+        return intoxication >= 0.5 && boost >= 0.5;
+    },
+
     /**
      * Generates the appropriate HP and Level for an opponent of given type in
      * relation to given characters level.

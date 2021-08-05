@@ -80,10 +80,11 @@ npm run test
 * Drag swag/charisma == mana
 ** Show in status view
 
+* Do not repeat the same sentence in conversation
 * Queens inside buildings should either be woo'd or fought (and be generated again ;)
 * When fighting other queens, make "vogue" an action (using drag swag)
 * Coked up queens should come find you for fighting
-* Place bar queens in building-factory according to same logic as drabs
+* Place bar queens in building-factory according to same logic as drabs, ideally blocking a path
 
 * Randomize attackType for opponents
 * Generate loan shark with pay back Effect (inside DEALER shop type, creates positive debt on store)

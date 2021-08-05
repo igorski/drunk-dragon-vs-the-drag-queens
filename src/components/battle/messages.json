@@ -21,6 +21,7 @@
         "youEarnedXp": "You earned {xp} experience points",
         "youAdvancedToLevel": "You advanced to level {level}",
         "useItem": "Use item",
-        "youDefeatedDragon": "You gave that dragon a good beating! Sadly this is not the last we've seen of him. He'll likely be sobering up a little now, only to come back stronger. Better move with haste."
+        "youDefeatedDragon": "You gave that dragon a good beating! Sadly this is not the last we've seen of him. He'll likely be sobering up a little now, only to come back stronger. Better move with haste.",
+        "bitchItsOn": "Bitch, it's on!"
     }
 }

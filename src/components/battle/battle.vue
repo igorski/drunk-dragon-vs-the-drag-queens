@@ -99,7 +99,7 @@
 <script>
 import { mapGetters, mapMutations, mapActions } from "vuex";
 import AttackTypes, { ATTACK_DODGED } from "@/definitions/attack-types";
-import { DRAGON }      from "@/definitions/character-types";
+import { QUEEN, DRAGON } from "@/definitions/character-types";
 import { SCREEN_GAME } from "@/definitions/screens";
 import Modal           from "@/components/modal/modal";
 import Inventory       from "@/components/inventory/inventory";
@@ -182,6 +182,11 @@ export default {
                 title: this.$t( "uhoh" ),
                 message: this.$t( "firstDragonBattleExpl" )
             });
+        }
+
+        // opponent is Queen ?
+        if ( this.opponent.type === QUEEN ) {
+            this.openDialog({ message: this.$t( "bitchItsOn" )});
         }
     },
     methods: {

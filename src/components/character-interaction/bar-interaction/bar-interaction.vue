@@ -1,6 +1,5 @@
 <template>
     <div>
-        {{ 'TODO' }}
         <button
             v-t="'fight'"
             type="button"
@@ -24,7 +23,6 @@ export default {
     },
     methods: {
         ...mapMutations([
-            "openDialog",
             "setScreen",
         ]),
         ...mapActions([
@@ -33,7 +31,6 @@ export default {
         fight() {
             this.startBattle( this.character );
             this.setScreen( SCREEN_BATTLE );
-            this.openDialog({ message: this.$t( "bitchItsOn" )});
         },
         updateMessage( message ) {
             this.$emit( "message", message );

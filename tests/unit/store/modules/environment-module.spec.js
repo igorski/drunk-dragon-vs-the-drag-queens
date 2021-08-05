@@ -500,6 +500,19 @@ describe( "Vuex environment module", () => {
                     expect( dispatch ).toHaveBeenNthCalledWith( 1, "startBattle", character );
                     expect( commit ).toHaveBeenNthCalledWith( 1, "setScreen", SCREEN_BATTLE );
                 });
+
+                it( "should start a battle when interacting with an aggressive Queen character", () => {
+                    const commit    = jest.fn();
+                    const dispatch  = jest.fn();
+                    const character = CharacterFactory.create({ type: QUEEN }, {}, { intoxication: 1, boost: 1 });
+                    mockUpdateFn    = jest.fn();
+
+                    actions.interactWithCharacter({ commit, dispatch }, character );
+
+                    expect( mockUpdateFn ).not.toHaveBeenCalledWith( "create" );
+                    expect( dispatch ).toHaveBeenNthCalledWith( 1, "startBattle", character );
+                    expect( commit ).toHaveBeenNthCalledWith( 1, "setScreen", SCREEN_BATTLE );
+                });
             });
         });
 

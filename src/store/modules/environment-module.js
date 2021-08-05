@@ -226,17 +226,17 @@ export default {
             commit( "setLoading", false );
         },
         interactWithCharacter({ state, commit, dispatch }, character ) {
-            if ( character.type === QUEEN ) {
+            if ( character.type === QUEEN && !CharacterActions.isAggressive( character )) {
                 let { intent } = character.properties;
                 if ( !intent ) {
                     character.properties.intent = IntentFactory.create();
                 }
                 commit( "setCharacter", character );
                 commit( "setScreen", SCREEN_CHARACTER_INTERACTION );
-            } else {
-                dispatch( "startBattle", character );
-                commit( "setScreen", SCREEN_BATTLE );
+                return;
             }
+            dispatch( "startBattle", character );
+            commit( "setScreen", SCREEN_BATTLE );
         },
         hitTest({ getters, commit, dispatch }) {
             EnvironmentActions.hitTest({ dispatch, commit, getters }, getters.activeEnvironment );
@@ -277,7 +277,7 @@ export default {
             const { activeEnvironment } = getters;
             const { x, y, characters }  = activeEnvironment;
             characters.forEach( character => {
-                if ( character.type === QUEEN ) {
+                if ( character.type === QUEEN && !CharacterActions.isAggressive( character )) {
                     return;
                 }
                 // check if Character is within range of player

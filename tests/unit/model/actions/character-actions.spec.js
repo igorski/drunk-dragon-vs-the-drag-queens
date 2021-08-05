@@ -114,6 +114,20 @@ describe("Character actions", () => {
                 });
             });
         });
+
+        it( "should know when a Character is aggressive", () => {
+            expect( CharacterActions.isAggressive(
+                CharacterFactory.create({}, {}, { intoxication: 0.5, boost : 0 })
+            )).toBe( false );
+
+            expect( CharacterActions.isAggressive(
+                CharacterFactory.create({}, {}, { intoxication: 0, boost : 0.5 })
+            )).toBe( false );
+
+            expect( CharacterActions.isAggressive(
+                CharacterFactory.create({}, {}, { intoxication: 0.5, boost : 0.5 })
+            )).toBe( true );
+        });
     });
 
     describe("mutations", () => {
