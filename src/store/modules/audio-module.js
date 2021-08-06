@@ -10,7 +10,7 @@ const SOUNDCLOUD_SDK = "https://connect.soundcloud.com/sdk.js";
 const SC_API_ID = "" || localStorage?.getItem( "soundCloudApiKey" );
 
 const parsedBrowser = bowser.getParser( window.navigator.userAgent );
-const isIOS = parsedResult?.os?.name === "iOS" || parsedResult?.browser?.name === "Safari" // iOS 13 reports as MacOS...
+const isIOS = parsedBrowser?.os?.name === "iOS" || parsedBrowser?.browser?.name === "Safari" // iOS 13 reports as MacOS...
 
 // automatic audio playback is blocked until a user interaction
 const prepare = ({ state, commit }, optCallback ) => {
