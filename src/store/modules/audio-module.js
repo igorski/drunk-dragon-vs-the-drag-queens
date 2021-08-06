@@ -9,7 +9,8 @@ const SOUNDCLOUD_SDK = "https://connect.soundcloud.com/sdk.js";
 // request your own at https://soundcloud.com/you/apps
 const SC_API_ID = "" || localStorage?.getItem( "soundCloudApiKey" );
 
-const isIOS = bowser.getParser( window.navigator.userAgent )?.os?.name === "iOS";
+const parsedBrowser = bowser.getParser( window.navigator.userAgent );
+const isIOS = parsedResult?.os?.name === "iOS" || parsedResult?.browser?.name === "Safari" // iOS 13 reports as MacOS...
 
 // automatic audio playback is blocked until a user interaction
 const prepare = ({ state, commit }, optCallback ) => {
@@ -33,7 +34,7 @@ export default {
     state: {
         sdkReady    : false,
         prepared    : false,
-        muted       : process.env.NODE_ENV === "development",
+        muted       : false,//process.env.NODE_ENV === "development",
         playing     : false,
         lastTrackId : null,
     },
@@ -102,6 +103,7 @@ export default {
                 });
                 commit( "setPlaying", true );
             };
+            console.warn( "is IOS > " + isIOS);
             // on iOS, each subsequent track needs click handler
             if ( !state.prepared || isIOS ) {
                 prepare({ state, commit }, start );
