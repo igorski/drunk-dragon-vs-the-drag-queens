@@ -1,3 +1,4 @@
+import bowser from "bowser";
 import scriptLoader from "promised-script-loader";
 import { TRACK_TYPES, OVERGROUND_THEMES, BATTLE_THEMES } from "@/definitions/audio-tracks";
 import { WORLD_TYPE } from "@/model/factories/world-factory";
@@ -6,10 +7,11 @@ import { randomFromList } from "@/utils/random-util";
 
 const SOUNDCLOUD_SDK = "https://connect.soundcloud.com/sdk.js";
 // request your own at https://soundcloud.com/you/apps
-const SC_API_ID      = "" || localStorage?.getItem( "soundCloudApiKey" );
+const SC_API_ID = "" || localStorage?.getItem( "soundCloudApiKey" );
+
+const isIOS = bowser.getParser( window.navigator.userAgent )?.os?.name === "iOS";
 
 // automatic audio playback is blocked until a user interaction
-
 const prepare = ({ state, commit }, optCallback ) => {
     if ( !state.sdkReady ) {
         throw new Error( "Soundcloud SDK not yet loaded" );
@@ -100,8 +102,8 @@ export default {
                 });
                 commit( "setPlaying", true );
             };
-
-            if ( !state.prepared ) {
+            // on iOS, each subsequent track needs click handler
+            if ( !state.prepared || isIOS ) {
                 prepare({ state, commit }, start );
             } else {
                 start();
