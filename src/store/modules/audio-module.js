@@ -34,7 +34,7 @@ export default {
     state: {
         sdkReady    : false,
         prepared    : false,
-        muted       : false,//process.env.NODE_ENV === "development",
+        muted       : process.env.NODE_ENV === "development",
         playing     : false,
         lastTrackId : null,
     },
