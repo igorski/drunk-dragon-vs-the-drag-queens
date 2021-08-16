@@ -31,7 +31,11 @@
             <!-- application menu -->
             <header-menu />
             <!-- game screens -->
-            <div class="ui" v-if="hasScreen">
+            <div
+                v-if="hasScreen"
+                class="ui"
+                :class="{ 'full': isTitleScreen }"
+            >
                 <component
                     :is="activeScreen"
                     @input="handleScreenInput( $event )"
@@ -73,7 +77,7 @@ import messages          from "./messages.json";
 
 import { GAME_OVER } from "@/definitions/game-states";
 import {
-    SCREEN_GAME, SCREEN_CHARACTER_CREATE, SCREEN_OPTIONS, SCREEN_STATUS, SCREEN_CREDITS,
+    SCREEN_GAME, SCREEN_TITLE, SCREEN_CHARACTER_CREATE, SCREEN_OPTIONS, SCREEN_STATUS, SCREEN_CREDITS,
     SCREEN_CHARACTER_INTERACTION, SCREEN_BATTLE, SCREEN_SHOP, SCREEN_HOTEL, SCREEN_GAME_OVER
 } from "@/definitions/screens";
 
@@ -111,25 +115,30 @@ export default {
             switch ( this.screen ) {
                 default:
                     return null;
+                case SCREEN_TITLE:
+                    return () => import( "./components/title-screen/title-screen" );
                 case SCREEN_CHARACTER_CREATE:
-                    return () => import("./components/character-creator/character-creator");
+                    return () => import( "./components/character-creator/character-creator" );
                 case SCREEN_CHARACTER_INTERACTION:
-                    return () => import("./components/character-interaction/character-interaction");
+                    return () => import( "./components/character-interaction/character-interaction" );
                 case SCREEN_BATTLE:
-                    return () => import("./components/battle/battle");
+                    return () => import( "./components/battle/battle" );
                 case SCREEN_OPTIONS:
-                    return () => import("./components/options/options");
+                    return () => import( "./components/options/options" );
                 case SCREEN_STATUS:
-                    return () => import("./components/status/status");
+                    return () => import( "./components/status/status" );
                 case SCREEN_SHOP:
-                    return () => import("./components/shop/shop");
+                    return () => import( "./components/shop/shop" );
                 case SCREEN_HOTEL:
-                    return () => import("./components/hotel/hotel");
+                    return () => import( "./components/hotel/hotel" );
                 case SCREEN_CREDITS:
-                    return () => import("./components/credits/credits");
+                    return () => import( "./components/credits/credits" );
                 case SCREEN_GAME_OVER:
-                    return () => import("./components/game-over/game-over");
+                    return () => import( "./components/game-over/game-over" );
             }
+        },
+        isTitleScreen() {
+            return this.screen === SCREEN_TITLE;
         },
         hasScreen() {
             return this.screen !== SCREEN_GAME;
@@ -169,7 +178,7 @@ export default {
         }
         if ( !hasGame ) {
             this.playSound( INTRO_THEME );
-            this.setScreen( SCREEN_CHARACTER_CREATE );
+            this.setScreen( SCREEN_TITLE );
         }
         this.setLoading( false );
     },
@@ -190,8 +199,8 @@ export default {
         ]),
         handleResize() {
             this.setDimensions({
-                width: window.innerWidth,
-                height: window.innerHeight,
+                width  : window.innerWidth,
+                height : window.innerHeight
             });
         },
         async handleScreenInput( data ) {
@@ -257,6 +266,10 @@ export default {
             padding-top: $spacing-medium;
             left: 50%;
             transform: translateX(-50%);
+
+            &.full {
+                top: 0;
+            }
         }
     }
     .game-renderer {

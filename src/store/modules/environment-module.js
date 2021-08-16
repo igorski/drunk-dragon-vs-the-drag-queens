@@ -2,19 +2,21 @@ import cloneDeep from "lodash/cloneDeep";
 import merge     from "lodash/merge";
 import Vue       from "vue";
 
-import { QUEEN, DRAGON }                   from "@/definitions/character-types";
-import CharacterActions                    from "@/model/actions/character-actions";
-import EnvironmentActions                  from "@/model/actions/environment-actions";
-import BuildingFactory, { BUILDING_TILES, FLOOR_TYPES, generateBarQueens } from "@/model/factories/building-factory";
-import CharacterFactory                    from "@/model/factories/character-factory";
-import EffectFactory                       from "@/model/factories/effect-factory";
-import IntentFactory                       from "@/model/factories/intent-factory";
-import InventoryFactory                    from "@/model/factories/inventory-factory";
-import ShopFactory                         from "@/model/factories/shop-factory";
-import { WORLD_TYPE, getMaxWalkableTile }  from "@/model/factories/world-factory";
-import { renderEnvironment }               from "@/services/environment-bitmap-cacher";
-import { randomInRangeInt }                   from "@/utils/random-util";
-import { getRandomFreeTilePosition }       from "@/utils/terrain-util";
+import { QUEEN, DRAGON }  from "@/definitions/character-types";
+import CharacterActions   from "@/model/actions/character-actions";
+import EnvironmentActions from "@/model/actions/environment-actions";
+import BuildingFactory, {
+    BUILDING_TILES, FLOOR_TYPES, generateBarQueens
+} from "@/model/factories/building-factory";
+import CharacterFactory from "@/model/factories/character-factory";
+import EffectFactory    from "@/model/factories/effect-factory";
+import IntentFactory    from "@/model/factories/intent-factory";
+import InventoryFactory from "@/model/factories/inventory-factory";
+import ShopFactory      from "@/model/factories/shop-factory";
+import { WORLD_TYPE, getMaxWalkableTile } from "@/model/factories/world-factory";
+import { renderEnvironment } from "@/services/environment-bitmap-cacher";
+import { randomInRangeInt } from "@/utils/random-util";
+import { getRandomFreeTilePosition } from "@/utils/terrain-util";
 
 import SpriteCache, { flushSpriteForCharacter, flushAllSprites } from "@/utils/sprite-cache";
 import { getFirstFreeTileOfTypeAroundPoint, positionInReachableDistanceFromPoint, distance } from "@/utils/terrain-util";

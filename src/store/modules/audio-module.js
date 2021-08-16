@@ -1,6 +1,6 @@
 import bowser from "bowser";
 import scriptLoader from "promised-script-loader";
-import { TRACK_TYPES, OVERGROUND_THEMES, BATTLE_THEMES } from "@/definitions/audio-tracks";
+import { TRACK_TYPES, OVERGROUND_THEMES, BUILDING_THEMES, BATTLE_THEMES } from "@/definitions/audio-tracks";
 import { WORLD_TYPE } from "@/model/factories/world-factory";
 import { BUILDING_TYPE } from "@/model/factories/building-factory";
 import { randomFromList } from "@/utils/random-util";
@@ -82,15 +82,19 @@ export default {
                     case TRACK_TYPES.OVERGROUND:
                         list = OVERGROUND_THEMES;
                         break;
+                    case TRACK_TYPES.BUILDING:
+                        list = BUILDING_THEMES;
+                        break;
                     case TRACK_TYPES.BATTLE:
                         list = BATTLE_THEMES;
+                        break;
                 }
                 trackId = randomFromList( list );
             } else if ( typeof trackTypeIdOrTrackId === "string" ) {
                 trackId = trackTypeIdOrTrackId;
             }
             const start = () => {
-                if ( state.lastTrackId === trackId ) {
+                if ( state.lastTrackId === trackId && state.playing ) {
                     return;  // already playing this tune!
                 }
                 dispatch( "stopSound" ); // stop playing the current track (TODO : fade out?)
@@ -98,7 +102,11 @@ export default {
 
                 SC.stream( `/tracks/${trackId}`, sound => {
                     commit( "setSound", sound );
-                    sound.play();
+                    sound.play({ onfinish: () => {
+                        console.warn( `Finished playing "${trackId}", repeating from pool.` );
+                        commit( "setPlaying", false );
+                        dispatch( "playSound", trackTypeIdOrTrackId );
+                    }});
                 });
                 commit( "setPlaying", true );
             };

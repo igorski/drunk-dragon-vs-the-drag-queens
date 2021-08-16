@@ -118,7 +118,6 @@ npm run test
 * More attack types depending on item / level ? (certain levels learn new moves)
 * Images for shop products
 * Dynamic components need a loader
-* Create start screen when no game is saved, show intro
 * Describe in manual how different properties of intoxication/boost affect charisma (also show this on-screen!)
 * should dragon get stronger / more drunk depending on hour of night ?
 * When fighting / entering building, environment coordinates are messed up?
