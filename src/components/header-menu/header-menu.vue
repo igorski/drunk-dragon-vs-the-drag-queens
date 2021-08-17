@@ -36,7 +36,6 @@
                             <button
                                 v-t="'options'"
                                 type="button"
-                                :disabled="!hasActiveGame"
                                 :title="$t('options')"
                                 @click="openScreen('options')"
                             ></button>

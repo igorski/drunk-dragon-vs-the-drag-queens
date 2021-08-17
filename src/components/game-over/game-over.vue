@@ -70,10 +70,14 @@ export default {
             return Math.floor(( this.gameDuration % MS_IN_A_DAY ) / MS_IN_AN_HOUR );
         },
     },
+    created() {
+        this.stopSound();
+    },
     methods: {
         ...mapActions([
             "loadGame",
             "resetGame",
+            "stopSound",
         ]),
         restoreLastSave() {
             this.$emit( "close" );

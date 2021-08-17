@@ -7,8 +7,6 @@ import player      from "./modules/player-module";
 
 const STORAGE_KEY = "rpg_settings";
 
-const storedData = storage.get( STORAGE_KEY ) || {};
-
 // here we cheat a little by exposing the vue-i18n translations directly to the
 // store so we can commit translated error/success messages from actions
 
@@ -33,7 +31,7 @@ export default {
     state: {
         loading: true,
         lastSavedTime: 0,
-        autoSave: storedData.autoSave ?? false,
+        autoSave: false,
         dialog: null,
         notifications: [],
         screen: 0,
@@ -95,18 +93,25 @@ export default {
         enableAutoSave({ commit, dispatch }, enabled ) {
             window.clearInterval( _saveTimer );
             commit( "setAutoSave", enabled );
-            dispatch( "saveOptions" );
             if ( enabled ) {
                 _saveTimer = window.setInterval(() => {
                     dispatch( "saveGame" );
                 }, 3 * 60 * 1000 );
             }
         },
-        saveOptions({ state }) {
+        saveOptions({ state, getters }) {
             const data = {
-                autoSave: state.autoSave,
+                autoSave : state.autoSave,
+                muted    : getters.muted
             };
             storage.set( STORAGE_KEY, data );
         },
+        loadOptions({ commit, dispatch }) {
+            const storedData = storage.get( STORAGE_KEY );
+            if ( storedData ) {
+                commit( "setMuted", storedData.muted );
+                dispatch( "enableAutoSave", storedData.autoSave );
+            }
+        }
     }
 };

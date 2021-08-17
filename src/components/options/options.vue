@@ -4,24 +4,16 @@
             <fieldset class="rpg-fieldset">
                 <div class="input">
                     <label v-t="'autoSave'" for="autoSave"></label>
-                    <RadioToggleButtons
+                    <toggle-button
                         v-model="autoSaving"
-                        :values="onOffOptions"
-                        id="autoSave"
-                        color="purple"
-                        textColor="#000"
-                        selectedTextColor="#FFF"
+                        name="autoSave"
                     />
                 </div>
                 <div class="input">
-                    <label v-t="'playSound'" for="playSound"></label>
-                    <RadioToggleButtons
-                        v-model="playSound"
-                        :values="onOffOptions"
-                        id="playSound"
-                        color="purple"
-                        textColor="#000"
-                        selectedTextColor="#FFF"
+                    <label v-t="'playSound'" for="soundPlayback"></label>
+                    <toggle-button
+                        v-model="soundPlayback"
+                        name="soundPlayback"
                     />
                 </div>
             </fieldset>
@@ -30,58 +22,71 @@
 </template>
 
 <script>
-import { mapState, mapGetters, mapMutations, mapActions } from 'vuex';
-import Modal    from '@/components/modal/modal';
-import messages from './messages.json';
+import { mapState, mapGetters, mapMutations, mapActions } from "vuex";
+import { ToggleButton } from "vue-js-toggle-button";
+import Modal    from "@/components/modal/modal";
+import messages from "./messages.json";
 
 export default {
     i18n: { messages },
     components: {
         Modal,
+        ToggleButton,
     },
     computed: {
         ...mapState([
-            'autoSave',
+            "autoSave",
         ]),
         ...mapGetters([
-            'muted',
+            "muted",
         ]),
         onOffOptions() {
             return [
-				{ label: this.$t('on'),  value: 'true' },
-				{ label: this.$t('off'), value: 'false' }
+				{ label: this.$t( "on" ),  value: true },
+				{ label: this.$t( "off" ), value: false }
 			];
         },
         autoSaving: {
             get() {
-                return this.autoSave.toString();
+                return this.autoSave;
             },
             set( value ) {
-                this.enableAutoSave( value === 'true' );
+                this.enableAutoSave( value );
+                this.saveOptions();
             }
         },
-        playSound: {
+        soundPlayback: {
             // note the negation as sound is played when there is no muting
             get() {
-                return (!this.muted).toString();
+                return !this.muted;
             },
             set( value ) {
-                this.setMuted( value === 'false' );
+                const muted = !value;
+                this.setMuted( muted );
+                this.saveOptions();
+                if ( muted ) {
+                    this.stopSound();
+                } else {
+                    this.playSound();
+                }
             }
         }
     },
     methods: {
         ...mapMutations([
-            'setMuted',
+            "setMuted",
         ]),
         ...mapActions([
-            'enableAutoSave',
+            "enableAutoSave",
+            "playSound",
+            "stopSound",
+            "saveOptions",
         ]),
     },
 };
 </script>
 
 <style lang="scss" scoped>
-    @import '@/styles/_layout';
-    @import '@/styles/forms';
+@import "@/styles/_layout";
+@import "@/styles/forms";
 </style>

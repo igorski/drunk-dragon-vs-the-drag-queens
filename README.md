@@ -84,7 +84,6 @@ npm run test
 * Queens inside buildings should either be woo'd or fought (and be generated again ;)
 * Place bar queens in building-factory according to same logic as drabs, ideally blocking a path
 
-* Short fade out of current track when starting next playback
 * When fighting other queens, make "vogue" an action (using drag swag)
 * Randomize attackType for opponents
 * Generate loan shark with pay back Effect (inside DEALER shop type, creates positive debt on store)
@@ -148,3 +147,4 @@ npm run test
 * Should we rename World-factory > Overground-factory ?? world.vue > map.vue ?
 * Code duplication between overground- and building-renderer.renderObjects
 * Character-actions doesn't actually commit mutations, is more of a utility or factory...
+* Short fade out of current track when starting next playback
