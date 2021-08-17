@@ -2,6 +2,12 @@
     <div class="character-creator">
         <h1 v-t="'createCharacter'"></h1>
         <div class="character-creator__wrapper">
+            <character
+                class="character-creator__preview"
+                :character="character"
+                :width="characterWidth"
+                :background="false"
+            />
             <transition-group name="slide">
                 <!-- form 1 : character name -->
                 <form v-if="form === 0"
@@ -90,12 +96,6 @@
                     ></button>
                 </form>
             </transition-group>
-            <character
-                class="character-creator__preview"
-                :character="character"
-                :width="characterWidth"
-                :background="false"
-            />
         </div>
     </div>
 </template>
@@ -204,7 +204,12 @@ export default {
             width: 100%;
         }
         &__form {
-            width: 100%;
+            display: block;
+            width: 90%;
+        }
+        &__preview {
+            display: block;
+            margin-top: -50px;
         }
     }
 

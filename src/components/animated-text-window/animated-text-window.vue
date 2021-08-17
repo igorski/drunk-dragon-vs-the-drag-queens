@@ -106,6 +106,7 @@ export default {
 
 .animated-text {
     @include boxSize();
+    @include noSelect();
     cursor: pointer;
     padding: $spacing-medium $spacing-large $spacing-large;
     display: inline-block;

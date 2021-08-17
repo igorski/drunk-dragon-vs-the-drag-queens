@@ -252,6 +252,7 @@ export default {
     .ui {
         position: absolute;
         width: 100%;
+        left: 0;
         z-index: $z-index-ui;
         @include scrollableWindow();
 
