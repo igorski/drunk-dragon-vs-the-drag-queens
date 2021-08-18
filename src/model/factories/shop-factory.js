@@ -9,7 +9,8 @@ export const SHOP_TYPES = {
     JEWELLER: 2,
     CLOTHES: 3,
     PAWN: 4,
-    DEALER: 5
+    FOOD: 5,
+    DEALER: 6
 };
 
 const ShopFactory =
@@ -79,6 +80,9 @@ const ShopFactory =
                 break;
             case SHOP_TYPES.DEALER:
                 items = ItemFactory.createList( ItemTypes.DRUGS, amountToCreate );
+                break;
+            case SHOP_TYPES.FOOD:
+                items = ItemFactory.createList( ItemTypes.FOOD, amountToCreate );
                 break;
             default:
             case SHOP_TYPES.PAWN:

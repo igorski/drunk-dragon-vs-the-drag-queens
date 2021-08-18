@@ -93,7 +93,7 @@ npm run test
 * Leaving building from exit can put you somewhere completely else on the map!!
 * sometimes no shop is generated on first city > needs to be clothing!! and are there enough shops elsewhere?
 * Introduce new attack types at higher levels (e.g. nail slash)
-* Create heavily made up eyes style
+* Create heavily made up eyes, massive earrings and facial hair style
 * Generate objects on city roads and inside buildings similar to trees (make sure no roads are blocked!)
 * Buildings (and world edges) broken in Safari (must be similar to-render-at-edges-issue)?
 * Hotel/bed should be fully navigatable, not just bottom center tile
@@ -112,7 +112,6 @@ npm run test
 * Display product capabilities in shop display
 * Allow to loan money, starts action by which you need to have repaid the person OR ELSE!
 * make door drags expose their intent immediately, offer option to fight them (they should be stronger by a few levels)
-* stop character movement effects when screen isn't SCREEN_GAME (time should keep running though!)
 * replace pines with more tropical trees
 * More attack types depending on item / level ? (certain levels learn new moves)
 * Images for shop products
@@ -121,26 +120,21 @@ npm run test
 * should dragon get stronger / more drunk depending on hour of night ?
 * When fighting / entering building, environment coordinates are messed up?
 * player-module use of dispatch( "updateCharacters" ); where do we want to do this ?
-* halt all character updates when switching environments/screen isn't game_screen
 * implement ambush (enemy attacks first)
-* add store to sell shoes / fake nails (increases attack, certain shoes increase speed, but decrease drag swag/charisma)
-* add hamburger joint (can increase hp slowly but cheaply, medicine is more expensive but more potent)
+* add store to sell fake nails (increases attack)
 * changes to opponent should also reflect to appropriate world.characters instance (e.g. battle after run away should not restore health of dragon!)
-* Implement ambush in battle
-* There is only a single dragon throughout the game, it should path find you in the overworld and fight you, winning the fight resets the dragon to a far side of the map
 * Don't enter exit unless path ends at its exact coordinate
 * Can we give announcement of closing time when entering building?
-* Create floors that are bars chockfull of people!
 * Do not reposition when engaging in a battle (environmentactions.hitTest)
 * Identify shop types by their exterior
 * Item type elevator key to allow instant access to any floor
 * Don't generate scenery (trees) in front of doors!
 * Bug: When navigating by the world edge, tiles on the opposite end are also marked as visited
 * Create fast travel by introducing subway (can only travel to visited areas!)
-* When player clicks on non-navigate-able tile, navigate as close to the tile as possible (take dominant distance on x-y coordinate and keep reducing until path is found)
 * Overworld must become lighter when morning comes
 * Keep track of important dates (Christmas, New Year)
 * Fix popup of objects at screen edge
+
 * world-renderer isValidTarget|maxWalkableTile|and pre calc of waypoints is duplicating environment-actions unnecessarily!
 * if you are feeling brave you can start using the unused tiles in the floor sheet in environment-bitmap-cacher for the corner types
 * setIntoxication should be generic update character effect (so it works with any character, not just player)?

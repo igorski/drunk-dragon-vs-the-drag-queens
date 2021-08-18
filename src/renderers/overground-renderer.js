@@ -528,6 +528,9 @@ function renderObjects( aCanvasContext, objectList, { left, top, right, bottom }
                     case SHOP_TYPES.CLOTHES:
                         text = "Clothing";
                         break;
+                    case SHOP_TYPES.FOOD:
+                        text = "Food";
+                        break;
                     case SHOP_TYPES.DEALER:
                         text = "Dealer";
                         break;

@@ -36,6 +36,7 @@ import { mapGetters, mapMutations, mapActions } from "vuex";
 import sortBy           from "lodash/sortBy";
 import Modal            from "@/components/modal/modal";
 import InventoryList    from "@/components/shared/inventory-list/inventory-list";
+import ItemTypes from "@/definitions/item-types";
 import PriceTypes, { getPriceTypeForPrice } from "@/definitions/price-types";
 import { SHOP_TYPES }   from "@/model/factories/shop-factory";
 import InventoryActions from "@/model/actions/inventory-actions";
@@ -134,6 +135,18 @@ export default {
             });
         },
         handleSellClick( item ) {
+            switch ( item.type ) {
+                default:
+                    break;
+                case ItemTypes.FOOD:
+                    return this.openDialog({
+                        message: this.$t( "notInterestedInFood" )
+                    });
+                case ItemTypes.DRUGS:
+                    return this.openDialog({
+                        message: this.$t( "notInterestedInDrugs" )
+                    });            
+            }
             if ( !this.salePrices.has( item )) {
                 this.salePrices.set( item, InventoryActions.getPriceForItemSale( item ));
             }

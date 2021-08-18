@@ -106,6 +106,7 @@ import PriceTypes from "@/definitions/price-types";
 import CharacterFactory, { QUEEN_APPEARANCE, QUEEN_SKIN_COLORS } from "@/model/factories/character-factory";
 import InventoryFactory from "@/model/factories/inventory-factory";
 import Character from "@/renderers/character-queen";
+import { isMobile } from "@/utils/browser-util";
 import { generateDragQueenName } from "@/utils/name-generator";
 import messages from "./messages.json";
 
@@ -151,7 +152,9 @@ export default {
         },
     },
     mounted() {
-        this.$refs.nameInput.focus();
+        if ( !isMobile()) {
+            this.$refs.nameInput.focus();
+        }
     },
     methods: {
         randomize() {

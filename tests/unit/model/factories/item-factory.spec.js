@@ -1,7 +1,8 @@
 import ItemFactory from "@/model/factories/item-factory";
 import ItemTypes, {
     LIQUOR_TYPES, SHOE_HEELS, SHOE_SNEAKERS, SHOE_FLIPPERS,
-    DRUG_TYPES, DRUG_STIMULANT_A, DRUG_NOSE_CANDY
+    DRUG_TYPES, DRUG_STIMULANT_A, DRUG_NOSE_CANDY,
+    FOOD_TYPES, FOOD_HAMBURGER, FOOD_PIZZA
 } from "@/definitions/item-types";
 import PriceTypes from "@/definitions/price-types";
 
@@ -32,6 +33,13 @@ describe( "Item factory", () => {
         [
             { type: ItemTypes.DRUGS, name: DRUG_STIMULANT_A, expected: PriceTypes.AVERAGE },
             { type: ItemTypes.DRUGS, name: DRUG_NOSE_CANDY,  expected: PriceTypes.EXPENSIVE },
+        ].forEach( item => {
+            expect( ItemFactory.create( item.type, item.name ).price ).toEqual( item.expected );
+        });
+
+        [
+            { type: ItemTypes.FOOD, name: FOOD_HAMBURGER, expected: PriceTypes.AVERAGE },
+            { type: ItemTypes.FOOD, name: FOOD_PIZZA,     expected: PriceTypes.MEDIUM }
         ].forEach( item => {
             expect( ItemFactory.create( item.type, item.name ).price ).toEqual( item.expected );
         });

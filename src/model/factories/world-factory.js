@@ -100,10 +100,10 @@ const WorldFactory =
         // generate some shops outside the cities
 
         const shopHash   = hash.substr( 8, 1 );
-        const types      = [ SHOP_TYPES.DEALER, SHOP_TYPES.PHARMACY, SHOP_TYPES.PAWN ];
+        const types      = [ SHOP_TYPES.DEALER, SHOP_TYPES.PAWN, SHOP_TYPES.FOOD ];
         let createdShops = 0;
 
-        const minShopAmount = types.length * 3;
+        const minShopAmount = types.length * 6;
         const amountOfShopsToCreate = randomInRangeInt( minShopAmount, minShopAmount + HashUtil.charsToNum( shopHash ));
         console.warn(amountOfShopsToCreate + " < shops to create");
 
@@ -337,7 +337,7 @@ function generateCities( hash, world ) {
 
     const buildingHash = hash.substr( 6, 8 );
     const shopHash     = hash.substr( 8, 10 );
-    const shopTypes    = Object.values( SHOP_TYPES ); // ensure we crate shops for each available type
+    const shopTypes    = [ SHOP_TYPES.JEWELLER, SHOP_TYPES.LIQUOR, SHOP_TYPES.PHARMACY, SHOP_TYPES.CLOTHES ];
     let createdShops   = 0;
 
     zones.forEach(({ left, right, top, bottom, width, height, centerX, centerY }, index ) => {

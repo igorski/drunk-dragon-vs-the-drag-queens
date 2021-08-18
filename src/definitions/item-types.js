@@ -12,7 +12,8 @@ const ItemTypes = {
     CLOTHES    : 1,
     LIQUOR     : 2,
     HEALTHCARE : 3,
-    DRUGS      : 4
+    DRUGS      : 4,
+    FOOD       : 5
 };
 export default ItemTypes;
 
@@ -30,6 +31,8 @@ export const getItemsForType = type => {
             return LIQUOR_TYPES;
         case ItemTypes.DRUGS:
             return DRUG_TYPES;
+        case ItemTypes.FOOD:
+            return FOOD_TYPES;
     }
 };
 
@@ -67,3 +70,9 @@ export const HEALTHCARE_TYPES   = [ HEALTHCARE_BANDAID, HEALTHCARE_ASPIRIN ];
 export const DRUG_STIMULANT_A = "stimulantA";
 export const DRUG_NOSE_CANDY  = "noseCandy";
 export const DRUG_TYPES       = [ DRUG_STIMULANT_A, DRUG_NOSE_CANDY ];
+
+/* food */
+
+export const FOOD_HAMBURGER = "hamburger";
+export const FOOD_PIZZA     = "pizza";
+export const FOOD_TYPES     = [ FOOD_HAMBURGER, FOOD_PIZZA ];

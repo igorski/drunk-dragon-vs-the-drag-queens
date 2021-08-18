@@ -20,6 +20,8 @@
         "insufficientFunds": "It seems you have insufficient funds to buy this item.",
         "thanksForTransaction": "Thank you for your business!",
         "confirmSale": "Confirm your sale",
-        "sellItemForPrice": "I'll give you ${price} for {name}."
+        "sellItemForPrice": "I'll give you ${price} for {name}.",
+        "notInterestedInFood": "I'm not interested in buying food.",
+        "notInterestedInDrugs": "Are you crazy going around selling drugs? Get out of here!"
     }
 }

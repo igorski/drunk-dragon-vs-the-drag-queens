@@ -8,6 +8,7 @@ const PRICE_TYPES =
 {
     CHEAP     : 1,
     AVERAGE   : 10,
+    MEDIUM    : 25,
     EXPENSIVE : 100,
     LUXURY    : 500
 };
@@ -28,6 +29,8 @@ export const getPriceRangeForItemType = type => {
         case ItemTypes.CLOTHES:
         case ItemTypes.JEWELRY:
             return [ PRICE_TYPES.EXPENSIVE, PRICE_TYPES.LUXURY ];
+        case ItemTypes.FOOD:
+            return [ PRICE_TYPES.AVERAGE, PRICE_TYPES.MEDIUM ];
     }
 };
 
@@ -38,8 +41,11 @@ export const getPriceTypeForPrice = price => {
     if ( price < PRICE_TYPES.AVERAGE ) {
         return PRICE_TYPES.CHEAP;
     }
-    if ( price < PRICE_TYPES.EXPENSIVE ) {
+    if ( price < PRICE_TYPES.MEDIUM ) {
         return PRICE_TYPES.AVERAGE;
+    }
+    if ( price < PRICE_TYPES.EXPENSIVE ) {
+        return PRICE_TYPES.MEDIUM;
     }
     if ( price < PRICE_TYPES.LUXURY ) {
         return PRICE_TYPES.EXPENSIVE;

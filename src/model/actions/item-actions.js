@@ -16,10 +16,9 @@ export default {
                 break;
 
             case ItemTypes.HEALTHCARE:
-                effectivityRange = [ 5, 25 ];
-                const hpToApply = effectivityRange[ priceType ];
+                effectivityRange = [ 10, 50 ];
                 commit( "updatePlayer", {
-                    hp: ( Math.min( player.hp + hpToApply, player.maxHp ))
+                    hp: ( Math.min( player.hp + effectivityRange[ priceType ], player.maxHp ))
                 });
                 break;
 
@@ -43,6 +42,13 @@ export default {
                 commit( "addEffect", EffectFactory.create(
                     "setBoost", getters.gameTime, HALF_HOUR * boost, boost, 0, "cleanUp", player.id
                 ));
+                break;
+
+            case ItemTypes.FOOD:
+                effectivityRange = [ 5, 10 ];
+                commit( "updatePlayer", {
+                    hp: ( Math.min( player.hp + effectivityRange[ priceType ], player.maxHp ))
+                });
                 break;
         }
     }
