@@ -76,6 +76,9 @@ export default {
                 case SHOP_TYPES.DEALER:
                     type = "dealer";
                     break;
+                case SHOP_TYPES.FOOD:
+                    type = "food";
+                    break;
             }
             return this.$t( "welcomeToOur", { type: this.$t( type ) });
         },
@@ -145,7 +148,7 @@ export default {
                 case ItemTypes.DRUGS:
                     return this.openDialog({
                         message: this.$t( "notInterestedInDrugs" )
-                    });            
+                    });
             }
             if ( !this.salePrices.has( item )) {
                 this.salePrices.set( item, InventoryActions.getPriceForItemSale( item ));

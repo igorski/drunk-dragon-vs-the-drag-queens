@@ -425,7 +425,7 @@ export default class OvergroundRenderer extends sprite {
         const targetTile  = terrain[ indexOfTile ];
 
         if ( DEBUG ) {
-            console.warn( `Clicked tile at ${tx} x ${ty} (player is at ${x} x ${y}) (local click pointer coordinates ${Math.round(pointerX)} x ${Math.round(pointerY)}), underlying terrain type: ${targetTile}` );
+            console.warn( `Clicked tile at ${tx} x ${ty} (player is at ${x.toFixed(2)} x ${y.toFixed(2)}) (local click pointer coordinates ${Math.round(pointerX)} x ${Math.round(pointerY)}), underlying terrain type: ${targetTile}` );
         }
 
         if ( this.isValidTarget( targetTile )) {

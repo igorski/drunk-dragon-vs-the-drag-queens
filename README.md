@@ -83,6 +83,7 @@ npm run test
 * Do not repeat the same sentence in conversation
 * Queens inside buildings should either be woo'd or fought (and be generated again ;)
 * Place bar queens in building-factory according to same logic as drabs, ideally blocking a path
+* Tweak conversations, also add intent specific replies and thank yous. Don't use generics ?
 
 * When fighting other queens, make "vogue" an action (using drag swag)
 * Randomize attackType for opponents
@@ -120,7 +121,6 @@ npm run test
 * should dragon get stronger / more drunk depending on hour of night ?
 * When fighting / entering building, environment coordinates are messed up?
 * player-module use of dispatch( "updateCharacters" ); where do we want to do this ?
-* implement ambush (enemy attacks first)
 * add store to sell fake nails (increases attack)
 * changes to opponent should also reflect to appropriate world.characters instance (e.g. battle after run away should not restore health of dragon!)
 * Don't enter exit unless path ends at its exact coordinate

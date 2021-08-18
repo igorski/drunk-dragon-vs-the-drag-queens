@@ -103,6 +103,8 @@ import { QUEEN, DRAGON } from "@/definitions/character-types";
 import { SCREEN_GAME } from "@/definitions/screens";
 import Modal           from "@/components/modal/modal";
 import Inventory       from "@/components/inventory/inventory";
+import CharacterActions from "@/model/actions/character-actions";
+import { randomBool } from "@/utils/random-util";
 import CharacterStatus from "./character-status/character-status";
 import messages        from "./messages.json";
 
@@ -173,7 +175,13 @@ export default {
         this.playerStats.xp = xp;
         this.playerStats.level = level;
 
-        this.setPlayerTurn( true ); // TODO: implement ambush (should be Vuex action on battle creation)
+        const ambush = CharacterActions.getSpeed( this.opponent ) >= CharacterActions.getSpeed( this.player ) && randomBool();
+        this.setPlayerTurn( !ambush );
+
+        if ( ambush ) {
+            this.openDialog({ message: this.$t( "youWereAmbushed" ) });
+            this.executeOpponentAttack();
+        }
 
         // first battle against dragon ?
         if ( xp === 0 && this.opponent.type === DRAGON ) {

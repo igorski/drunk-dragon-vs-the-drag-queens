@@ -5,9 +5,7 @@
             :title="props.title"
             target="_blank"
             rel="noopener noreferrer"
-        >
-            {{ props.title }}
-        </a> {{ parent.$t('by') }} <span class="author">{{ props.author }}</span>
+        >{{ props.title }}</a> {{ parent.$t('by') }} <span class="author">{{ props.author }}</span>
     </span>
 </template>
 
