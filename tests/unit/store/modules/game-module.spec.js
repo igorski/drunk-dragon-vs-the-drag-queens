@@ -148,6 +148,18 @@ describe( "Vuex game module", () => {
                         { id: 1, target: "foo", mutation: "fooMut" },
                         { id: 2, target: "bar", mutation: "barMut" },
                         { id: 3, target: "bar", mutation: "barMut2" },
+                    ]
+                };
+                mutations.removeEffectsByTarget( state, "bar" );
+                expect( state.effects ).toEqual([ { id: 1, target: "foo", mutation: "fooMut" } ]);
+            });
+
+            it( "should be able to remove effects for specific targets and their mutation types", () => {
+                const state = {
+                    effects: [
+                        { id: 1, target: "foo", mutation: "fooMut" },
+                        { id: 2, target: "bar", mutation: "barMut" },
+                        { id: 3, target: "bar", mutation: "barMut2" },
                         { id: 4, target: "baz", mutation: "bazMut" },
                         { id: 5, target: "baz", mutation: "bazMut2" },
                         { id: 6, target: "baz", mutation: "barMut" }

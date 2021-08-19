@@ -4,7 +4,7 @@ export const timestampToTimeString  = timestamp => dateToTimeString( new Date( t
 export const isValidHourToBeOutside = gameDate => VALID_HOURS_OUTSIDE.includes( gameDate.getUTCHours() );
 export const isValidHourToBeInside  = gameDate => VALID_HOURS_INSIDE.includes( gameDate.getUTCHours() );
 
-export const timestampToFormattedDate = timestamp => {
+export const timestampToFormattedDate = ( timestamp, includeYear = true ) => {
     const dateTimeFormat = new Intl.DateTimeFormat( "en", {
         year: "numeric",
         month: "short",
@@ -12,7 +12,8 @@ export const timestampToFormattedDate = timestamp => {
         timeZone: "UTC"
     });
     const [{ value: month },,{ value: day },,{ value: year }] = dateTimeFormat.formatToParts( new Date( timestamp ));
-    return `${month} ${day}, ${year}`;
+    const formattedDate = `${month} ${day}`;
+    return includeYear ? `${formattedDate}, ${year}` : formattedDate;
 };
 
 /* internal methods */

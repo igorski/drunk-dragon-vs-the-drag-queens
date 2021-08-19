@@ -61,10 +61,10 @@
                 </li>
                 <li>
                     <button
-                        v-t="'status'"
+                        v-t="'statusInventory'"
                         type="button"
                         :disabled="!hasActiveGame || !canOpenModalItems"
-                        :title="$t('status')"
+                        :title="$t('statusInventory')"
                         @click="openScreen('status')"
                     >
                     </button>

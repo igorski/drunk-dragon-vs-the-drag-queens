@@ -148,6 +148,12 @@ describe( "Vuex environment module", () => {
                 expect( state.shop ).toEqual( shop );
             });
 
+            it( "should be able to set the debt to the active stop", () => {
+                const state = { shop: { debt: 0 } };
+                mutations.setShopDebt( state, 10 );
+                expect( state.shop.debt ).toEqual( 10 );
+            });
+
             it( "should be able to set the active hotel", () => {
                 const state = { hotel: null };
                 const hotel = { foo: "bar" };

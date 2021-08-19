@@ -1,9 +1,11 @@
 import store from "@/store/modules/player-module";
 import { QUEEN, DRAB } from "@/definitions/character-types";
-import { GAME_START_HOUR } from "@/definitions/constants";
+import { GAME_START_HOUR, GAME_TIME_RATIO } from "@/definitions/constants";
+import { GAME_OVER } from "@/definitions/game-states";
 import { SCREEN_GAME } from "@/definitions/screens";
 import CharacterFactory from "@/model/factories/character-factory";
 import EnvironmentFactory from "@/model/factories/environment-factory";
+import { WORLD_TYPE } from "@/model/factories/world-factory";
 
 const { getters, mutations, actions } = store;
 
@@ -19,6 +21,20 @@ describe( "Vuex player module", () => {
         it( "should return the player Character", () => {
             const state = { player: { baz: "qux" } };
             expect( getters.player( state )).toEqual( state.player );
+        });
+
+        it( "should return all unpaid debts", () => {
+            const mockedGetters = {
+                activeEnvironment: {
+                    type: WORLD_TYPE,
+                    shops: [{ id: "foo", debt: 0 }, { id: "bar", debt: 5 }, { id: "baz", debt: 10 }]
+                },
+                effects: [{ target: "bar", endValue: 1000 }, { target: "baz", endValue: 1500 }]
+            };
+            expect( getters.debt( null, mockedGetters )).toEqual([
+                { shop: { id: "bar", debt: 5 },  endTime: 1000 },
+                { shop: { id: "baz", debt: 10 }, endTime: 1500 },
+            ]);
         });
     });
 
@@ -200,6 +216,41 @@ describe( "Vuex player module", () => {
             });
         });
 
+        it( "should be able to loan money from a shop", () => {
+            const commit = jest.fn();
+            const mockedGetters = { gameTime: 1000, shop: { id: "foo" } };
+            const duration = 500;
+            const scaledDuration = duration * GAME_TIME_RATIO;
+            const amount = 5000;
+
+            actions.loanMoney({ commit, getters: mockedGetters }, { duration, amount });
+
+            expect( commit ).toHaveBeenNthCalledWith( 1, "awardCash", amount );
+            expect( commit ).toHaveBeenNthCalledWith( 2, "setShopDebt", amount );
+            expect( commit ).toHaveBeenNthCalledWith( 3, "addEffect", {
+                mutation: null,
+                startTime: mockedGetters.gameTime,
+                duration: scaledDuration,
+                startValue: mockedGetters.gameTime,
+                endValue: mockedGetters.gameTime + duration,
+                callback: "handleLoanTimeout",
+                target: mockedGetters.shop.id,
+                increment: expect.any( Number )
+            });
+        });
+
+        it( "should be able to pay back the debt to a shop", () => {
+            const mockedGetters = { shop: { id: "foo" } };
+            const commit = jest.fn();
+            const amount = 5000;
+
+            actions.payBackLoan({ commit, getters: mockedGetters }, amount );
+
+            expect( commit ).toHaveBeenNthCalledWith( 1, "deductCash", amount );
+            expect( commit ).toHaveBeenNthCalledWith( 2, "setShopDebt", 0 );
+            expect( commit ).toHaveBeenNthCalledWith( 3, "removeEffectsByTarget", mockedGetters.shop.id );
+        });
+
         describe( "when booking a hotel room", () => {
             const hotel = { price: 10 };
 
@@ -296,6 +347,15 @@ describe( "Vuex player module", () => {
             expect( commit ).toHaveBeenNthCalledWith( 1, "removeEffectsByTargetAndMutation", { target: "foo", types: [ "setBoost" ] });
             expect( commit ).toHaveBeenNthCalledWith( 2, "setBoost", { value: 0 });
             expect( commit ).toHaveBeenNthCalledWith( 3, "showNotification", expect.any( String ));
+        });
+
+        it( "should end the game if a loan hasn't been paid in time", () => {
+            const commit = jest.fn();
+            actions.handleLoanTimeout({ commit, getters: { translate: jest.fn() } });
+
+            expect( commit ).toHaveBeenNthCalledWith( 1, "updatePlayer", { hp: 0 });
+            expect( commit ).toHaveBeenNthCalledWith( 2, "setGameState", GAME_OVER );
+            expect( commit ).toHaveBeenNthCalledWith( 3, "openDialog", expect.any( Object ));
         });
     });
 });

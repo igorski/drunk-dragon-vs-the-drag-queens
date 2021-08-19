@@ -109,7 +109,7 @@ const WorldFactory =
 
         world.shops.push( ...generateGroup(
             centerX, centerY, world, amountOfShopsToCreate, ( x, y, ) => {
-                const shop = ShopFactory.create( x, y, types[ createdShops % types.length ]);
+                const shop = ShopFactory.create({ x, y, type: types[ createdShops % types.length ] });
                 ++createdShops;
                 return shop;
             }, Math.round( world.width / 5 ), 4, .6, [ WORLD_TILES.SAND, WORLD_TILES.GRASS ] // exclude GROUND (city only)
@@ -364,11 +364,11 @@ function generateCities( hash, world ) {
             // in the first city we also create a clothes shop (so flippers can be bought
             // should we need to cross large bodies of water)
 
-            const shop = ShopFactory.create(
-                left + randomInRangeInt( 0, width  - WorldCache.sizeShop.width ),
-                top  + randomInRangeInt( 0, height - WorldCache.sizeShop.height ),
-                SHOP_TYPES.CLOTHES
-            );
+            const shop = ShopFactory.create({
+                x    : left + randomInRangeInt( 0, width  - WorldCache.sizeShop.width ),
+                y    : top  + randomInRangeInt( 0, height - WorldCache.sizeShop.height ),
+                type : SHOP_TYPES.CLOTHES
+            });
             if ( reserveObject( shop, world )) {
                 world.shops.push( shop );
             }
@@ -387,7 +387,7 @@ console.warn("generate " + amount + " buildings for " + index + " iteration at c
 console.warn("generate " + amount + " shops for " + index + " iteration at coords " + centerX + " x " + centerY);
             world.shops.push(...generateGroup(
                 centerX, centerY, world, amount, ( x, y, ) => {
-                    const shop = ShopFactory.create( x, y, shopTypes[ createdShops % shopTypes.length ]);
+                    const shop = ShopFactory.create({ x, y, type: shopTypes[ createdShops % shopTypes.length ] });
                     ++createdShops;
                     return shop;
                 }, width, 4, .6, [ WORLD_TILES.GROUND ]

@@ -58,6 +58,9 @@ export default {
         setShop( state, shop ) {
             state.shop = shop;
         },
+        setShopDebt( state, debt ) {
+            state.shop.debt = debt;
+        },
         setHotel( state, hotel ) {
             state.hotel = hotel;
         },

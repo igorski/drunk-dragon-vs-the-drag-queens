@@ -23,6 +23,13 @@
         "confirmSale": "Confirm your sale",
         "sellItemForPrice": "I'll give you ${price} for {name}.",
         "notInterestedInFood": "I'm not interested in buying food.",
-        "notInterestedInDrugs": "Are you crazy going around selling drugs? Get out of here!"
+        "notInterestedInDrugs": "Are you crazy going around selling drugs? Get out of here!",
+        "interestedInALoan": "I can also interest you in a loan if you'd like.",
+        "rememberLoanAmount": "Remember you owe me ${amount} cash. You have until {endTime}.",
+        "loan": "Loan",
+        "payBack": "Pay back",
+        "confirmLoan": "Confirm your loan",
+        "iCanLoanAmount": "I can loan you ${amount}, without charging interest. I do want my money back before {date}. And I DO mean I want it back BEFORE then and no, I don't take installments. If I don't see my money, I'll come and find you and I don't particularly like wasting my energy, if you get what I mean ? Making this deal is making a commitment.",
+        "thanksForPayBack": "Thanks for paying back the money you owed me. For a moment I thought you were going to make a run for it."
     }
 }

@@ -1,6 +1,7 @@
 <template>
     <modal :title="shopTitle" @close="$emit('close')">
-        <template v-if="canSell">
+        <!-- items to buy from player (pawn shop -->
+        <template v-if="canPawn">
             <p v-t="'somethingToSell'"></p>
             <inventory-list
                 v-model="selectedItem"
@@ -15,6 +16,7 @@
                 @click="handleSellClick( selectedItem )"
             ></button>
         </template>
+        <!-- items for sale -->
         <p v-t="shop.items.length ? 'itemsForSale' : 'noItemsForSale'"></p>
         <div v-for="(item, index) in sortedItems"
              :key="`${index}`"
@@ -28,6 +30,27 @@
                     @click="handleBuyClick( item )"
             ></button>
         </div>
+        <!-- loan shark -->
+        <template v-if="canLend">
+            <p>{{ loanMessage }}</p>
+            <button
+                type="button"
+                v-t="'loan'"
+                class="rpg-button"
+                :title="$t('loan')"
+                :disabled="playerHasDebt"
+                @click="handleLoanClick()"
+            ></button>
+            <button
+                v-if="playerHasDebt"
+                type="button"
+                v-t="'payBack'"
+                class="rpg-button"
+                :title="$t('payBack')"
+                :disabled="player.inventory.cash < shop.debt"
+                @click="handlePayBackClick()"
+            ></button>
+        </template>
     </modal>
 </template>
 
@@ -36,12 +59,17 @@ import { mapGetters, mapMutations, mapActions } from "vuex";
 import sortBy           from "lodash/sortBy";
 import Modal            from "@/components/modal/modal";
 import InventoryList    from "@/components/shared/inventory-list/inventory-list";
+import { TWENTY_FOUR_HOURS } from "@/definitions/constants";
 import ItemTypes from "@/definitions/item-types";
 import PriceTypes, { getPriceTypeForPrice } from "@/definitions/price-types";
 import { SHOP_TYPES }   from "@/model/factories/shop-factory";
 import InventoryActions from "@/model/actions/inventory-actions";
+import { timestampToFormattedDate } from "@/utils/time-util";
+
 import sharedMessages   from "@/i18n/items.json";
 import messages         from "./messages.json";
+
+const AMOUNT_TO_LOAN = 5000;
 
 export default {
     i18n: { messages, sharedMessages },
@@ -55,6 +83,8 @@ export default {
     }),
     computed: {
         ...mapGetters([
+            "debt",
+            "gameTime",
             "shop",
             "player",
         ]),
@@ -85,14 +115,27 @@ export default {
         sortedItems() {
             return sortBy( this.shop.items, [ "price" ]);
         },
-        canSell() {
-            return this.shop.type === SHOP_TYPES.PAWN;
-        },
-        canLoan() {
-            return this.shop.type === SHOP_TYPES.DEALER;
-        },
         inventoryItems() {
             return this.player.inventory.items;
+        },
+        canPawn() {
+            return this.shop.type === SHOP_TYPES.PAWN;
+        },
+        canLend() {
+            return this.shop.type === SHOP_TYPES.DEALER;
+        },
+        playerHasDebt() {
+            return this.shop.debt > 0;
+        },
+        loanMessage() {
+            if ( !this.playerHasDebt ) {
+                return this.$t( "interestedInALoan" );
+            }
+            const debtData = this.debt.find( debt => debt.shop.id === this.shop.id );
+            return this.$t( "rememberLoanAmount", {
+                amount: this.shop.debt,
+                endTime: timestampToFormattedDate( debtData.endTime, false )
+            });
         },
     },
     created() {
@@ -108,6 +151,8 @@ export default {
         ...mapActions([
             "buyItem",
             "sellItem",
+            "loanMoney",
+            "payBackLoan",
             "leaveShop",
         ]),
         itemTitle({ name, price }) {
@@ -164,6 +209,28 @@ export default {
                 },
             });
         },
+        handleLoanClick() {
+            const amount       = AMOUNT_TO_LOAN;
+            const amountOfDays = 7;
+
+            let endDate    = new Date( this.gameTime + ( amountOfDays * TWENTY_FOUR_HOURS ));
+            endDate        = new Date( `${endDate.toISOString().split( "T" )[ 0 ]}T00:00:00.000Z`);
+            const duration = endDate - this.gameTime;
+
+            this.openDialog({
+                type: "confirm",
+                title: this.$t( "confirmLoan" ),
+                message: this.$t( "iCanLoanAmount", { amount, date: timestampToFormattedDate( endDate, false ) }),
+                confirm: async () => {
+                    await this.loanMoney({ duration, amount });
+                    this.openDialog({ message: this.$t( "thanksForTransaction" ) });
+                },
+            });
+        },
+        handlePayBackClick() {
+            this.payBackLoan( this.shop.debt );
+            this.openDialog({ message: this.$t( "thanksForPayBack" ) });
+        }
     },
 };
 </script>

@@ -3,10 +3,13 @@ import merge               from "lodash/merge";
 import isEqual             from "lodash/isEqual";
 import { DRAB }            from "@/definitions/character-types";
 import { GAME_START_HOUR } from "@/definitions/constants";
+import { GAME_OVER }       from "@/definitions/game-states";
 import { SCREEN_GAME }     from "@/definitions/screens";
 import EnvironmentActions  from "@/model/actions/environment-actions";
 import CharacterActions    from "@/model/actions/character-actions";
 import InventoryActions    from "@/model/actions/inventory-actions";
+import EffectFactory       from "@/model/factories/effect-factory";
+import { WORLD_TYPE }      from "@/model/factories/world-factory";
 
 // cancel the pending player movements
 const cancelPendingMovement = commit => {
@@ -26,6 +29,21 @@ export default
     },
     getters: {
         player: state => state.player,
+        debt: ( state, getters ) => {
+            console.warn("calculating debt");
+            if ( getters.activeEnvironment.type !== WORLD_TYPE ) {
+                return [];
+            }
+            return getters.activeEnvironment.shops.reduce(( acc, shop ) => {
+                if ( shop.debt > 0 ) {
+                    const endTime = getters.effects.find(({ target }) => target === shop.id )?.endValue;
+                    if ( endTime ) {
+                        acc.push({ shop, endTime });
+                    }
+                }
+                return acc;
+            }, []);
+        }
     },
     mutations: {
         setPlayer( state, player ) {
@@ -122,6 +140,19 @@ export default
             commit( "removeItemFromInventory", item );
             return true;
         },
+        loanMoney({ commit, getters }, { duration, amount }) {
+            const { gameTime, shop } = getters;
+            commit( "awardCash",   amount );
+            commit( "setShopDebt", amount );
+            commit( "addEffect", EffectFactory.create(
+                null, gameTime, duration, gameTime, gameTime + duration, "handleLoanTimeout", shop.id
+            ));
+        },
+        payBackLoan({ getters, commit }, amount ) {
+            commit( "deductCash", amount );
+            commit( "setShopDebt", 0 );
+            commit( "removeEffectsByTarget", getters.shop.id );
+        },
         async bookHotelRoom({ state, getters, commit, dispatch }, hotel ) {
             const { player } = state;
             if ( player.inventory.cash < hotel.price ) {
@@ -167,6 +198,11 @@ export default
             commit( "removeEffectsByTargetAndMutation", { target: state.player.id, types: [ "setBoost" ]});
             commit( "setBoost", { value: 0 });
             commit( "showNotification", getters.translate( "timeouts.cleanedUp" ));
+        },
+        handleLoanTimeout({ commit, getters }) {
+            commit( "updatePlayer", { hp: 0 });
+            commit( "setGameState", GAME_OVER );
+            commit( "openDialog", { message: getters.translate( "timeouts.loan" ) });
         }
     },
 };

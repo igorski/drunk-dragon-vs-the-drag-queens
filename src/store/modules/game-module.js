@@ -6,7 +6,7 @@ import GameFactory      from "@/model/factories/game-factory";
 import WorldFactory, { WORLD_TYPE } from "@/model/factories/world-factory";
 import EffectActions    from "@/model/actions/effect-actions";
 import { DRAB }         from "@/definitions/character-types";
-import { GAME_START_TIME, GAME_TIME_RATIO, VALIDITY_CHECK_INTERVAL, VALID_HOURS_INSIDE } from "@/definitions/constants";
+import { GAME_START_TIME_UNIX, GAME_TIME_RATIO, VALIDITY_CHECK_INTERVAL, VALID_HOURS_INSIDE } from "@/definitions/constants";
 import { GAME_ACTIVE, GAME_PAUSED, GAME_OVER } from "@/definitions/game-states";
 import { random } from "@/utils/random-util";
 import { isValidHourToBeOutside, isValidHourToBeInside } from "@/utils/time-util";
@@ -22,7 +22,7 @@ export default {
         created: 0,
         modified: 0,
         gameStart: 0,    // timestamp at which the game was originally created
-        gameTime: 0,     // timestamp of in-game Date (games always start at GAME_START_TIME)
+        gameTime: 0,     // timestamp of in-game Date (games always start at GAME_START_TIME_UNIX)
         lastRender: 0,   // last render timestamp, see zCanvas
         lastValidGameTime: 0, // timestamp of the last game time update
         gameState: GAME_PAUSED,
@@ -76,6 +76,12 @@ export default {
         removeEffectsByCallback( state, callbacks = [] ) {
             Vue.set( state, "effects", state.effects.filter(({ callback }) => !callbacks.includes( callback )));
         },
+        removeEffectsByTarget( state, target ) {
+            Vue.set(
+                state, "effects",
+                state.effects.filter( effect => effect.target !== target )
+            );
+        },
         removeEffectsByTargetAndMutation( state, { target, types = [] }) {
             Vue.set(
                 state, "effects",
@@ -100,7 +106,7 @@ export default {
                 modified: now,
                 gameStart: now,
                 lastSavedTime: -1,
-                gameTime: new Date( GAME_START_TIME ).getTime(),
+                gameTime: GAME_START_TIME_UNIX,
                 building: null,
                 effects: [],
                 world,

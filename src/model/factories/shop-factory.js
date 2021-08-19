@@ -2,6 +2,7 @@ import ItemFactory        from "./item-factory";
 import ItemTypes          from "@/definitions/item-types";
 import WorldCache         from "@/utils/world-cache";
 import { randomFromList } from "@/utils/random-util";
+import { getUid }         from "@/utils/uid-util";
 
 export const SHOP_TYPES = {
     PHARMACY: 0,
@@ -24,13 +25,13 @@ const ShopFactory =
      * @param {Array<Object>=} items optional list of shop items
      * @param {number=} debt optional debt owed to the shop
      */
-    create( x, y, type = null, items = [], debt = 0 ) {
+    create({ x, y, type = null, items = [], debt = 0, id = getUid() }) {
         if ( type === null ) {
             type = randomFromList( Object.keys( SHOP_TYPES ));
         }
         const { width, height } = WorldCache.sizeShop;
         return {
-            x, y, width, height, type, items, debt
+            id, x, y, width, height, type, items, debt
         };
     },
 
@@ -39,9 +40,14 @@ const ShopFactory =
      * back into a Shop instance
      */
     assemble( data ) {
-        return ShopFactory.create(
-            data.x, data.y, data.t, data.i.map( i => ItemFactory.assemble( i )), data.d
-        );
+        return ShopFactory.create({
+            id    : data.id,
+            x     : data.x,
+            y     : data.y,
+            type  : data.t,
+            items : data.i.map( i => ItemFactory.assemble( i )),
+            debt  : data.d,
+        });
     },
 
     /**
@@ -49,11 +55,12 @@ const ShopFactory =
      */
     disassemble( shop ) {
         return {
-            x: shop.x,
-            y: shop.y,
-            t: shop.type,
-            i: shop.items.map( i => ItemFactory.disassemble( i )),
-            d: shop.debt
+            id: shop.id,
+            x:  shop.x,
+            y:  shop.y,
+            t:  shop.type,
+            i:  shop.items.map( i => ItemFactory.disassemble( i )),
+            d:  shop.debt
         };
     },
 

@@ -80,15 +80,19 @@ npm run test
 * Drag swag/charisma == mana
 ** Show in status view
 
-* Do not repeat the same sentence in conversation
+* notifications should disappear one by one
+* on game over, fade in full screen of black before showing popup ?
+* shop intro and no items text should be unique per shop type
+* Do not repeat the same sentence in a conversation
 * Tweak conversations, also add intent specific replies and thank yous. Don't use generics ?
 * Randomize attackType for opponents
+* shop generation in cities needs to ensure no duplicate types!
+* when a shop has been successfully generated, rotate the deployment circle
 
 * Queens inside buildings should either be woo'd or fought (and be generated again ;)
 * Place bar queens in building-factory according to same logic as drabs, ideally blocking a path
 
 * When fighting other queens, make "vogue" an action (using drag swag)
-* Generate loan shark with pay back Effect (inside DEALER shop type, creates positive debt on store)
 * When buying a clothes item, discard the existing one of the same type (show confirmation)
 * Different background colour for bar floors
 * Move WORLD_TYPE, BUILDING_TYPE, ...TILES etc out of factories and into definitions file
@@ -112,7 +116,6 @@ npm run test
 * Animate player position on map (pulsating circle)
 * Waypoint path finder should not go over exits when calculating path inside building (exists are only valid as destination tile)
 * Display product capabilities in shop display
-* Allow to loan money, starts action by which you need to have repaid the person OR ELSE!
 * make door drags expose their intent immediately, offer option to fight them (they should be stronger by a few levels)
 * replace pines with more tropical trees
 * More attack types depending on item / level ? (certain levels learn new moves)

@@ -10,6 +10,13 @@
             </div>
             <div class="status-content__inventory status-content--inline">
                 <inventory :player="player" />
+                <template v-if="unpaidDebts.length">
+                    <h3>Unpaid debt</h3>
+                    <span
+                        v-for="(debt, index) in unpaidDebts"
+                        :key="`debt_${index}`"
+                    >{{ debt }}</span>
+                </template>
             </div>
             <div class="status-content__character">
                 <component
@@ -73,6 +80,7 @@ export default {
         ]),
         ...mapGetters([
             "activeEnvironment",
+            "debt",
             "gameTime",
             "player",
         ]),
@@ -98,6 +106,12 @@ export default {
         },
         boostPercentage() {
             return formatPercentage( this.player.properties.boost );
+        },
+        unpaidDebts() {
+            return this.debt.map(({ shop, endTime }) => this.$t( "amountDueByDate", {
+                amount : shop.debt,
+                date   : timestampToFormattedDate( endTime, false )
+            }));
         }
     },
     mounted() {

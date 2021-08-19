@@ -7,6 +7,7 @@
         "xpNeededToLevelUp": "{xp} XP needed to reach next level",
         "visitedPercent": "Visited {percentVisited}% of environment",
         "intoxicationPercentage": "{pct}% intoxicated",
-        "boostPercentage": "{pct}% boosted"
+        "boostPercentage": "{pct}% boosted",
+        "amountDueByDate": "${amount} due by {date}"
     }
 }

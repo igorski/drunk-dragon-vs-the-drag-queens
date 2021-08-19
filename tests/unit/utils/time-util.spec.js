@@ -31,7 +31,11 @@ describe( "Time utility", () => {
         }
     });
 
-    it( "should be able to format a timestamp to a formatted date String", () => {
+    it( "should be able to format a timestamp to a formatted date String, including the year by default", () => {
         expect( timestampToFormattedDate( GAME_START_TIME_UNIX )).toEqual( "Aug 29, 1986" );
+    });
+
+    it( "should be able to format a timestamp to a formatted date String, excluding the year by request", () => {
+        expect( timestampToFormattedDate( GAME_START_TIME_UNIX, false )).toEqual( "Aug 29" );
     });
 });
