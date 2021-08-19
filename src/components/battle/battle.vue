@@ -103,8 +103,6 @@ import { QUEEN, DRAGON } from "@/definitions/character-types";
 import { SCREEN_GAME } from "@/definitions/screens";
 import Modal           from "@/components/modal/modal";
 import Inventory       from "@/components/inventory/inventory";
-import CharacterActions from "@/model/actions/character-actions";
-import { randomBool } from "@/utils/random-util";
 import CharacterStatus from "./character-status/character-status";
 import messages        from "./messages.json";
 
@@ -175,10 +173,7 @@ export default {
         this.playerStats.xp = xp;
         this.playerStats.level = level;
 
-        const ambush = CharacterActions.getSpeed( this.opponent ) >= CharacterActions.getSpeed( this.player ) && randomBool();
-        this.setPlayerTurn( !ambush );
-
-        if ( ambush ) {
+        if ( !this.playerTurn ) {
             this.openDialog({ message: this.$t( "youWereAmbushed" ) });
             this.executeOpponentAttack();
         }

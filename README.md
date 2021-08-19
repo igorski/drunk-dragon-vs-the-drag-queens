@@ -81,12 +81,13 @@ npm run test
 ** Show in status view
 
 * Do not repeat the same sentence in conversation
+* Tweak conversations, also add intent specific replies and thank yous. Don't use generics ?
+* Randomize attackType for opponents
+
 * Queens inside buildings should either be woo'd or fought (and be generated again ;)
 * Place bar queens in building-factory according to same logic as drabs, ideally blocking a path
-* Tweak conversations, also add intent specific replies and thank yous. Don't use generics ?
 
 * When fighting other queens, make "vogue" an action (using drag swag)
-* Randomize attackType for opponents
 * Generate loan shark with pay back Effect (inside DEALER shop type, creates positive debt on store)
 * When buying a clothes item, discard the existing one of the same type (show confirmation)
 * Different background colour for bar floors

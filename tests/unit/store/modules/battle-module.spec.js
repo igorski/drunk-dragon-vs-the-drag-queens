@@ -11,6 +11,7 @@ const { getters, mutations, actions } = store;
 let mockRandomValue;
 jest.mock( "@/utils/random-util", () => ({
     random: () => mockRandomValue,
+    randomBool: () => mockRandomValue,
     randomFromList: list => list[0],
     randomInRangeInt: (min, max) => min,
 }));
@@ -289,17 +290,44 @@ describe( "Vuex battle module", () => {
             });
         });
 
-        it( "should be able to start a battle setting the appropriate values", async () => {
-            const commit   = jest.fn();
-            const dispatch = jest.fn();
-            const opponent = { foo: "bar" };
+        describe( "when starting a battle", () => {
+            const mockedGetters = { player: CharacterFactory.create() };
+            const opponent      = CharacterFactory.create();
+            mockRandomValue     = true; // forces ambush when speed check passes
 
-            await actions.startBattle({ commit, dispatch }, opponent );
+            it( "should be able to start a battle setting the appropriate values", async () => {
+                const commit   = jest.fn();
+                const dispatch = jest.fn();
 
-            expect( commit ).toHaveBeenNthCalledWith( 1, "setBattleWon", false );
-            expect( commit ).toHaveBeenNthCalledWith( 2, "setOpponent", opponent );
-            expect( commit ).toHaveBeenNthCalledWith( 3, "setAward", expect.any( Number ));
-            expect( dispatch ).toHaveBeenNthCalledWith( 1, "playSound", expect.any( Number ));
+                await actions.startBattle({ commit, getters: mockedGetters, dispatch }, opponent );
+
+                expect( commit ).toHaveBeenNthCalledWith( 1, "setBattleWon", false );
+                expect( commit ).toHaveBeenNthCalledWith( 2, "setOpponent", opponent );
+                expect( commit ).toHaveBeenNthCalledWith( 3, "setAward", expect.any( Number ));
+                expect( dispatch ).toHaveBeenNthCalledWith( 1, "playSound", expect.any( Number ));
+            });
+
+            it( "should not ambush the player when the opponent is slower", async () => {
+                const commit   = jest.fn();
+                const dispatch = jest.fn();
+
+                opponent.properties.speed = mockedGetters.player.properties.speed - 0.1;
+
+                await actions.startBattle({ commit, getters: mockedGetters, dispatch }, opponent );
+
+                expect( commit ).toHaveBeenNthCalledWith( 4, "setPlayerTurn", true );
+            });
+
+            it( "should ambush the player when the opponent is faster", async () => {
+                const commit   = jest.fn();
+                const dispatch = jest.fn();
+
+                opponent.properties.speed = mockedGetters.player.properties.speed + 0.1;
+
+                await actions.startBattle({ commit, getters: mockedGetters, dispatch }, opponent );
+
+                expect( commit ).toHaveBeenNthCalledWith( 4, "setPlayerTurn", false );
+            });
         });
 
         describe( "When resolving a battle", () => {

@@ -5,7 +5,7 @@ import { XP_PER_LEVEL, xpNeededForLevel } from "@/definitions/constants";
 import { DRAGON }       from "@/definitions/character-types";
 import { GAME_OVER }    from "@/definitions/game-states";
 import { SCREEN_GAME }  from "@/definitions/screens";
-import { random }       from "@/utils/random-util";
+import { random, randomBool } from "@/utils/random-util";
 import CharacterActions from "@/model/actions/character-actions";
 import { prepareAttack, getDamageForAttack } from "@/model/factories/attack-factory";
 import { TRACK_TYPES } from "@/definitions/audio-tracks";
@@ -95,10 +95,14 @@ export default {
             }
             return { success: true, damage };
         },
-        startBattle({ commit, dispatch }, opponent ) {
+        startBattle({ commit, getters, dispatch }, opponent ) {
             commit( "setBattleWon", false );
             commit( "setOpponent", opponent );
             commit( "setAward", opponent.level * ( XP_PER_LEVEL / 2 ));
+
+            const ambush = CharacterActions.getSpeed( opponent ) >= CharacterActions.getSpeed( getters.player ) && randomBool();
+            commit( "setPlayerTurn", !ambush );
+
             dispatch( "playSound", TRACK_TYPES.BATTLE );
         },
         resolveBattle({ state, getters, commit, dispatch }) {
