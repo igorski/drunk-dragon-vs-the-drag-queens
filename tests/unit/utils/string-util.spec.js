@@ -19,7 +19,7 @@ describe( "String utility", () => {
 
     it( "should slur the words heavily when the character is highly intoxicated", () => {
         expect( slurWords( text, 0.7 )).toEqual(
-            "Th-the antsss in France zsstay meynly on the plants. What do you zssay ? Imma feelin' ligh'er'."
+            "Th-the antsss in France zsstay meynly on the plants. What do yew zssay ? Imma feelin' ligh'er'."
         );
     });
 });

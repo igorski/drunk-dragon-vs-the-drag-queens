@@ -101,19 +101,19 @@ const WorldFactory =
 
         const shopHash   = hash.substr( 8, 1 );
         const types      = [ SHOP_TYPES.DEALER, SHOP_TYPES.PAWN, SHOP_TYPES.FOOD ];
-        let createdShops = 0;
 
         const minShopAmount = types.length * 6;
         const amountOfShopsToCreate = randomInRangeInt( minShopAmount, minShopAmount + HashUtil.charsToNum( shopHash ));
-        console.warn(amountOfShopsToCreate + " < shops to create");
 
-        world.shops.push( ...generateGroup(
-            centerX, centerY, world, amountOfShopsToCreate, ( x, y, ) => {
-                const shop = ShopFactory.create({ x, y, type: types[ createdShops % types.length ] });
-                ++createdShops;
-                return shop;
-            }, Math.round( world.width / 5 ), 4, .6, [ WORLD_TILES.SAND, WORLD_TILES.GRASS ] // exclude GROUND (city only)
-        ));
+        console.warn( amountOfShopsToCreate + " < shops to create outside of cities" );
+
+        generateGroup(
+            world.shops, world.width, world.height, centerX, centerY, world, amountOfShopsToCreate, ( x, y, ) => {
+                return ShopFactory.create({ x, y, type: types[ world.shops.length % types.length ] });
+            }, Math.round( world.width / 5 ),
+            [ WORLD_TILES.SAND, WORLD_TILES.GRASS ], // exclude GROUND (e.g. cities)
+            8
+        );
 
         // generate some characters that occupy some of the building entrances
 
@@ -335,10 +335,13 @@ function generateCities( hash, world ) {
 
     // generate all zone contents
 
-    const buildingHash = hash.substr( 6, 8 );
-    const shopHash     = hash.substr( 8, 10 );
-    const shopTypes    = [ SHOP_TYPES.JEWELLER, SHOP_TYPES.LIQUOR, SHOP_TYPES.PHARMACY, SHOP_TYPES.CLOTHES ];
-    let createdShops   = 0;
+    //const buildingHash = hash.substr( 6, 8 );
+    //const shopHash     = hash.substr( 8, 10 );
+
+    const { sizeBuilding, sizeShop } = WorldCache;
+
+    // by putting the clothes type last we guarantee that the player needs to travel to a different city
+    const shopTypes = [ SHOP_TYPES.JEWELLER, SHOP_TYPES.LIQUOR, SHOP_TYPES.PHARMACY, SHOP_TYPES.CLOTHES ];
 
     zones.forEach(({ left, right, top, bottom, width, height, centerX, centerY }, index ) => {
         // create terrain for all generated zones
@@ -348,51 +351,24 @@ function generateCities( hash, world ) {
             }
         }
 
-        // each city should have a building dead in the center
+        // 1. create buildings
 
-        const building = BuildingFactory.create(
-            Math.round( centerX + WorldCache.sizeBuilding.width / 2 ),
-            Math.round( centerY + WorldCache.sizeBuilding.height / 2 )
+        let amount = randomInRangeInt( 1, 4 );
+console.warn("generate " + amount + " buildings for city " + (index + 1 )+ " at coords " + centerX + " x " + centerY);
+        generateGroup(
+            world.buildings, width, height, centerX, centerY, world, amount,
+            BuildingFactory.create, sizeBuilding.width, [ WORLD_TILES.GROUND ]
         );
-        if ( reserveObject( building, world )) {
-            world.buildings.push( building );
-        } else {
-            console.warn("could not add building to " +index);
-        }
 
-        if ( index === 0 ) {
-            // in the first city we also create a clothes shop (so flippers can be bought
-            // should we need to cross large bodies of water)
+        // 2. create shops
 
-            const shop = ShopFactory.create({
-                x    : left + randomInRangeInt( 0, width  - WorldCache.sizeShop.width ),
-                y    : top  + randomInRangeInt( 0, height - WorldCache.sizeShop.height ),
-                type : SHOP_TYPES.CLOTHES
-            });
-            if ( reserveObject( shop, world )) {
-                world.shops.push( shop );
-            }
-        }
-
-        // create buildings or shops every other each zone
-
-        if ( index % 2 === 0 ) {
-            const amount = randomInRangeInt( 2, Math.ceil( width / WorldCache.sizeBuilding.width ));
-console.warn("generate " + amount + " buildings for " + index + " iteration at coords " + centerX + " x " + centerY);
-            world.buildings.push(...generateGroup(
-                centerX, centerY, world, amount, BuildingFactory.create, width, 4, .33, [ WORLD_TILES.GROUND ]
-            ));
-        } else {
-            const amount = randomInRangeInt( 2, Math.ceil( width / WorldCache.sizeShop.width ));
-console.warn("generate " + amount + " shops for " + index + " iteration at coords " + centerX + " x " + centerY);
-            world.shops.push(...generateGroup(
-                centerX, centerY, world, amount, ( x, y, ) => {
-                    const shop = ShopFactory.create({ x, y, type: shopTypes[ createdShops % shopTypes.length ] });
-                    ++createdShops;
-                    return shop;
-                }, width, 4, .6, [ WORLD_TILES.GROUND ]
-            ));
-        }
+        amount = randomInRangeInt( 2, 3 );
+console.warn("generate " + amount + " shops for city " + (index + 1 ) + " at coords " + centerX + " x " + centerY);
+        generateGroup(
+            world.shops, width, height, centerX, centerY, world, amount, ( x, y, ) => {
+                return ShopFactory.create({ x, y, type: shopTypes[ world.shops.length % shopTypes.length ] });
+            }, sizeShop.width, [ WORLD_TILES.GROUND ]
+        );
     });
     return zones;
 }
@@ -480,51 +456,46 @@ function generateNumArrayFromSeed( aHash, aHashOffset, aHashEndOffset, aResultLe
 /**
  * Generate a group of Objects of the same type, these will be laid out in a circular pattern
  *
+ * @param {Array<Object>} out Array the group items should be pushed into
+ * @param {number} zoneWidth width of the zone within which the group should be generated
+ * @param {number} zoneHeight height of the zone within which the group should be generated
  * @param {number} centerX x-coordinate around which the group radius will be calculated
  * @param {number} centerY y-coordinate around which the group radius will be calculated
  * @param {Object} world
- * @param {number} amountToCreate
+ * @param {number} amountToCreate amount of items to create within this group
  * @param {Function} typeFactoryCreateFn factory function to create a new instance of the type
- * @param {number} circleRadius the radius of the circle
- * @param {number=} amountInCircle the amount of Objects within a single circle radius
- * @param {number=} radiusIncrement the multiplier by which the circle radius increments
+ * @param {number} circleRadius the radius of the circle (in tiles)
  * @param {Array<Number>=} optTileWhitelist optional list of tiles the group can be placed on
+ * @param {number=} amountInCircle optional amount of items to arrange within a circle
  */
-function generateGroup( centerX, centerY, world, amountToCreate, typeFactoryCreateFn,
-    circleRadius, amountInCircle = 4, radiusIncrement = .6, optTileWhitelist = null ) {
+function generateGroup( out, zoneWidth, zoneHeight, centerX, centerY, world, amountToCreate, typeFactoryCreateFn,
+    circleRadius, optTileWhitelist = null, amountInCircle = 4 ) {
     const { width, height } = typeFactoryCreateFn(); // tile dimensions implied by factory method
-    const out = [];
 
-    const degToRad  = Math.PI / 180;
-    const maxDistanceFromEdge = width + height; // in tiles
-    let incrementRadians      = ( 360 / amountInCircle ) * degToRad;
+    const degToRad          = Math.PI / 180;
+    const orgRadius         = circleRadius;
+    const orgAmountInCircle = 4;
 
-    let radians = degToRad;
-    let circle  = 0;
+    const radiusIncrement = .6;
+    let incrementRadians  = ( 360 / amountInCircle ) * degToRad;
+    let radians           = degToRad;
+    let itemsInCircle     = 0;
+    let circles           = 1;
 
-    const horEdge = world.width;// */  circleRadius;
-    const verEdge = world.height;// */ circleRadius;
+    const left   = centerX - ( zoneWidth  / 2 );
+    const right  = centerX + ( zoneWidth  / 2 );
+    const top    = centerY - ( zoneHeight / 2 );
+    const bottom = centerY + ( zoneHeight / 2 );
 
-    for ( let i = 0; i < amountToCreate; ++i ) {
+    while ( amountToCreate > 0 ) {
         let x = centerX + Math.sin( radians ) * circleRadius;
         let y = centerY + Math.cos( radians ) * circleRadius;
 
         // keep within bounds of map
 
-        if ( x < maxDistanceFromEdge ) {
-            x = maxDistanceFromEdge;
-        }
-        else if ( x > horEdge - maxDistanceFromEdge ) {
-            x = horEdge - maxDistanceFromEdge;
-            circleRadius *= radiusIncrement;
-        }
-
-        if ( y < maxDistanceFromEdge ) {
-            y = maxDistanceFromEdge;
-        }
-        else if ( y > verEdge - maxDistanceFromEdge ) {
-            y = verEdge - maxDistanceFromEdge;
-            circleRadius *= radiusIncrement;
+        if ( x < left || x > right || y < top || y > bottom ) {
+            console.warn("exceeded zone bounds");
+            return;
         }
 
         radians += incrementRadians;
@@ -540,17 +511,18 @@ function generateGroup( centerX, centerY, world, amountToCreate, typeFactoryCrea
             groupItem.x = reservedPosition.x;
             groupItem.y = reservedPosition.y;
             out.push( groupItem );
-            ++circle;
+            --amountToCreate;
         }
 
-        if ( circle === amountInCircle ) {
-            circle = 0;
-            circleRadius *= 2;
-            incrementRadians = ( 270 / amountInCircle ) * degToRad;
-            radians = 360 * degToRad * random();
+        if ( ++itemsInCircle === amountInCircle ) {
+            ++circles;
+            itemsInCircle    = 0;
+            circleRadius     = orgRadius * circles;
+            amountInCircle   = orgAmountInCircle * circles;
+            incrementRadians = ( 360 / amountInCircle ) * degToRad;
+            radians          = 360 * degToRad * random();
         }
     }
-    return out;
 }
 
 /**

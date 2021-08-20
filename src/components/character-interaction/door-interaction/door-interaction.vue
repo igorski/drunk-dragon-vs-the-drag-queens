@@ -78,7 +78,7 @@ export default {
                 case ItemTypes.HEALTHCARE:
                     return "healthcare";
             }
-            return "generic";
+            return null;
         },
     },
     methods: {
@@ -93,9 +93,7 @@ export default {
         interact( type ) {
             let list;
             // the characters intent reflects in the answers
-            // we mix up with some generic replies, but certain intents make a Queen be very direct
-            const isDirect    = [ ItemTypes.DRUGS, ItemTypes.LIQUOR ].includes( this.intent.type );
-            const messageType = isDirect || randomBool() ? this.i18nKeyForIntent : "generic";
+            const messageType = this.i18nKeyForIntent;
             switch ( type ) {
                 case 0:
                     list = this.$t( `answers.hi.${messageType}` );

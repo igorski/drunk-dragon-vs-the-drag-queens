@@ -8,15 +8,12 @@
         "give": "Give",
         "answers": {
             "hi": {
-                "generic": [
-                    "Hi.",
-                    "Hello."
-                ],
                 "jewelry": [
-                    "Girl, I LOVE your earrings! Can't go wrong with some accents right?"
+                    "Girl, I LOVE your earrings! Can't go wrong with some accents right?",
+                    "Oh, hello!"
                 ],
                 "clothes": [
-                    "Ooooh what do we have here ? Tubular booger look!",
+                    "Ooooh, what do we have here ? Tubular booger look!",
                     "Looking at you reminds me how far away payday is, I desperately need to make changes to my wardrobe."
                 ],
                 "liquor": [
@@ -27,15 +24,10 @@
                 ],
                 "healthcare": [
                     "Oooh, this headache is killing me... oh hey what's up?",
-                    "I'm sick to my stomach."
+                    "Ungh, did you hear that ? I'm afraid that's my stomach turning."
                 ]
             },
             "whatsInHere": {
-                "generic": [
-                    "Well wouldn't you like to know?",
-                    "You're not from around here are you? Buildings like these contain bars, restaurants, a hotel, the like.",
-                    "Shelter from the big bad world."
-                ],
                 "jewelry": [
                     "Pure unadulterated C-A-M-P."
                 ],
@@ -43,6 +35,7 @@
                     "The crème de la crème. I often find myself gagging at all the eleganza!"
                 ],
                 "liquor": [
+                    "Well wouldn't you like to know?",
                     "Rivers of sauce. As I remember it, I haven't actually been allowed in recently."
                 ],
                 "drugs": [
@@ -51,16 +44,14 @@
                     "Oodles of fun. Shame I can barely afford to get in myself these days."
                 ],
                 "healthcare": [
-                    "Anything but a pharmacy sadly..."
+                    "Shelter from the big bad world (dry heaves).",
+                    "You're not from around here are you? Buildings like these contain bars, restaurants, a hotel, the like. Anything but a pharmacy sadly..."
                 ]
             },
             "canIEnter": {
-                "generic": [
-                    "I'm sorry but I can't just let anyone in. We work with a list. Granted nobody is on that these days, it's mostly a matter of who-knows-who. And I don't know you.",
-                    "Look, I've had a long night and still have a long one ahead of me. Let's make this easier on both of us and just cut the chatter here. You want to go in and I won't let you."
-                ],
                 "jewelry": [
-                    "Can't change the rules. Though I might look the other way if you can convince me with a token of your affection."
+                    "Can't change the rules. Though I might look the other way if you can convince me with a token of your affection.",
+                    "I'm sorry but I can't just let anyone in. We work with a list. Granted nobody is on that these days, it's mostly a matter of who-knows-who. And I don't know you."
                 ],
                 "clothes": [
                     "I'm afraid I can't let just anyone in, we'd like to keep some sense of exclusivity going here. Your look isn't entirely bad but let's be honest, what were you thinking when you decided upon that dress?",
@@ -74,11 +65,11 @@
                     "You're asking me? Well, sure! However the door says \"No\". Now scram!"
                 ],
                 "healthcare": [
-                    "Are you still here ? You're no good for my headache."
+                    "Are you still here ? You're no good for my headache.",
+                    "Look, I've had a long night and still have a long one ahead of me. Let's make this easier on both of us and just cut the chatter here. You want to go in and I won't let you."
                 ]
             }
         },
-        "feelingSick": "Ungh, I'm feeling sick to my stomach.",
         "noThankYou": "No thank you.",
         "wrongItem": "I think we both have different standards.",
         "justWhatINeeded": "Oh wow, just what I needed! Thank you!"

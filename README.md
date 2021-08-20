@@ -80,15 +80,16 @@ npm run test
 * Drag swag/charisma == mana
 ** Show in status view
 
+* characters should be generated in spinning circle logic similar to generateGroups
+
 * on game over, fade in full screen of black before showing popup ?
 * shop intro and no items text should be unique per shop type
 * Do not repeat the same sentence in a conversation
 * Tweak conversations, also add intent specific replies and thank you's.
 * Randomize attackType for opponents
-* shop generation in cities needs to ensure no duplicate types!
-* when a shop has been successfully generated, rotate the deployment circle
 * create bar interactions
 
+* Queens inside bars should give hints : e.g. "there is a path to next city", "there is a mysterious island somewhere"
 * Queens inside buildings should either be woo'd or fought (and be generated again ;)
 * Place bar queens in building-factory according to same logic as drabs, ideally blocking a path
 * Do the effects of boost wear off at the right pace ?
@@ -98,7 +99,6 @@ npm run test
 * Different background colour for bar floors
 * Move WORLD_TYPE, BUILDING_TYPE, ...TILES etc out of factories and into definitions file
 * Leaving building from exit can put you somewhere completely else on the map!!
-* sometimes no shop is generated on first city > needs to be clothing!! and are there enough shops elsewhere?
 * Introduce new attack types at higher levels (e.g. nail slash)
 * Create heavily made up eyes, massive earrings and facial hair style
 * Generate objects on city roads and inside buildings similar to trees (make sure no roads are blocked!)

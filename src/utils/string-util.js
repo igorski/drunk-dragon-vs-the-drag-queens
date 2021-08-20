@@ -52,5 +52,6 @@ const SLUR_REPLACEMENTS = [
     [ "I'm", "Imma" ],
     [ "ai", "ey" ],
     [ "'ll'", "'lll'" ],
-    [ "Th", "Th-th" ]
+    [ "Th", "Th-th" ],
+    [ "ou", "ew" ]
 ];
