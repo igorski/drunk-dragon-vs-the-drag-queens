@@ -8,7 +8,7 @@ import WorldCache from "@/utils/world-cache";
 import { coordinateToIndex, indexToCoordinate } from "@/utils/terrain-util";
 import { findPath } from "@/utils/path-finder";
 
-let commit, dispatch; // Vuex store hooks
+let commit, getters, dispatch; // Vuex store hooks
 
 const DEBUG = process.env.NODE_ENV === "development";
 
@@ -46,15 +46,13 @@ export default class OvergroundRenderer extends sprite {
     constructor( store, width, height ) {
         super({ width, height, interactive: false }); // we maintain our internal event handler
 
-        commit   = store.commit;
-        dispatch = store.dispatch;
+        ({ commit, getters, dispatch } = store );
 
         /* class properties */
 
         /** @protected @type {number} */ this.horizontalTileAmount = 10;
         /** @protected @type {number} */ this.verticalTileAmount   = 10;
         /** @protected @type {Object} */ this._environment;
-        /** @protected @type {Object} */ this._player;
 
         /**
          * The list of tiles in the tiles list that are valid targets
@@ -132,11 +130,9 @@ export default class OvergroundRenderer extends sprite {
 
     /**
      * @param {Object} aWorld
-     * @param {Object} aPlayer
      */
-    render( aWorld, aPlayer ) {
+    render( aWorld ) {
         this._environment = aWorld;
-        this._player      = aPlayer;
 
         // create sprites
         this._playerSprite = new CharacterRenderer( SpriteCache.QUEEN, QUEEN_SHEET, aWorld.x, aWorld.y );
@@ -175,7 +171,7 @@ export default class OvergroundRenderer extends sprite {
      * override this in inheriting renderer classes.
      */
     getMaxWalkableTile() {
-        return getMaxWalkableTile( this._player );
+        return getMaxWalkableTile( getters.player );
     }
 
     /**
@@ -421,14 +417,15 @@ export default class OvergroundRenderer extends sprite {
         tx = Math.max( 0, Math.min( tx, cvsWidth  * this.horizontalTileAmount ));
         ty = Math.max( 0, Math.min( ty, cvsHeight * this.verticalTileAmount ));
 
-        const indexOfTile = coordinateToIndex( tx, ty, this._environment ); // translate coordinate to 1D list index
-        const targetTile  = terrain[ indexOfTile ];
+        const indexOfTile   = coordinateToIndex( tx, ty, this._environment ); // translate coordinate to 1D list index
+        const targetTile    = terrain[ indexOfTile ];
+        const isValidTarget = this.isValidTarget( targetTile );
 
         if ( DEBUG ) {
-            console.warn( `Clicked tile at ${tx} x ${ty} (player is at ${x.toFixed(2)} x ${y.toFixed(2)}) (local click pointer coordinates ${Math.round(pointerX)} x ${Math.round(pointerY)}), underlying terrain type: ${targetTile}` );
+            console.warn( `Clicked tile at ${tx} x ${ty} (player is at ${x.toFixed(2)} x ${y.toFixed(2)}) (local click pointer coordinates ${Math.round(pointerX)} x ${Math.round(pointerY)}), underlying terrain type: ${targetTile}. Is valid target: ${isValidTarget}` );
         }
 
-        if ( this.isValidTarget( targetTile )) {
+        if ( isValidTarget ) {
             this.navigateToTile( tx, ty );
             this.setCursor( CURSOR_LOCKED );
         } else {

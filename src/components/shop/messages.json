@@ -16,6 +16,7 @@
         "sell": "Sell",
         "quality": "Quality",
         "luxury": "Luxury",
+        "youAlreadyHaveAPairOfShoes": "You already have a pair of shoes. This is not one of those games where you can magically hold hundreds of items.",
         "confirmPurchase": "Confirm your purchase",
         "buyItemForPrice": "Buy {name} for ${price} ?",
         "insufficientFunds": "It seems you have insufficient funds to buy this item.",

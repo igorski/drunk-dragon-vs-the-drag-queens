@@ -83,14 +83,16 @@ npm run test
 * on game over, fade in full screen of black before showing popup ?
 * shop intro and no items text should be unique per shop type
 * Do not repeat the same sentence in a conversation
-* Tweak conversations, also add intent specific replies and thank yous. Don't use generics ?
+* Tweak conversations, also add intent specific replies and thank you's.
 * Randomize attackType for opponents
 * shop generation in cities needs to ensure no duplicate types!
 * when a shop has been successfully generated, rotate the deployment circle
+* create bar interactions
 
 * Queens inside buildings should either be woo'd or fought (and be generated again ;)
 * Place bar queens in building-factory according to same logic as drabs, ideally blocking a path
-
+* Do the effects of boost wear off at the right pace ?
+* Can we create an island with a cave entrance ?
 * When fighting other queens, make "vogue" an action (using drag swag)
 * When buying a clothes item, discard the existing one of the same type (show confirmation)
 * Different background colour for bar floors
@@ -102,12 +104,12 @@ npm run test
 * Generate objects on city roads and inside buildings similar to trees (make sure no roads are blocked!)
 * Buildings (and world edges) broken in Safari (must be similar to-render-at-edges-issue)?
 * Hotel/bed should be fully navigatable, not just bottom center tile
-* Show building floor level
+* Show building floor level in status view
 * Prevent creating double walls when generating floors (and restore skipped unit test)
 * Unit tests for hourNow !== lastHour in game-module.updateGame()
 * Tweak attack efficiency against drabs
 * Should running away not completely reposition the opponent but keep it somewhere within the screen?
-* Create cave level for extra excitement
+* Create cave level for extra excitement (is this the dragon's den?)
 * Implement swamp for extra excitement?
 * Do not save player walk effects when saving during walk (one save game got 'stuck')
 * Walking left/right on overground does weird jumps when using keyboard control?

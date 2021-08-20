@@ -6,6 +6,7 @@ import SpriteCache, { FURNITURE } from "@/utils/sprite-cache";
 import { BUILDING_TILES, getMaxWalkableTile } from "@/model/factories/building-factory";
 
 const DEBUG = process.env.NODE_ENV !== "production";
+let getters;
 
 export default class BuildingRenderer extends OvergroundRenderer {
     /**
@@ -15,6 +16,8 @@ export default class BuildingRenderer extends OvergroundRenderer {
      */
     constructor( store, width, height ) {
         super( store, width, height );
+        ({ getters } = store );
+
         this.validNavigationTargets = [ BUILDING_TILES.GROUND, BUILDING_TILES.STAIRS ];
     }
 
@@ -25,7 +28,7 @@ export default class BuildingRenderer extends OvergroundRenderer {
      * overrides as it uses the getMaxWalkableTile() method of a different factory !
      */
     getMaxWalkableTile() {
-        return getMaxWalkableTile( this._player );
+        return getMaxWalkableTile( getters.player );
     }
 
     /**

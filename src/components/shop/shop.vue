@@ -60,7 +60,7 @@ import sortBy           from "lodash/sortBy";
 import Modal            from "@/components/modal/modal";
 import InventoryList    from "@/components/shared/inventory-list/inventory-list";
 import { TWENTY_FOUR_HOURS } from "@/definitions/constants";
-import ItemTypes from "@/definitions/item-types";
+import ItemTypes, { SHOE_TYPES } from "@/definitions/item-types";
 import PriceTypes, { getPriceTypeForPrice } from "@/definitions/price-types";
 import { SHOP_TYPES }   from "@/model/factories/shop-factory";
 import InventoryActions from "@/model/actions/inventory-actions";
@@ -172,6 +172,10 @@ export default {
             return this.player.inventory.cash >= item.price;
         },
         handleBuyClick( item ) {
+            if ( SHOE_TYPES.includes( item.name ) &&
+                 this.player.inventory.items.some( i => SHOE_TYPES.includes( i.name ))) {
+                return this.openDialog({ message: this.$t( "youAlreadyHaveAPairOfShoes") });
+            }
             this.openDialog({
                 type: "confirm",
                 title: this.$t( "confirmPurchase" ),
