@@ -41,7 +41,7 @@
 </template>
 
 <script>
-import { mapGetters, mapActions } from "vuex";
+import { mapGetters, mapMutations, mapActions } from "vuex";
 import Modal               from "@/components/modal/modal";
 import { GAME_START_TIME } from "@/definitions/constants";
 import messages            from "./messages.json";
@@ -72,8 +72,12 @@ export default {
     },
     created() {
         this.stopSound();
+        this.setOpponent( null ); // reactivates locked menu items
     },
     methods: {
+        ...mapMutations([
+            "setOpponent",
+        ]),
         ...mapActions([
             "loadGame",
             "resetGame",

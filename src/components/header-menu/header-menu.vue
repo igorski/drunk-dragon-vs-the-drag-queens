@@ -63,7 +63,7 @@
                     <button
                         v-t="'statusInventory'"
                         type="button"
-                        :disabled="!hasActiveGame || !canOpenModalItems"
+                        :disabled="!hasActiveGame || isGameOver || !canOpenModalItems"
                         :title="$t('statusInventory')"
                         @click="openScreen('status')"
                     >

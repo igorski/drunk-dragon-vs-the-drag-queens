@@ -24,7 +24,10 @@
     <div class="dialog-window">
         <h4>{{ title }}</h4>
         <p>{{ message }}</p>
-        <div class="button-container">
+        <div
+            class="button-container"
+            :class="{ multiple: isConfirm }"
+        >
             <button
                 v-t="'ok'"
                 ref="confirmButton"
@@ -33,7 +36,7 @@
                 @click="handleConfirm"
             ></button>
             <button
-                v-if="type === 'confirm'"
+                v-if="isConfirm"
                 v-t="'cancel'"
                 ref="cancelButton"
                 type="button"
@@ -76,6 +79,11 @@ export default {
     data: () => ({
         focus: -1,
     }),
+    computed: {
+        isConfirm() {
+            return this.type === "confirm";
+        },
+    },
     watch: {
         focus( value ) {
             if ( value === 0 ) {
@@ -136,8 +144,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "@/styles/_variables.scss";
-@import "@/styles/_layout.scss";
+@import "@/styles/_variables";
+@import "@/styles/_layout";
 
 .dialog-window {
     @include overlay();
@@ -156,20 +164,8 @@ export default {
         color: $color-1;
         font-weight: bold;
     }
-}
 
-.button-container {
-    display: flex;
-
-    button {
-        display: inline;
-        width: 48%;
-        padding: $spacing-medium $spacing-large;
-    }
-}
-
-@media screen and ( max-width: $mobile-width ) {
-    .dialog-window {
+    @include mobile() {
         border-radius: 0;
         width: 100%;
         height: 100%;
@@ -178,6 +174,19 @@ export default {
             display: block;
             width: 100%;
         }
+    }
+}
+
+.button-container {
+    display: flex;
+
+    button {
+        display: inline;
+        padding: $spacing-medium $spacing-large;
+    }
+
+    &.multiple button {
+        width: 48%;
     }
 }
 </style>

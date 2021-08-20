@@ -55,10 +55,12 @@ export default {
                 value.forEach( notification => {
                     // create internal Value Object for the message
                     const notificationVO = { message: notification, visible: true, destroyed: false };
-                    this.queue.push( notificationVO );
 
                     // auto close after a short delay
-                    window.setTimeout( this.closeNotification.bind( this, notificationVO ), 5000 );
+                    const delay = 4000 + ( this.queue.filter(({ visible }) => visible ).length * 2000 );
+                    window.setTimeout( this.closeNotification.bind( this, notificationVO ), delay );
+
+                    this.queue.push( notificationVO );
                 });
                 this.clearNotifications();
             }
@@ -72,7 +74,7 @@ export default {
             if ( !notificationVO.visible ) {
                 return;
             }
-            // trigger 1 sec close animation (see css)
+            // trigger 1 sec close animation (see CSS)
             notificationVO.visible = false;
             window.setTimeout( this.removeNotification.bind( this, notificationVO ), 1000 );
         },
@@ -90,17 +92,17 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-    @import '@/styles/_variables.scss';
+@import "@/styles/_variables";
 
-    #notifications {
-      position: fixed;
-      z-index: 1000;
-      top: 45px;
-      right: 0;
-      width: 33%;
-      max-width: 300px;
+#notifications {
+    position: fixed;
+    z-index: 1000;
+    top: 45px;
+    right: 0;
+    width: 33%;
+    max-width: 300px;
 
-      .notification-window {
+    .notification-window {
         @include boxSize();
         display: block;
         position: relative;
@@ -115,12 +117,12 @@ export default {
         box-shadow: 0 0 0 rgba(0,255,255,0);
 
         &.destroyed {
-          display: none;
+            display: none;
         }
 
         &.active {
-          right: $spacing-medium;
-          box-shadow: 0 0 $spacing-small rgba(0,255,255,.35);
+            right: $spacing-medium;
+            box-shadow: 0 0 $spacing-small rgba(0,255,255,.35);
         }
 
         h3 {
@@ -129,36 +131,34 @@ export default {
         }
 
         p {
-          margin: $spacing-xsmall 0;
-        }
-      }
-    }
-
-    @media screen and ( min-width: $app-width ) {
-        .notification-window {
-           border-radius: $spacing-small;
+            margin: $spacing-xsmall 0;
         }
     }
 
-    @media screen and ( max-width: $mobile-width ) {
-      #notifications {
+    @include mobile() {
         width: 100%;
         max-width: 100%;
         left: 0;
         right: auto;
 
         .notification-window {
-          width: 100%;
-          left: 0;
-          right: auto;
-          top: -500px;
-          padding: $spacing-medium;
-          margin: 0;
+            width: 100%;
+            left: 0;
+            right: auto;
+            top: -500px;
+            padding: $spacing-medium;
+            margin: 0;
 
-          &.active {
-            top: 0;
-          }
+            &.active {
+                top: 0;
+            }
         }
-      }
     }
+}
+
+@media screen and ( min-width: $app-width ) {
+    .notification-window {
+        border-radius: $spacing-small;
+    }
+}
 </style>

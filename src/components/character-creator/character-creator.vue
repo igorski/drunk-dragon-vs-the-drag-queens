@@ -209,6 +209,7 @@ export default {
         &__form {
             display: block;
             width: 90%;
+            padding-bottom: $spacing-xlarge;
         }
         &__preview {
             display: block;

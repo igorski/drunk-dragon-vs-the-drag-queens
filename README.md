@@ -80,7 +80,6 @@ npm run test
 * Drag swag/charisma == mana
 ** Show in status view
 
-* notifications should disappear one by one
 * on game over, fade in full screen of black before showing popup ?
 * shop intro and no items text should be unique per shop type
 * Do not repeat the same sentence in a conversation
