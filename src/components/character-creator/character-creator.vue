@@ -8,12 +8,13 @@
                 :width="characterWidth"
                 :background="false"
             />
-            <transition-group name="slide">
+            <transition-group name="slide" tag="div" class="character-creator__form-wrapper">
                 <!-- form 1 : character name -->
-                <form v-if="form === 0"
-                      key="form-1"
-                      class="character-creator__form"
-                      @submit.prevent="goToForm(1)"
+                <form
+                    v-if="form === 0"
+                    key="form-1"
+                    class="character-creator__form"
+                    @submit.prevent="goToForm(1)"
                 >
                     <fieldset class="rpg-fieldset">
                         <div class="input">
@@ -44,10 +45,11 @@
                     </div>
                 </form>
                 <!-- form 2 character design -->
-                <form v-if="form === 1"
-                      key="form-2"
-                      class="character-creator__form"
-                      @submit.prevent="saveCharacter"
+                <form
+                    v-if="form === 1"
+                    key="form-2"
+                    class="character-creator__form"
+                    @submit.prevent="saveCharacter"
                 >
                     <fieldset class="rpg-fieldset">
                         <template v-if="character">
@@ -80,20 +82,22 @@
                                 <input type="range" min="0" :max="maxValues.jewelry - 1" v-model.number="appearance.jewelry" />
                             </div>
                         </template>
+                    </fieldset>
+                    <div class="button-group">
                         <button v-t="'randomize'"
                                 type="button"
                                 :title="$t('randomize')"
                                 class="rpg-button"
                                 @click="randomize"
                         ></button>
-                    </fieldset>
-                    <button
-                        v-t="'looksGood'"
-                        type="submit"
-                        :title="$t('save')"
-                        class="rpg-button rpg-button--submit"
-                        :disabled="!isValid"
-                    ></button>
+                        <button
+                            v-t="'looksGood'"
+                            type="submit"
+                            :title="$t('save')"
+                            class="rpg-button rpg-button--submit"
+                            :disabled="!isValid"
+                        ></button>
+                    </div>
                 </form>
             </transition-group>
         </div>
@@ -189,7 +193,24 @@ export default {
 .character-creator {
     @include window();
     width: 100%;
-    vertical-align: top;
+
+    &__form-wrapper {
+        position: relative;
+
+        @include mobile() {
+            padding-bottom: $spacing-xlarge; // to show button-group below fieldset
+        }
+    }
+
+    &__form {
+        top: 0;
+        width: 100%;
+
+        &.slide-enter-active,
+        &.slide-leave-active {
+            position: absolute;
+        }
+    }
 
     @include large() {
         &__wrapper {
@@ -200,16 +221,14 @@ export default {
             left: 375px;
             top: -125px;
         }
+        &__form {
+            width: 50%;
+        }
     }
 
     @include mobile() {
         fieldset {
             width: 100%;
-        }
-        &__form {
-            display: block;
-            width: 90%;
-            padding-bottom: $spacing-xlarge;
         }
         &__preview {
             display: block;

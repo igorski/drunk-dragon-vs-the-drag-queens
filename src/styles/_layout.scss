@@ -3,7 +3,7 @@
 /* mixins */
 
 @mixin window {
-    @include boxSize;
+    @include boxSize();
     background-color: $color-1;
     padding: $spacing-medium;
     vertical-align: top;

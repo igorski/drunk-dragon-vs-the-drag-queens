@@ -20,9 +20,17 @@
         }
 
         input[type=text] {
+            @include boxSize();
+            display: inline-block;
             padding: $spacing-medium;
             font-size: 14px;
             border-radius: 7px;
+        }
+
+        @include mobile() {
+            label, input[type=text] {
+                width: 50%;
+            }
         }
     }
 }
