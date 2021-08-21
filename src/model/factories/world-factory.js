@@ -9,15 +9,18 @@ import WorldCache                     from "@/utils/world-cache";
 import { reserveObject, checkIfFree } from "@/utils/map-util";
 import { generateDragQueenName }      from "@/utils/name-generator";
 import { findPath }                   from "@/utils/path-finder";
-import { random, randomInRangeInt }   from "@/utils/random-util";
 import CharacterActions               from "@/model/actions/character-actions";
 import BuildingFactory                from "./building-factory";
 import CharacterFactory               from "./character-factory";
 import EnvironmentFactory             from "./environment-factory";
 import ShopFactory, { SHOP_TYPES }    from "./shop-factory";
 import {
-    growTerrain, getSurroundingIndices, getSurroundingTiles, coordinateToIndex
+    growTerrain, getSurroundingIndices, getSurroundingTiles,
+    getRectangleForIndices, coordinateToIndex, indexToCoordinate
 } from "@/utils/terrain-util";
+import { random, randomBool, randomInRangeInt, randomFromList } from "@/utils/random-util";
+
+const DEBUG = process.env.NODE_ENV === "development";
 
 export const WORLD_TYPE = "Overground";
 
@@ -105,8 +108,9 @@ const WorldFactory =
         const minShopAmount = types.length * 6;
         const amountOfShopsToCreate = randomInRangeInt( minShopAmount, minShopAmount + HashUtil.charsToNum( shopHash ));
 
-        console.warn( amountOfShopsToCreate + " < shops to create outside of cities" );
-
+        if ( DEBUG ) {
+            console.warn( amountOfShopsToCreate + " < shops to create outside of cities" );
+        }
         generateGroup(
             world.shops, world.width, world.height, centerX, centerY, world, amountOfShopsToCreate, ( x, y, ) => {
                 return ShopFactory.create({ x, y, type: types[ world.shops.length % types.length ] });
@@ -114,6 +118,10 @@ const WorldFactory =
             [ WORLD_TILES.SAND, WORLD_TILES.GRASS ], // exclude GROUND (e.g. cities)
             8
         );
+
+        // create a single island within a large body of water (holds entrance to secret cave)
+
+        generateSecretIsland( world, 5 );
 
         // generate some characters that occupy some of the building entrances
 
@@ -354,7 +362,9 @@ function generateCities( hash, world ) {
         // 1. create buildings
 
         let amount = randomInRangeInt( 1, 4 );
+        if ( DEBUG ) {
 console.warn("generate " + amount + " buildings for city " + (index + 1 )+ " at coords " + centerX + " x " + centerY);
+        }
         generateGroup(
             world.buildings, width, height, centerX, centerY, world, amount,
             BuildingFactory.create, sizeBuilding.width, [ WORLD_TILES.GROUND ]
@@ -363,7 +373,9 @@ console.warn("generate " + amount + " buildings for city " + (index + 1 )+ " at 
         // 2. create shops
 
         amount = randomInRangeInt( 2, 3 );
+        if ( DEBUG ) {
 console.warn("generate " + amount + " shops for city " + (index + 1 ) + " at coords " + centerX + " x " + centerY);
+        }
         generateGroup(
             world.shops, width, height, centerX, centerY, world, amount, ( x, y, ) => {
                 return ShopFactory.create({ x, y, type: shopTypes[ world.shops.length % shopTypes.length ] });
@@ -494,7 +506,9 @@ function generateGroup( out, zoneWidth, zoneHeight, centerX, centerY, world, amo
         // keep within bounds of map
 
         if ( x < left || x > right || y < top || y > bottom ) {
-            console.warn("exceeded zone bounds");
+            if ( DEBUG ) {
+                console.warn( "exceeded zone bounds" );
+            }
             return;
         }
 
@@ -522,6 +536,53 @@ function generateGroup( out, zoneWidth, zoneHeight, centerX, centerY, world, amo
             incrementRadians = ( 360 / amountInCircle ) * degToRad;
             radians          = 360 * degToRad * random();
         }
+    }
+}
+
+/**
+ * Creates an island inside a body of water that contains
+ * the entrance to the secret cave.
+ */
+function generateSecretIsland( environment, islandSize ) {
+    const { width, height, terrain } = environment;
+    const waterSize = islandSize * 2; // ensures island is surrounded by water
+
+    const lakes = [];
+    for ( let index = 0, l = terrain.length; index < l; ++index ) {
+        if ( terrain[ index ] === WORLD_TILES.WATER ) {
+            const { x, y } = indexToCoordinate( index, environment );
+            const surroundingTiles = getSurroundingIndices( x, y, width, height, true, 10 );
+            if ( surroundingTiles.every( i => terrain[ i ] === WORLD_TILES.WATER )) {
+                lakes.push( surroundingTiles );
+            }
+        }
+    }
+    const lake = randomFromList( lakes );
+    if ( lake ) {
+        const lakeBounds = getRectangleForIndices( lake, environment );
+
+        if ( DEBUG ) {
+            console.warn( `creating island on one of ${lakes.length} possible bodies of water`, lakeBounds );
+        }
+        const halfSize   = Math.floor( islandSize / 2 );
+        const centerX    = lakeBounds.left + halfSize;
+        const centerY    = lakeBounds.top  + halfSize;
+        const startX     = centerX - halfSize;
+        const startY     = centerY - halfSize;
+        const endX       = centerX + halfSize;
+        const endY       = centerY + halfSize;
+
+        for ( let x = startX; x < endX; ++x ) {
+            for ( let y = startY; y < endY; ++y ) {
+                if (( x !== startX && x !== ( endX - 1 ) && y !== startY && y !== ( endY - 1 )) || randomBool() ) {
+                    terrain[ coordinateToIndex( x, y, environment )] = WORLD_TILES.SAND;
+                }
+            }
+        }
+        // TODO: create cave entrance bang in the center
+        terrain[ coordinateToIndex( centerX, centerY, environment )] = WORLD_TILES.TREE;
+    } else if ( DEBUG ) {
+        throw new Error( "failed to generate lake." );
     }
 }
 

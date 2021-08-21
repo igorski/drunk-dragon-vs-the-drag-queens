@@ -82,18 +82,18 @@ npm run test
 
 * characters should be generated in spinning circle logic similar to generateGroups
 
-* on game over, fade in full screen of black before showing popup ?
+* on game over, fade in full screen of black (teeth clamp animation?) before showing popup ?
 * shop intro and no items text should be unique per shop type
 * Do not repeat the same sentence in a conversation
 * Tweak conversations, also add intent specific replies and thank you's.
 * Randomize attackType for opponents
 * create bar interactions
+* sometimes shops are placed in cities that have exceeded their designed shop max ?
 
-* Queens inside bars should give hints : e.g. "there is a path to next city", "there is a mysterious island somewhere"
+* Queens inside bars should give hints : e.g. "there is a path to next city with a clothes shop", "there is a mysterious island somewhere", "some places are surrounded by water" "north from here..." (each queen should only give one of these hints!)
 * Queens inside buildings should either be woo'd or fought (and be generated again ;)
 * Place bar queens in building-factory according to same logic as drabs, ideally blocking a path
 * Do the effects of boost wear off at the right pace ?
-* Can we create an island with a cave entrance ?
 * When fighting other queens, make "vogue" an action (using drag swag)
 * When buying a clothes item, discard the existing one of the same type (show confirmation)
 * Different background colour for bar floors
@@ -109,7 +109,7 @@ npm run test
 * Unit tests for hourNow !== lastHour in game-module.updateGame()
 * Tweak attack efficiency against drabs
 * Should running away not completely reposition the opponent but keep it somewhere within the screen?
-* Create cave level for extra excitement (is this the dragon's den?)
+* Create cave level for extra excitement on the secret island (is this the dragon's den?)
 * Implement swamp for extra excitement?
 * Do not save player walk effects when saving during walk (one save game got 'stuck')
 * Walking left/right on overground does weird jumps when using keyboard control?

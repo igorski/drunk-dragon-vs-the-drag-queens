@@ -9,18 +9,17 @@ import { random, randomInRangeInt } from "@/utils/random-util";
  * @param {number} mapWidth the width of the map
  * @param {number} mapHeight the height of the map
  * @param {number} type the terrain type to grow
- * @param {number=} optChanceThreshhold optional chance threshold for final terrain size
+ * @param {number=} threshold optional chance threshold for final terrain size
  */
-export const growTerrain = ( map, mapWidth, mapHeight, type, optChanceThreshhold ) => {
-    const threshold = optChanceThreshhold ? optChanceThreshhold : 0.7;
+export const growTerrain = ( map, mapWidth, mapHeight, type, chanceThreshold = 0.7 ) => {
     let x, y, i, index;
 
     for ( x = 0, y = 0; y < mapHeight; x = ( ++x === mapWidth ? ( x % mapWidth + ( ++y & 0 ) ) : x )) {
         index = coordinateToIndex( x, y, { width: mapWidth });
         if ( map[ index ] === type ) {
-            const pi = getSurroundingIndices( x, y, mapWidth, mapHeight, random() > .7, 3 );
+            const pi = getSurroundingIndices( x, y, mapWidth, mapHeight, random() > 0.7, 3 );
             for ( i = 0; i < pi.length; i++ ) {
-                if ( random() > threshold ) {
+                if ( random() > chanceThreshold ) {
                     map[ pi[ i ] ] = type;
                 }
             }
@@ -56,6 +55,28 @@ export const getSurroundingIndices = ( x, y, mapWidth, mapHeight, inclDiagonals,
         }
     }
     return possibleIndices;
+};
+
+/**
+ * Gets the bounding box coordinates described by a list of indices
+ *
+ * @param {Array<number>} indices
+ * @param {Object} environment
+ * @return {{ left: number, right: number, top: number, bottom: number }}
+ */
+export const getRectangleForIndices = ( indices, environment ) => {
+    let left   = Infinity;
+    let right  = -Infinity;
+    let top    = Infinity;
+    let bottom = -Infinity;
+    indices.forEach( index => {
+        const { x, y } = indexToCoordinate( index, environment );
+        left   = Math.min( left, x );
+        right  = Math.max( right, x );
+        top    = Math.min( top, y );
+        bottom = Math.max( bottom, y );
+    });
+    return { left, right, top, bottom };
 };
 
 /**

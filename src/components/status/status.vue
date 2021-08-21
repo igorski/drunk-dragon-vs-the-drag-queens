@@ -15,6 +15,7 @@
                     <span
                         v-for="(debt, index) in unpaidDebts"
                         :key="`debt_${index}`"
+                        class="status-content--block"
                     >{{ debt }}</span>
                 </template>
             </div>
