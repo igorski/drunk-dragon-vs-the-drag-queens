@@ -119,7 +119,7 @@ export default {
                 tilesInWidth  = Math.round(( clientWidth / clientHeight ) * tilesInHeight );
             } else {
                 // portrait (ah, a modern phone...)
-                tilesInWidth  = WorldCache.tileWidth * ( clientWidth > 800 ? MIN_AMOUNT_OF_TILES : MIN_AMOUNT_OF_TILES * 0.75 );
+                tilesInWidth  = WorldCache.tileWidth * MIN_AMOUNT_OF_TILES;
                 tilesInHeight = Math.round(( clientHeight / clientWidth ) * tilesInWidth );
             }
             zcanvas.setDimensions( tilesInWidth, tilesInHeight );

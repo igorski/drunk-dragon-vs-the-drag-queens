@@ -109,7 +109,7 @@ npm run test
 * Unit tests for hourNow !== lastHour in game-module.updateGame()
 * Tweak attack efficiency against drabs
 * Should running away not completely reposition the opponent but keep it somewhere within the screen?
-* Create cave level for extra excitement on the secret island (is this the dragon's den?)
+* Create cave level for extra excitement on the secret island (contains dragon killing weapon!)
 * Implement swamp for extra excitement?
 * Do not save player walk effects when saving during walk (one save game got 'stuck')
 * Walking left/right on overground does weird jumps when using keyboard control?

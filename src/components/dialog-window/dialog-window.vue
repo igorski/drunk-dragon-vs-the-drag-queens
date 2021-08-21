@@ -155,6 +155,7 @@ export default {
 
     width: auto;
     height: auto;
+    max-width: 550px;
     padding: $spacing-small $spacing-large;
     border-radius: $spacing-small;
     box-shadow: 0 0 25px rgba(0,0,0,.5);
