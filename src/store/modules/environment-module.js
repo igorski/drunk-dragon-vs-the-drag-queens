@@ -167,11 +167,11 @@ export default {
             commit( "setHotel", hotel );
             commit( "setScreen", SCREEN_HOTEL );
         },
-        async enterBuilding({ state, getters, commit, dispatch }, building ) {
+        async enterBuilding({ getters, commit, dispatch }, building ) {
             // generate levels, terrains and characters inside the building if they
             // weren"t generated yet.
             if ( !building.floors?.length ) {
-                BuildingFactory.generateFloors( state.hash, building, getters.player );
+                BuildingFactory.generateFloors( building, getters.player );
             }
             commit( "setBuilding", building );
 

@@ -2,7 +2,6 @@ import { Map }            from "rot-js";
 import { QUEEN }          from "@/definitions/character-types";
 import PriceTypes         from "@/definitions/price-types";
 import CharacterActions   from "@/model/actions/character-actions";
-import HashUtil           from "@/utils/hash-util";
 import { FURNITURE }      from "@/utils/sprite-cache"
 import WorldCache         from "@/utils/world-cache";
 import { generateDragQueenName } from "@/utils/name-generator";
@@ -58,14 +57,12 @@ const BuildingFactory =
     },
 
     /**
-     * generate the terrain for the given building and game hash
-     * as separate floors
+     * generate the terrain for the given building as separate floors
      *
-     * @param {string} hash
      * @param {Object} building
      * @param {Object} player
      */
-    generateFloors( hash, building, player ) {
+    generateFloors( building, player ) {
         const playerLevel = player?.xp ?? 1;
         const floorAmount = playerLevel % 30 + MIN_FLOOR_AMOUNT;
         const floors      = [];

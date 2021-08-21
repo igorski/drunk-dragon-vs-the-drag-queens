@@ -376,16 +376,15 @@ describe( "Vuex environment module", () => {
             });
 
             it( "should be able to enter a building", () => {
-                const state         = { hash: "foo" };
                 const building      = { baz: "qux" };
                 const commit        = jest.fn();
                 const dispatch      = jest.fn();
                 const mockedGetters = { player: { baz: "qux" } };
                 mockUpdateFn        = jest.fn();
 
-                actions.enterBuilding({ state, getters: mockedGetters, commit, dispatch }, building );
+                actions.enterBuilding({ getters: mockedGetters, commit, dispatch }, building );
 
-                expect( mockUpdateFn ).toHaveBeenCalledWith( "generateFloors", state.hash, building, mockedGetters.player );
+                expect( mockUpdateFn ).toHaveBeenCalledWith( "generateFloors", building, mockedGetters.player );
                 expect( commit ).toHaveBeenCalledWith( "setBuilding", building );
                 expect( dispatch ).toHaveBeenCalledWith( "changeFloor", 0 );
             });
