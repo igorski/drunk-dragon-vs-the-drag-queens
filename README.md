@@ -80,8 +80,7 @@ npm run test
 * Drag swag/charisma == mana
 ** Show in status view
 
-* characters more intoxicated than boosted should not be able to dodge
-* make inventory scrollable (both in status and actions-list)
+* characters that are more intoxicated than boosted should not be able to dodge
 * jewelry increases charisma / attraction for QUEENS (but TOO much is a negative thing as it makes them jealous)
 
 * create helmet type hair (not user selectable), assign these to door guards. create door guard sprite

@@ -204,7 +204,6 @@ export default {
                 direction  : this.directionToIsland
             };
             const answerList = messages[ this.$i18n.locale ].answers;
-            // TODO need to be indices so we can interpolate.
             let list;
             switch ( type ) {
                 case 0:

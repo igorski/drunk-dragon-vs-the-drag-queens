@@ -1,7 +1,11 @@
 <template>
     <div>
         <h3 v-if="!listOnly" v-t="'inventory'"></h3>
-        <ul v-if="inventory.length" :class="{ compact: listOnly }">
+        <ul
+            v-if="inventory.length"
+            class="item-list"
+            :class="{ compact: listOnly }"
+        >
             <li
                 v-for="(item, index) in inventory"
                 :key="`item${index}`"
@@ -95,6 +99,12 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.item-list {
+    width: 100%;
+    max-height: 175px;
+    overflow-y: auto;
+}
+
 .compact {
     margin: 0;
 }
