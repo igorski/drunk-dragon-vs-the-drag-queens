@@ -11,7 +11,7 @@ jest.mock( "zcanvas", () => ({
 describe("Building factory", () => {
     it("should be able to assemble and disassemble a serialized building without loss of data", () => {
         const player   = CharacterFactory.create();
-        const building = BuildingFactory.create( 12, 7 );
+        const building = BuildingFactory.create({ x: 12, y: 7, id: 100 });
         BuildingFactory.generateFloors( building, player );
 
         const disassembled = BuildingFactory.disassemble( building );

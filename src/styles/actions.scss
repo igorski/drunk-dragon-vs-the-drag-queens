@@ -1,0 +1,32 @@
+@import "_layout";
+
+.actions {
+    @include boxSize();
+    border: 4px solid $color-1;
+    border-radius: $spacing-small;
+    padding: $spacing-medium;
+    display: block;
+    width: 100%;
+
+    @include large() {
+        display: inline-block;
+        width: 200px;
+    }
+
+    &__inline-group {
+        position: relative;
+
+        &--element {
+            position: inline-block;
+            margin-right: $spacing-medium;
+        }
+    }
+
+    &__list-container {
+        position: absolute;
+        z-index: 1;
+        left: $spacing-large;
+        top: -$spacing-large;
+        background-color: $color-3;
+    }
+}

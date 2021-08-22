@@ -1,4 +1,5 @@
-import CharacterFactory from '@/model/factories/character-factory';
+import CharacterFactory from "@/model/factories/character-factory";
+import { getUid }       from "@/utils/uid-util";
 
 export default
 {
@@ -14,14 +15,13 @@ export default
      * @param {Array<Object>=} characters optional characters in this Environment
      * @param {Array<Number>=} terrain describing the Environment tile types
      */
-    create( x = 0, y = 0, width = 0, height = 0, characters = [], terrain = [] ) {
+    create({ x = 0, y = 0, width = 0, height = 0, id = getUid(), characters = [], terrain = [] } = {}) {
         return {
-            x, y,
-            width, height,
+            x, y, width, height, id,
             characters,
             terrain,
             visitedTerrain: [],
-            type: 'DEFAULT', // to be extended in inheriting factories
+            type: "DEFAULT", // to be extended in inheriting factories
         };
     },
 
@@ -31,6 +31,7 @@ export default
      */
     assemble( data ) {
         return {
+            id: data.id,
             x: data.x,
             y: data.y,
             width: data.w,
@@ -54,7 +55,8 @@ export default
              c: environment.characters.map( c => CharacterFactory.disassemble( c )),
              t: environment.terrain,
              v: environment.visitedTerrain,
-             ty: environment.type
+             ty: environment.type,
+             id: environment.id
          };
      }
 };

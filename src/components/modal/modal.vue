@@ -52,66 +52,66 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-    @import '@/styles/_layout';
+@import '@/styles/_layout';
 
-    .modal {
-        @include overlay();
-        @include border();
-        @include boxSize();
-        background-color: $color-3;
-        overflow: hidden;
+.modal {
+    @include overlay();
+    @include border();
+    @include boxSize();
+    background-color: $color-3;
+    overflow: hidden;
 
+    &__content {
+        // modal header is 78px in height
+        $padding: 78px + $menu-height-mobile;
+        padding-bottom: $padding;
+        height: calc(100% - #{$padding});
+    }
+
+    @include large() {
+        max-width: $app-width;
+        max-height: 75vh;
+        box-sizing: border-box;
+        @include center(fixed);
+        top: calc(50% - 48px); // .ui parent container falls below menu
+
+        &__header {
+            padding: $spacing-medium $spacing-large;
+        }
         &__content {
-            // modal header is 78px in height
-            $padding: 78px + $menu-height-mobile;
-            padding-bottom: $padding;
-            height: calc(100% - #{$padding});
-        }
-
-        @include large() {
-            max-width: $app-width;
-            max-height: 75vh;
-            box-sizing: border-box;
-            @include center(fixed);
-            top: calc(50% - 48px); // .ui parent container falls below menu
-
-            &__header {
-                padding: $spacing-medium $spacing-large;
-            }
-            &__content {
-                padding-left: $spacing-large;
-                margin-right: $spacing-medium + $spacing-small;
-            }
-        }
-
-        @include mobile() {
-            // on mobile we want these popups to appear below the menu
-            &__header {
-                padding: $menu-height-mobile $spacing-medium 0 $spacing-medium;
-            }
-            &__content {
-                margin: 0 $spacing-medium $spacing-medium;
-            }
+            padding-left: $spacing-large;
+            margin-right: $spacing-medium + $spacing-small;
         }
     }
 
-    .close-button {
-        position: absolute;
-        top: $spacing-medium;
-        right: $spacing-medium;
-        cursor: pointer;
-        background: none;
-        border: 0;
-        font-size: 150%;
-
-        @include mobile() {
-            top: $menu-height-mobile + $spacing-medium;
+    @include mobile() {
+        // on mobile we want these popups to appear below the menu
+        &__header {
+            padding: $menu-height-mobile $spacing-medium 0 $spacing-medium;
+        }
+        &__content {
+            margin: 0 $spacing-medium $spacing-medium;
         }
     }
+}
 
-    .modal__content {
-        @include scrollableWindow();
-        @include boxSize();
+.close-button {
+    position: absolute;
+    z-index: 2;
+    top: $spacing-medium;
+    right: $spacing-medium;
+    cursor: pointer;
+    background: none;
+    border: 0;
+    font-size: 150%;
+
+    @include mobile() {
+        top: $menu-height-mobile + $spacing-medium;
     }
+}
 
+.modal__content {
+    @include scrollableWindow();
+    @include boxSize();
+}
 </style>

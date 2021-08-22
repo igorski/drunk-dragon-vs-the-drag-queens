@@ -80,26 +80,28 @@ npm run test
 * Drag swag/charisma == mana
 ** Show in status view
 
-* characters should be generated in spinning circle logic similar to generateGroups
+* characters more intoxicated than boosted should not be able to dodge
+* make inventory scrollable (both in status and actions-list)
+* jewelry increases charisma / attraction for QUEENS (but TOO much is a negative thing as it makes them jealous)
+
+* create helmet type hair (not user selectable), assign these to door guards. create door guard sprite
+* bar interaction : don't show negative charisma (max to 0), make conversation less friendly when this 0 charisma occurs
+* characters that are moderately boosted should have higher charisma towards others of the same state
 
 * on game over, fade in full screen of black (teeth clamp animation?) before showing popup ?
 * shop intro and no items text should be unique per shop type
+* first city should have door guard with liquor or medicine intent (as there are guaranteed to be these stores)
 * Do not repeat the same sentence in a conversation
 * Tweak conversations, also add intent specific replies and thank you's.
 * Randomize attackType for opponents
-* create bar interactions
 * sometimes shops are placed in cities that have exceeded their designed shop max ?
+* building floors should generate stairs with sufficient tiles around (to prevent not being able to navigate in a certain direction when entering at a corner)
 
-* Queens inside bars should give hints : e.g. "there is a path to next city with a clothes shop", "there is a mysterious island somewhere", "some places are surrounded by water" "north from here..." (each queen should only give one of these hints!)
-* Queens inside buildings should either be woo'd or fought (and be generated again ;)
+* characters should be generated in spinning circle logic similar to generateGroups
 * Place bar queens in building-factory according to same logic as drabs, ideally blocking a path
 * Do the effects of boost wear off at the right pace ?
 * When fighting other queens, make "vogue" an action (using drag swag)
-* When buying a clothes item, discard the existing one of the same type (show confirmation)
-* Different background colour for bar floors
-* Move WORLD_TYPE, BUILDING_TYPE, ...TILES etc out of factories and into definitions file
 * Leaving building from exit can put you somewhere completely else on the map!!
-* Introduce new attack types at higher levels (e.g. nail slash)
 * Create heavily made up eyes, massive earrings and facial hair style
 * Generate objects on city roads and inside buildings similar to trees (make sure no roads are blocked!)
 * Buildings (and world edges) broken in Safari (must be similar to-render-at-edges-issue)?
@@ -117,30 +119,30 @@ npm run test
 * Animate player position on map (pulsating circle)
 * Waypoint path finder should not go over exits when calculating path inside building (exists are only valid as destination tile)
 * Display product capabilities in shop display
-* make door drags expose their intent immediately, offer option to fight them (they should be stronger by a few levels)
+* offer option to fight door queens ? (they should be stronger by a few levels)
 * replace pines with more tropical trees
-* More attack types depending on item / level ? (certain levels learn new moves)
+* add store to sell fake nails (increases attack)
+* More attack types depending on item / level ?
 * Images for shop products
 * Dynamic components need a loader
 * Describe in manual how different properties of intoxication/boost affect charisma (also show this on-screen!)
 * should dragon get stronger / more drunk depending on hour of night ?
 * When fighting / entering building, environment coordinates are messed up?
-* player-module use of dispatch( "updateCharacters" ); where do we want to do this ?
-* add store to sell fake nails (increases attack)
 * changes to opponent should also reflect to appropriate world.characters instance (e.g. battle after run away should not restore health of dragon!)
 * Don't enter exit unless path ends at its exact coordinate
 * Can we give announcement of closing time when entering building?
 * Do not reposition when engaging in a battle (environmentactions.hitTest)
 * Identify shop types by their exterior
-* Item type elevator key to allow instant access to any floor
-* Don't generate scenery (trees) in front of doors!
 * Bug: When navigating by the world edge, tiles on the opposite end are also marked as visited
-* Create fast travel by introducing subway (can only travel to visited areas!)
+* Create fast travel by introducing subway (can only travel to visited areas!) ?
 * Overworld must become lighter when morning comes
 * Keep track of important dates (Christmas, New Year)
 * Fix popup of objects at screen edge
 
+CLEANUPS (not urgent) :
+
 * world-renderer isValidTarget|maxWalkableTile|and pre calc of waypoints is duplicating environment-actions unnecessarily!
+* Move WORLD_TYPE, BUILDING_TYPE, ...TILES etc out of factories and into definitions file
 * if you are feeling brave you can start using the unused tiles in the floor sheet in environment-bitmap-cacher for the corner types
 * setIntoxication should be generic update character effect (so it works with any character, not just player)?
 * Should we rename World-factory > Overground-factory ?? world.vue > map.vue ?

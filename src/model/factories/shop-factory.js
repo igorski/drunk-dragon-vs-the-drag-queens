@@ -25,7 +25,7 @@ const ShopFactory =
      * @param {Array<Object>=} items optional list of shop items
      * @param {number=} debt optional debt owed to the shop
      */
-    create({ x, y, type = null, items = [], debt = 0, id = getUid() }) {
+    create({ x, y, type = null, items = [], debt = 0, id = getUid() } = {}) {
         if ( type === null ) {
             type = randomFromList( Object.keys( SHOP_TYPES ));
         }

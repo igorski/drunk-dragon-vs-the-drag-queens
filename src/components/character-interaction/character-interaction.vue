@@ -1,6 +1,6 @@
 <template>
     <modal
-        :title="$t('conversation')"
+        :title="character.appearance.name"
         class="interaction-modal"
         @close="close()"
     >
@@ -19,12 +19,14 @@
                   class="thought-bubble"
                   @click="thought = null"
              >{{ thought }}</div>
-             <component
-                class="character-preview"
-                :is="characterComponent"
-                :character="character"
-                :width="characterWidth"
-            />
+             <center>
+                 <component
+                    class="character--preview"
+                    :is="characterComponent"
+                    :character="character"
+                    :width="characterWidth"
+                />
+            </center>
         </div>
     </modal>
 </template>
@@ -36,10 +38,8 @@ import ItemTypes from "@/definitions/item-types";
 import { FLOOR_TYPES } from "@/model/factories/building-factory";
 import { randomInRangeFloat } from "@/utils/random-util";
 import { slurWords } from "@/utils/string-util";
-import messages from "./messages.json";
 
 export default {
-    i18n: { messages },
     components: {
         Modal,
     },
@@ -52,8 +52,9 @@ export default {
             "dimensions",
         ]),
         ...mapGetters([
-            "character",
             "activeEnvironment",
+            "character",
+            "player",
         ]),
         characterComponent() {
             // TODO: currently we only interact with queens?
@@ -81,14 +82,18 @@ export default {
     },
     created() {
         const { properties } = this.character;
-        this.intoxication = properties.intent.type === ItemTypes.LIQUOR ? randomInRangeFloat( 0.35, 1 ) : properties.intoxication;
+        this.intoxication = properties.intoxication;
+        // door interactions with characters that have a liquor intent, should also slur to reflect their intent
+        if ( !this.isBarInteraction && properties.intent.type === ItemTypes.LIQUOR ) {
+            this.intoxication = randomInRangeFloat( 0.35, 1 );
+        }
     },
     methods: {
         setMessage( value ) {
             this.message = value;
         },
         close() {
-            this.$emit("close");
+            this.$emit( "close" );
         }
     },
 };
@@ -98,6 +103,10 @@ export default {
 @import "@/styles/_variables";
 
 .interaction-modal {
+    @include large() {
+        max-width: 515px;
+        height: 375px;
+    }
     overflow: visible; // speech bubble
     /deep/ .modal__content {
         overflow: visible !important;
@@ -110,9 +119,25 @@ export default {
     vertical-align: top;
 }
 
+.character {
+    @include large() {
+        position: absolute;
+        top: $spacing-large;
+        right: -$spacing-medium;
+    }
+    @include mobile() {
+        margin-top: $spacing-large;
+        width: 100%; // will center align preview
+    }
+
+    &--preview {
+        border: 4px solid $color-1;
+    }
+}
+
 @mixin bubble() {
     position: absolute;
-    z-index: 1;
+    z-index: 3;
     top: -$spacing-xlarge;
     font-family: sans-serif;
     font-size: 18px;
@@ -144,7 +169,7 @@ export default {
 
 .thought-bubble {
     @include bubble();
-    z-index: 2;
+    z-index: 4;
     display: flex;
     padding: 20px;
     border-radius: 30px;

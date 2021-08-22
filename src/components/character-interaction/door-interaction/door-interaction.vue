@@ -1,42 +1,77 @@
 <template>
-    <div>
-        <h3 v-t="'askQuestion'"></h3>
-        <div class="questions">
+    <div class="actions">
+        <h3 v-t="'actions'"></h3>
+        <div
+            class="actions__inline-group"
+            @mouseleave="setHoverItem( null )"
+        >
             <button
-                v-t="'hi'"
+                v-t="'askQuestion'"
                 type="button"
-                class="rpg-button"
-                :title="$t('hi')"
-                @click="interact(0)"
+                class="rpg-ghost-button actions__inline-group--element"
+                @touchstart="setHoverItem( 'question' )"
+                @mouseenter="setHoverItem( 'question' )"
+                @mouseleave="setHoverItem( null )"
             ></button>
-            <button
-                v-t="'whatsInHere'"
-                type="button"
-                class="rpg-button"
-                :title="$t('whatsInHere')"
-                @click="interact(1)"
-            ></button>
-            <button
-                v-t="'canIEnter'"
-                type="button"
-                class="rpg-button"
-                :title="$t('canIEnter')"
-                @click="interact(2)"
-            ></button>
+            <ul
+                class="actions actions__list-container"
+                v-show="hoverItem === 'question'"
+                @mouseenter="setHoverItem( 'question' )"
+            >
+                <li>
+                    <button
+                        v-t="'hi'"
+                        type="button"
+                        class="rpg-ghost-button"
+                        @click="interact(0)"
+                    ></button>
+                </li>
+                <li>
+                    <button
+                        v-t="'whatsInHere'"
+                        type="button"
+                        class="rpg-ghost-button"
+                        @click="interact(1)"
+                    ></button>
+                </li>
+                <li>
+                    <button
+                        v-t="'canIEnter'"
+                        type="button"
+                        class="rpg-ghost-button"
+                        @click="interact(2)"
+                    ></button>
+                </li>
+            </ul>
         </div>
-        <h3 v-t="'giveItem'"></h3>
-        <div class="actions">
-            <inventory-list
-                v-model="selectedItem"
-                class="inventory-list"
-            />
+        <div
+            class="actions__inline-group"
+            @mouseleave="setHoverItem( null )"
+        >
             <button
-                v-t="'give'"
+                v-t="'giveItem'"
                 type="button"
-                class="rpg-button give-button"
-                :title="$t('give')"
-                :disabled="!selectedItem"
-                @click="giveItem()"
+                :disabled="!player.inventory.items.length"
+                class="rpg-ghost-button actions__inline-group--element"
+                @touchstart="setHoverItem( 'inventory' )"
+                @mouseenter="setHoverItem( 'inventory' )"
+            ></button>
+            <inventory
+                v-show="hoverItem === 'inventory'"
+                :player="player"
+                :auto-apply="false"
+                list-only
+                class="actions actions__list-container"
+                @mouseenter="setHoverItem( 'inventory' )"
+                @select="giveItem( $event )"
+            />
+        </div>
+        <div class="actions__inline-group">
+            <button
+                v-t="'leave'"
+                type="button"
+                class="rpg-ghost-button"
+                @click="leave()"
             ></button>
         </div>
     </div>
@@ -44,8 +79,9 @@
 
 <script>
 import { mapGetters, mapMutations, mapActions } from "vuex";
-import InventoryList from "@/components/shared/inventory-list/inventory-list";
 import ItemTypes from "@/definitions/item-types";
+import Inventory from "@/components/inventory/inventory";
+import ActionsUI from "@/mixins/actions-ui";
 import { randomBool, randomFromList, randomInRangeFloat } from "@/utils/random-util";
 
 import messages from "./messages.json";
@@ -53,14 +89,13 @@ import messages from "./messages.json";
 export default {
     i18n: { messages },
     components: {
-        InventoryList,
+        Inventory,
     },
-    data: () => ({
-        selectedItem: null,
-    }),
+    mixins: [ ActionsUI ],
     computed: {
         ...mapGetters([
             "character",
+            "player",
         ]),
         intent() {
             return this.character.properties.intent;
@@ -77,14 +112,16 @@ export default {
                     return "drugs";
                 case ItemTypes.HEALTHCARE:
                     return "healthcare";
+                case ItemTypes.FOOD:
+                    return "food";
             }
             return null;
         },
     },
     methods: {
         ...mapMutations([
-            "showNotification",
             "removeCharacter",
+            "showNotification",
         ]),
         ...mapActions([
             "buyItem",
@@ -107,13 +144,13 @@ export default {
             }
             this.updateMessage( randomFromList( list ));
         },
-        async giveItem() {
+        async giveItem( item ) {
             this.thought = "";
-            if ( this.intent.type !== this.selectedItem.type ) {
+            if ( this.intent.type !== item.type ) {
                 this.updateMessage( this.$t( "noThankYou" ));
                 return;
             }
-            if ( await this.giveItemToCharacter({ item: this.selectedItem, character: this.character }) ) {
+            if ( await this.giveItemToCharacter({ item, character: this.character }) ) {
                 this.updateMessage( this.$t( "justWhatINeeded" ));
                 window.setTimeout(() => {
                     this.$emit( "close" );
@@ -126,16 +163,14 @@ export default {
         },
         updateMessage( message ) {
             this.$emit( "message", message );
-        }
+        },
+        leave() {
+            this.$emit( "close" );
+        },
     }
 };
 </script>
 
 <style lang="scss" scoped>
-@import "@/styles/_variables";
-
-.inventory-list,
-.give-button {
-    display: inline !important;
-}
+@import "@/styles/actions";
 </style>

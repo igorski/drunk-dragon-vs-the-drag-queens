@@ -32,13 +32,14 @@ export const WORLD_TILES = {
     GRASS    : 1,
     SAND     : 2,
     ROAD     : 3,
-    WATER    : 4, // can traverse water when wearing flippers
-    MOUNTAIN : 5,
-    TREE     : 6,
-    NOTHING  : 7
+    CAVE     : 4,
+    WATER    : 5, // can traverse water when wearing flippers
+    MOUNTAIN : 6,
+    TREE     : 7,
+    NOTHING  : 8
 };
 
-const MAX_WALKABLE_TILE = WORLD_TILES.ROAD;
+const MAX_WALKABLE_TILE = WORLD_TILES.CAVE;
 /**
  * Get the highest index within the tiles list that given character can walk on.
  * Depending on our inventory / other character properties we can navigate over
@@ -58,7 +59,7 @@ const WorldFactory =
      */
     create() {
         const size  = 8;
-        const world = EnvironmentFactory.create( size / 2, size / 2, size, size );
+        const world = EnvironmentFactory.create({ x: size / 2, y: size / 2, width: size, height: size });
 
         world.type      = WORLD_TYPE;
         world.buildings = [];
@@ -112,7 +113,7 @@ const WorldFactory =
             console.warn( amountOfShopsToCreate + " < shops to create outside of cities" );
         }
         generateGroup(
-            world.shops, world.width, world.height, centerX, centerY, world, amountOfShopsToCreate, ( x, y, ) => {
+            world.shops, world.width, world.height, centerX, centerY, world, amountOfShopsToCreate, ({ x, y }) => {
                 return ShopFactory.create({ x, y, type: types[ world.shops.length % types.length ] });
             }, Math.round( world.width / 5 ),
             [ WORLD_TILES.SAND, WORLD_TILES.GRASS ], // exclude GROUND (e.g. cities)
@@ -377,7 +378,7 @@ console.warn("generate " + amount + " buildings for city " + (index + 1 )+ " at 
 console.warn("generate " + amount + " shops for city " + (index + 1 ) + " at coords " + centerX + " x " + centerY);
         }
         generateGroup(
-            world.shops, width, height, centerX, centerY, world, amount, ( x, y, ) => {
+            world.shops, width, height, centerX, centerY, world, amount, ({ x, y }) => {
                 return ShopFactory.create({ x, y, type: shopTypes[ world.shops.length % shopTypes.length ] });
             }, sizeShop.width, [ WORLD_TILES.GROUND ]
         );
@@ -482,7 +483,7 @@ function generateNumArrayFromSeed( aHash, aHashOffset, aHashEndOffset, aResultLe
  */
 function generateGroup( out, zoneWidth, zoneHeight, centerX, centerY, world, amountToCreate, typeFactoryCreateFn,
     circleRadius, optTileWhitelist = null, amountInCircle = 4 ) {
-    const { width, height } = typeFactoryCreateFn(); // tile dimensions implied by factory method
+    const { width, height } = typeFactoryCreateFn({}); // tile dimensions implied by factory method
 
     const degToRad          = Math.PI / 180;
     const orgRadius         = circleRadius;
@@ -515,7 +516,7 @@ function generateGroup( out, zoneWidth, zoneHeight, centerX, centerY, world, amo
         radians += incrementRadians;
 
         // generate instance of item
-        const groupItem = typeFactoryCreateFn( Math.round( x ), Math.round( y ));
+        const groupItem = typeFactoryCreateFn({ x: Math.round( x ), y: Math.round( y ) });
 
         // reserve object at position nearest to targetX and targetY
         const reservedPosition = reserveObject( groupItem, world, out, optTileWhitelist );
@@ -579,8 +580,8 @@ function generateSecretIsland( environment, islandSize ) {
                 }
             }
         }
-        // TODO: create cave entrance bang in the center
-        terrain[ coordinateToIndex( centerX, centerY, environment )] = WORLD_TILES.TREE;
+        // create cave entrance bang in the center
+        terrain[ coordinateToIndex( centerX, centerY, environment )] = WORLD_TILES.CAVE;
     } else if ( DEBUG ) {
         throw new Error( "failed to generate lake." );
     }

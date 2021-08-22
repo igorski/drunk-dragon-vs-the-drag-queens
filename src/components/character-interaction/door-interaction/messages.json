@@ -1,11 +1,12 @@
 {
     "en-US": {
-        "askQuestion": "Ask question",
+        "askQuestion": "Ask a question",
         "giveItem": "Give item",
         "hi": "Hi",
         "whatsInHere": "What's in here?",
         "canIEnter": "Can I enter?",
         "give": "Give",
+        "leave": "Leave",
         "answers": {
             "hi": {
                 "jewelry": [
@@ -25,6 +26,9 @@
                 "healthcare": [
                     "Oooh, this headache is killing me... oh hey what's up?",
                     "Ungh, did you hear that ? I'm afraid that's my stomach turning."
+                ],
+                "food": [
+                    "Hi..."
                 ]
             },
             "whatsInHere": {
@@ -46,6 +50,9 @@
                 "healthcare": [
                     "Shelter from the big bad world (dry heaves).",
                     "You're not from around here are you? Buildings like these contain bars, restaurants, a hotel, the like. Anything but a pharmacy sadly..."
+                ],
+                "food": [
+                    "Well, fine dining you won't find here but at least there is something! Which is more to say than out here..."
                 ]
             },
             "canIEnter": {
@@ -67,6 +74,9 @@
                 "healthcare": [
                     "Are you still here ? You're no good for my headache.",
                     "Look, I've had a long night and still have a long one ahead of me. Let's make this easier on both of us and just cut the chatter here. You want to go in and I won't let you."
+                ],
+                "food": [
+                    "Get me something to eat and I might turn a blind eye to the instructions I was given."
                 ]
             }
         },

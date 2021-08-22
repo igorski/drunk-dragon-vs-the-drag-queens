@@ -41,6 +41,14 @@ export default {
             type: Boolean,
             default: false,
         },
+        /**
+         * When item is selected, apply it automatically to the player (via confirmation)
+         * When false, select event is emitted to be handled externally.
+         */
+        autoApply: {
+            type: Boolean,
+            default: true,
+        },
     },
     computed: {
         inventory() {
@@ -55,6 +63,9 @@ export default {
         ]),
         handleInventoryClick( inventoryEntry ) {
             const { text, value } = inventoryEntry;
+            if ( !this.autoApply ) {
+                return this.$emit( "select", value );
+            }
             this.openDialog({
                 type: "confirm",
                 title: this.$t( "confirmUsage" ),

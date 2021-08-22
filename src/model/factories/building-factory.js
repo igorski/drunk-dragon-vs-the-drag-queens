@@ -45,9 +45,9 @@ const MAX_ROOM_SIZE     = MIN_ROOM_SIZE * 3;
 
 const BuildingFactory =
 {
-    create( x = 0, y = 0 ) {
+    create({ x = 0, y = 0, id } = {}) {
         const { width, height } = WorldCache.sizeBuilding;
-        const building = EnvironmentFactory.create( x, y, width, height );
+        const building = EnvironmentFactory.create({ x, y, width, height, id });
 
         building.type   = BUILDING_TYPE;
         building.floor  = NaN; // the current floor within the building where the player is at
@@ -135,7 +135,6 @@ const BuildingFactory =
      */
     assemble( data ) {
         const out  = EnvironmentFactory.assemble( data );
-
         out.floor  = data.f ?? NaN,
         out.floors = ( data.fs ?? [] ).map( floor => ({
             ...EnvironmentFactory.assemble( floor ),
@@ -215,7 +214,7 @@ function createFloor( width, height, terrain = [], floorType, player ) {
     const environment = { width, height, terrain }; // temporarily used for Object positioning
     const characters  = [];
     const out = {
-        ...EnvironmentFactory.create( 0, 0, width, height, characters, terrain ),
+        ...EnvironmentFactory.create({ x: 0, y: 0, width, height, characters, terrain }),
         type: BUILDING_TYPE,
         floorType,
         exits: [],

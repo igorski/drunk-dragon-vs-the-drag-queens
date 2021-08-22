@@ -28,7 +28,10 @@
     >
         <div class="actions">
             <h3 v-t="'actions'"></h3>
-            <div class="actions__inline-group">
+            <div
+                class="actions__inline-group"
+                @mouseleave="setHoverItem( null )"
+            >
                 <button
                     v-t="'attack'"
                     type="button"
@@ -36,7 +39,6 @@
                     class="rpg-ghost-button actions__inline-group--element"
                     @touchstart="setHoverItem( 'attack' )"
                     @mouseenter="setHoverItem( 'attack' )"
-                    @mouseleave="setHoverItem( null )"
                 ></button>
                 <ul
                     class="actions actions__list-container"
@@ -60,7 +62,10 @@
                 class="rpg-ghost-button"
                 @click="run()"
             ></button>
-            <div class="actions__inline-group">
+            <div
+                class="actions__inline-group"
+                @mouseleave="setHoverItem( null )"
+            >
                 <button
                     v-t="'useItem'"
                     type="button"
@@ -75,7 +80,6 @@
                     list-only
                     class="actions actions__list-container"
                     @mouseenter="setHoverItem( 'inventory' )"
-                    @mouseleave="setHoverItem( null )"
                     @select="setPlayerTurn( false )"
                 />
             </div>
@@ -103,6 +107,7 @@ import { QUEEN, DRAGON } from "@/definitions/character-types";
 import { SCREEN_GAME } from "@/definitions/screens";
 import Modal           from "@/components/modal/modal";
 import Inventory       from "@/components/inventory/inventory";
+import ActionsUI       from "@/mixins/actions-ui";
 import CharacterStatus from "./character-status/character-status";
 import messages        from "./messages.json";
 
@@ -113,10 +118,10 @@ export default {
         Inventory,
         CharacterStatus,
     },
+    mixins: [ ActionsUI ],
     data: () => ({
         timeout: null,
         messages: [],
-        hoverItem: null,
         playerStats: {
             xp: 0,
             level: 1,
@@ -204,9 +209,6 @@ export default {
             "attackPlayer",
             "runFromOpponent"
         ]),
-        setHoverItem( item ) {
-            this.hoverItem = item;
-        },
         async attack( type ) {
             const { success, prepareResult, damage } = await this.attackOpponent({ type });
             const name = this.opponent?.appearance?.name;
@@ -252,37 +254,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "@/styles/_layout.scss";
-
-.actions {
-    border: 4px solid $color-1;
-    border-radius: $spacing-small;
-    padding: $spacing-medium;
-    display: block;
-    width: 100%;
-
-    @include large() {
-        display: inline-block;
-        width: 200px;
-    }
-
-    &__inline-group {
-        position: relative;
-
-        &--element {
-            position: inline-block;
-            margin-right: $spacing-medium;
-        }
-    }
-
-    &__list-container {
-        position: absolute;
-        z-index: 1;
-        left: $spacing-large;
-        top: -$spacing-large;
-        background-color: $color-3;
-    }
-}
+@import "@/styles/actions";
 
 .attack-list {
     display: inline !important;

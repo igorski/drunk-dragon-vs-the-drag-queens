@@ -1,5 +1,48 @@
 {
     "en-US": {
-        
+        "actions": "Actions",
+        "askQuestion": "Ask question",
+        "analyze": "Analyze",
+        "useItem": "Use item",
+        "slap": "Slap",
+        "leave": "Leave",
+        "hi": "Hi",
+        "whatsGoingOn": "What's going on?",
+        "needSomeHelp": "I need some help",
+        "answers": {
+            "hi": [
+                "Hello."
+            ],
+            "whatsGoingOn": [
+                "Not much since we spent our time hiding in here ever since that pesky Dragon came.",
+                "Being locked up isn't that bad, but the hotel keepers are exploiting the situation by charging us so much just to rent a room for the day.",
+                "Not much to do than have a drink to pass the time."
+            ],
+            "iDontKnowYou": [
+                "Help ? I don't really know you.",
+                "I'd gladly help friends, but we ain't there yet.",
+                "People are more inclided to help those they have something in common with."
+            ],
+            "needSomeHelp": [
+                "There are people that sell certain goods, you won't find them in the cities though.",
+                "I heard there is a clothes shop in a city that's connected via a sand path to the center zone.",
+                "The other day I was talking to another Queen who mentioned that there is an island somewhere. Must be hard to reach in heels, haha.",
+                "Some places of importance are surrounded by water",
+                "I've heard that the Dragon can be beat permanently. As long as you have the right weapon.",
+                "There is an island {direction} from here. Never been there though as I couldn't cross the water."
+            ]
+        },
+        "charisma": "Charisma",
+        "charismaPct": "{pct}%",
+        "seemsHighlyDrunk": "Seems flat out drunk",
+        "seemsIntoxicated": "Seems quite intoxicated",
+        "seemsLittleTipsy": "Seems a little tipsy",
+        "seemsHighlyBoosted": "Seems coked out of their mind",
+        "seemsHyper": "Seems a tad hyper",
+        "seemsSlightlyTense": "Seems slightly tense",
+        "north": "north",
+        "south": "south",
+        "west": "west",
+        "east": "east"
     }
 }
