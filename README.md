@@ -85,7 +85,7 @@ npm run test
 * jewelry increases charisma / attraction for QUEENS (but TOO much is a negative thing as it makes them jealous)
 
 * create helmet type hair (not user selectable), assign these to door guards. create door guard sprite
-* bar interaction : don't show negative charisma (max to 0), make conversation less friendly when this 0 charisma occurs
+* bar interaction : make conversation less friendly when 0/low charisma occurs
 * characters that are moderately boosted should have higher charisma towards others of the same state
 
 * on game over, fade in full screen of black (teeth clamp animation?) before showing popup ?

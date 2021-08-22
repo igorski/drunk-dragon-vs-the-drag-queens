@@ -41,6 +41,8 @@ export const slurWords = ( text, intoxication = 0 ) => {
  */
 export const formatPercentage = number => parseFloat(( number * 100 ).toFixed( 2 ).replace( ".00", "" ));
 
+export const firstName = name => name?.split( " " )[ 0 ];
+
 /* internal properties */
 
 // TODO: these are very English centered

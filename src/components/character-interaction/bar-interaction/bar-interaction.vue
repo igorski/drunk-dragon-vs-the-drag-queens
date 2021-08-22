@@ -88,7 +88,6 @@
                 @mouseenter="setHoverItem( 'inventory' )"
             />
         </div>
-        {{ directionToIsland }}
         <div class="actions__inline-group">
             <button
                 v-t="'slap'"
@@ -116,7 +115,7 @@ import Inventory from "@/components/inventory/inventory";
 import { WORLD_TILES } from "@/model/factories/world-factory";
 import ActionsUI from "@/mixins/actions-ui";
 import { randomFromList } from "@/utils/random-util";
-import { formatPercentage } from "@/utils/string-util";
+import { formatPercentage, firstName } from "@/utils/string-util";
 import { indexToCoordinate } from "@/utils/terrain-util";
 import messages from "./messages.json";
 
@@ -138,7 +137,7 @@ export default {
         ]),
         /* character properties */
         charisma() {
-            return CharacterActions.getCharisma( this.player, this.character );
+            return Math.max( 0, CharacterActions.getCharisma( this.player, this.character ));
         },
         formattedCharisma() {
             return formatPercentage( this.charisma );
@@ -188,37 +187,54 @@ export default {
     },
     methods: {
         ...mapMutations([
+            "removeCharacter",
             "setScreen",
         ]),
         ...mapActions([
             "startBattle",
         ]),
         interact( type ) {
+            if ( this.locked ) {
+                return;
+            }
+            // all possible interpolation keys (this is a bit overkill but hey, it works for now)
+            const opts = {
+                playerName : firstName( this.player.appearance.name ),
+                name       : firstName( this.character.appearance.name ),
+                direction  : this.directionToIsland
+            };
+            const answerList = messages[ this.$i18n.locale ].answers;
+            // TODO need to be indices so we can interpolate.
             let list;
             switch ( type ) {
                 case 0:
-                    list = this.$t( "answers.hi" );
+                    list = answerList[ "hi" ];
                     break;
                 case 1:
-                    list = this.$t( "answers.whatsGoingOn" );
+                    list = answerList[ "whatsGoingOn" ];
                     break;
                 case 2:
                     // Queens only help those they like
-                    if ( this.charisma > 0.5 ) {
-                        list = this.$t( "answers.needSomeHelp", { direction: this.directionToIsland } );
+                    if ( Math.round( this.charisma * 100 ) >= 50 ) {
+                        this.answers[ type ] = null;
+                        list = answerList[ "needSomeHelp" ];
                         // interaction goal met, remove character
+                        this.locked = true;
                         window.setTimeout(() => {
                             this.leave();
                             this.removeCharacter( this.character );
                         }, 5000 );
                     } else {
-                        list = this.$t( "answers.iDontKnowYou" );
+                        list = answerList[ "iDontKnowYou" ];
                     }
                     break;
             }
             const answerMessage  = this.answers[ type ] || randomFromList( list );
             this.answers[ type ] = answerMessage; // provide the same answer per type per interaction
-            this.updateMessage( answerMessage );
+            this.updateMessage( Object.entries( opts ).reduce(( acc, [ key, value ] ) => {
+                acc = acc.replace( `{${key}}`, value, acc );
+                return acc;
+            }, answerMessage ));
         },
         fight() {
             this.startBattle( this.character );

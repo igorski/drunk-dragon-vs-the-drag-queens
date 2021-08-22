@@ -11,7 +11,9 @@
         "needSomeHelp": "I need some help",
         "answers": {
             "hi": [
-                "Hello."
+                "Hello.",
+                "Hi {playerName}.",
+                "Hi, I'm {name}."
             ],
             "whatsGoingOn": [
                 "Not much since we spent our time hiding in here ever since that pesky Dragon came.",
