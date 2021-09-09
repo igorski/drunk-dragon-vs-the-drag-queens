@@ -21,7 +21,7 @@
 * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 <template>
-    <div class="rpg">
+    <div class="rpg" :class="{ wide: showWideUI }">
         <template v-if="loading">
             <transition name="fade">
                 <img src="@/assets/animations/loader.svg" class="loader" />
@@ -139,6 +139,9 @@ export default {
         hasActiveGame() {
             return !!this.player;
         },
+        showWideUI() {
+            return this.screen === SCREEN_GAME_OVER;
+        },
     },
     watch: {
         gameState( value ) {
@@ -175,6 +178,14 @@ export default {
             this.setScreen( SCREEN_TITLE );
         }
         this.setLoading( false );
+
+        // DEBUG helpers during development
+
+        if ( process.env.NODE_ENV === "development" ) {
+            window.rpg = {
+                setScreen: this.setScreen,
+            };
+        }
     },
     methods: {
         ...mapMutations([
@@ -244,6 +255,11 @@ export default {
 
         @include mobile() {
             margin-top: $menu-height-mobile;
+        }
+        &.wide {
+            .ui {
+                max-width: 100%;
+            }
         }
     }
     .loader {

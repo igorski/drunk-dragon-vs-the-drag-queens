@@ -12,6 +12,12 @@
     }
 }
 
+@mixin portrait {
+    @media (orientation: portrait) {
+        @content;
+    }
+}
+
 @mixin center( $position: absolute ) {
     position: $position;
     top: 50%;

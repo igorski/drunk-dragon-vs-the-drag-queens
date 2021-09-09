@@ -75,6 +75,9 @@ npm run test
 
 ## TODO
 
+* Don't type per letter, but per word (solves jump on word wrap)
+* Create cave level for extra excitement on the secret island (contains dragon killing weapon!)
+* Implement dragon kill and game-won routines / screens
 * getDamageForAttack needs to take opponent defense properties into account, e.g.: clothing can increase defense
 
 * Drag swag/charisma == mana
@@ -87,7 +90,6 @@ npm run test
 * bar interaction : make conversation less friendly when 0/low charisma occurs
 * characters that are moderately boosted should have higher charisma towards others of the same state
 
-* on game over, fade in full screen of black (teeth clamp animation?) before showing popup ?
 * shop intro and no items text should be unique per shop type
 * first city should have door guard with liquor or medicine intent (as there are guaranteed to be these stores)
 * Do not repeat the same sentence in a conversation
@@ -110,7 +112,6 @@ npm run test
 * Unit tests for hourNow !== lastHour in game-module.updateGame()
 * Tweak attack efficiency against drabs
 * Should running away not completely reposition the opponent but keep it somewhere within the screen?
-* Create cave level for extra excitement on the secret island (contains dragon killing weapon!)
 * Implement swamp for extra excitement?
 * Do not save player walk effects when saving during walk (one save game got 'stuck')
 * Walking left/right on overground does weird jumps when using keyboard control?
