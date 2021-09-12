@@ -182,8 +182,14 @@ export default {
         // DEBUG helpers during development
 
         if ( process.env.NODE_ENV === "development" ) {
+            const { getters, commit } = this.$store;
             window.rpg = {
-                setScreen: this.setScreen,
+                setScreen   : this.setScreen,
+                getPosition : () => ({ x: getters.activeEnvironment.x, y: getters.activeEnvironment.y }),
+                setPosition : ( x, y ) => {
+                    commit( "setXPosition", { value: x });
+                    commit( "setYPosition", { value: y });
+                }
             };
         }
     },

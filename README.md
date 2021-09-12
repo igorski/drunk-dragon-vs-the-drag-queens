@@ -73,6 +73,11 @@ Running unit tests:
 npm run test
 ```
 
+#### Debug helpers
+
+Certain useful methods are defined inside a _rpg_ Object which is scoped on Window.
+See the _created_-hook in _rpg.vue_ for details.
+
 ## TODO
 
 * Don't type per letter, but per word (solves jump on word wrap)
@@ -95,6 +100,7 @@ npm run test
 * Do not repeat the same sentence in a conversation
 * Tweak conversations, also add intent specific replies and thank you's.
 * Randomize attackType for opponents
+* Miss and hit success randomization needs to take previous misses into account to regain excitement
 * sometimes shops are placed in cities that have exceeded their designed shop max ?
 * building floors should generate stairs with sufficient tiles around (to prevent not being able to navigate in a certain direction when entering at a corner)
 
