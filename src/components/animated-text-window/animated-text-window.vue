@@ -42,14 +42,15 @@ export default {
         }
     },
     data: () => ({
-        ticks: 0,
+        words : [], // sentence split into individual words
+        index : 0,  // index of last visible word
     }),
     computed: {
         textSnippet() {
-            return this.text.substr( 0, this.ticks );
+            return this.words.slice( 0, this.index ).join( " " );
         },
         total() {
-            return this.text.length;
+            return this.words.length;
         },
     },
     watch: {
@@ -57,7 +58,8 @@ export default {
             immediate: true,
             handler( value ) {
                 this.clearInterval();
-                this.ticks = 0;
+                this.words  = value.split( " " );
+                this.index  = 0;
                 this.handleInterval();
             }
         }
@@ -67,20 +69,24 @@ export default {
     },
     methods: {
         handleInterval() {
-            if ( ++this.ticks >= this.total ) {
+            if ( ++this.index >= this.total ) {
                 this.displayFullText();
             } else {
                 // the interval is actually a series of timeouts as we alternate
                 // between character type speed and add occassional pauses
-                let timeout = randomInRangeInt( MIN_TYPE_SPEED, MAX_TYPE_SPEED );
-                if ( this.text.charAt( this.ticks - 1 ) === "." ) {
+                const lastWord    = this.words[ this.index - 1 ];
+                const currentWord = this.words[ this.index ];
+                let timeout = randomInRangeInt( MIN_TYPE_SPEED, MAX_TYPE_SPEED ) * currentWord.length;
+                // slightly longer pause on end of sentence
+                if ( lastWord?.endsWith( "." )) {
                     timeout += 650;
+                    console.warn("exteeeend");
                 }
                 this.textInterval = window.setTimeout( this.handleInterval.bind( this ), timeout );
             }
         },
         handleClick() {
-            if ( this.ticks < this.total ) {
+            if ( this.index < this.total ) {
                 this.displayFullText();
             } else {
                 window.clearTimeout( this.completeTimeout );
@@ -89,7 +95,7 @@ export default {
         },
         displayFullText() {
             this.clearInterval();
-            this.ticks = this.total;
+            this.index = this.total;
             this.completeTimeout = window.setTimeout(() => {
                 this.$emit( "displayed" );
             }, FINAL_DURATION );
