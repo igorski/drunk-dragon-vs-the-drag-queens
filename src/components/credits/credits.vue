@@ -68,6 +68,11 @@ export default {
                 title: "Crosshair pack (200x)",
                 author: "Kenney",
                 href: "https://opengameart.org/content/crosshair-pack-200%C3%97"
+            },
+            {
+                title: "RPG Weapons and tools",
+                author: "PracticalNPC",
+                href: "https://opengameart.org/content/rpg-weapons-and-tools"
             }
         ],
     }),

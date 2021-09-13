@@ -1,7 +1,8 @@
-import { Map }            from "rot-js";
 import { QUEEN }          from "@/definitions/character-types";
+import ItemTypes, { MAGIC_SWORD } from "@/definitions/item-types";
 import PriceTypes         from "@/definitions/price-types";
 import CharacterActions   from "@/model/actions/character-actions";
+import ItemFactory        from "@/model/factories/item-factory";
 import { FURNITURE }      from "@/utils/sprite-cache"
 import WorldCache         from "@/utils/world-cache";
 import { generateDragQueenName } from "@/utils/name-generator";
@@ -14,12 +15,15 @@ import {
     positionAtFirstFreeTileType, positionAtLastFreeTileType, positionAtRandomFreeTileType,
     coordinateToIndex, getRandomFreeTilePosition, assertSurroundingTilesOfTypeAroundPoint
 } from "@/utils/terrain-util";
+import ExecuteWithRetry from "@/utils/execute-with-retry";
 import { reserveObject } from "@/utils/map-util";
+import { generateMaze }  from "@/utils/maze-util";
 
 export const BUILDING_TYPE = "Building";
 export const FLOOR_TYPES = {
-    BAR: 0,
-    HOTEL: 1
+    BAR   : 0,
+    HOTEL : 1,
+    CAVE  : 2
 };
 
 /**
@@ -42,6 +46,11 @@ const MIN_FLOOR_AMOUNT  = 3;
 const MIN_CORRIDOR_SIZE = 1;
 const MIN_ROOM_SIZE     = MIN_CORRIDOR_SIZE * 4;
 const MAX_ROOM_SIZE     = MIN_ROOM_SIZE * 3;
+const TILE_DEFINITION   = {
+    nothing : BUILDING_TILES.NOTHING,
+    ground  : BUILDING_TILES.GROUND,
+    wall    : BUILDING_TILES.WALL
+};
 
 const BuildingFactory =
 {
@@ -61,12 +70,17 @@ const BuildingFactory =
      *
      * @param {Object} building
      * @param {Object} player
+     * @param {Number=} floorAmount optional amount of floors will be randomized to player level
+     * @param {String=} floorType optional type will otherwised be randomized between BAR and HOTEL
      */
-    generateFloors( building, player ) {
+    generateFloors( building, player, floorAmount = 0, floorType = null ) {
         const playerLevel = player?.xp ?? 1;
-        const floorAmount = playerLevel % 30 + MIN_FLOOR_AMOUNT;
         const floors      = [];
-        const floorTypes  = Object.values( FLOOR_TYPES );
+        const floorTypes  = [ FLOOR_TYPES.BAR, FLOOR_TYPES.HOTEL ];
+        floorAmount       = floorAmount ? floorAmount : playerLevel % 30 + MIN_FLOOR_AMOUNT;
+
+        // when generating for a cave the floor is massive
+        const minSize = floorType === FLOOR_TYPES.CAVE ? 80 : 0;
 
         // generate terrain for each floor
 
@@ -74,8 +88,8 @@ const BuildingFactory =
         let i, floorWidth, floorHeight, minRoomWidth, minRoomHeight, maxRoomWidth, maxRoomHeight;
 
         for ( i = 0; i < floorAmount; ++i ) {
-            floorWidth    = Math.round( randomInRangeInt( 0, 50 )) + 10;
-            floorHeight   = Math.round( randomInRangeInt( 0, 50 )) + 10;
+            floorWidth    = minSize || Math.round( randomInRangeInt( minSize, 50 )) + 10;
+            floorHeight   = minSize || Math.round( randomInRangeInt( minSize, 50 )) + 10;
             // size of the rooms / corridors within the floor
             // the only thing that makes a room a corridor is when its size if belows the MIN_ROOM_SIZE
             minRoomWidth  = Math.round( randomInRangeInt( MIN_CORRIDOR_SIZE, MIN_ROOM_SIZE ));
@@ -90,12 +104,15 @@ const BuildingFactory =
 
             // a bit bruteforce sillyness as every now and then ROT fails to create a terrain, just retry
             let tries = 255;
-            const generate = (lastError = null) => {
+            const generate = ( lastError = null ) => {
                 if ( --tries === 0 ) {
                     return lastError;
                 }
                 try {
-                    return digger( floorWidth, floorHeight, minRoomWidth, minRoomHeight, maxRoomWidth, maxRoomHeight );
+                    return generateMaze(
+                        TILE_DEFINITION, floorWidth, floorHeight, minRoomWidth, minRoomHeight,
+                        maxRoomWidth, maxRoomHeight
+                    );
                 } catch ( e ) {
                     return generate( e );
                 }
@@ -116,15 +133,15 @@ const BuildingFactory =
 
             terrain[ positionAtFirstFreeTileType( terrain, BUILDING_TILES.GROUND ) ] = BUILDING_TILES.STAIRS;
 
-            let floorType = randomBool() ? FLOOR_TYPES.BAR : FLOOR_TYPES.HOTEL;
+            let randomizedFloorType = randomBool() ? FLOOR_TYPES.BAR : FLOOR_TYPES.HOTEL;
             if ( i === maxFloor ) {
                 // the last floor should always be a hotel, ensure there is a hotel tile
-                floorType = FLOOR_TYPES.HOTEL;
+                randomizedFloorType = FLOOR_TYPES.HOTEL;
             } else {
                 // all floors except for the last one have an the exit to the next floor
                 terrain[ positionAtLastFreeTileType( terrain, BUILDING_TILES.GROUND ) ] = BUILDING_TILES.STAIRS;
             }
-            floors.push( createFloor( floorWidth, floorHeight, terrain, floorType, player ));
+            floors.push( createFloor( floorWidth, floorHeight, terrain, floorType || randomizedFloorType, player ));
         }
         building.floors = floors; // commit the floors to the Building
     },
@@ -233,24 +250,45 @@ function createFloor( width, height, terrain = [], floorType, player ) {
     // create hotel
 
     if ( floorType === FLOOR_TYPES.HOTEL ) {
-        let tries = 255; // let's not recurse forever
-        while ( true ) {
+        const success = ExecuteWithRetry(() => {
             const priceList = [ PriceTypes.AVERAGE, PriceTypes.EXPENSIVE, PriceTypes.LUXURY ];
             const price = Math.round(( randomFromList( priceList ) * random() ) + ( player.level * 2 ));
             const { x, y } = getRandomFreeTilePosition( out, BUILDING_TILES.GROUND );
             const hotel = { x, y, ...WorldCache.sizeHotel, price };
             const position = reserveObject( hotel, out );
             if ( position ) {
-console.warn("generated hotel.");
                 hotel.x = position.x;
                 hotel.y = position.y;
                 out.hotels.push( hotel );
-                break;
-            } else if ( --tries === 0 ) {
-console.error("DRAT! (could not place hotel)");
-                floorType = out.floorType = FLOOR_TYPES.BAR;
-                break;
             }
+            return !!position;
+        });
+        if ( success ) {
+console.warn("generated hotel.");
+        } else {
+console.error("DRAT! (could not place hotel)");
+            floorType = out.floorType = FLOOR_TYPES.BAR;
+        }
+    }
+
+    // create items
+
+    if ( floorType === FLOOR_TYPES.CAVE ) {
+        const success = ExecuteWithRetry(() => {
+            const { x, y } = getRandomFreeTilePosition( out, BUILDING_TILES.GROUND );
+            const item = { x, y, width: 1, height: 1, ...ItemFactory.create( ItemTypes.WEAPON, MAGIC_SWORD ) };
+            const position = reserveObject( item, out );
+            if ( position ) {
+                item.x = position.x;
+                item.y = position.y;
+                out.items.push( item );
+                console.warn( "generated sword at " + position.x + " x " + position.y,out );
+            }
+            return !!position;
+        }, 1024 );
+
+        if ( !success ) {
+            console.error("DRAT! (could not place sword!!)");
         }
     }
 
@@ -266,61 +304,3 @@ console.error("DRAT! (could not place hotel)");
     }
     return out;
 };
-
-function digger( roomWidth, roomHeight, minRoomWidth, minRoomHeight, maxRoomWidth, maxRoomHeight ) {
-    // do size - 1 since algorithm puts rooms up against side, and we need to create walls there later
-    const digger = new Map.Digger( roomWidth - 1, roomHeight - 1, {
-        roomWidth      : [ minRoomWidth,  maxRoomWidth  ], /* room minimum and maximum width */
-        roomHeight     : [ minRoomHeight, maxRoomHeight ], /* room minimum and maximum height */
-        corridorLength : [ 3, 10 ], /* corridor minimum and maximum length */
-        dugPercentage  : 0.2, /* we stop after this percentage of floor area has been dug out */
-        timeLimit      : 1000 /* we stop after this much time has passed (msec) */
-    });
-    const map = [];
-
-    // init output terrain map
-
-    for ( let x = 0; x < roomWidth; ++x ) {
-        map[ x ] = new Array( roomHeight ).fill( BUILDING_TILES.NOTHING );
-    }
-
-    // create map
-    digger.create(( x, y, tile ) => {
-        switch( tile ) {
-            case 1:
-                map[ x + 1 ][ y + 1 ] = BUILDING_TILES.NOTHING;
-                break;
-            case 0:
-                map[ x + 1 ][ y + 1 ] = BUILDING_TILES.GROUND;
-                break;
-        }
-    });
-    const xl = map.length;
-    const yl = map[ 0 ].length;
-
-    // setup walls
-    for ( let x = 0; x < xl; ++x ) {
-        for ( let y = 0; y < yl; ++y ) {
-            if ( map[ x ][ y ] === BUILDING_TILES.GROUND ) {
-                for ( let xx = x - 1; xx <= x + 1 && xx > 0; ++xx ) {
-                    for ( let yy = y - 1; yy <= y + 1 && yy > 0; ++yy ) {
-                        if ( map[ xx ][ yy ] === BUILDING_TILES.NOTHING ) {
-                            map[ xx ][ yy ] = BUILDING_TILES.WALL;
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    // convert two dimensional array to one dimensional terrain map
-
-    const terrain = [];
-
-    for ( let x = 0; x < xl; ++x ) {
-        for ( let y = 0; y < yl; ++y ) {
-            terrain[ y * xl + x ] = map[ x ][ y ];
-        }
-    }
-    return terrain;
-}

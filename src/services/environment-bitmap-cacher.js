@@ -531,7 +531,15 @@ function getSheet( environment, tileDescription )
 }
 
 function getFloorSprite({ floorType }) {
-    return floorType === FLOOR_TYPES.HOTEL ? SpriteCache.FLOOR_HOTEL : SpriteCache.FLOOR_BAR;
+    switch ( floorType ) {
+        default:
+        case FLOOR_TYPES.BAR:
+            return SpriteCache.FLOOR_BAR;
+        case FLOOR_TYPES.HOTEL:
+            return SpriteCache.FLOOR_HOTEL;
+        case FLOOR_TYPES.CAVE:
+            return SpriteCache.FLOOR_CAVE;
+    }
 }
 
 /**

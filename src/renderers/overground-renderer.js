@@ -27,14 +27,19 @@ const { tileWidth, tileHeight, sizeBuilding, sizeShop } = WorldCache;
 /* building / Object types */
 
 const BUILDING = {
-    bitmap: SpriteCache.BUILDING,
-    width: sizeBuilding.width * tileWidth,
-    height: sizeBuilding.height * tileHeight
+    bitmap : SpriteCache.BUILDING,
+    width  : sizeBuilding.width  * tileWidth,
+    height : sizeBuilding.height * tileHeight
 };
 const SHOP = {
-    bitmap: SpriteCache.SHOP,
-    width: sizeShop.width * tileWidth,
-    height: sizeShop.height * tileHeight
+    bitmap : SpriteCache.SHOP,
+    width  : sizeShop.width  * tileWidth,
+    height : sizeShop.height * tileHeight
+};
+const ITEMS = {
+    bitmap : SpriteCache.ITEMS,
+    width  : tileWidth,
+    height : tileHeight
 };
 
 export default class OvergroundRenderer extends sprite {
@@ -266,10 +271,7 @@ export default class OvergroundRenderer extends sprite {
                                   sourceX, sourceY, canvasWidth, canvasHeight,
                                   targetX, targetY, canvasWidth, canvasHeight );
 
-        const { buildings, shops, characters } = world;
-
-        renderObjects( aCanvasContext, buildings, visibleTiles, BUILDING );
-        renderObjects( aCanvasContext, shops,     visibleTiles, SHOP );
+        this.renderObjects( aCanvasContext, world, visibleTiles );
 
         // transform lighting
 
@@ -277,7 +279,7 @@ export default class OvergroundRenderer extends sprite {
 
         // render characters
 
-        this.renderCharacters( aCanvasContext, characters, visibleTiles );
+        this.renderCharacters( aCanvasContext, world.characters, visibleTiles );
         this._playerSprite.render( aCanvasContext, vx, vy, left, top );
 
         // draw path when walking to waypoint
@@ -290,37 +292,10 @@ export default class OvergroundRenderer extends sprite {
         this.renderUI( aCanvasContext );
     }
 
-    applyLighting( aCanvasContext, canvasWidth, canvasHeight ) {
-        const orgComp = aCanvasContext.globalCompositeOperation;
-
-        aCanvasContext.globalAlpha = 0.8; // something between 0.3 and 0.95 as time progresses ?
-        aCanvasContext.globalCompositeOperation = "multiply";
-        aCanvasContext.fillStyle = "#262373"; // see _colors.scss
-        aCanvasContext.fillRect( 0, 0, canvasWidth, canvasHeight );
-
-        aCanvasContext.globalAlpha = 1;
-        aCanvasContext.globalCompositeOperation = orgComp;
-        /*
-        // get raw pixel values
-        const imageData = aCanvasContext.getImageData( 0, 0, canvasWidth, canvasHeight );
-        const pixels    = imageData.data;
-        const factor    = 0.5;
-        // modify each pixel
-        for ( let i = 0; i < pixels.length; i += 4 ) {
-           // red is pixels[i];
-           // green is pixels[i + 1];
-           // blue is pixels[i + 2];
-           // alpha is pixels[i + 3];
-           // all values are integers between 0 and 255
-           // do with them whatever you like. Here we are reducing the color volume to 75%
-           // without affecting the alpha channel
-           pixels[ i ]     *= factor / 2; // red
-           pixels[ i + 1 ] *= factor / 2; // green
-           pixels[ i + 2 ] *= factor; // blue
-        }
-        // write modified pixels back to canvas
-        aCanvasContext.putImageData( imageData, 0, 0 );
-        */
+    renderObjects( aCanvasContext, environment, visibleTiles ) {
+        renderObjects( aCanvasContext, environment.buildings, visibleTiles, BUILDING );
+        renderObjects( aCanvasContext, environment.shops,     visibleTiles, SHOP );
+        renderObjects( aCanvasContext, environment.items,     visibleTiles, ITEMS, 16 );
     }
 
     renderCharacters( aCanvasContext, characters = [], { left, top, right, bottom }) {
@@ -357,6 +332,39 @@ export default class OvergroundRenderer extends sprite {
                 }
             }
         }
+    }
+
+    applyLighting( aCanvasContext, canvasWidth, canvasHeight ) {
+        const orgComp = aCanvasContext.globalCompositeOperation;
+
+        aCanvasContext.globalAlpha = 0.8; // something between 0.3 and 0.95 as time progresses ?
+        aCanvasContext.globalCompositeOperation = "multiply";
+        aCanvasContext.fillStyle = "#262373"; // see _colors.scss
+        aCanvasContext.fillRect( 0, 0, canvasWidth, canvasHeight );
+
+        aCanvasContext.globalAlpha = 1;
+        aCanvasContext.globalCompositeOperation = orgComp;
+        /*
+        // get raw pixel values
+        const imageData = aCanvasContext.getImageData( 0, 0, canvasWidth, canvasHeight );
+        const pixels    = imageData.data;
+        const factor    = 0.5;
+        // modify each pixel
+        for ( let i = 0; i < pixels.length; i += 4 ) {
+           // red is pixels[i];
+           // green is pixels[i + 1];
+           // blue is pixels[i + 2];
+           // alpha is pixels[i + 3];
+           // all values are integers between 0 and 255
+           // do with them whatever you like. Here we are reducing the color volume to 75%
+           // without affecting the alpha channel
+           pixels[ i ]     *= factor / 2; // red
+           pixels[ i + 1 ] *= factor / 2; // green
+           pixels[ i + 2 ] *= factor; // blue
+        }
+        // write modified pixels back to canvas
+        aCanvasContext.putImageData( imageData, 0, 0 );
+        */
     }
 
     renderWaypoints( aCanvasContext, left, top, halfHorizontalTileAmount, halfVerticalTileAmount ) {
@@ -474,7 +482,7 @@ export default class OvergroundRenderer extends sprite {
 
 /* internal methods */
 
-function renderObjects( aCanvasContext, objectList, { left, top, right, bottom }, objectType ) {
+function renderObjects( aCanvasContext, objectList = [], { left, top, right, bottom }, objectType, optTileSize = 0 ) {
     const { tileWidth, tileHeight } = WorldCache;
     const { bitmap, width, height } = objectType;
     let targetX, targetY;
@@ -498,10 +506,14 @@ function renderObjects( aCanvasContext, objectList, { left, top, right, bottom }
         {
             targetX = ( x - left ) * tileWidth;
             targetY = ( y - top )  * tileHeight;
-            targetX -= (( width  - tileWidth )  * .5 ); // align horizontally
+            targetX -= (( width  - tileWidth )  * 0.5 ); // align horizontally
             targetY -= (( height - tileHeight )); // entrance is on lowest side
 
-            aCanvasContext.drawImage( bitmap, targetX, targetY, width, height );
+            aCanvasContext.drawImage(
+                bitmap, targetX, targetY,
+                optTileSize || width,
+                optTileSize || height
+            );
 
             // add visual distinction to shop types
             // TODO: these will be different sprites in final version

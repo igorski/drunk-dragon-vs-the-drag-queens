@@ -28,6 +28,7 @@ export const preloadAssets = () =>
         { src: `${assetRoot}building.png`,        target: SpriteCache.BUILDING },
         { src: `${assetRoot}floor_bar.png`,       target: SpriteCache.FLOOR_BAR },
         { src: `${assetRoot}floor_hotel.png`,     target: SpriteCache.FLOOR_HOTEL },
+        { src: `${assetRoot}floor_cave.png`,      target: SpriteCache.FLOOR_CAVE },
         { src: `${assetRoot}grass.png`,           target: SpriteCache.GRASS },
     //    { src: `${assetRoot}road.png`,            target: SpriteCache.ROAD },
         { src: `${assetRoot}rock.png`,            target: SpriteCache.ROCK },
@@ -38,6 +39,7 @@ export const preloadAssets = () =>
         { src: `${assetRoot}water.png`,           target: SpriteCache.WATER },
         { src: `${assetRoot}crosshairs.png`,      target: SpriteCache.CROSSHAIRS },
         { src: `${assetRoot}furniture.png`,       target: SpriteCache.FURNITURE },
+        { src: `${assetRoot}items.png`,           target: SpriteCache.ITEMS },
         { src: `${assetRoot}sheet_drab.png`,      target: SpriteCache.DRAB },
         { src: `${assetRoot}sheet_queen.png`,     target: SpriteCache.QUEEN },
         { src: `${assetRoot}sheet_dragon.png`,    target: SpriteCache.DRAGON }

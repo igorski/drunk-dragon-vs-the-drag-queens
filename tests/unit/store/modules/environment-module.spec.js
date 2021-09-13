@@ -18,7 +18,7 @@ jest.mock("@/model/factories/building-factory", () => ({
     generateFloors: (...args) => mockUpdateFn("generateFloors", ...args),
     generateBarQueens: (...args) => mockUpdateFn("generateBarQueens", ...args),
     BUILDING_TILES: { GROUND: 0 },
-    FLOOR_TYPES: { BAR: 0, HOTEL: 1 }
+    FLOOR_TYPES: { BAR: 0, HOTEL: 1, CAVE: 2 }
 }));
 jest.mock("@/model/factories/intent-factory", () => ({
     create: (...args) => mockUpdateFn("create", ...args),
@@ -297,6 +297,13 @@ describe( "Vuex environment module", () => {
             ]);
         });
 
+        it( "should be able to remove an item from the currently active environment", () => {
+            const items = [ { id: 1, foo: "bar" }, { id: 2, baz: "qux" } ];
+            const state = { activeEnvironment: { items } };
+            mutations.removeItemFromEnvironment( state, items[ 1 ]);
+            expect( state.activeEnvironment.items ).toEqual([ { id: 1, foo: "bar" } ]);
+        });
+
         it( "should be able to flush all cached Bitmaps for the current environment", () => {
             const state = {
                 activeEnvironment: {
@@ -375,6 +382,15 @@ describe( "Vuex environment module", () => {
                 expect( commit ).toHaveBeenNthCalledWith( 2, "setScreen", SCREEN_HOTEL );
             });
 
+            it( "should be able to collect an item from the environment", () => {
+                const commit = jest.fn();
+                const item   = { foo: "bar" };
+                actions.collectItem({ commit, getters: { translate: jest.fn() } }, item );
+                expect( commit ).toHaveBeenNthCalledWith( 1, "addItemToInventory", item );
+                expect( commit ).toHaveBeenNthCalledWith( 2, "removeItemFromEnvironment", item );
+                expect( commit ).toHaveBeenNthCalledWith( 3, "openDialog", expect.any( Object ));
+            });
+
             it( "should be able to enter a building", () => {
                 const building      = { baz: "qux" };
                 const commit        = jest.fn();
@@ -389,7 +405,23 @@ describe( "Vuex environment module", () => {
                 expect( dispatch ).toHaveBeenCalledWith( "changeFloor", 0 );
             });
 
-            it( "should be able to change currently the active environment", async () => {
+            it( "should be able to enter the secret cave", () => {
+                const state = { world: { cave : { baz: "qux" } } };
+                const commit        = jest.fn();
+                const dispatch      = jest.fn();
+                const mockedGetters = { player: { baz: "qux" } };
+                mockUpdateFn        = jest.fn();
+
+                actions.enterCave({ state, getters: mockedGetters, commit, dispatch });
+
+                expect( mockUpdateFn ).toHaveBeenCalledWith(
+                    "generateFloors", state.world.cave, mockedGetters.player, 1, 2/*FLOOR_TYPES.CAVE*/
+                );
+                expect( commit ).toHaveBeenCalledWith( "setBuilding", state.world.cave );
+                expect( dispatch ).toHaveBeenCalledWith( "changeFloor", 0 );
+            });
+
+            it( "should be able to change the currently active environment", async () => {
                 const state         = { activeEnvironment: { foo: "bar" } };
                 const commit        = jest.fn();
                 const dispatch      = jest.fn();

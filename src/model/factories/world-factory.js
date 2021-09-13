@@ -64,6 +64,7 @@ const WorldFactory =
         world.type      = WORLD_TYPE;
         world.buildings = [];
         world.shops     = [];
+        world.cave      = null;
 
         return world;
     },
@@ -168,8 +169,9 @@ const WorldFactory =
         // regenerate the world properties deterministically)
         const out = EnvironmentFactory.disassemble( world );
 
-        out.s = world.shops.map( s => ShopFactory.disassemble( s ));
-        out.b = world.buildings.map( b => BuildingFactory.disassemble( b ));
+        out.s  = world.shops.map( s => ShopFactory.disassemble( s ));
+        out.b  = world.buildings.map( b => BuildingFactory.disassemble( b ));
+        out.cv = world.cave ? BuildingFactory.disassemble( world.cave ) : null;
 
         return out;
     },
@@ -182,8 +184,9 @@ const WorldFactory =
         const world = EnvironmentFactory.assemble( data );
 
         // restore shops and buildings
-        world.shops      = data.s.map( s => ShopFactory.assemble( s ));
-        world.buildings  = data.b.map( b => BuildingFactory.assemble( b ));
+        world.shops     = data.s.map( s => ShopFactory.assemble( s ));
+        world.buildings = data.b.map( b => BuildingFactory.assemble( b ));
+        world.cave      = data.cv ? BuildingFactory.assemble( data.cv ) : null;
 
         return world;
     }
@@ -544,14 +547,14 @@ function generateGroup( out, zoneWidth, zoneHeight, centerX, centerY, world, amo
  * Creates an island inside a body of water that contains
  * the entrance to the secret cave.
  */
-function generateSecretIsland( environment, islandSize ) {
-    const { width, height, terrain } = environment;
+function generateSecretIsland( world, islandSize ) {
+    const { width, height, terrain } = world;
     const waterSize = islandSize * 2; // ensures island is surrounded by water
 
     const lakes = [];
     for ( let index = 0, l = terrain.length; index < l; ++index ) {
         if ( terrain[ index ] === WORLD_TILES.WATER ) {
-            const { x, y } = indexToCoordinate( index, environment );
+            const { x, y } = indexToCoordinate( index, world );
             const surroundingTiles = getSurroundingIndices( x, y, width, height, true, 10 );
             if ( surroundingTiles.every( i => terrain[ i ] === WORLD_TILES.WATER )) {
                 lakes.push( surroundingTiles );
@@ -560,7 +563,7 @@ function generateSecretIsland( environment, islandSize ) {
     }
     const lake = randomFromList( lakes );
     if ( lake ) {
-        const lakeBounds = getRectangleForIndices( lake, environment );
+        const lakeBounds = getRectangleForIndices( lake, world );
 
         if ( DEBUG ) {
             console.warn( `creating island on one of ${lakes.length} possible bodies of water`, lakeBounds );
@@ -576,12 +579,13 @@ function generateSecretIsland( environment, islandSize ) {
         for ( let x = startX; x < endX; ++x ) {
             for ( let y = startY; y < endY; ++y ) {
                 if (( x !== startX && x !== ( endX - 1 ) && y !== startY && y !== ( endY - 1 )) || randomBool() ) {
-                    terrain[ coordinateToIndex( x, y, environment )] = WORLD_TILES.SAND;
+                    terrain[ coordinateToIndex( x, y, world )] = WORLD_TILES.SAND;
                 }
             }
         }
         // create cave entrance bang in the center
-        terrain[ coordinateToIndex( centerX, centerY, environment )] = WORLD_TILES.CAVE;
+        terrain[ coordinateToIndex( centerX, centerY, world )] = WORLD_TILES.CAVE;
+        world.cave = BuildingFactory.create({ x: centerX, y: centerY });
     } else if ( DEBUG ) {
         throw new Error( "failed to generate lake." );
     }

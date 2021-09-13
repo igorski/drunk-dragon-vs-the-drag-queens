@@ -63,9 +63,8 @@ export default class BuildingRenderer extends OvergroundRenderer {
 
         // render objects
 
-        const { hotels } = floor;
-
-        renderObjects( aCanvasContext, hotels, visibleTiles, FURNITURE.bed );
+        this.renderObjects( aCanvasContext, floor, visibleTiles );
+        renderFurniture( aCanvasContext, floor.hotels, visibleTiles, FURNITURE.bed );
 
         // render characters
 
@@ -85,7 +84,7 @@ export default class BuildingRenderer extends OvergroundRenderer {
 
 /* internal methods */
 
-function renderObjects( aCanvasContext, objectList, { left, top, right, bottom }, spriteObject ) {
+function renderFurniture( aCanvasContext, objectList, { left, top, right, bottom }, spriteObject ) {
     const { tileWidth, tileHeight } = WorldCache;
     const { width, height } = spriteObject;
     let targetX, targetY;

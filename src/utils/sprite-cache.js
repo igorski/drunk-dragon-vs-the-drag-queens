@@ -25,8 +25,10 @@ const SpriteCache =
     TREE            : new Image(),
     FLOOR_BAR       : new Image(),
     FLOOR_HOTEL     : new Image(),
+    FLOOR_CAVE      : new Image(),
     CROSSHAIRS      : new Image(),
     FURNITURE       : new Image(),
+    ITEMS           : new Image(),
 
     QUEEN           : new Image(),
     DRAB            : new Image(),

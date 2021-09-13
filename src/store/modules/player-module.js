@@ -30,7 +30,6 @@ export default
     getters: {
         player: state => state.player,
         debt: ( state, getters ) => {
-            console.warn("calculating debt");
             if ( getters.activeEnvironment.type !== WORLD_TYPE ) {
                 return [];
             }

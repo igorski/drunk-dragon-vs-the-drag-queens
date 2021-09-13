@@ -2,7 +2,7 @@ import PriceTypes, { getPriceTypeForPrice, getPriceRangeForItemType } from "@/de
 import { random, randomBool, randomFromList } from "@/utils/random-util";
 import ItemTypes, {
     getItemsForType,
-    JEWELRY_TYPES, CLOTHING_TYPES, LIQUOR_TYPES, DRUG_TYPES, HEALTHCARE_TYPES, FOOD_TYPES,
+    JEWELRY_TYPES, CLOTHING_TYPES, LIQUOR_TYPES, DRUG_TYPES, HEALTHCARE_TYPES, FOOD_TYPES, WEAPON_TYPES,
     SHOE_HEELS, SHOE_SNEAKERS, SHOE_FLIPPERS,
     DRUG_STIMULANT_A, DRUG_NOSE_CANDY,
     FOOD_HAMBURGER, FOOD_PIZZA
@@ -31,6 +31,9 @@ const ItemFactory =
                     break;
                 case ItemTypes.FOOD:
                     name = randomFromList( FOOD_TYPES );
+                    break;
+                case ItemTypes.WEAPON:
+                    name = randomFromList( WEAPON_TYPES );
                     break;
             }
         }

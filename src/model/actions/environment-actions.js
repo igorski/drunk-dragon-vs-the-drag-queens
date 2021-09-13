@@ -7,6 +7,7 @@ import { findPath }     from "@/utils/path-finder";
 import { coordinateToIndex } from "@/utils/terrain-util";
 
 const DEFAULT_WALK_SPEED = 400; // ms for a single step
+let characters, shops, buildings, items; // used by hitTest
 
 export default {
     /**
@@ -110,15 +111,20 @@ export default {
      * @return {boolean} whether we've hit something
      */
     hitTest({ dispatch, commit, getters }, environment ) {
-        const { characters, shops, buildings } = environment;
+        ({ characters, shops, buildings, items } = environment );
         // round the coordinates (in case character is currently moving)
         const x = fastRound( environment.x );
         const y = fastRound( environment.y );
         let hit, dispatchFn, dispatchValue;
 
+        // 1. generic
         if ( hit = internalHitTest( x, y, characters )) {
             // hit a character, do something!!!
             dispatchFn = "interactWithCharacter";
+        } else if ( hit = internalHitTest( x, y, items )) {
+            // touched item
+            dispatchFn = "collectItem";
+        // 2. overground specific
         } else if ( environment.type === WORLD_TYPE ) {
             if ( hit = internalHitTest( x, y, shops )) {
                 // entered shop, open the shop page
@@ -128,6 +134,12 @@ export default {
                 // entered building
                 dispatchFn = "enterBuilding";
             }
+            else if ( environment.terrain[ coordinateToIndex( x, y, environment )] === WORLD_TILES.CAVE ) {
+                // entered cave
+                dispatchFn = "enterCave";
+                hit = true;
+            }
+        // 3. building/cave specific
         } else if ( environment.type === BUILDING_TYPE ) {
             if ( hit = internalHitTest( x, y, environment.exits )) {
                 dispatchFn = "changeFloor";

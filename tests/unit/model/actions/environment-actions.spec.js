@@ -2,7 +2,8 @@ import EnvironmentActions from "@/model/actions/environment-actions";
 import { BUILDING_TYPE }  from "@/model/factories/building-factory";
 import CharacterFactory   from "@/model/factories/character-factory";
 import EnvironmentFactory from "@/model/factories/environment-factory";
-import { WORLD_TYPE, getMaxWalkableTile } from "@/model/factories/world-factory";
+import { WORLD_TYPE, WORLD_TILES, getMaxWalkableTile } from "@/model/factories/world-factory";
+import { indexToCoordinate } from "@/utils/terrain-util";
 
 // mock pathfinder implementation
 const mockPath = [{ x: 1, y: 2 }, { x: 2, y: 2 }];
@@ -127,6 +128,7 @@ describe( "Environment actions", () => {
                 characters: [{ x: 10, y: 11 }],
                 shops: [{ x: 11, y: 10 }],
                 buildings: [{ x: 11, y: 11 }],
+                items: [],
                 terrain: []
             };
             expect( EnvironmentActions.hitTest({ commit, dispatch, getters }, environment )).toBe( false );
@@ -145,6 +147,7 @@ describe( "Environment actions", () => {
                 characters: [{ x: 10, y: 10 }],
                 shops: [],
                 buildings: [],
+                items: [],
                 terrain: []
             };
             expect( EnvironmentActions.hitTest({ commit, dispatch, getters }, environment )).toBe( true );
@@ -162,6 +165,7 @@ describe( "Environment actions", () => {
                 characters: [],
                 shops: [{ x: 10, y: 10 }],
                 buildings: [],
+                items: [],
                 terrain: []
             };
             expect( EnvironmentActions.hitTest({ commit, dispatch, getters }, environment )).toBe( true );
@@ -179,6 +183,7 @@ describe( "Environment actions", () => {
                 characters: [],
                 shops: [],
                 buildings: [{ x: 10, y: 10 }],
+                items: [],
                 terrain: []
             };
             expect( EnvironmentActions.hitTest({ commit, dispatch, getters }, environment )).toBe( true );
@@ -196,6 +201,7 @@ describe( "Environment actions", () => {
                 characters: [],
                 shops: [],
                 exits: [{ x: 10, y: 10 }, { x: 12, y: 12 }],
+                items: [],
                 terrain: []
             };
             expect( EnvironmentActions.hitTest({ commit, dispatch, getters }, environment )).toBe( true );
@@ -213,6 +219,7 @@ describe( "Environment actions", () => {
                 characters: [],
                 shops: [],
                 exits: [{ x: 8, y: 8 }, { x: 10, y: 10 }],
+                items: [],
                 terrain: []
             };
             expect( EnvironmentActions.hitTest({ commit, dispatch, getters }, environment )).toBe( true );
@@ -231,10 +238,52 @@ describe( "Environment actions", () => {
                 shops: [],
                 exits: [],
                 hotels: [{ x: 10, y: 10 }],
+                items: [],
                 terrain: []
             };
             expect( EnvironmentActions.hitTest({ commit, dispatch, getters }, environment )).toBe( true );
             expect( dispatch ).toHaveBeenCalledWith( "enterHotel", environment.hotels[ 0 ]);
+        });
+
+        it( "should collect an item when the player collides with it", () => {
+            const commit   = jest.fn();
+            const dispatch = jest.fn();
+            const getters  = { floor : 1 };
+            const environment = {
+                x: 5,
+                y: 5,
+                type: WORLD_TYPE,
+                characters: [],
+                shops: [],
+                buildings: [],
+                items: [{ x: 5, y: 5 }],
+                terrain: []
+            };
+            expect( EnvironmentActions.hitTest({ commit, dispatch, getters }, environment )).toBe( true );
+            expect( dispatch ).toHaveBeenCalledWith( "collectItem", environment.items[ 0 ]);
+        });
+
+        it( "should enter the secret cave when the player reaches its entrance", () => {
+            const commit   = jest.fn();
+            const dispatch = jest.fn();
+            const terrain = new Array( 16 ).fill( WORLD_TILES.GROUND );
+            terrain[ 8 ] = WORLD_TILES.CAVE;
+            const environment = {
+                width      : 4,
+                height     : 4,
+                type       : WORLD_TYPE,
+                characters : [],
+                shops      : [],
+                exits      : [],
+                terrain
+            };
+            // position player at cave entrance
+            const { x, y } = indexToCoordinate( 8, environment );
+            environment.x = x;
+            environment.y = y;
+
+            expect( EnvironmentActions.hitTest({ commit, dispatch }, environment )).toBe( true );
+            expect( dispatch ).toHaveBeenCalledWith( "enterCave", true );
         });
     });
 });

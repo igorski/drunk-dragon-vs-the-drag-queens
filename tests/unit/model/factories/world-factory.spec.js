@@ -36,6 +36,10 @@ describe("World factory", () => {
             expect( populatedWorld.characters ).length > 1;
         });
 
+        it( "should populate a world with a single secret cave", () => {
+            expect( typeof populatedWorld.cave === "object" );
+        });
+
         it( "should populate a world to contain a single drunk dragon", () => {
             const dragons = populatedWorld.characters.filter(({ type }) => type === DRAGON );
             expect( dragons ).toHaveLength( 1 );

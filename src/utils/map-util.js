@@ -1,6 +1,7 @@
 import { coordinateToIndex, distance } from "@/utils/terrain-util";
 import { WORLD_TILES, WORLD_TYPE } from "@/model/factories/world-factory";
 import { BUILDING_TILES, BUILDING_TYPE } from "@/model/factories/building-factory";
+import ExecuteWithRetry from "@/utils/execute-with-retry";
 
 /**
  * Reserves space for a given object at the given coordinate
@@ -20,17 +21,15 @@ export function reserveObject( object, environment, others = [], optTileWhitelis
     let unwalkableTile;
     // assemble the list of Objects we shouldn't collide with
     if ( environment.type === BUILDING_TYPE ) {
-        compare = [ ...environment.exits, ...environment.hotels, ...compare ];
+        compare = [ ...environment.exits, ...environment.hotels, ...environment.items, ...compare ];
         unwalkableTile = BUILDING_TILES.NOTHING;
     } else if ( environment.type = WORLD_TYPE ) {
-        compare = [ ...environment.shops, ...environment.buildings, ...compare ];
+        compare = [ ...environment.shops, ...environment.buildings, ...environment.items, ...compare ];
         unwalkableTile = WORLD_TILES.MOUNTAIN;
     }
     let { x, y } = object;
 
-    let tries = 255; // fail-safe, let's not recursive forever
-    while ( tries-- > 0 )
-    {
+    const success = ExecuteWithRetry(() => {
         if ( checkIfFree({ ...object, x, y }, environment, compare, true, optTileWhitelist )) {
 
             // bit of a cheat... add a wall around the object entrance (which is always at the
@@ -45,13 +44,13 @@ export function reserveObject( object, environment, others = [], optTileWhitelis
                     environment.terrain[ coordinateToIndex( xd, yd, environment )] = unwalkableTile;
                 }
             }
-            return { x, y };
+            return true;
         }
 
         // which direction we'll try next
 
-        const left  = x > environment.width  / 2;
-        const up    = y > environment.height / 2;
+        const left = x > environment.width  / 2;
+        const up   = y > environment.height / 2;
 
         if ( left ) {
             --x;
@@ -68,6 +67,9 @@ export function reserveObject( object, environment, others = [], optTileWhitelis
 
         x = Math.max( 0, Math.min( x, environment.width ));
         y = Math.max( 0, Math.min( y, environment.height ));
+    });
+    if ( success ) {
+        return { x, y };
     }
     return null; // didn't find a spot... :(
 }

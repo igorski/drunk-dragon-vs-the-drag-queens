@@ -75,14 +75,19 @@ npm run test
 
 #### Debug helpers
 
-Certain useful methods are defined inside a _rpg_ Object which is scoped on Window.
+Certain useful methods are defined inside a _rpg_ Object which is scoped onto Window.
 See the _created_-hook in _rpg.vue_ for details.
 
 ## TODO
 
-* Don't type per letter, but per word (solves jump on word wrap)
-* Create cave level for extra excitement on the secret island (contains dragon killing weapon!)
+* x Create cave level for extra excitement on the secret island
+  x cave is a building with a single (huge) floor with a specific floor type
+  x fill with dragon killing weapon
+  x render items in world
+  fill with drabs
 * Implement dragon kill and game-won routines / screens
+* Don't type per letter, but per word (solves jump on word wrap)
+* Implement swamp for extra excitement?
 * getDamageForAttack needs to take opponent defense properties into account, e.g.: clothing can increase defense
 
 * Drag swag/charisma == mana
@@ -118,7 +123,6 @@ See the _created_-hook in _rpg.vue_ for details.
 * Unit tests for hourNow !== lastHour in game-module.updateGame()
 * Tweak attack efficiency against drabs
 * Should running away not completely reposition the opponent but keep it somewhere within the screen?
-* Implement swamp for extra excitement?
 * Do not save player walk effects when saving during walk (one save game got 'stuck')
 * Walking left/right on overground does weird jumps when using keyboard control?
 * When vacating building/shop as effect timeout is exceeded, close active screens before showing dialog

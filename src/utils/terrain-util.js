@@ -1,5 +1,6 @@
 import { findPath }      from "@/utils/path-finder";
 import { random, randomInRangeInt } from "@/utils/random-util";
+import ExecuteWithRetry from "@/utils/execute-with-retry";
 
 /**
  * grow the amount of terrain of given type on the given map
@@ -123,15 +124,18 @@ export const positionAtLastFreeTileType = ( terrain, tileType ) => {
  * @return {number} free index in the terrain for given operation
  */
 export const positionAtRandomFreeTileType = ( terrain, tileType ) => {
-    let tries = 255, i;
-
-    while ( tries-- ) {
+    let i;
+    const success = ExecuteWithRetry(() => {
         i = Math.round( random() * terrain.length );
         while ( i-- ) {
             if ( terrain[ i ] === tileType ) {
-                return i;
+                return true;
             }
         }
+        return false;
+    });
+    if ( success ) {
+        return i;
     }
     throw new Error( `could not find terrain of type "${tileType}"` );
 };

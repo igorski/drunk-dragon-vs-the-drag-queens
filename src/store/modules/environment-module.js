@@ -1,4 +1,5 @@
 import cloneDeep from "lodash/cloneDeep";
+import isEqual   from "lodash/isEqual";
 import merge     from "lodash/merge";
 import Vue       from "vue";
 
@@ -130,6 +131,13 @@ export default {
                 char.inventory.items.push( item );
             }
         },
+        removeItemFromEnvironment( state, item ) {
+            const { items } = state.activeEnvironment;
+            const index = items.findIndex( compare => isEqual( compare, item ));
+            if ( index > -1 ) {
+                items.splice( index, 1 );
+            }
+        },
         markVisitedTerrain( state, visitedTerrainIndices = [] ) {
             const { visitedTerrain } = state.activeEnvironment;
             visitedTerrainIndices.forEach( index => {
@@ -167,15 +175,28 @@ export default {
             commit( "setHotel", hotel );
             commit( "setScreen", SCREEN_HOTEL );
         },
+        collectItem({ commit, getters }, item ) {
+            commit( "addItemToInventory", item );
+            commit( "removeItemFromEnvironment", item );
+            commit( "openDialog", { message: getters.translate( `itemCollect.${item.name}` )});
+        },
         async enterBuilding({ getters, commit, dispatch }, building ) {
             // generate levels, terrains and characters inside the building if they
-            // weren"t generated yet.
+            // weren't generated yet.
             if ( !building.floors?.length ) {
                 BuildingFactory.generateFloors( building, getters.player );
             }
             commit( "setBuilding", building );
 
             // enter building at the first floor
+            await dispatch( "changeFloor", 0 );
+        },
+        async enterCave({ state, getters, commit, dispatch }) {
+            const { cave } = state.world;
+            if ( !cave.floors?.length ) {
+                BuildingFactory.generateFloors( cave, getters.player, 1, FLOOR_TYPES.CAVE );
+            }
+            commit( "setBuilding", cave );
             await dispatch( "changeFloor", 0 );
         },
         // change floor inside building

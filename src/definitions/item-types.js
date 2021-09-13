@@ -13,7 +13,8 @@ const ItemTypes = {
     LIQUOR     : 2,
     HEALTHCARE : 3,
     DRUGS      : 4,
-    FOOD       : 5
+    FOOD       : 5,
+    WEAPON     : 6
 };
 export default ItemTypes;
 
@@ -33,6 +34,8 @@ export const getItemsForType = type => {
             return DRUG_TYPES;
         case ItemTypes.FOOD:
             return FOOD_TYPES;
+        case ItemTypes.WEAPON:
+            return WEAPON_TYPES;
     }
 };
 
@@ -76,3 +79,8 @@ export const DRUG_TYPES       = [ DRUG_STIMULANT_A, DRUG_NOSE_CANDY ];
 export const FOOD_HAMBURGER = "hamburger";
 export const FOOD_PIZZA     = "pizza";
 export const FOOD_TYPES     = [ FOOD_HAMBURGER, FOOD_PIZZA ];
+
+/* weapons */
+
+export const MAGIC_SWORD  = "magicSword";
+export const WEAPON_TYPES = [ MAGIC_SWORD ];
