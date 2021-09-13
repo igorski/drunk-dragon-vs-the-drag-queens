@@ -1,0 +1,12 @@
+{
+    "en-US": {
+        "achievements": "Achievements",
+        "youHavePlayedFor": "You managed to stay safe from the daylight for a grand total of {0}.",
+        "daysAndHours": "{days} day(s) and {hours} hours",
+        "youHaveGatheredXPandReachedLevel": "You gathered {0} and have reached {1}.",
+        "experiencePoints": "{xp} experience points",
+        "level": "level {level}",
+        "yourWalletContains": "Your wallet contains {0} cash.",
+        "dollars": "${dollars}"
+    }
+}

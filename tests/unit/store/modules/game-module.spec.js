@@ -2,7 +2,7 @@ import store               from "@/store/modules/game-module";
 import CharacterFactory    from "@/model/factories/character-factory";
 import EffectFactory       from "@/model/factories/effect-factory";
 import { GAME_ACTIVE, GAME_PAUSED, GAME_OVER } from "@/definitions/game-states";
-import { SCREEN_SHOP, SCREEN_GAME, SCREEN_CHARACTER_INTERACTION } from "@/definitions/screens";
+import { SCREEN_FINALE } from "@/definitions/screens";
 import {
     GAME_START_TIME_UNIX, GAME_TIME_RATIO, VALIDITY_CHECK_INTERVAL
 } from "@/definitions/constants";
@@ -426,6 +426,13 @@ describe( "Vuex game module", () => {
                 actions.updateGame({ commit, dispatch, getters: mockedGetters, state }, timestamp );
                 expect( dispatch ).toHaveBeenNthCalledWith( 1, "leaveBuilding" );
             });
+        });
+
+        it( "should show the finale when the player has won", () => {
+            const commit = jest.fn();
+            actions.showFinale({ commit });
+            expect( commit ).toHaveBeenNthCalledWith( 1, "setGameState", GAME_PAUSED );
+            expect( commit ).toHaveBeenNthCalledWith( 2, "setScreen", SCREEN_FINALE );
         });
     });
 });

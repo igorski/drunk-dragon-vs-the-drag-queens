@@ -11,7 +11,7 @@ import { GAME_ACTIVE, GAME_PAUSED, GAME_OVER } from "@/definitions/game-states";
 import { random } from "@/utils/random-util";
 import { isValidHourToBeOutside, isValidHourToBeInside } from "@/utils/time-util";
 import {
-    SCREEN_CHARACTER_CREATE
+    SCREEN_CHARACTER_CREATE, SCREEN_FINALE
 } from "@/definitions/screens";
 
 const STORAGE_KEY = "rpg";
@@ -231,5 +231,9 @@ export default {
             // update last render timestamp
             commit( "setLastRender", timestamp );
         },
+        showFinale({ commit }) {
+            commit( "setGameState", GAME_PAUSED );
+            commit( "setScreen", SCREEN_FINALE );
+        }
     },
 };

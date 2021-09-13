@@ -13,3 +13,4 @@ export const SCREEN_CHARACTER_INTERACTION = 7;
 export const SCREEN_BATTLE                = 8;
 export const SCREEN_CREDITS               = 9;
 export const SCREEN_GAME_OVER             = 10;
+export const SCREEN_FINALE                = 11;

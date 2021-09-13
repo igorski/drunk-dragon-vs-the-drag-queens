@@ -15,6 +15,17 @@ export default
     },
 
     /**
+     * return all items in given inventory that are of given name
+     *
+     * @param {Object} inventory
+     * @param {number} itemName from ItemTypes enumeration
+     * @return {Array<Object>}
+     */
+    getItemsByName( inventory, itemName ) {
+        return inventory.items.filter(({ name }) => name === itemName );
+    },
+
+    /**
      * merge inventories (for instance when stealing from defeated Characters)
      *
      * @param {Object} inventory to merge into

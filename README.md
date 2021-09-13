@@ -80,14 +80,9 @@ See the _created_-hook in _rpg.vue_ for details.
 
 ## TODO
 
-* x Create cave level for extra excitement on the secret island
-  x cave is a building with a single (huge) floor with a specific floor type
-  x fill with dragon killing weapon
-  x render items in world
-  fill with drabs
-* Implement dragon kill and game-won routines / screens
-* Don't type per letter, but per word (solves jump on word wrap)
+* Cave in secret island should be filled with drabs
 * Implement swamp for extra excitement?
+* Implement finale with nice story, text and images, yo.
 * getDamageForAttack needs to take opponent defense properties into account, e.g.: clothing can increase defense
 
 * Drag swag/charisma == mana

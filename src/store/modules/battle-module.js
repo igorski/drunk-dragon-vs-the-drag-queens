@@ -1,6 +1,6 @@
 import merge            from "lodash/merge";
 import cloneDeep        from "lodash/cloneDeep";
-import { ATTACK_PREPARED } from "@/definitions/attack-types";
+import AttackTypes, { ATTACK_PREPARED } from "@/definitions/attack-types";
 import { XP_PER_LEVEL, xpNeededForLevel } from "@/definitions/constants";
 import { DRAGON }       from "@/definitions/character-types";
 import { GAME_OVER }    from "@/definitions/game-states";
@@ -56,7 +56,7 @@ export default {
             const hp = updateHP( damage, opponent.hp );
             commit( "updateOpponent", { hp });
             if ( hp === 0 ) {
-                dispatch( "resolveBattle" );
+                dispatch( "resolveBattle", type );
             }
             return { success: true, damage };
         },
@@ -91,7 +91,7 @@ export default {
             const playerAlive = hp > 0;
             commit( "setPlayerTurn", playerAlive );
             if ( !playerAlive ) {
-                dispatch( "resolveBattle" );
+                dispatch( "resolveBattle", type );
             }
             return { success: true, damage };
         },
@@ -105,7 +105,7 @@ export default {
 
             dispatch( "playSound", TRACK_TYPES.BATTLE );
         },
-        resolveBattle({ state, getters, commit, dispatch }) {
+        resolveBattle({ state, getters, commit, dispatch }, lastAttackType ) {
             const { opponent } = state;
             // battle is resolved when the player or opponent have depleted their HP
             if ( opponent.hp === 0 ) {
@@ -134,6 +134,10 @@ export default {
                         ...CharacterActions.generateOpponentProps( getters.player, DRAGON )
                     });
                     dispatch( "positionCharacter", { id: opponent.id, distance: 50 });
+                    // wait up... did we use the sword to slay the dragon ? The dragon is actually DEAD and we WON!!
+                    if ( lastAttackType === AttackTypes.SWORD ) {
+                        dispatch( "showFinale" );
+                    }
                 } else {
                     commit( "removeCharacter", opponent );
                 }

@@ -104,12 +104,14 @@
 import { mapGetters, mapMutations, mapActions } from "vuex";
 import AttackTypes, { ATTACK_DODGED } from "@/definitions/attack-types";
 import { QUEEN, DRAGON } from "@/definitions/character-types";
-import { SCREEN_GAME } from "@/definitions/screens";
-import Modal           from "@/components/modal/modal";
-import Inventory       from "@/components/inventory/inventory";
-import ActionsUI       from "@/mixins/actions-ui";
-import CharacterStatus from "./character-status/character-status";
-import messages        from "./messages.json";
+import ItemTypes, { MAGIC_SWORD } from "@/definitions/item-types";
+import { SCREEN_GAME }  from "@/definitions/screens";
+import Modal            from "@/components/modal/modal";
+import Inventory        from "@/components/inventory/inventory";
+import ActionsUI        from "@/mixins/actions-ui";
+import InventoryActions from "@/model/actions/inventory-actions";
+import CharacterStatus  from "./character-status/character-status";
+import messages         from "./messages.json";
 
 export default {
     i18n: { messages },
@@ -138,10 +140,16 @@ export default {
             return !this.battleWon && this.player.hp > 0 && this.playerTurn;
         },
         attackTypesForPlayer() {
-            return [
+            const attacks = [
+                // the basic types
                 { text: this.$t( "slap" ), value: AttackTypes.SLAP },
                 { text: this.$t( "kick" ), value: AttackTypes.KICK },
             ];
+            const weapons = InventoryActions.getItemsOfType( this.player.inventory, ItemTypes.WEAPON );
+            if ( weapons.some(({ name }) => name === MAGIC_SWORD )) {
+                attacks.push({ text: this.$t( "swordSlash" ), value: AttackTypes.SWORD });
+            }
+            return attacks;
         },
     },
     watch: {

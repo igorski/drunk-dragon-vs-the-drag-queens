@@ -76,7 +76,7 @@ import messages          from "./messages.json";
 import { GAME_OVER } from "@/definitions/game-states";
 import {
     SCREEN_GAME, SCREEN_TITLE, SCREEN_CHARACTER_CREATE, SCREEN_OPTIONS, SCREEN_STATUS, SCREEN_CREDITS,
-    SCREEN_CHARACTER_INTERACTION, SCREEN_BATTLE, SCREEN_SHOP, SCREEN_HOTEL, SCREEN_GAME_OVER
+    SCREEN_CHARACTER_INTERACTION, SCREEN_BATTLE, SCREEN_SHOP, SCREEN_HOTEL, SCREEN_GAME_OVER, SCREEN_FINALE
 } from "@/definitions/screens";
 
 Vue.use( VueI18n );
@@ -128,6 +128,8 @@ export default {
                     return () => import( "./components/credits/credits" );
                 case SCREEN_GAME_OVER:
                     return () => import( "./components/game-over/game-over" );
+                case SCREEN_FINALE:
+                    return () => import( "./components/finale/finale" );
             }
         },
         isTitleScreen() {

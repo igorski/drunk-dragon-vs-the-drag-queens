@@ -18,6 +18,7 @@
         "youEscapedFromBattlingName": "You escaped from battling {name}.",
         "slap": "Slap",
         "kick": "Kick",
+        "swordSlash": "Sword slash",
         "youWon": "You won!",
         "youEarnedXp": "You earned {xp} experience points",
         "youAdvancedToLevel": "You advanced to level {level}",

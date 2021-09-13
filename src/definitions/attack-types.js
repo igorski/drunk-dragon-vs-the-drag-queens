@@ -5,9 +5,10 @@
  * @see AttackFactory
  */
 export default {
-    SLAP: 0,
-    KICK: 1,
-    BITE: 2
+    SLAP  : 0,
+    KICK  : 1,
+    BITE  : 2,
+    SWORD : 3, // there is only one sword, it's the magic sword item
 };
 
 export const ATTACK_PREPARED = 1;

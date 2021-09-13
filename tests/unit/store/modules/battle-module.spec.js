@@ -151,7 +151,7 @@ describe( "Vuex battle module", () => {
                 expect( success ).toBe( true );
                 expect( commit ).toHaveBeenNthCalledWith( 2, "updateOpponent", { hp: opponent.hp - mockDamageForAttack });
                 expect( damage ).toEqual( mockDamageForAttack );
-                expect( dispatch ).not.toHaveBeenCalledWith( "resolveBattle" );
+                expect( dispatch ).not.toHaveBeenCalledWith( "resolveBattle", expect.any( Number ));
             });
 
             it( "should resolve the battle if the opponent has no HP left after attack", async () => {
@@ -162,7 +162,7 @@ describe( "Vuex battle module", () => {
                 mockPrepareAttack = ATTACK_PREPARED;
 
                 await actions.attackOpponent({ state, getters: mockedGetters, commit, dispatch }, { type: AttackTypes.SLAP });
-                expect( dispatch ).toHaveBeenCalledWith( "resolveBattle" );
+                expect( dispatch ).toHaveBeenCalledWith( "resolveBattle", AttackTypes.SLAP );
             });
         });
 
@@ -253,7 +253,7 @@ describe( "Vuex battle module", () => {
                 mockPrepareAttack = ATTACK_PREPARED;
                 await actions.attackPlayer({ state, getters: mockedGetters, commit }, { type: AttackTypes.SLAP });
                 expect( commit ).toHaveBeenNthCalledWith( 2, "setPlayerTurn", true );
-                expect( dispatch ).not.toHaveBeenCalledWith( "resolveBattle" );
+                expect( dispatch ).not.toHaveBeenCalledWith( "resolveBattle", expect.any( Number ));
             });
 
             it( "should not activate the Players turn if the Player has no HP left after a successful attack", async () => {
@@ -273,7 +273,7 @@ describe( "Vuex battle module", () => {
                 mockDamageForAttack = 1;
                 mockPrepareAttack = ATTACK_PREPARED;
                 await actions.attackPlayer({ state, getters: mockedGetters, commit, dispatch }, { type: AttackTypes.SLAP });
-                expect( dispatch ).toHaveBeenCalledWith( "resolveBattle" );
+                expect( dispatch ).toHaveBeenCalledWith( "resolveBattle", expect.any( Number ));
             });
 
             it( "should update the opponent HP and return the damage for the given attack type after a successful attack", async () => {
@@ -432,7 +432,7 @@ describe( "Vuex battle module", () => {
                 expect( commit ).toHaveBeenCalledWith( "setPlayerLevel", 4 );
             });
 
-            it( "should reposition and update the opponent if it was the Dragon or otherwise remove it from the environment", async () => {
+            it( "should remove it from the environment after winning", async () => {
                 const state   = { opponent: CharacterFactory.create({ id: "opponentId", hp: 0 }), award: XP_PER_LEVEL };
                 mockedGetters = { player: { xp: XP_PER_LEVEL, level: 2 }};
                 let dispatch  = jest.fn();
@@ -441,14 +441,40 @@ describe( "Vuex battle module", () => {
                 await actions.resolveBattle({ state, getters: mockedGetters, commit, dispatch });
                 expect( dispatch ).not.toHaveBeenCalledWith( "positionCharacter", expect.any( Object ));
                 expect( commit ).toHaveBeenCalledWith( "removeCharacter", state.opponent );
+            });
 
-                state.opponent.type = DRAGON;
-                commit = jest.fn();
+            it( "should reposition and update the opponent if it was the Dragon as it can't be killed without a special weapon", async () => {
+                const state   = { opponent: CharacterFactory.create({ id: "opponentId", hp: 0, type: DRAGON }), award: XP_PER_LEVEL };
+                mockedGetters = { player: { xp: XP_PER_LEVEL, level: 2 }};
+                let dispatch  = jest.fn();
+                let commit    = jest.fn();
 
                 await actions.resolveBattle({ state, getters: mockedGetters, commit, dispatch });
                 expect( dispatch ).toHaveBeenCalledWith( "positionCharacter", { id: "opponentId", distance: expect.any( Number ) });
                 expect( commit ).toHaveBeenCalledWith( "updateCharacter", expect.any( Object ));
                 expect( commit ).not.toHaveBeenCalledWith( "removeCharacter", state.opponent );
+            });
+
+            it( "should end the game by requesting the finale if the opponent was the Dragon and the last attack was a Sword slash", async () => {
+                const state   = { opponent: CharacterFactory.create({ id: "opponentId", hp: 0, type: DRAGON }), award: XP_PER_LEVEL };
+                mockedGetters = { player: { xp: XP_PER_LEVEL, level: 2 }};
+                let dispatch  = jest.fn();
+                let commit    = jest.fn();
+
+                await actions.resolveBattle({ state, getters: mockedGetters, commit, dispatch }, AttackTypes.SWORD );
+
+                expect( dispatch ).toHaveBeenCalledWith( "showFinale" );
+            });
+
+            it( "should NOT end the game if opponent was killed using a Sword slash, but wasn't the Dragon", async () => {
+                const state   = { opponent: CharacterFactory.create({ id: "opponentId", hp: 0 }), award: XP_PER_LEVEL };
+                mockedGetters = { player: { xp: XP_PER_LEVEL, level: 2 }};
+                let dispatch  = jest.fn();
+                let commit    = jest.fn();
+
+                await actions.resolveBattle({ state, getters: mockedGetters, commit, dispatch }, AttackTypes.SWORD );
+
+                expect( dispatch ).not.toHaveBeenCalledWith( "showFinale" );
             });
         });
     });
