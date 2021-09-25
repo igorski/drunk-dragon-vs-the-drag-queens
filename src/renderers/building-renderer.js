@@ -51,15 +51,27 @@ export default class BuildingRenderer extends OvergroundRenderer {
 
         // render terrain from cache
 
-        const sourceX = left * tileWidth;
-        const sourceY = top * tileHeight;
-        const targetX = 0;
-        const targetY = 0;
+        let sourceX = left * tileWidth;
+        let sourceY = top * tileHeight;
+        let targetX = 0;
+        let targetY = 0;
         const canvasWidth = this.canvas.getWidth(), canvasHeight = this.canvas.getHeight();
 
-        aCanvasContext.drawImage( SpriteCache.ENV_BUILDING,
-                                  sourceX, sourceY, canvasWidth, canvasHeight,
-                                  targetX, targetY, canvasWidth, canvasHeight );
+        // at world edges, we correct the source/target coordinates (and render empty space)
+        if ( sourceX < 0 ) {
+            targetX = Math.abs( sourceX );
+            sourceX = 0;
+        }
+        if ( sourceY < 0 ) {
+            targetY = Math.abs( sourceY );
+            sourceY = 0;
+        }
+
+        aCanvasContext.drawImage(
+            SpriteCache.ENV_BUILDING,
+            sourceX, sourceY, canvasWidth, canvasHeight,
+            targetX, targetY, canvasWidth, canvasHeight
+        );
 
         // render objects
 

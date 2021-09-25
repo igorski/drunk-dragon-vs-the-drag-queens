@@ -25,5 +25,9 @@ module.exports = {
                 { from: `${dirAssets}`, to: 'assets', flatten: false }
             ]),
         ]
-    }
+    },
+    chainWebpack: config => {
+        // this solves an issue with hot module reload on Safari...
+        config.plugins.delete( "preload" );
+    },
 };

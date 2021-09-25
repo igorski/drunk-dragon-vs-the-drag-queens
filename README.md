@@ -81,7 +81,7 @@ See the _created_-hook in _rpg.vue_ for details.
 ## TODO
 
 * Cave in secret island should be filled with drabs
-* Implement swamp for extra excitement?
+* Implement swamp for extra excitement? And swamp monsters
 * Implement finale with nice story, text and images, yo.
 * getDamageForAttack needs to take opponent defense properties into account, e.g.: clothing can increase defense
 
@@ -111,7 +111,6 @@ See the _created_-hook in _rpg.vue_ for details.
 * Leaving building from exit can put you somewhere completely else on the map!!
 * Create heavily made up eyes, massive earrings and facial hair style
 * Generate objects on city roads and inside buildings similar to trees (make sure no roads are blocked!)
-* Buildings (and world edges) broken in Safari (must be similar to-render-at-edges-issue)?
 * Hotel/bed should be fully navigatable, not just bottom center tile
 * Show building floor level in status view
 * Prevent creating double walls when generating floors (and restore skipped unit test)
