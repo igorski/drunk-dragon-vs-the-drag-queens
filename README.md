@@ -127,7 +127,6 @@ See the _created_-hook in _rpg.vue_ for details.
 * replace pines with more tropical trees
 * add store to sell fake nails (increases attack)
 * More attack types depending on item / level ?
-* Images for shop products
 * Dynamic components need a loader
 * Describe in manual how different properties of intoxication/boost affect charisma (also show this on-screen!)
 * should dragon get stronger / more drunk depending on hour of night ?

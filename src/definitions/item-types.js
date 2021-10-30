@@ -43,8 +43,8 @@ export const getItemsForType = type => {
 
 export const JEWELRY_NECKLACE = "necklace";
 export const JEWELRY_BRACELET = "bracelet";
-export const JEWELRY_RING     = "ring";
-export const JEWELRY_TYPES    = [ JEWELRY_NECKLACE, JEWELRY_BRACELET, JEWELRY_RING ];
+export const JEWELRY_EARRINGS = "earrings";
+export const JEWELRY_TYPES    = [ JEWELRY_NECKLACE, JEWELRY_BRACELET, JEWELRY_EARRINGS ];
 
 /* clothing */
 

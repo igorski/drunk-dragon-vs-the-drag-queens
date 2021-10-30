@@ -18,17 +18,28 @@
         </template>
         <!-- items for sale -->
         <p v-t="shop.items.length ? 'itemsForSale' : 'noItemsForSale'"></p>
-        <div v-for="(item, index) in sortedItems"
-             :key="`${index}`"
-        >
-            <span class="item item--name">{{ itemTitle( item ) }}</span>
-            <span class="item item--price">$ {{ item.price }}</span>
-            <button type="button"
+        <div class="items">
+            <div v-for="(item, index) in sortedItems"
+                 :key="`${index}`"
+                 class="item"
+            >
+                <div v-if="item.image" class="item__preview">
+                    <img :src="item.image" />
+                </div>
+                <span
+                    class="item__price"
+                    :class="{ 'item__price--disabled': !canBuy( item )}"
+                >${{ item.price }}</span>
+                <h4 class="item__name">{{ item.title }}</h4>
+                <button
+                    type="button"
                     v-t="'buy'"
                     :title="$t('buy')"
                     :disabled="!canBuy( item )"
+                    class="rpg-button"
                     @click="handleBuyClick( item )"
-            ></button>
+                ></button>
+            </div>
         </div>
         <!-- loan shark -->
         <template v-if="canLend">
@@ -60,7 +71,14 @@ import sortBy           from "lodash/sortBy";
 import Modal            from "@/components/modal/modal";
 import InventoryList    from "@/components/shared/inventory-list/inventory-list";
 import { TWENTY_FOUR_HOURS } from "@/definitions/constants";
-import ItemTypes, { SHOE_TYPES } from "@/definitions/item-types";
+import ItemTypes, {
+    SHOE_TYPES, SHOE_HEELS, SHOE_SNEAKERS, SHOE_FLIPPERS,
+    LIQUOR_WINE, LIQUOR_GIN, LIQUOR_COGNAC,
+    HEALTHCARE_BANDAID, HEALTHCARE_ASPIRIN,
+    JEWELRY_NECKLACE, JEWELRY_BRACELET, JEWELRY_EARRINGS,
+    DRUG_STIMULANT_A, DRUG_NOSE_CANDY,
+    FOOD_HAMBURGER, FOOD_PIZZA
+} from "@/definitions/item-types";
 import PriceTypes, { getPriceTypeForPrice } from "@/definitions/price-types";
 import { SHOP_TYPES }   from "@/model/factories/shop-factory";
 import InventoryActions from "@/model/actions/inventory-actions";
@@ -113,7 +131,11 @@ export default {
             return this.$t( "welcomeToOur", { type: this.$t( type ) });
         },
         sortedItems() {
-            return sortBy( this.shop.items, [ "price" ]);
+            return sortBy( this.shop.items.map( item => ({
+                ...item,
+                title: this.itemTitle( item ),
+                image: this.itemImage( item )
+            })), [ "price" ]);
         },
         inventoryItems() {
             return this.player.inventory.items;
@@ -167,6 +189,42 @@ export default {
                 i18n = `${this.$t( "quality" )} `;
             }
             return `${i18n}${this.$t( name )}`;
+        },
+        itemImage({ name }) {
+            switch ( name ) {
+                default:
+                    return null;
+                case FOOD_HAMBURGER:
+                    return require( "@/assets/illustrations/item_hamburger.png" );
+                case FOOD_PIZZA:
+                    return require( "@/assets/illustrations/item_pizza.png" );
+                case SHOE_HEELS:
+                    return require( "@/assets/illustrations/item_heels.png" );
+                case SHOE_SNEAKERS:
+                    return require( "@/assets/illustrations/item_sneakers.png" );
+                case SHOE_FLIPPERS:
+                    return require( "@/assets/illustrations/item_flippers.png" );
+                case LIQUOR_WINE:
+                    return require( "@/assets/illustrations/item_wine.png" );
+                case LIQUOR_GIN:
+                    return require( "@/assets/illustrations/item_gin.png" );
+                case LIQUOR_COGNAC:
+                    return require( "@/assets/illustrations/item_cognac.png" );
+                case HEALTHCARE_ASPIRIN:
+                    return require( "@/assets/illustrations/item_aspirin.png" );
+                case HEALTHCARE_BANDAID:
+                    return require( "@/assets/illustrations/item_bandaid.png" );
+                case JEWELRY_NECKLACE:
+                    return require( "@/assets/illustrations/item_necklace.png" );
+                case JEWELRY_BRACELET:
+                    return require( "@/assets/illustrations/item_bracelet.png" );
+                case JEWELRY_EARRINGS:
+                    return require( "@/assets/illustrations/item_earrings.png" );
+                case DRUG_STIMULANT_A:
+                    return require( "@/assets/illustrations/item_stimulant_a.png" );
+                case DRUG_NOSE_CANDY:
+                    return require( "@/assets/illustrations/item_nose_candy.png" );
+            }
         },
         canBuy( item ) {
             return this.player.inventory.cash >= item.price;
@@ -240,15 +298,56 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.item {
-    display: inline-block;
+@import "@/styles/_variables";
 
-    &--name {
-        width: 200px;
+.items {
+    @include mobile() {
+        text-align: center;
+    }
+}
+
+.item {
+    @include noSelect();
+    display: inline-block;
+    position: relative;
+    vertical-align: top;
+    text-align: center;
+
+    &__preview {
+        @include mobile() {
+            max-width: 200px;
+            img {
+                width: 100%;
+            }
+        }
+
+        @include large() {
+            height: 200px;
+            padding: $spacing-medium;
+            img {
+                height: 100%;
+            }
+        }
     }
 
-    &--price {
-        width: 80px;
+    &__name {
+        margin-top: 0;
+    }
+
+    &__price {
+        position: absolute;
+        background-color: #FFF;
+        padding: $spacing-medium;
+        border: 3px dashed #333;
+        border-radius: 50%;
+        transform: rotateZ(-10deg);
+        font-weight: bold;
+        top: 0;
+        right: $spacing-medium;
+
+        &--disabled {
+            background-color: #666;
+        }
     }
 }
 
