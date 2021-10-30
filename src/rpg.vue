@@ -169,7 +169,6 @@ export default {
 
         await preloadAssets();
         await this.loadOptions();
-        await this.prepareAudio();
 
         let hasGame = false;
         if ( this.hasSavedGame() ) {
@@ -203,7 +202,6 @@ export default {
             "setScreen",
         ]),
         ...mapActions([
-            "prepareAudio",
             "playSound",
             "createGame",
             "loadOptions",

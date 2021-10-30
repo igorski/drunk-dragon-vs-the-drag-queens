@@ -1,3 +1,4 @@
+import axios from "axios";
 import bowser from "bowser";
 import scriptLoader from "promised-script-loader";
 import { TRACK_TYPES, OVERGROUND_THEMES, BUILDING_THEMES, BATTLE_THEMES } from "@/definitions/audio-tracks";
@@ -5,22 +6,14 @@ import { WORLD_TYPE } from "@/model/factories/world-factory";
 import { BUILDING_TYPE } from "@/model/factories/building-factory";
 import { randomFromList } from "@/utils/random-util";
 
-const SOUNDCLOUD_SDK = "https://connect.soundcloud.com/sdk.js";
-// request your own at https://soundcloud.com/you/apps
-const SC_API_ID = "" || localStorage?.getItem( "soundCloudApiKey" );
-
 const parsedBrowser = bowser.getParser( window.navigator.userAgent );
 const isIOS = parsedBrowser?.os?.name === "iOS" || parsedBrowser?.browser?.name === "Safari" // iOS 13 reports as MacOS...
 
 // automatic audio playback is blocked until a user interaction
 const prepare = ({ state, commit }, optCallback ) => {
-    if ( !state.sdkReady ) {
-        throw new Error( "Soundcloud SDK not yet loaded" );
-    }
     const handler = () => {
         document.removeEventListener( "keyup", handler );
         document.removeEventListener( "click", handler );
-        SC.initialize({ client_id: SC_API_ID || window.soundCloudApiKey });
 
         commit( "setPrepared", true );
 
@@ -30,11 +23,21 @@ const prepare = ({ state, commit }, optCallback ) => {
     document.addEventListener( "click", handler );
 };
 
+function createAudioElement( source, loop = false ) {
+    const element = document.createElement( "audio" );
+    element.crossOrigin = "anonymous";
+    element.setAttribute( "src", source );
+    if ( loop ) {
+        element.setAttribute( "loop", "loop" );
+    }
+    return element;
+}
+
 export default {
     state: {
-        sdkReady    : false,
         prepared    : false,
         muted       : process.env.NODE_ENV === "development",
+        sound       : null, // HTMLAudioElement
         playing     : false,
         lastTrackId : null,
     },
@@ -42,9 +45,6 @@ export default {
         muted: state => state.muted,
     },
     mutations: {
-        setSDKReady( state, value ) {
-            state.sdkReady = !!value;
-        },
         setPrepared( state, value ) {
             state.prepared = !!value;
         },
@@ -62,15 +62,6 @@ export default {
         },
     },
     actions: {
-        async prepareAudio({ state, commit }) {
-            try {
-                await scriptLoader([ SOUNDCLOUD_SDK ]);
-                commit( "setSDKReady", true );
-                prepare({ state, commit });
-            } catch {
-                // non critical, continue.
-            }
-        },
         playSound({ state, commit, dispatch }, trackTypeIdOrTrackId = null ) {
             if ( state.muted ) {
                 return;
@@ -94,21 +85,37 @@ export default {
             } else if ( typeof trackTypeIdOrTrackId === "string" ) {
                 trackId = trackTypeIdOrTrackId;
             }
-            const start = () => {
+            const start = async () => {
                 if ( state.lastTrackId === trackId && state.playing ) {
                     return;  // already playing this tune!
                 }
                 dispatch( "stopSound" ); // stop playing the current track (TODO : fade out?)
                 commit( "setLastTrackId", trackId );
 
-                SC.stream( `/tracks/${trackId}`, sound => {
-                    commit( "setSound", sound );
-                    sound.play({ onfinish: () => {
-                        console.warn( `Finished playing "${trackId}", repeating from pool.` );
-                        commit( "setPlaying", false );
-                        dispatch( "playSound", trackTypeIdOrTrackId );
-                    }});
-                });
+                // a valid SoundCloud access token should be managed by the containing page.
+                // see https://developers.soundcloud.com/docs/api/explorer/open-api on how
+                // to register an application and retrieve a valid token
+                const token = window.soundCloudAccessToken || localStorage?.getItem( "soundCloudAccessToken" );
+                if ( !token ) {
+                    return;
+                }
+                const requestData = {
+                    headers: {
+                        "Content-Type"  : "application/json; charset=utf-8",
+                        "Authorization" : `OAuth ${token}`
+                    }
+                };
+                let { data } = await axios.get( `https://api.soundcloud.com/tracks/${trackId}`, requestData );
+                if ( data?.access === "playable" && data.stream_url ) {
+                    // data.stream_url should be the way to go but this leads to CORS errors when following
+                    // a redirect... for now use the /streams endpoint
+                   ({ data } = await axios.get( `https://api.soundcloud.com/tracks/${trackId}/streams`, requestData ));
+                   if ( data?.http_mp3_128_url ) {
+                       const sound = createAudioElement( data.http_mp3_128_url, true );
+                       commit( "setSound", sound );
+                       sound.play();
+                   }
+                }
                 commit( "setPlaying", true );
             };
             console.warn( "is IOS > " + isIOS);
@@ -121,7 +128,7 @@ export default {
         },
         stopSound({ state, commit }) {
             if ( state.sound ) {
-                state.sound.stop();
+                state.sound.pause();
                 commit( "setSound", null );
             }
             commit( "setPlaying", false );
