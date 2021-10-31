@@ -8,7 +8,7 @@ describe( "Shop factory", () => {
             x: 12,
             y: 7,
             type: SHOP_TYPES.LIQUOR,
-            items: [{ name: "foo", type: "bar", price: 25 }],
+            items: [{ id: 1, name: "foo", type: "bar", price: 25 }],
             debt: 20
         });
         const disassembled = ShopFactory.disassemble( shop );

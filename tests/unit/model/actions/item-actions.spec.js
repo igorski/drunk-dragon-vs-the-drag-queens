@@ -12,7 +12,11 @@ describe( "Item actions", () => {
 
         it( "should increase the player HP", () => {
             const player = CharacterFactory.create({ hp: 1, maxHp: 50 });
-            const item = ItemFactory.create( ItemTypes.HEALTHCARE, HEALTHCARE_TYPES[ 0 ], priceRange[ 0 ] );
+            const item = ItemFactory.create({
+                type  : ItemTypes.HEALTHCARE,
+                name  : HEALTHCARE_TYPES[ 0 ],
+                price : priceRange[ 0 ]
+            });
             const store = { commit: jest.fn() };
 
             ItemActions.applyItemToPlayer( store, item, player );
@@ -21,7 +25,11 @@ describe( "Item actions", () => {
 
         it( "should not exceed max HP", () => {
             const player = CharacterFactory.create({ hp: 1, maxHp: 25 });
-            const item = ItemFactory.create( ItemTypes.HEALTHCARE, HEALTHCARE_TYPES[ 0 ], priceRange[ priceRange.length - 1 ] );
+            const item = ItemFactory.create({
+                type  : ItemTypes.HEALTHCARE,
+                name  : HEALTHCARE_TYPES[ 0 ],
+                price : priceRange[ priceRange.length - 1 ]
+            });
             const store = { commit: jest.fn() };
 
             ItemActions.applyItemToPlayer( store, item, player );
@@ -34,7 +42,11 @@ describe( "Item actions", () => {
 
         it( "should increase the player HP", () => {
             const player = CharacterFactory.create({ hp: 1, maxHp: 10 });
-            const item = ItemFactory.create( ItemTypes.FOOD, FOOD_TYPES[ 0 ], priceRange[ 0 ] );
+            const item = ItemFactory.create({
+                type  : ItemTypes.FOOD,
+                name  : FOOD_TYPES[ 0 ],
+                price : priceRange[ 0 ]
+            });
             const store = { commit: jest.fn() };
 
             ItemActions.applyItemToPlayer( store, item, player );
@@ -43,7 +55,11 @@ describe( "Item actions", () => {
 
         it( "should not exceed max HP", () => {
             const player = CharacterFactory.create({ hp: 6, maxHp: 10 });
-            const item = ItemFactory.create( ItemTypes.FOOD, FOOD_TYPES[ 0 ], priceRange[ priceRange.length - 1 ] );
+            const item = ItemFactory.create({
+                type  : ItemTypes.FOOD,
+                name  : FOOD_TYPES[ 0 ],
+                price : priceRange[ priceRange.length - 1 ]
+            });
             const store = { commit: jest.fn() };
 
             ItemActions.applyItemToPlayer( store, item, player );
@@ -56,7 +72,11 @@ describe( "Item actions", () => {
 
         it( "should increase the players intoxication and start/update an Effect to sober up over time", () => {
             const player = CharacterFactory.create({}, {}, { intoxication: 0.5 });
-            const item = ItemFactory.create( ItemTypes.LIQUOR, LIQUOR_TYPES[ 0 ], priceRange[ 0 ]);
+            const item = ItemFactory.create({
+                type  : ItemTypes.LIQUOR,
+                name  : LIQUOR_TYPES[ 0 ],
+                price : priceRange[ 0 ]
+            });
             const store = { commit: jest.fn(), getters: { gameTime: 1000 } };
 
             ItemActions.applyItemToPlayer( store, item, player );
@@ -76,7 +96,11 @@ describe( "Item actions", () => {
 
         it( "should not increase the players intoxication beyond the maximum 24 hour buzz", () => {
             const player = CharacterFactory.create({}, {}, { intoxication: 0.5 });
-            const item = ItemFactory.create( ItemTypes.LIQUOR, LIQUOR_TYPES[ 0 ], priceRange[ 1 ]);
+            const item = ItemFactory.create({
+                type  : ItemTypes.LIQUOR,
+                name  : LIQUOR_TYPES[ 0 ],
+                price : priceRange[ 1 ]
+            });
             const store = { commit: jest.fn(), getters: { gameTime: 1000 } };
 
             ItemActions.applyItemToPlayer( store, item, player );
@@ -100,7 +124,11 @@ describe( "Item actions", () => {
 
         it( "should increase the players boost and start/update an Effect to clean up over time", () => {
             const player = CharacterFactory.create({}, {}, { boost: 0.25 });
-            const item = ItemFactory.create( ItemTypes.DRUGS, DRUG_TYPES[ 0 ], priceRange[ 0 ]);
+            const item = ItemFactory.create({
+                type  : ItemTypes.DRUGS,
+                name  : DRUG_TYPES[ 0 ],
+                price : priceRange[ 0 ]
+            });
             const store = { commit: jest.fn(), getters: { gameTime: 1000 } };
 
             ItemActions.applyItemToPlayer( store, item, player );
@@ -120,7 +148,11 @@ describe( "Item actions", () => {
 
         it( "should not increase the players intoxication beyond the maximum hour buzz", () => {
             const player = CharacterFactory.create({}, {}, { boost: 0.5 });
-            const item = ItemFactory.create( ItemTypes.DRUGS, DRUG_TYPES[ 1 ], priceRange[ 1 ]);
+            const item = ItemFactory.create({
+                type  : ItemTypes.DRUGS,
+                name  : DRUG_TYPES[ 1 ],
+                price : priceRange[ 1 ]
+            });
             const store = { commit: jest.fn(), getters: { gameTime: 1000 } };
 
             ItemActions.applyItemToPlayer( store, item, player );

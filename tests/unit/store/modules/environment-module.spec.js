@@ -162,17 +162,24 @@ describe( "Vuex environment module", () => {
             });
 
             it( "should be able to add a specific item to the currently visited shop", () => {
-                const state = { shop: { items: [{ foo: "bar" }] } };
-                const item = { baz: "qux" };
+                const state = { shop: { items: [{ id: 1, foo: "bar" }] } };
+                const item = { id: 2, baz: "qux" };
                 mutations.addItemToShop( state, item );
-                expect( state.shop.items ).toEqual([{ foo: "bar" }, { baz: "qux" }])
+                expect( state.shop.items ).toEqual([{ id: 1, foo: "bar" }, item ])
+            });
+
+            it( "should be able to not add a specific item to the currently visited shop twice", () => {
+                const item = { id: 1, foo: "bar" };
+                const state = { shop: { items: [ item, { id: 2, baz: "qux" }] } };
+                mutations.addItemToShop( state, item );
+                expect( state.shop.items ).toEqual([ item, { id: 2, baz: "qux" } ]);
             });
 
             it( "should be able to remove a specific item from the currently visited shop", () => {
-                const item  = { foo: "bar" };
-                const state = { shop: { items: [{ baz: "qux" }, item ] } };
+                const item  = { id: 1, foo: "bar" };
+                const state = { shop: { items: [ item, { id: 2, baz: "qux" } ] } };
                 mutations.removeItemFromShop( state, item );
-                expect( state.shop.items ).toEqual([{ baz: "qux" }]);
+                expect( state.shop.items ).toEqual([{ id: 2, baz: "qux" }]);
             });
 
             it( "should be able to set the active building", () => {

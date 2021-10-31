@@ -182,6 +182,9 @@ export default {
             if ( state.gameState !== GAME_ACTIVE ) {
                 return;
             }
+            if ( timestamp === 0 ) {
+                timestamp = performance.now(); // zCanvas initial render default
+            }
             // advance game time (values are in milliseconds relative to the game's time scale)
             const delta = ( timestamp - state.lastRender ) * GAME_TIME_RATIO;
             commit( "advanceGameTime", delta );

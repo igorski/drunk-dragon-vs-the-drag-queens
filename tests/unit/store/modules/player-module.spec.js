@@ -124,18 +124,18 @@ describe( "Vuex player module", () => {
         });
 
         it( "should be able to add an item to the players inventory", () => {
-            const state = { player: { inventory: { cash: 50, items: [{ foo: "bar" }] } } };
-            const item  = { baz: "qux" };
+            const state = { player: { inventory: { cash: 50, items: [{ id: 1, foo: "bar" }] } } };
+            const item  = { id: 2, baz: "qux" };
             mutations.addItemToInventory( state, item );
-            expect( state.player.inventory.items ).toEqual([{ foo: "bar"}, { baz: "qux" }]);
+            expect( state.player.inventory.items ).toEqual([{ id: 1, foo: "bar" }, { id: 2, baz: "qux" }]);
         });
 
         it( "should be able to remove an item from the players inventory", () => {
             const state = { player: { inventory: {
-                cash: 50, items: [{ foo: "bar" }, { baz: "qux" }] } }
+                cash: 50, items: [{ id: 1, foo: "bar" }, { id: 2, baz: "qux" }] } }
             };
             mutations.removeItemFromInventory( state, state.player.inventory.items[1] );
-            expect( state.player.inventory.items ).toEqual([{ foo: "bar"}]);
+            expect( state.player.inventory.items ).toEqual([{ id: 1, foo: "bar"}]);
         });
     });
 

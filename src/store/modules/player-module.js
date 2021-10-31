@@ -1,6 +1,5 @@
 import cloneDeep           from "lodash/cloneDeep";
 import merge               from "lodash/merge";
-import isEqual             from "lodash/isEqual";
 import { DRAB }            from "@/definitions/character-types";
 import { GAME_START_HOUR } from "@/definitions/constants";
 import { GAME_OVER }       from "@/definitions/game-states";
@@ -71,13 +70,13 @@ export default
         },
         addItemToInventory( state, item ) {
             const { items } = state.player.inventory;
-            if ( !items.includes( item )) {
+            if ( !items.find(({ id }) => id === item.id )) {
                 items.push( item );
             }
         },
         removeItemFromInventory( state, item ) {
             const { items } = state.player.inventory;
-            const index = items.findIndex( compare => isEqual( compare, item ));
+            const index = items.findIndex(({ id }) => id === item.id );
             if ( index > -1 ) {
                 items.splice( index, 1 );
             }

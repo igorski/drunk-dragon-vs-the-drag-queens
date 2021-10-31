@@ -1,5 +1,6 @@
 import PriceTypes, { getPriceTypeForPrice, getPriceRangeForItemType } from "@/definitions/price-types";
 import { random, randomBool, randomFromList } from "@/utils/random-util";
+import { getUid } from "@/utils/uid-util";
 import ItemTypes, {
     getItemsForType,
     JEWELRY_TYPES, CLOTHING_TYPES, LIQUOR_TYPES, DRUG_TYPES, HEALTHCARE_TYPES, FOOD_TYPES, WEAPON_TYPES,
@@ -10,9 +11,8 @@ import ItemTypes, {
 
 const ItemFactory =
 {
-    create( type, optName = "", optPrice = -1 ) {
-        let name = optName;
-        if ( !optName ) {
+    create({ type, name = "", price = -1, id = getUid() } = {}) {
+        if ( !name ) {
             switch ( type ) {
                 case ItemTypes.JEWELRY:
                     name = randomFromList( JEWELRY_TYPES );
@@ -38,13 +38,12 @@ const ItemFactory =
             }
         }
 
-        let price = optPrice;
         if ( price === -1 ) {
             price = getPriceForItem( type, name );
         }
 
         return {
-            type, name, price
+            id, type, name, price
         };
     },
 
@@ -60,7 +59,7 @@ const ItemFactory =
 
         for ( let i = 0; i < amountToCreate; ++i ) {
             const name = names[ i % names.length ];
-            const item = ItemFactory.create( type, name );
+            const item = ItemFactory.create({ type, name });
             const priceType = getPriceTypeForPrice( item.price );
             // same item for same price type should not appear twice
             if ( !out.some( ci => ci.name === name && getPriceTypeForPrice( ci.price ) === priceType )) {
@@ -75,7 +74,12 @@ const ItemFactory =
      * back into an Item instance
      */
     assemble( data ) {
-        return ItemFactory.create( data.t, data.n, data.p );
+        return ItemFactory.create({
+            id    : data.i,
+            type  : data.t,
+            name  : data.n,
+            price : data.p
+        });
     },
 
     /**
@@ -83,6 +87,7 @@ const ItemFactory =
      */
     disassemble( item ) {
         return {
+            i: item.id,
             n: item.name,
             p: item.price,
             t: item.type

@@ -276,7 +276,7 @@ console.error("DRAT! (could not place hotel)");
     if ( floorType === FLOOR_TYPES.CAVE ) {
         const success = ExecuteWithRetry(() => {
             const { x, y } = getRandomFreeTilePosition( out, BUILDING_TILES.GROUND );
-            const item = { x, y, width: 1, height: 1, ...ItemFactory.create( ItemTypes.WEAPON, MAGIC_SWORD ) };
+            const item = { x, y, width: 1, height: 1, ...ItemFactory.create({ type: ItemTypes.WEAPON, name: MAGIC_SWORD }) };
             const position = reserveObject( item, out );
             if ( position ) {
                 item.x = position.x;

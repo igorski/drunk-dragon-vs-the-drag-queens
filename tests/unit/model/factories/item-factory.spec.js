@@ -8,8 +8,13 @@ import PriceTypes from "@/definitions/price-types";
 
 describe( "Item factory", () => {
     it( "should be able to generate an item from all provided arguments", () => {
-        const item = ItemFactory.create( ItemTypes.LIQUOR, LIQUOR_TYPES[ 0 ], 500 );
+        const item = ItemFactory.create({
+            type  : ItemTypes.LIQUOR,
+            name  : LIQUOR_TYPES[ 0 ],
+            price : 500
+        });
         expect( item ).toEqual({
+            id    : expect.any( String ),
             type  : ItemTypes.LIQUOR,
             name  : LIQUOR_TYPES[ 0 ],
             price : 500
@@ -17,7 +22,7 @@ describe( "Item factory", () => {
     });
 
     it( "should be able to generate a randomized price for an item", () => {
-        const item = ItemFactory.create( ItemTypes.LIQUOR );
+        const item = ItemFactory.create({ type: ItemTypes.LIQUOR });
         expect( item.price ).toEqual( expect.any( Number ));
     });
 
@@ -27,26 +32,26 @@ describe( "Item factory", () => {
             { type: ItemTypes.CLOTHES, name: SHOE_SNEAKERS, expected: PriceTypes.EXPENSIVE },
             { type: ItemTypes.CLOTHES, name: SHOE_FLIPPERS, expected: PriceTypes.LUXURY },
         ].forEach( item => {
-            expect( ItemFactory.create( item.type, item.name ).price ).toEqual( item.expected );
+            expect( ItemFactory.create({ type: item.type, name: item.name }).price ).toEqual( item.expected );
         });
 
         [
             { type: ItemTypes.DRUGS, name: DRUG_STIMULANT_A, expected: PriceTypes.AVERAGE },
             { type: ItemTypes.DRUGS, name: DRUG_NOSE_CANDY,  expected: PriceTypes.EXPENSIVE },
         ].forEach( item => {
-            expect( ItemFactory.create( item.type, item.name ).price ).toEqual( item.expected );
+            expect( ItemFactory.create({ type: item.type, name: item.name }).price ).toEqual( item.expected );
         });
 
         [
             { type: ItemTypes.FOOD, name: FOOD_HAMBURGER, expected: PriceTypes.AVERAGE },
             { type: ItemTypes.FOOD, name: FOOD_PIZZA,     expected: PriceTypes.MEDIUM }
         ].forEach( item => {
-            expect( ItemFactory.create( item.type, item.name ).price ).toEqual( item.expected );
+            expect( ItemFactory.create({ type: item.type, name: item.name }).price ).toEqual( item.expected );
         });
     });
 
     it( "should be able to assemble and disassemble a serialized item without loss of data", () => {
-        const item = ItemFactory.create( ItemTypes.LIQUOR );
+        const item = ItemFactory.create({ type: ItemTypes.LIQUOR });
         const disassembled = ItemFactory.disassemble( item );
         expect( ItemFactory.assemble( disassembled )).toEqual( item );
     });

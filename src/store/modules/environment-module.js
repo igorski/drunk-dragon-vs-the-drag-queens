@@ -1,5 +1,4 @@
 import cloneDeep from "lodash/cloneDeep";
-import isEqual   from "lodash/isEqual";
 import merge     from "lodash/merge";
 import Vue       from "vue";
 
@@ -94,12 +93,12 @@ export default {
         },
         addItemToShop( state, item ) {
             const { items } = state.shop;
-            if ( !items.includes( item )) {
+            if ( !items.find(({ id }) => id === item.id )) {
                 items.push( item );
             }
         },
         removeItemFromShop( state, item ) {
-            const index = state.shop.items.indexOf( item );
+            const index = state.shop.items.findIndex(({ id }) => id === item.id );
             if ( index > -1 ) {
                 state.shop.items.splice( index, 1 );
             }
@@ -133,7 +132,7 @@ export default {
         },
         removeItemFromEnvironment( state, item ) {
             const { items } = state.activeEnvironment;
-            const index = items.findIndex( compare => isEqual( compare, item ));
+            const index = items.findIndex(({ id }) => id === item.id );
             if ( index > -1 ) {
                 items.splice( index, 1 );
             }
