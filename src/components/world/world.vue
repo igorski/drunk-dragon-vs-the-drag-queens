@@ -72,7 +72,7 @@ export default {
             fps: 60,
             onUpdate: this.updateGame.bind( this )
         });
-        this.setLastRender( Date.now() );
+        this.setLastRender( window.performance.now() );
 
         // attach event handlers
         const resizeEvent = "onorientationchange" in window ? "orientationchange" : "resize";

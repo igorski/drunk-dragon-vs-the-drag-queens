@@ -159,7 +159,7 @@ export default {
             }
             commit( "setShop", shop );
             commit( "setScreen", SCREEN_SHOP );
-            commit( "addEffect", EffectFactory.create(
+            commit( "addEffect", EffectFactory.createRealTime(
                 null, getters.gameTime, 60000, 0, 1, "handleShopTimeout"
             ));
         },
@@ -231,7 +231,7 @@ export default {
             await dispatch( "changeActiveEnvironment", state.world );
         },
         async changeActiveEnvironment({ state, getters, commit, dispatch }, environment ) {
-            if ( !!state.activeEnvironment ) {
+            if ( state.activeEnvironment ) {
                 commit( "flushBitmaps" ); // free memory allocated to Bitmaps
                 dispatch( "cancelCharacterMovements" ); // cancel pending movement
             }

@@ -83,14 +83,14 @@ export default {
         waypoints.forEach(({ x, y }, index ) => {
             // waypoints can move between two axes at a time
             if ( x !== lastX ) {
-                effect = EffectFactory.create(
+                effect = EffectFactory.createRealTime(
                     xMutation, startTime, duration, lastX, x, updateMutation, character.id
                 );
                 commit( "addEffect", effect );
                 lastX = x;
             }
             if ( y !== lastY ) {
-                effect = EffectFactory.create(
+                effect = EffectFactory.createRealTime(
                     yMutation, startTime, duration, lastY, y, updateMutation, character.id
                 );
                 commit( "addEffect", effect );

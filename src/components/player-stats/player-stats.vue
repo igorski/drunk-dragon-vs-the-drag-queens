@@ -18,7 +18,7 @@
 
 <script>
 import { mapGetters } from "vuex";
-import { GAME_START_TIME, MS_IN_AN_HOUR, MS_IN_A_DAY } from "@/definitions/constants";
+import { GAME_START_TIME, HOUR, TWENTY_FOUR_HOURS } from "@/definitions/constants";
 import messages from "./messages.json";
 
 export default {
@@ -32,10 +32,10 @@ export default {
             return this.gameTime - new Date( GAME_START_TIME );
         },
         days() {
-            return Math.floor( this.gameDuration / MS_IN_A_DAY );
+            return Math.floor( this.gameDuration / TWENTY_FOUR_HOURS );
         },
         hours() {
-            return Math.floor(( this.gameDuration % MS_IN_A_DAY ) / MS_IN_AN_HOUR );
+            return Math.floor(( this.gameDuration % TWENTY_FOUR_HOURS ) / HOUR );
         },
     }
 };

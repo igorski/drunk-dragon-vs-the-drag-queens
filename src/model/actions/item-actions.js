@@ -1,4 +1,4 @@
-import { HALF_HOUR, TWENTY_FOUR_HOURS } from "@/definitions/constants";
+import { HOUR, TWENTY_FOUR_HOURS } from "@/definitions/constants";
 import PriceTypes, { getItemEffectivityByPriceType } from "@/definitions/price-types";
 import ItemTypes from "@/definitions/item-types";
 import EffectFactory from "@/model/factories/effect-factory";
@@ -40,7 +40,7 @@ export default {
                 commit( "setBoost", { value: boost });
                 // start "sobering up" effect
                 commit( "addEffect", EffectFactory.create(
-                    "setBoost", getters.gameTime, HALF_HOUR * boost, boost, 0, "cleanUp", player.id
+                    "setBoost", getters.gameTime, HOUR * boost, boost, 0, "cleanUp", player.id
                 ));
                 break;
 

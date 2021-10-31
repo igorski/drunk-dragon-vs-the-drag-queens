@@ -303,4 +303,4 @@ console.error("DRAT! (could not place hotel)");
         }
     }
     return out;
-};
+}

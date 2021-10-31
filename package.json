@@ -41,7 +41,7 @@
     "vue-js-toggle-button": "^1.3.3",
     "vue-select": "^3.11.2",
     "vue-template-compiler": "^2.6.11",
-    "zcanvas": "^4.2.3",
+    "zcanvas": "^4.3.0",
     "zthreader": "^1.0.2"
   }
 }

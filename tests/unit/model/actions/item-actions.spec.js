@@ -1,6 +1,6 @@
 import ItemActions from "@/model/actions/item-actions";
 import { randomBool, randomFromList } from "@/utils/random-util";
-import { HALF_HOUR, TWENTY_FOUR_HOURS, GAME_TIME_RATIO } from "@/definitions/constants";
+import { HOUR, TWENTY_FOUR_HOURS } from "@/definitions/constants";
 import ItemTypes, { HEALTHCARE_TYPES, LIQUOR_TYPES, DRUG_TYPES, FOOD_TYPES } from "@/definitions/item-types";
 import PriceTypes, { getPriceRangeForItemType } from "@/definitions/price-types";
 import ItemFactory from "@/model/factories/item-factory";
@@ -65,7 +65,7 @@ describe( "Item actions", () => {
             expect( store.commit ).toHaveBeenNthCalledWith( 3, "addEffect", {
                 mutation: "setIntoxication",
                 startTime: store.getters.gameTime,
-                duration: TWENTY_FOUR_HOURS * 0.75 * GAME_TIME_RATIO,
+                duration: TWENTY_FOUR_HOURS * 0.75,
                 startValue: 0.75,
                 endValue: 0,
                 callback: "soberUp",
@@ -85,7 +85,7 @@ describe( "Item actions", () => {
             expect( store.commit ).toHaveBeenNthCalledWith( 3, "addEffect", {
                 mutation: "setIntoxication",
                 startTime: store.getters.gameTime,
-                duration: TWENTY_FOUR_HOURS * GAME_TIME_RATIO,
+                duration: TWENTY_FOUR_HOURS,
                 startValue: 1,
                 endValue: 0,
                 callback: "soberUp",
@@ -109,7 +109,7 @@ describe( "Item actions", () => {
             expect( store.commit ).toHaveBeenNthCalledWith( 3, "addEffect", {
                 mutation: "setBoost",
                 startTime: store.getters.gameTime,
-                duration: HALF_HOUR * 0.5 * GAME_TIME_RATIO,
+                duration: HOUR * 0.5,
                 startValue: 0.5,
                 endValue: 0,
                 callback: "cleanUp",
@@ -118,7 +118,7 @@ describe( "Item actions", () => {
             });
         });
 
-        it( "should not increase the players intoxication beyond the maximum half hour buzz", () => {
+        it( "should not increase the players intoxication beyond the maximum hour buzz", () => {
             const player = CharacterFactory.create({}, {}, { boost: 0.5 });
             const item = ItemFactory.create( ItemTypes.DRUGS, DRUG_TYPES[ 1 ], priceRange[ 1 ]);
             const store = { commit: jest.fn(), getters: { gameTime: 1000 } };
@@ -129,7 +129,7 @@ describe( "Item actions", () => {
             expect( store.commit ).toHaveBeenNthCalledWith( 3, "addEffect", {
                 mutation: "setBoost",
                 startTime: store.getters.gameTime,
-                duration: HALF_HOUR * GAME_TIME_RATIO,
+                duration: HOUR,
                 startValue: 1,
                 endValue: 0,
                 callback: "cleanUp",

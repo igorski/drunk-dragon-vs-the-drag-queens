@@ -331,8 +331,8 @@ describe( "Vuex game module", () => {
             it( "should be able to update the effects for an active game", () => {
                 const commit    = jest.fn();
                 const dispatch  = jest.fn();
-                const effect1 = EffectFactory.create( "mutation1");
-                const effect2 = EffectFactory.create( "mutation2");
+                const effect1 = EffectFactory.create( "mutation1" );
+                const effect2 = EffectFactory.create( "mutation2" );
 
                 mockUpdateFn = jest.fn(({ commit, dispatch }, effect ) => {
                     // note that effect 2 we want to remove (by returning true)

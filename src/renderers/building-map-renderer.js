@@ -89,7 +89,7 @@ export default function( environment, targetWidth ) {
         dotSize, dotSize
     );
     return { src: cvs.toDataURL( "image/png" ), rendered };
-};
+}
 
 function drawItems( ctx, environment, items, size, tileWidth, tileHeight, color ) {
     items.forEach(({ x, y }) => {

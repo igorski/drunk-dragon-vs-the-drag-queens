@@ -1,17 +1,20 @@
 import { GAME_TIME_RATIO } from "@/definitions/constants";
 
+/**
+ * An effect is a state that wears off after times passes
+ * (for instance the effects of alcohol) an effect should operate
+ * on a single property. If more than one effect applies to the same
+ * property this should be recalculated into a new duration and value range.
+ */
 const EffectFactory =
 {
     /**
-     * An effect is a state that wears off after times passes
-     * (for instance the effects of alcohol) an effect should operate
-     * on a single property. If more than one effect applies to the same
-     * property this should be recalculated into a new duration and value range.
+     * Creates an effect where the time scale is relative to the game. E.g. provide
+     * one hour and it passes faster in real time (factor of GAME_TIME_RATIO faster).
      *
      * @param {String} mutation the name of the Vuex mutation to commit to on change, nullable
      * @param {Number} startTime time offset (e.g. current game time in milliseconds)
-     * @param {Number} duration total effect duration in milliseconds, this is
-     *                          automatically scaled against the game/real life time ratio
+     * @param {Number} duration total effect duration in milliseconds, provided in game time.
      * @param {Number} startValue the value when the effect starts
      * @param {Number} endValue the value when the effect ends
      * @param {String=} callback optional Vuex action to dispatch when effect is completed
@@ -26,17 +29,24 @@ const EffectFactory =
                 throw new Error( "cannot instantiate an Effect without either a mutation or callback" );
             }
         }
-        const scaledDuration = duration * GAME_TIME_RATIO;
         return {
             mutation,
             startTime,
-            duration: scaledDuration,
+            duration,
             startValue,
             endValue,
             callback,
             target,
-            increment: ( endValue - startValue ) / scaledDuration
+            increment: ( endValue - startValue ) / duration
         };
+    },
+
+    /**
+     * Creates an effect where the time scale is real time. E.g. provide
+     * one hour and it passes by more slowly in game time (factor of GAME_TIME_RATIO slower).
+     */
+    createRealTime( mutation, startTime, duration, startValue, endValue, callback = null, target = null ) {
+        return EffectFactory.create( mutation, startTime, duration * GAME_TIME_RATIO, startValue, endValue, callback, target );
     },
 
     /**
@@ -54,7 +64,7 @@ const EffectFactory =
         return {
             m: effect.mutation,
             s: effect.startTime,
-            d: effect.duration / GAME_TIME_RATIO,
+            d: effect.duration,
             sv: effect.startValue,
             ev: effect.endValue,
             c: effect.callback,

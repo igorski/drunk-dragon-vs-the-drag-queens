@@ -7,7 +7,7 @@ function fail( msg ) {
         throw new Error( msg );
     }
     return false;
-};
+}
 
 export const validateProperties = properties => {
     // these are expected to be within 0 - 1 range

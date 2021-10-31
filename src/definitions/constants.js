@@ -12,8 +12,6 @@ export const VALIDITY_CHECK_INTERVAL = 10000 * GAME_TIME_RATIO;
 export const HOUR                    = 1000 * 60 * 60; // milliseconds
 export const HALF_HOUR               = HOUR / 2;
 export const TWENTY_FOUR_HOURS       = HOUR * 24;
-export const MS_IN_AN_HOUR           = 3600000;
-export const MS_IN_A_DAY             = MS_IN_AN_HOUR * 24;
 
 /* levelling mechanism */
 

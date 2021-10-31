@@ -65,4 +65,4 @@ export default class CharacterRenderer extends sprite {
         this.setBounds( targetX, targetY, this._width, this._height );
         this.draw( canvasContext );
     }
-};
+}

@@ -94,7 +94,7 @@ export default {
     actions: {
         /* game management / storage */
         async createGame({ getters, commit, dispatch }, player = CharacterFactory.create() ) {
-            const now = Date.now();
+            const now = window.performance.now();
             // generate unique hash for the world
             const hash = MD5( now + random());
             // create world
@@ -115,7 +115,7 @@ export default {
             commit( "setBuilding", null);
             commit( "setWorld", world );
             commit( "setPlayer", player );
-            commit( "setLastRender", Date.now() );
+            commit( "setLastRender", window.performance.now() );
             await dispatch( "changeActiveEnvironment", world );
             commit( "openDialog", {
                 title   : getters.translate( "title.welcomeName", { name: player.appearance.name?.split( " " )[ 0 ]} ),
@@ -136,7 +136,7 @@ export default {
                 commit( "setWorld", world );
                 commit( "setPlayer", player );
                 const activeEnvironmentToSet = building?.floors[ building.floor ] ?? world;
-                commit( "setLastRender", Date.now() );
+                commit( "setLastRender", window.performance.now() );
                 await dispatch( "changeActiveEnvironment", activeEnvironmentToSet );
             } catch {
                 // likely corrupted or really outdated format
@@ -173,10 +173,10 @@ export default {
         },
         /**
          * Hooks into the game's render loop. This updates the world environment
-         * prior to each render cycle. Given timestamp is the time at which the zCanvas
-         * renderer invoked this update. By subtracting the lastRender value this
-         * describes the elapsed time between two render iterations (in ACTUAL time,
-         * NOT game time, for which GAME_TIME_RATIO multiplier is necessary)
+         * prior to each render cycle. Given timestamp (DOMHighResTimeStamp) is the
+         * time at which the zCanvas renderer invoked this update. By subtracting the
+         * lastRender value this describes the elapsed time between two render iterations
+         * (in ACTUAL time, NOT game time, for which GAME_TIME_RATIO multiplier is necessary)
          */
         updateGame({ state, getters, commit, dispatch }, timestamp ) {
             if ( state.gameState !== GAME_ACTIVE ) {

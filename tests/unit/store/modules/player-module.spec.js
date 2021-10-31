@@ -1,6 +1,6 @@
 import store from "@/store/modules/player-module";
 import { QUEEN, DRAB } from "@/definitions/character-types";
-import { GAME_START_HOUR, GAME_TIME_RATIO } from "@/definitions/constants";
+import { GAME_START_HOUR } from "@/definitions/constants";
 import { GAME_OVER } from "@/definitions/game-states";
 import { SCREEN_GAME } from "@/definitions/screens";
 import CharacterFactory from "@/model/factories/character-factory";
@@ -220,7 +220,6 @@ describe( "Vuex player module", () => {
             const commit = jest.fn();
             const mockedGetters = { gameTime: 1000, shop: { id: "foo" } };
             const duration = 500;
-            const scaledDuration = duration * GAME_TIME_RATIO;
             const amount = 5000;
 
             actions.loanMoney({ commit, getters: mockedGetters }, { duration, amount });
@@ -230,7 +229,7 @@ describe( "Vuex player module", () => {
             expect( commit ).toHaveBeenNthCalledWith( 3, "addEffect", {
                 mutation: null,
                 startTime: mockedGetters.gameTime,
-                duration: scaledDuration,
+                duration,
                 startValue: mockedGetters.gameTime,
                 endValue: mockedGetters.gameTime + duration,
                 callback: "handleLoanTimeout",

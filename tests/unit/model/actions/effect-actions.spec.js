@@ -1,12 +1,10 @@
 import EffectActions from "@/model/actions/effect-actions";
 import EffectFactory from "@/model/factories/effect-factory";
-import { GAME_TIME_RATIO } from "@/definitions/constants";
 
 describe("Effect actions", () => {
     const mutation       = "foo";
     const startTime      = 1000;
     const duration       = 1000;
-    const scaledDuration = duration * GAME_TIME_RATIO;
     const startValue     = 0;
     const endValue       = 1;
     const callback       = "bar";
@@ -28,7 +26,7 @@ describe("Effect actions", () => {
         const commit   = jest.fn();
         const dispatch = jest.fn();
         const effect   = EffectFactory.create( mutation, startTime, duration, startValue, endValue );
-        const result   = EffectActions.update({ commit, dispatch }, effect, startTime + ( scaledDuration / 2 ) );
+        const result   = EffectActions.update({ commit, dispatch }, effect, startTime + ( duration / 2 ) );
 
         // effect is not done (still halfway through its lifetime)
         expect( result ).toBe( false );
@@ -41,7 +39,7 @@ describe("Effect actions", () => {
         const commit   = jest.fn();
         const dispatch = jest.fn();
         const effect   = EffectFactory.create( mutation, startTime, duration, startValue, endValue );
-        const result   = EffectActions.update({ commit, dispatch }, effect, startTime + scaledDuration );
+        const result   = EffectActions.update({ commit, dispatch }, effect, startTime + duration );
 
         // effect is done (current time is at its lifetime end)
         expect( result ).toBe( true );
@@ -54,7 +52,7 @@ describe("Effect actions", () => {
         const commit   = jest.fn();
         const dispatch = jest.fn();
         const effect   = EffectFactory.create( mutation, startTime, duration, startValue, endValue );
-        const result   = EffectActions.update({ commit, dispatch }, effect, startTime + ( scaledDuration * 2 ));
+        const result   = EffectActions.update({ commit, dispatch }, effect, startTime + ( duration * 2 ));
 
         // effect is done (current time is at its lifetime end)
         expect( result ).toBe( true );
@@ -79,11 +77,11 @@ describe("Effect actions", () => {
         expect ( dispatch ).not.toHaveBeenCalled();
 
         // ensure callback isn't invoked halfway through effect lifetime
-        EffectActions.update({ commit, dispatch }, effect, startTime + ( scaledDuration / 2 ));
+        EffectActions.update({ commit, dispatch }, effect, startTime + ( duration / 2 ));
         expect ( dispatch ).not.toHaveBeenCalled();
 
         // ensure callback is invoked when effect has reached its end
-        EffectActions.update({ commit, dispatch }, effect, startTime + scaledDuration );
+        EffectActions.update({ commit, dispatch }, effect, startTime + duration );
         expect( dispatch ).toHaveBeenCalledWith( callback, null );
     });
 
@@ -93,7 +91,7 @@ describe("Effect actions", () => {
             const dispatch = jest.fn();
             const target   = "fooBar";
             const effect   = EffectFactory.create( mutation, startTime, duration, startValue, endValue, null, target );
-            const result   = EffectActions.update({ commit, dispatch }, effect, startTime + ( scaledDuration * 2 ));
+            const result   = EffectActions.update({ commit, dispatch }, effect, startTime + ( duration * 2 ));
 
             // effect is done (current time is at its lifetime end)
             expect( result ).toBe( true );
@@ -109,7 +107,7 @@ describe("Effect actions", () => {
             const effect   = EffectFactory.create(
                 mutation, startTime, duration, startValue, endValue, callback, target
             );
-            EffectActions.update({ commit, dispatch }, effect, startTime + scaledDuration );
+            EffectActions.update({ commit, dispatch }, effect, startTime + duration );
             expect( dispatch ).toHaveBeenCalledWith( callback, target );
         });
     });

@@ -106,7 +106,6 @@ See the _created_-hook in _rpg.vue_ for details.
 
 * characters should be generated in spinning circle logic similar to generateGroups
 * Place bar queens in building-factory according to same logic as drabs, ideally blocking a path
-* Do the effects of boost wear off at the right pace ?
 * When fighting other queens, make "vogue" an action (using drag swag)
 * Leaving building from exit can put you somewhere completely else on the map!!
 * Create heavily made up eyes, massive earrings and facial hair style

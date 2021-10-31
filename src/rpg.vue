@@ -184,8 +184,9 @@ export default {
 
         if ( process.env.NODE_ENV === "development" ) {
             const { getters, commit } = this.$store;
-            window.rpg = {
+            window.DDVTDQ = {
                 setScreen   : this.setScreen,
+                advanceTime : valueInMs => commit( "advanceGameTime", valueInMs ),
                 getPosition : () => ({ x: getters.activeEnvironment.x, y: getters.activeEnvironment.y }),
                 setPosition : ( x, y ) => {
                     commit( "setXPosition", { value: x });
