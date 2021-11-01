@@ -62,7 +62,7 @@ export default {
         },
     },
     actions: {
-        playSound({ state, commit, dispatch }, trackTypeIdOrTrackId = null ) {
+        async playSound({ state, commit, dispatch }, trackTypeIdOrTrackId = null ) {
             if ( state.muted ) {
                 return;
             }
@@ -85,6 +85,26 @@ export default {
             } else if ( typeof trackTypeIdOrTrackId === "string" ) {
                 trackId = trackTypeIdOrTrackId;
             }
+
+            // a valid SoundCloud access token should be managed by the containing page.
+            // see https://developers.soundcloud.com/docs/api/explorer/open-api on how
+            // to register an application and retrieve a valid token
+            const token = window.soundCloudAccessToken || localStorage?.getItem( "soundCloudAccessToken" );
+            if ( !token ) {
+                return;
+            }
+            const requestData = {
+                headers: {
+                    "Content-Type"  : "application/json; charset=utf-8",
+                    "Authorization" : `OAuth ${token}`
+                }
+            };
+            let { data } = await axios.get( `https://api.soundcloud.com/tracks/${trackId}`, requestData );
+            if ( data?.access === "playable" && data.stream_url ) {
+                // data.stream_url should be the way to go but this leads to CORS errors when following
+                // a redirect... for now use the /streams endpoint
+               ({ data } = await axios.get( `https://api.soundcloud.com/tracks/${trackId}/streams`, requestData ));
+            }
             const start = async () => {
                 if ( state.lastTrackId === trackId && state.playing ) {
                     return;  // already playing this tune!
@@ -92,29 +112,10 @@ export default {
                 dispatch( "stopSound" ); // stop playing the current track (TODO : fade out?)
                 commit( "setLastTrackId", trackId );
 
-                // a valid SoundCloud access token should be managed by the containing page.
-                // see https://developers.soundcloud.com/docs/api/explorer/open-api on how
-                // to register an application and retrieve a valid token
-                const token = window.soundCloudAccessToken || localStorage?.getItem( "soundCloudAccessToken" );
-                if ( !token ) {
-                    return;
-                }
-                const requestData = {
-                    headers: {
-                        "Content-Type"  : "application/json; charset=utf-8",
-                        "Authorization" : `OAuth ${token}`
-                    }
-                };
-                let { data } = await axios.get( `https://api.soundcloud.com/tracks/${trackId}`, requestData );
-                if ( data?.access === "playable" && data.stream_url ) {
-                    // data.stream_url should be the way to go but this leads to CORS errors when following
-                    // a redirect... for now use the /streams endpoint
-                   ({ data } = await axios.get( `https://api.soundcloud.com/tracks/${trackId}/streams`, requestData ));
-                   if ( data?.http_mp3_128_url ) {
-                       const sound = createAudioElement( data.http_mp3_128_url, true );
-                       commit( "setSound", sound );
-                       sound.play();
-                   }
+                if ( data?.http_mp3_128_url ) {
+                    const sound = createAudioElement( data.http_mp3_128_url, true );
+                    commit( "setSound", sound );
+                    sound.play();
                 }
                 commit( "setPlaying", true );
             };
