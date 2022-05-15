@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "vue-cli-service serve",
+    "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "test": "vue-cli-service test:unit",
     "lint": "vue-cli-service lint"
@@ -41,7 +41,7 @@
     "vue-js-toggle-button": "^1.3.3",
     "vue-select": "^3.11.2",
     "vue-template-compiler": "^2.6.11",
-    "zcanvas": "^4.3.0",
+    "zcanvas": "^5.1.0",
     "zthreader": "^1.0.2"
   }
 }
