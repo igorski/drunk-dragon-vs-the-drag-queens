@@ -38,7 +38,34 @@ export const renderEnvironment = ( environment, player ) =>
 
         zThreader.init( .5, 60 );
 
-        const thread = new zThread( async () => {
+        // here we define our own custom override of the zThread internal execution handler to
+        // render all columns of a single row, one by one
+
+        const MAX_ITERATIONS = rb;    // all rows
+        let iterations       = rt - 1;
+
+        const thread = new zThread({
+            executionFn: () => {
+                // the amount of times we call the "render"-function
+                // per iteration of the internal execution method
+                const stepsPerIteration = 1;
+
+                for ( let i = 0; i < stepsPerIteration; ++i ) {
+                    if ( iterations >= MAX_ITERATIONS ) {
+                        // process the finalRenders and we're done
+                        while ( finalRenders.length ) {
+                            finalRenders.shift()();
+                        }
+                        return true;
+                    }
+                    else {
+                        // execute operation (and increment iteration)
+                        render( ++iterations );
+                    }
+                }
+                return false;
+            },
+            completeFn: async () => {
             // store the result
             // TODO : investigate https://github.com/imaya/CanvasTool.PngEncoder for 8-bit PNG ?
 
@@ -71,7 +98,7 @@ export const renderEnvironment = ( environment, player ) =>
                 }
             }
             resolve( target );
-        });
+        }});
 
         // function to render the sprites onto the Canvas
 
@@ -88,32 +115,6 @@ export const renderEnvironment = ( environment, player ) =>
 
         // TODO : separate into individual tiles for mobile ?
 
-        // here we define our own custom override of the ZThread internal execution handler to
-        // render all columns of a single row, one by ony
-
-        const MAX_ITERATIONS = rb;    // all rows
-        let iterations       = rt - 1;
-
-        thread._executeInternal = () => {
-            // the amount of times we call the "render"-function
-            // per iteration of the internal execution method
-            const stepsPerIteration = 1;
-
-            for ( let i = 0; i < stepsPerIteration; ++i ) {
-                if ( iterations >= MAX_ITERATIONS ) {
-                    // process the finalRenders and we're done
-                    while ( finalRenders.length ) {
-                        finalRenders.shift()();
-                    }
-                    return true;
-                }
-                else {
-                    // execute operation (and increment iteration)
-                    render( ++iterations );
-                }
-            }
-            return false;
-        };
         thread.run(); // start crunching
     });
 };

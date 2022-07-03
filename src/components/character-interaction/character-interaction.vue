@@ -108,7 +108,7 @@ export default {
         height: 375px;
     }
     overflow: visible; // speech bubble
-    /deep/ .modal__content {
+    ::v-deep .modal__content {
         overflow: visible !important;
     }
 }
