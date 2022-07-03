@@ -36,7 +36,7 @@ export default function( environment, targetWidth ) {
         tx = Math.round( x * tileWidth );
         ty = Math.round( y * tileHeight );
 
-        const color = "grey";
+        let color = "grey";
 
         switch ( environment.terrain[ index ] ) {
             case WORLD_TILES.GRASS:
