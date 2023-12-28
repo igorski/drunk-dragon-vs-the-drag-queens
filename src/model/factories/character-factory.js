@@ -47,6 +47,7 @@ const CharacterFactory =
              // all characters are always 1 tile in width and height
              width: 1,
              height: 1,
+             asset: undefined, // { bitmap: HTMLCanvasElement, width: number, height: number, resourceId: string }
              appearance: {
                  name: "Derp",
                  ...CharacterFactory.generateAppearance(),

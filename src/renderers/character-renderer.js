@@ -1,14 +1,14 @@
-import { sprite } from "zcanvas";
+import { Sprite } from "zcanvas";
 import WorldCache from "@/utils/world-cache";
 
 /**
  * A wrapping class for zCanvas.Sprites that render animated
  * graphics using a sprite sheet. To be used with OvergroundRenderer classes.
  */
-export default class CharacterRenderer extends sprite {
-    constructor( bitmap, sheetData, optX = 0, optY = 0 ) {
+export default class CharacterRenderer extends Sprite {
+    constructor( resourceId, sheetData, optX = 0, optY = 0 ) {
         super({
-            bitmap,
+            resourceId,
             sheetTileWidth  : sheetData.tileWidth,
             sheetTileHeight : sheetData.tileHeight,
             sheet           : sheetData.frames
@@ -27,7 +27,7 @@ export default class CharacterRenderer extends sprite {
         this._lastDir = 0;
     }
 
-    render( canvasContext, characterX, characterY, viewportX, viewportY ) {
+    render( renderer, characterX, characterY, viewportX, viewportY ) {
         const { tileWidth, tileHeight } = WorldCache;
 
         const x = ( characterX - viewportX ) * tileWidth;
@@ -63,6 +63,6 @@ export default class CharacterRenderer extends sprite {
             this._lastY = characterY;
         }
         this.setBounds( targetX, targetY, this._width, this._height );
-        this.draw( canvasContext );
+        this.draw( renderer );
     }
 }

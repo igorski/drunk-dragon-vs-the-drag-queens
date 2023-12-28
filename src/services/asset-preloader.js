@@ -1,4 +1,4 @@
-import { loader }  from "zcanvas";
+import { Loader }  from "zcanvas";
 import SpriteCache from "@/utils/sprite-cache";
 
 let _queue = [];
@@ -52,13 +52,12 @@ export const preloadAssets = () =>
                 resolve();
             } else {
                 const asset = _queue.shift();
-                const image = asset.target;
-
-                image.crossOrigin = "anonymous";
-                _loadContainer.appendChild( image );
-
+                
                 try {
-                    await loader.loadImage( asset.src, image );
+                    const { image } = await Loader.loadImage( asset.src );
+                    asset.target.bitmap = image;
+                    
+                    _loadContainer.appendChild( image );
                 } catch( e ) {
                     console.error( e, asset.src );
                 }

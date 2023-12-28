@@ -1,10 +1,14 @@
-import { loader } from "zcanvas";
+import { Loader } from "zcanvas";
 import { createPixelCanvas, changeImageColor } from "@/utils/canvas-util";
 import { QUEEN_ASSET_PATH, QUEEN_DIMENSIONS, fileSuffix } from "@/definitions/character-types";
 
 export const TARGET_SIZE = 200;
 
-export const generateBitmap = async queenToRender => {
+/**
+ * @param {*} queenToRender 
+ * @returns {HTMLCanvasElement}
+ */
+export const generateBitmap = async ( queenToRender ) => {
     const scale = TARGET_SIZE / QUEEN_DIMENSIONS.bounds.width;
     const { appearance } = queenToRender;
 
@@ -23,9 +27,9 @@ export const generateBitmap = async queenToRender => {
 
     for ( let i = 0; i < imagesToLoad.length; ++i ) {
         const itl = imagesToLoad[ i ];
-        itl.img = new Image();
 
-        await loader.loadImage( itl.src, itl.img );
+        const { image } = await Loader.loadImage( itl.src );
+        itl.img = image;
     }
 
     const { cvs, ctx } = createPixelCanvas( TARGET_SIZE, QUEEN_DIMENSIONS.bounds.height * scale );
@@ -67,10 +71,7 @@ export const generateBitmap = async queenToRender => {
     renderBodyPart( ctx, mouth,   scale, parts.mouth );
     renderBodyPart( ctx, jewelry, scale, parts.jewelry );
 
-    const out = new Image();
-    out.src   = cvs.toDataURL();
-
-    return out;
+    return cvs;
 };
 
 function renderBodyPart( ctx, { img }, scale, { top, left, width, height }) {

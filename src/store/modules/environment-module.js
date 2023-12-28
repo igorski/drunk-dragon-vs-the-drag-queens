@@ -147,7 +147,7 @@ export default {
         },
         flushBitmaps( state ) {
             state.activeEnvironment.characters.forEach( character => {
-                delete character.bitmap;
+                delete character.asset;
             });
         },
     },
@@ -225,7 +225,7 @@ export default {
         },
         async leaveBuilding({ state, commit, dispatch }) {
             commit( "setBuilding", null );
-            SpriteCache.ENV_BUILDING.src = ""; // reset building level cache
+            SpriteCache.ENV_BUILDING.bitmap.src = ""; // reset building level cache
 
             await dispatch( "changeActiveEnvironment", state.world );
         },
