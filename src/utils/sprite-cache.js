@@ -16,6 +16,7 @@ const SpriteCache =
     ENV_BUILDING    : { resourceId: "e2",  bitmap: null },
 
     // cached version of all sprite sheets
+    // TODO some of these require no resourceId (as they are not used inside zCanvas)
 
     BUILDING        : { resourceId: "s1",  bitmap: null },
     GROUND          : { resourceId: "s2",  bitmap: null },
@@ -90,10 +91,7 @@ const sprites = new Map();
 export const registerResources = async ( zCanvas ) => {
     for ( const [ key, value ] of Object.entries( SpriteCache )) {
         if ( value.resourceId && value.bitmap ) {
-            console.info('loading ' + key,value);
             const size = await zCanvas.loadResource( value.resourceId, value.bitmap );
-        } else {
-            console.info('ignoring ' + key, value)
         }
     }
 };

@@ -404,7 +404,7 @@ export default class OvergroundRenderer extends Sprite {
         }
         const scale  = this.canvas._scale;
         const offset = 8;
-        renderer.drawImage(
+        renderer.drawImageCropped(
             SpriteCache.CROSSHAIRS.resourceId, this._cursor * 25, 0, 25, 25,
             Math.round(( this._mouseX / scale.x ) - offset ), Math.round(( this._mouseY / scale.y ) - offset ), 16, 16
         );
