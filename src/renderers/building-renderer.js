@@ -32,7 +32,7 @@ export default class BuildingRenderer extends OvergroundRenderer {
 
     /**
      * @override
-     * @param {IRenderer} zCanva.IRenderer to draw on
+     * @param {IRenderer} zCanvas.IRenderer to draw on
      */
     draw( renderer ) {
         const floor  = this._environment;

@@ -251,7 +251,7 @@ export default class OvergroundRenderer extends Sprite {
 
     /**
      * @override
-     * @param {IRenderer} zCanvas IRenderer to draw on
+     * @param {IRenderer} zCanvas.IRenderer to draw on
      */
     draw( renderer ) {
         const world = this._environment;
