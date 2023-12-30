@@ -15,7 +15,6 @@ import {
 } from "@/definitions/screens";
 
 const STORAGE_KEY = "rpg";
-let zCanvas; // single instance
 
 export default {
     state: {
@@ -34,12 +33,8 @@ export default {
         gameTime: state => state.gameTime,
         hasSavedGame: state => () => !!storage.get( STORAGE_KEY ),
         effects: state => state.effects,
-        canvasRef: state => zCanvas,
     },
     mutations: {
-        setCanvasRef( state, cvs ) {
-            zCanvas = cvs;
-        },
         setGame( state, value ) {
             state.created           = value.created;
             state.modified          = value.modified;

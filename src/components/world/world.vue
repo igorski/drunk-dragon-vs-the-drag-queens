@@ -73,7 +73,6 @@ export default {
             fps: 60,
             onUpdate: this.updateGame.bind( this )
         });
-        this.setCanvasRef( zcanvas );
         await registerResources( zcanvas );
         this.setLastRender( window.performance.now() );
 
@@ -105,7 +104,6 @@ export default {
     },
     methods: {
         ...mapMutations([
-            "setCanvasRef",
             "setLastRender",
         ]),
         ...mapActions([
