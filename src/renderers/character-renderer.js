@@ -9,15 +9,15 @@ export default class CharacterRenderer extends Sprite {
     constructor( resourceId, sheetData, optX = 0, optY = 0 ) {
         super({
             resourceId,
-            sheetTileWidth  : sheetData.tileWidth,
-            sheetTileHeight : sheetData.tileHeight,
-            sheet           : sheetData.frames
+            width  : sheetData.tileWidth,
+            height : sheetData.tileHeight,
+            sheet  : sheetData.frames
         });
 
         /* instance properties */
 
-        this._width  = sheetData.tileWidth;
-        this._height = sheetData.tileHeight;
+        this._width  = this.getWidth();
+        this._height = this.getHeight();
 
         // cache for last known properties for player sprite animation
         // as these will be synced to the input commands

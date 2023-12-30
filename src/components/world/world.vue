@@ -78,8 +78,7 @@ export default {
         this.setLastRender( window.performance.now() );
 
         // attach event handlers
-        const resizeEvent = "onorientationchange" in window ? "orientationchange" : "resize";
-        this.handlers.push({ event: resizeEvent, callback: this.handleResize.bind( this ) });
+        this.handlers.push({ event: "resize", callback: this.handleResize.bind( this ) });
         this.handlers.forEach(({ event, callback }) => {
             window.addEventListener( event, callback );
         });
