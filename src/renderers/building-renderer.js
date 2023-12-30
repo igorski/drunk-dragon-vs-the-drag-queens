@@ -1,5 +1,4 @@
 import OvergroundRenderer from "./overground-renderer";
-import TerrainUtil from "@/utils/terrain-util";
 import WorldCache from "@/utils/world-cache";
 import SpriteCache, { FURNITURE } from "@/utils/sprite-cache";
 
@@ -33,9 +32,9 @@ export default class BuildingRenderer extends OvergroundRenderer {
 
     /**
      * @override
-     * @param {CanvasRenderingContext2D} aCanvasContext to draw on
+     * @param {IRenderer} zCanvas.IRenderer to draw on
      */
-    draw( aCanvasContext ) {
+    draw( renderer ) {
         const floor  = this._environment;
         const vx     = floor.x;
         const vy     = floor.y;
@@ -55,7 +54,9 @@ export default class BuildingRenderer extends OvergroundRenderer {
         let sourceY = top * tileHeight;
         let targetX = 0;
         let targetY = 0;
-        const canvasWidth = this.canvas.getWidth(), canvasHeight = this.canvas.getHeight();
+
+        const canvasWidth  = this.canvas.getWidth();
+        const canvasHeight = this.canvas.getHeight();
 
         // at world edges, we correct the source/target coordinates (and render empty space)
         if ( sourceX < 0 ) {
@@ -67,36 +68,36 @@ export default class BuildingRenderer extends OvergroundRenderer {
             sourceY = 0;
         }
 
-        aCanvasContext.drawImage(
-            SpriteCache.ENV_BUILDING,
+        renderer.drawImageCropped(
+            SpriteCache.ENV_BUILDING.resourceId,
             sourceX, sourceY, canvasWidth, canvasHeight,
             targetX, targetY, canvasWidth, canvasHeight
         );
 
         // render objects
 
-        this.renderObjects( aCanvasContext, floor, visibleTiles );
-        renderFurniture( aCanvasContext, floor.hotels, visibleTiles, FURNITURE.bed );
+        this.renderObjects( renderer, floor, visibleTiles );
+        renderFurniture( renderer, floor.hotels, visibleTiles, FURNITURE.bed );
 
         // render characters
 
-        this.renderCharacters( aCanvasContext, floor.characters, visibleTiles );
-        this._playerSprite.render( aCanvasContext, vx, vy, left, top );
+        this.renderCharacters( renderer, floor.characters, visibleTiles );
+        this._playerSprite.render( renderer, vx, vy, left, top );
 
         // draw path when walking to waypoint
 
         if ( DEBUG ) {
-            this.renderWaypoints( aCanvasContext, left, top, halfHorizontalTileAmount, halfVerticalTileAmount );
+            this.renderWaypoints( renderer, left, top, halfHorizontalTileAmount, halfVerticalTileAmount );
         }
 
         // render UI
-        this.renderUI( aCanvasContext );
+        this.renderUI( renderer );
     }
 }
 
 /* internal methods */
 
-function renderFurniture( aCanvasContext, objectList, { left, top, right, bottom }, spriteObject ) {
+function renderFurniture( renderer, objectList, { left, top, right, bottom }, spriteObject ) {
     const { tileWidth, tileHeight } = WorldCache;
     const { width, height } = spriteObject;
     let targetX, targetY;
@@ -123,7 +124,11 @@ function renderFurniture( aCanvasContext, objectList, { left, top, right, bottom
             targetX -= (( width  - tileWidth )  * .5 ); // align horizontally
             targetY -= (( height - tileHeight )); // entrance is on lowest side
 
-            aCanvasContext.drawImage( SpriteCache.FURNITURE, spriteObject.x, spriteObject.y, width, height, targetX, targetY, width, height );
+            renderer.drawImageCropped(
+                SpriteCache.FURNITURE.resourceId,
+                spriteObject.x, spriteObject.y, width, height,
+                targetX, targetY, width, height
+            );
         }
     }
 }

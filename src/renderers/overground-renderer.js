@@ -1,11 +1,10 @@
-import { sprite } from "zcanvas";
+import { Sprite } from "zcanvas";
 import { QUEEN, DRAB, DRAGON } from "@/definitions/character-types";
 import { WORLD_TILES, getMaxWalkableTile } from "@/model/factories/world-factory";
 import { SHOP_TYPES } from "@/model/factories/shop-factory";
-import CharacterRenderer from "@/renderers/character-renderer";
 import SpriteCache, { QUEEN_SHEET, getSpriteForCharacter } from "@/utils/sprite-cache";
 import WorldCache from "@/utils/world-cache";
-import { coordinateToIndex, indexToCoordinate } from "@/utils/terrain-util";
+import { coordinateToIndex } from "@/utils/terrain-util";
 import { findPath } from "@/utils/path-finder";
 
 let commit, getters, dispatch; // Vuex store hooks
@@ -27,22 +26,22 @@ const { tileWidth, tileHeight, sizeBuilding, sizeShop } = WorldCache;
 /* building / Object types */
 
 const BUILDING = {
-    bitmap : SpriteCache.BUILDING,
+    entry  : SpriteCache.BUILDING,
     width  : sizeBuilding.width  * tileWidth,
     height : sizeBuilding.height * tileHeight
 };
 const SHOP = {
-    bitmap : SpriteCache.SHOP,
+    entry  : SpriteCache.SHOP,
     width  : sizeShop.width  * tileWidth,
     height : sizeShop.height * tileHeight
 };
 const ITEMS = {
-    bitmap : SpriteCache.ITEMS,
+    entry  : SpriteCache.ITEMS,
     width  : tileWidth,
     height : tileHeight
 };
 
-export default class OvergroundRenderer extends sprite {
+export default class OvergroundRenderer extends Sprite {
     /**
      * @param {Object} store Vuex store reference
      * @param {number} width
@@ -134,14 +133,24 @@ export default class OvergroundRenderer extends sprite {
     }
 
     /**
-     * @param {Object} aWorld
+     * @param {Object} environment
      */
-    render( aWorld ) {
-        this._environment = aWorld;
+    prepare( environment, player ) {
+        this._environment = environment;
 
-        // create sprites
-        this._playerSprite = new CharacterRenderer( SpriteCache.QUEEN, QUEEN_SHEET, aWorld.x, aWorld.y );
-        this.addChild( this._playerSprite );
+        // create and cache sprites
+        this._playerSprite = getSpriteForCharacter( this.canvas, this, player );
+        this._playerSprite.setX( environment.x );
+        this._playerSprite.setY( environment.y );
+
+        const zcanvas = this.canvas;
+
+        for ( const character of environment.characters ) {
+            const resourceId = `res_${character.id}`;
+            zcanvas.loadResource( resourceId, character.asset.bitmap );
+            character.asset.resourceId = resourceId;
+        }
+        console.info(environment);
     }
 
     /**
@@ -158,7 +167,6 @@ export default class OvergroundRenderer extends sprite {
         this.setWidth( aWidth * x );
         this.setHeight( aHeight * y );
     }
-
 
     /**
      * Determine whether given tileType is a valid type to travel to for the current environment
@@ -243,9 +251,9 @@ export default class OvergroundRenderer extends sprite {
 
     /**
      * @override
-     * @param {CanvasRenderingContext2D} aCanvasContext to draw on
+     * @param {IRenderer} zCanvas.IRenderer to draw on
      */
-    draw( aCanvasContext ) {
+    draw( renderer ) {
         const world = this._environment;
         const vx    = world.x;
         const vy    = world.y;
@@ -265,7 +273,9 @@ export default class OvergroundRenderer extends sprite {
         let sourceY = top  * tileHeight;
         let targetX = 0;
         let targetY = 0;
-        const canvasWidth = this.canvas.getWidth(), canvasHeight = this.canvas.getHeight();
+
+        const canvasWidth  = this.canvas.getWidth();
+        const canvasHeight = this.canvas.getHeight();
 
         // at world edges, we correct the source/target coordinates (and render empty space)
         if ( sourceX < 0 ) {
@@ -277,40 +287,40 @@ export default class OvergroundRenderer extends sprite {
             sourceY = 0;
         }
 
-        aCanvasContext.drawImage(
-            SpriteCache.ENV_WORLD,
+        renderer.drawImageCropped(
+            SpriteCache.ENV_WORLD.resourceId,
             sourceX, sourceY, canvasWidth, canvasHeight,
             targetX, targetY, canvasWidth, canvasHeight
         );
 
-        this.renderObjects( aCanvasContext, world, visibleTiles );
+        this.renderObjects( renderer, world, visibleTiles );
 
         // transform lighting
 
-        this.applyLighting( aCanvasContext, canvasWidth, canvasHeight );
+        this.applyLighting( renderer, canvasWidth, canvasHeight );
 
         // render characters
 
-        this.renderCharacters( aCanvasContext, world.characters, visibleTiles );
-        this._playerSprite.render( aCanvasContext, vx, vy, left, top );
+        this.renderCharacters( renderer, world.characters, visibleTiles );
+        this._playerSprite.render( renderer, vx, vy, left, top );
 
         // draw path when walking to waypoint
 
         if ( DEBUG ) {
-            this.renderWaypoints( aCanvasContext, left, top, halfHorizontalTileAmount, halfVerticalTileAmount );
+            this.renderWaypoints( renderer, left, top, halfHorizontalTileAmount, halfVerticalTileAmount );
         }
 
         // render UI
-        this.renderUI( aCanvasContext );
+        this.renderUI( renderer );
     }
 
-    renderObjects( aCanvasContext, environment, visibleTiles ) {
-        renderObjects( aCanvasContext, environment.buildings, visibleTiles, BUILDING );
-        renderObjects( aCanvasContext, environment.shops,     visibleTiles, SHOP );
-        renderObjects( aCanvasContext, environment.items,     visibleTiles, ITEMS, 16 );
+    renderObjects( renderer, environment, visibleTiles ) {
+        renderObjects( renderer, environment.buildings, visibleTiles, BUILDING );
+        renderObjects( renderer, environment.shops,     visibleTiles, SHOP );
+        renderObjects( renderer, environment.items,     visibleTiles, ITEMS, 16 );
     }
 
-    renderCharacters( aCanvasContext, characters = [], { left, top, right, bottom }) {
+    renderCharacters( renderer, characters = [], { left, top, right, bottom }) {
         const { tileWidth, tileHeight } = WorldCache;
         for ( let i = 0, l = characters.length; i < l; ++i ) {
             const character = characters[ i ];
@@ -321,12 +331,12 @@ export default class OvergroundRenderer extends sprite {
             {
                 switch ( character.type ) {
                     default:
-                        getSpriteForCharacter( this, character )?.render( aCanvasContext, x, y, left, top );
+                        getSpriteForCharacter( this.canvas, this, character )?.render( renderer, x, y, left, top );
                         break;
                     // Queen is special for the time being (should render like the _playerSprite
                     // once the tilesheet is complete to match all character creation options)
                     case QUEEN:
-                        if ( !character.bitmap ) {
+                        if ( !character.asset ) {
                             continue; // likely renderer is disposed during render cycle
                         }
                         // TODO: these should become CharacterRenderer instances too
@@ -335,9 +345,10 @@ export default class OvergroundRenderer extends sprite {
                         const targetX = (( x - left ) * tileWidth  ) - ( characterWidth  * 0.5 - tileWidth  * 0.5 );
                         const targetY = (( y - top )  * tileHeight ) - ( characterHeight * 0.5 - tileHeight * 0.5 );
 
-                        const { width, height } = character.bitmap;
-                        aCanvasContext.drawImage(
-                            character.bitmap, 0, 0, width, height,
+                        const { width, height } = character.asset;
+                        renderer.drawImageCropped(
+                            character.asset.resourceId,
+                            0, 0, width, height,
                             targetX, targetY, characterWidth, characterHeight
                         );
                         break;
@@ -346,16 +357,12 @@ export default class OvergroundRenderer extends sprite {
         }
     }
 
-    applyLighting( aCanvasContext, canvasWidth, canvasHeight ) {
-        const orgComp = aCanvasContext.globalCompositeOperation;
-
-        aCanvasContext.globalAlpha = 0.8; // something between 0.3 and 0.95 as time progresses ?
-        aCanvasContext.globalCompositeOperation = "multiply";
-        aCanvasContext.fillStyle = "#262373"; // see _colors.scss
-        aCanvasContext.fillRect( 0, 0, canvasWidth, canvasHeight );
-
-        aCanvasContext.globalAlpha = 1;
-        aCanvasContext.globalCompositeOperation = orgComp;
+    applyLighting( renderer, canvasWidth, canvasHeight ) {
+        const alpha = 0.8; // something between 0.3 and 0.95 as time progresses ?
+        renderer.drawRect( 0, 0, canvasWidth, canvasHeight, "#262373" /* see _colors.scss */, undefined, {
+            alpha,
+            blendMode: "multiply",
+        });
         /*
         // get raw pixel values
         const imageData = aCanvasContext.getImageData( 0, 0, canvasWidth, canvasHeight );
@@ -379,27 +386,26 @@ export default class OvergroundRenderer extends sprite {
         */
     }
 
-    renderWaypoints( aCanvasContext, left, top, halfHorizontalTileAmount, halfVerticalTileAmount ) {
+    renderWaypoints( renderer, left, top, halfHorizontalTileAmount, halfVerticalTileAmount ) {
         if ( Array.isArray( this.target )) {
-            aCanvasContext.fillStyle = "red";
             const { tileWidth, tileHeight } = WorldCache;
             this.target.forEach(({ x, y }) => {
                 const tLeft   = (( x - left ) * tileWidth )  + halfHorizontalTileAmount;
                 const tTop    = (( y - top  ) * tileHeight ) + halfVerticalTileAmount;
 
-                aCanvasContext.fillRect( tLeft - 2, tTop - 2, 4, 4 );
+                renderer.drawRect( tLeft - 2, tTop - 2, 4, 4, "red" );
             });
         }
     }
 
-    renderUI( aCanvasContext ) {
+    renderUI( renderer ) {
         if ( this._mouseX === 0 ) {
             return; // likely on touch screen
         }
         const scale  = this.canvas._scale;
         const offset = 8;
-        aCanvasContext.drawImage(
-            SpriteCache.CROSSHAIRS, this._cursor * 25, 0, 25, 25,
+        renderer.drawImageCropped(
+            SpriteCache.CROSSHAIRS.resourceId, this._cursor * 25, 0, 25, 25,
             Math.round(( this._mouseX / scale.x ) - offset ), Math.round(( this._mouseY / scale.y ) - offset ), 16, 16
         );
         if ( this._cursor !== CURSOR_NEUTRAL && Math.max( 0, --this._cursorIt ) === 0 ) {
@@ -494,9 +500,9 @@ export default class OvergroundRenderer extends sprite {
 
 /* internal methods */
 
-function renderObjects( aCanvasContext, objectList = [], { left, top, right, bottom }, objectType, optTileSize = 0 ) {
+function renderObjects( renderer, objectList = [], { left, top, right, bottom }, objectType, optTileSize = 0 ) {
     const { tileWidth, tileHeight } = WorldCache;
-    const { bitmap, width, height } = objectType;
+    const { entry, width, height } = objectType;
     let targetX, targetY;
 
     // to broaden the visible range, add one whole coordinate
@@ -521,8 +527,8 @@ function renderObjects( aCanvasContext, objectList = [], { left, top, right, bot
             targetX -= (( width  - tileWidth )  * 0.5 ); // align horizontally
             targetY -= (( height - tileHeight )); // entrance is on lowest side
 
-            aCanvasContext.drawImage(
-                bitmap, targetX, targetY,
+            renderer.drawImage(
+                entry.resourceId, targetX, targetY,
                 optTileSize || width,
                 optTileSize || height
             );
@@ -556,9 +562,15 @@ function renderObjects( aCanvasContext, objectList = [], { left, top, right, bot
                         text = "Dealer";
                         break;
                 }
-                aCanvasContext.font = "30px Arial";
-                aCanvasContext.fillStyle = "#FFF";
-                aCanvasContext.fillText( text, targetX - 15, targetY - 15 );
+
+                // @todo cache this obj
+                renderer.drawText({
+                    text,
+                    color: "#FFF",
+                    font: "Arial",
+                    size: 30,
+                    unit: "px",
+                }, targetX - 15, targetY - 15 );
             }
         }
     }

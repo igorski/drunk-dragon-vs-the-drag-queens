@@ -4,14 +4,14 @@
 
 <script>
 import { mapState, mapGetters, mapMutations, mapActions } from "vuex";
-import { canvas, loader } from "zcanvas";
-import { SCREEN_GAME }    from "@/definitions/screens";
-import BuildingRenderer   from "@/renderers/building-renderer";
+import { Canvas, Loader } from "zcanvas";
+import { SCREEN_GAME } from "@/definitions/screens";
+import BuildingRenderer from "@/renderers/building-renderer";
 import OvergroundRenderer from "@/renderers/overground-renderer";
-import SpriteCache        from "@/utils/sprite-cache";
-import WorldCache         from "@/utils/world-cache";
-import { BUILDING_TYPE }  from "@/model/factories/building-factory";
-import { WORLD_TYPE }     from "@/model/factories/world-factory";
+import SpriteCache, { registerResources } from "@/utils/sprite-cache";
+import WorldCache from "@/utils/world-cache";
+import { BUILDING_TYPE } from "@/model/factories/building-factory";
+import { WORLD_TYPE } from "@/model/factories/world-factory";
 
 const MIN_AMOUNT_OF_TILES = 9; // minimum amount of tiles visible on the dominant axis of the screen
 let zcanvas, renderer;
@@ -33,7 +33,7 @@ export default {
     },
     watch: {
         activeEnvironment: {
-            handler( value ) {
+            handler() {
                 this.handleEnvironment();
             },
         },
@@ -51,32 +51,33 @@ export default {
                         this._debugSprite.style.width  = "auto";
                         this._debugSprite.style.height = "550px";
                     }
-                    this._debugSprite.src = ( this.activeEnvironment.type === BUILDING_TYPE ? SpriteCache.ENV_BUILDING : SpriteCache.ENV_WORLD ).src;
-                    document.body.appendChild( this._debugSprite );
+                    this._debugSprite.src = ( this.activeEnvironment.type === BUILDING_TYPE ? SpriteCache.ENV_BUILDING : SpriteCache.ENV_WORLD ).bitmap.src;
+                    document.body.appendChild( this._debugSprite.bitmap );
                 } else if ( this._debugSprite ){
-                    document.body.removeChild( this._debugSprite );
+                    document.body.removeChild( this._debugSprite.bitmap );
                 }
             }
         }
     },
-    created() {
+    async created() {
         /**
          * Construct zCanvas instance to render the game world. The zCanvas
          * also maintains the game loop that will update the world prior to each render cycle.
          */
-        zcanvas = new canvas({
+        zcanvas = new Canvas({
             width: window.innerWidth,
             height: window.innerHeight,
             animate: true,
-            smoothing: false,
+            smoothing: false, // pixel art ahoy
+            autoSize: false,
             fps: 60,
             onUpdate: this.updateGame.bind( this )
         });
+        await registerResources( zcanvas );
         this.setLastRender( window.performance.now() );
 
         // attach event handlers
-        const resizeEvent = "onorientationchange" in window ? "orientationchange" : "resize";
-        this.handlers.push({ event: resizeEvent, callback: this.handleResize.bind( this ) });
+        this.handlers.push({ event: "resize", callback: this.handleResize.bind( this ) });
         this.handlers.forEach(({ event, callback }) => {
             window.addEventListener( event, callback );
         });
@@ -131,7 +132,7 @@ export default {
             const environment = this.activeEnvironment;
 
             if ( !environment ) return;
-            let sprite;
+            let image;
 
             switch ( environment.type ) {
                 default:
@@ -139,17 +140,17 @@ export default {
                     break;
                 case BUILDING_TYPE:
                     renderer = new BuildingRenderer( this.$store, 100, 100 );
-                    sprite = SpriteCache.ENV_BUILDING;
+                    image = SpriteCache.ENV_BUILDING;
                     break;
                 case WORLD_TYPE:
                     renderer = new OvergroundRenderer( this.$store, 100, 100 );
-                    sprite = SpriteCache.ENV_WORLD;
+                    image = SpriteCache.ENV_WORLD;
                     break;
             }
-            await loader.onReady( sprite );
+            await Loader.onReady( image.bitmap );
 
             zcanvas.addChild( renderer );
-            renderer.render( environment, this.player );
+            renderer.prepare( environment, this.player );
             this.handleResize( null ); // size to match device / browser dimensions
         },
     }

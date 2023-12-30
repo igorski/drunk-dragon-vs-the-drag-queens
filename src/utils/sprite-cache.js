@@ -8,31 +8,35 @@ import { QUEEN, DRAB, DRAGON } from "@/definitions/character-types";
 const SpriteCache =
 {
     // these will contain a cached version of the world / buildings pre-rendered with their terrain
-
-    ENV_WORLD       : new Image(),
-    ENV_BUILDING    : new Image(),
+    // bitmap will reference an HTMLImageElement of the loaded content as a data source (see asset-preloader)
+    // resourceId is the unique identifier of the asset with which it will be registered inside zCanvas, can
+    // be omitted for resources that are not rendered through zCanvas (such as environment assets)
+    
+    ENV_WORLD       : { resourceId: "e1",  bitmap: null },
+    ENV_BUILDING    : { resourceId: "e2",  bitmap: null },
 
     // cached version of all sprite sheets
+    // TODO some of these require no resourceId (as they are not used inside zCanvas)
 
-    BUILDING        : new Image(),
-    GROUND          : new Image(),
-    GRASS           : new Image(),
-    ROAD            : new Image(),
-    ROCK            : new Image(),
-    SAND            : new Image(),
-    SHOP            : new Image(),
-    WATER           : new Image(),
-    TREE            : new Image(),
-    FLOOR_BAR       : new Image(),
-    FLOOR_HOTEL     : new Image(),
-    FLOOR_CAVE      : new Image(),
-    CROSSHAIRS      : new Image(),
-    FURNITURE       : new Image(),
-    ITEMS           : new Image(),
+    BUILDING        : { resourceId: "s1",  bitmap: null },
+    GROUND          : { resourceId: "s2",  bitmap: null },
+    GRASS           : { resourceId: "s3",  bitmap: null },
+    ROAD            : { resourceId: "s4",  bitmap: null },
+    ROCK            : { resourceId: "s5",  bitmap: null },
+    SAND            : { resourceId: "s6",  bitmap: null },
+    SHOP            : { resourceId: "s7",  bitmap: null },
+    WATER           : { resourceId: "s8",  bitmap: null },
+    TREE            : { resourceId: "s9",  bitmap: null },
+    FLOOR_BAR       : { resourceId: "s10", bitmap: null },
+    FLOOR_HOTEL     : { resourceId: "s11", bitmap: null },
+    FLOOR_CAVE      : { resourceId: "s12", bitmap: null },
+    CROSSHAIRS      : { resourceId: "s13", bitmap: null },
+    FURNITURE       : { resourceId: "s14", bitmap: null },
+    ITEMS           : { resourceId: "s15", bitmap: null },
 
-    QUEEN           : new Image(),
-    DRAB            : new Image(),
-    DRAGON          : new Image()
+    QUEEN           : { resourceId: "c1", bitmap: null },
+    DRAB            : { resourceId: "c2", bitmap: null },
+    DRAGON          : { resourceId: "c3", bitmap: null }
 };
 export default SpriteCache;
 
@@ -77,18 +81,29 @@ export const FURNITURE = {
 
 /* render utilities */
 
-// TODO: this needs cleanup when character is disposed
+// TODO: these need cleanup when character is disposed
 const sprites = new Map();
+
+/**
+ * Register provided image as a resouce in the zCanvas
+ * instance so renderers (Sprites) can render these
+ */
+export const registerResources = async ( zCanvas ) => {
+    for ( const [ key, value ] of Object.entries( SpriteCache )) {
+        if ( value.resourceId && value.bitmap ) {
+            const size = await zCanvas.loadResource( value.resourceId, value.bitmap );
+        }
+    }
+};
 
 /**
  * Retrieve the Sprite (renderer) for given Character instance.
  * This lazily creates a renderer on first use.
- *
  */
-export function getSpriteForCharacter( parentSprite, character ) {
+export function getSpriteForCharacter( zCanvas, parentSprite, character ) {
     const { id } = character;
     if ( !sprites.has( id )) {
-        let bitmap, sheet;
+        let entry, sheet;
         switch ( character.type ) {
             default:
                 if ( process.env.NODE_ENV === "development" ) {
@@ -96,17 +111,24 @@ export function getSpriteForCharacter( parentSprite, character ) {
                 }
                 return null;
             case DRAB:
-                bitmap = SpriteCache.DRAB;
-                sheet  = DRAB_SHEET;
+                entry = SpriteCache.DRAB;
+                sheet = DRAB_SHEET;
                 break;
             case DRAGON:
-                bitmap = SpriteCache.DRAGON;
-                sheet  = DRAGON_SHEET;
+                entry = SpriteCache.DRAGON;
+                sheet = DRAGON_SHEET;
+                break;
+            case QUEEN:
+                entry = SpriteCache.QUEEN;
+                sheet = QUEEN_SHEET;
                 break;
         }
-        const sprite = new CharacterRenderer( bitmap, sheet );
+        zCanvas.loadResource( entry.resourceId, entry.bitmap );
+
+        const sprite = new CharacterRenderer( entry.resourceId, sheet );
         parentSprite.addChild( sprite );
         sprites.set( id, sprite );
+
         return sprite;
     }
     return sprites.get( id );

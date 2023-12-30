@@ -1,5 +1,5 @@
 import { zThread, zThreader } from "zthreader";
-import { loader }             from "zcanvas";
+import { Loader }             from "zcanvas";
 import { createPixelCanvas }  from "@/utils/canvas-util";
 import SpriteCache            from "@/utils/sprite-cache";
 import WorldCache             from "@/utils/world-cache";
@@ -80,21 +80,27 @@ export const renderEnvironment = ( environment, player ) =>
                     target = SpriteCache.ENV_BUILDING;
                     break;
             }
-            target.src    = cvs.toDataURL( "image/png" );
-            target.width  = cvs.width;
-            target.height = cvs.height;
+            const image = new Image();
+           
+            image.src    = cvs.toDataURL( "image/png" );
+            image.width  = cvs.width;
+            image.height = cvs.height;
+
+            target.bitmap = image;
 
             // Environment terrain rendered, await Bitmap ready
-            await loader.onReady( target );
-
+            await Loader.onReady( image );
+            
             // generate player Bitmap
-            player.bitmap = await generateBitmap( player );
+            const bitmap = await generateBitmap( player );
+            player.asset = { bitmap, width: bitmap.width, height: bitmap.height };
 
             // ensure all Characters also have their Bitmaps cached
             for ( i = 0, l = characters.length; i < l; ++i ) {
                 const character = characters[ i ];
-                if ( !characters.bitmap ) {
-                    character.bitmap = await generateBitmap( character );
+                if ( !characters.asset ) {
+                    const bitmap = await generateBitmap( character );
+                    character.asset = { bitmap, width: bitmap.width, height: bitmap.height };
                 }
             }
             resolve( target );
@@ -146,13 +152,13 @@ function drawTileForSurroundings( ctx, tx, ty, x, y, environment, finalRenders )
             case SIDEWALK_TYPE:
             case WORLD_TILES.GRASS:
             case WORLD_TILES.ROAD:
-                drawTile( ctx, getSheet( environment, tile ), 0, x, y );
+                drawTile( ctx, getSheetCache( environment, tile ), 0, x, y );
                 break;
 
             case WORLD_TILES.SAND:
             case WORLD_TILES.WATER:
             case WORLD_TILES.MOUNTAIN:
-                drawTile( ctx, getSheet( environment, tile ), 0, x, y ); // draw tile underground first
+                drawTile( ctx, getSheetCache( environment, tile ), 0, x, y ); // draw tile underground first
                 drawAdjacentTiles( tile, tx, ty, x, y, environment, ctx );
                 break;
 
@@ -188,14 +194,14 @@ function drawTileForSurroundings( ctx, tx, ty, x, y, environment, finalRenders )
     else if ( environment.type === BUILDING_TYPE ) {
         switch ( tileType ) {
             case BUILDING_TILES.GROUND:
-                return drawTile( ctx, getFloorSprite( environment ), 0, x, y );
+                return drawTile( ctx, getFloorCache( environment ), 0, x, y );
 
             case BUILDING_TILES.WALL:
                 drawAdjacentTiles( tile, tx, ty, x, y, environment, ctx  );
                 break;
 
             case BUILDING_TILES.STAIRS:
-                return drawTile( ctx, getFloorSprite( environment ), 260, x, y );
+                return drawTile( ctx, getFloorCache( environment ), 260, x, y );
 
             default:
             case BUILDING_TILES.NOTHING:
@@ -211,18 +217,21 @@ function drawTileForSurroundings( ctx, tx, ty, x, y, environment, finalRenders )
  * actual rendering of a single tile onto the canvas
  *
  * @param {CanvasRenderingContext2D} aCanvasContext to draw on
- * @param {Image} aBitmap source spritesheet
+ * @param {{ bitmap: Image }} entry source spritesheet
  * @param {number} tileSourceX source x-coordinate of the tile (relative
  *                 to its spritesheet aBitmap)
  * @param {number} targetX target x-coordinate of the tile inside the given context
  * @param {number} targetY target y-coordinate of the tile inside the given context
  */
-function drawTile( aCanvasContext, aBitmap, tileSourceX, targetX, targetY ) {
+function drawTile( aCanvasContext, entry, tileSourceX, targetX, targetY ) {
     if ( tileSourceX < 0 ) {
         return;
     }
-    aCanvasContext.drawImage( aBitmap, tileSourceX, 0, TILE_SIZE, TILE_SIZE,
-                              targetX, targetY, TILE_SIZE, TILE_SIZE );
+    aCanvasContext.drawImage(
+        entry.bitmap,
+        tileSourceX, 0, TILE_SIZE, TILE_SIZE,
+        targetX, targetY, TILE_SIZE, TILE_SIZE
+    );
 }
 
 function getSurroundingTiles( tile, tx, ty, environment ) {
@@ -445,16 +454,16 @@ function drawAdjacentTiles( tile, tx, ty, x, y, env, ctx ) {
         const forbiddenTypes = [ NONE, tile, WORLD_TILES.GROUND ];
 
         if ( !forbiddenTypes.includes( tileLeft?.type ))
-            drawTile( ctx, getSheet( env, sanitize( tileLeft )), 120, x, y );
+            drawTile( ctx, getSheetCache( env, sanitize( tileLeft )), 120, x, y );
 
         if ( !forbiddenTypes.includes( tileRight?.type ))
-            drawTile( ctx, getSheet( env, sanitize( tileRight )), 100, x, y );
+            drawTile( ctx, getSheetCache( env, sanitize( tileRight )), 100, x, y );
 
         if ( !forbiddenTypes.includes( tileAbove?.type ))
-            drawTile( ctx, getSheet( env, sanitize( tileAbove )), 160, x, y );
+            drawTile( ctx, getSheetCache( env, sanitize( tileAbove )), 160, x, y );
 
         if ( !forbiddenTypes.includes( tileBelow?.type ))
-            drawTile( ctx, getSheet( env, sanitize( tileBelow )), 140, x, y );
+            drawTile( ctx, getSheetCache( env, sanitize( tileBelow )), 140, x, y );
 
         return;
     }
@@ -471,7 +480,7 @@ function drawAdjacentTiles( tile, tx, ty, x, y, env, ctx ) {
         }
 
         function drawFloor( x, y ) {
-            drawTile( ctx, getFloorSprite( env ), 0, x, y );
+            drawTile( ctx, getFloorCache( env ), 0, x, y );
         }
 
         // vertical and horizontal walls in between ground tiles should always draw a floor background
@@ -486,7 +495,7 @@ function drawAdjacentTiles( tile, tx, ty, x, y, env, ctx ) {
             if ([ EMPTY_TOP_LEFT_ALT, EMPTY_TOP_RIGHT_ALT ].includes( a )) {
                 drawFloor( x, y );
             }
-            drawTile( ctx, getSheet( env, tile ), getSheetOffset({ area: a }), x, y );
+            drawTile( ctx, getSheetCache( env, tile ), getSheetOffset({ area: a }), x, y );
         });
     }
 }
@@ -496,12 +505,12 @@ function drawAdjacentTiles( tile, tx, ty, x, y, env, ctx ) {
  *
  * @param {Object} environment
  * @param {{ type: number, area: number }} tileDescription
- * @return {Image}
+ * @return {{ bitmap: Image }}
  */
-function getSheet( environment, tileDescription )
+function getSheetCache( environment, tileDescription )
 {
     if ( environment.type === BUILDING_TYPE ) {
-        return getFloorSprite( environment );   // there is only a single sheet for buildings
+        return getFloorCache( environment );   // there is only a single sheet for buildings
     }
     else if ( environment.type === WORLD_TYPE ) {
         switch ( tileDescription.type ) {
@@ -531,7 +540,7 @@ function getSheet( environment, tileDescription )
     throw new Error( `could not find sheet for tiletype "${tileDescription.type}" for given environment "${environment.type}"` );
 }
 
-function getFloorSprite({ floorType }) {
+function getFloorCache({ floorType }) {
     switch ( floorType ) {
         default:
         case FLOOR_TYPES.BAR:
