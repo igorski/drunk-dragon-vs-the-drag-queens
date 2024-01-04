@@ -3,10 +3,10 @@ import { DRAGON }   from "@/definitions/character-types";
 import WorldFactory from "@/model/factories/world-factory";
 
 jest.mock( "zcanvas", () => ({
-    loader: {
+    Loader: {
         onReady: new Promise(resolve => resolve())
     },
-    sprite: jest.fn()
+    Sprite: jest.fn()
 }));
 
 describe("World factory", () => {

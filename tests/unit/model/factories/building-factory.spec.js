@@ -2,10 +2,10 @@ import BuildingFactory  from "@/model/factories/building-factory";
 import CharacterFactory from "@/model/factories/character-factory";
 
 jest.mock( "zcanvas", () => ({
-    loader: {
+    Loader: {
         onReady: new Promise(resolve => resolve())
     },
-    sprite: jest.fn()
+    Sprite: jest.fn()
 }));
 
 describe("Building factory", () => {

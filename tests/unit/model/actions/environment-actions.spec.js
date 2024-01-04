@@ -16,10 +16,10 @@ jest.mock( "@/utils/path-finder", () => ({
 }));
 
 jest.mock( "zcanvas", () => ({
-    loader: {
+    Loader: {
         onReady: new Promise(resolve => resolve())
     },
-    sprite: jest.fn()
+    Sprite: jest.fn()
 }));
 
 describe( "Environment actions", () => {

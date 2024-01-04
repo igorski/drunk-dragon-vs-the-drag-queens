@@ -10,10 +10,10 @@ import { WORLD_TYPE } from "@/model/factories/world-factory";
 const { getters, mutations, actions } = store;
 
 jest.mock( "zcanvas", () => ({
-    loader: {
+    Loader: {
         onReady: new Promise(resolve => resolve())
     },
-    sprite: jest.fn()
+    Sprite: jest.fn()
 }));
 
 describe( "Vuex player module", () => {

@@ -9,10 +9,10 @@ jest.mock( "store/dist/store.modern", () => ({
     set : (...args) => mockStorage(...args)
 }));
 jest.mock( "zcanvas", () => ({
-    loader: {
+    Loader: {
         onReady: new Promise(resolve => resolve())
     },
-    sprite: jest.fn()
+    Sprite: jest.fn()
 }));
 
 describe( "Vuex store", () => {

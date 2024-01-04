@@ -18,10 +18,10 @@ import BuildingFactory, { BUILDING_TYPE, BUILDING_TILES } from "@/model/factorie
 import { coordinateToIndex } from "@/utils/terrain-util";
 
 jest.mock( "zcanvas", () => ({
-    loader: {
+    Loader: {
         onReady: new Promise(resolve => resolve())
     },
-    sprite: jest.fn()
+    Sprite: jest.fn()
 }));
 
 describe("Environment bitmap cacher", () => {

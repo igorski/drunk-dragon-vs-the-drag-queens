@@ -37,7 +37,7 @@ jest.mock("@/utils/terrain-util", () => ({
     getRandomFreeTilePosition: () => mockValue
 }));
 jest.mock("@/utils/sprite-cache", () => ({
-    ENV_BUILDING: {},
+    ENV_BUILDING: { bitmap: {} },
     flushSpriteForCharacter: (...args) => mockUpdateFn("flushSpriteForCharacter", ...args),
     flushAllSprites: (...args) => mockUpdateFn("flushAllSprites", ...args),
 }));
@@ -315,14 +315,14 @@ describe( "Vuex environment module", () => {
             const state = {
                 activeEnvironment: {
                     characters: [
-                        { foo: "bar", bitmap: "baz" },
-                        { qux: "quz", bitmap: "quuz" }
+                        { foo: "bar", bitmap: "baz", asset: "qux" },
+                        { qux: "quz", bitmap: "quuz", asset: "corge" }
                     ]
                 }
             };
             mutations.flushBitmaps( state );
             expect( state.activeEnvironment.characters ).toEqual([
-                { foo: "bar" }, { qux: "quz" }
+                { foo: "bar", bitmap: "baz" }, { qux: "quz", bitmap: "quuz" }
             ]);
         });
     });
