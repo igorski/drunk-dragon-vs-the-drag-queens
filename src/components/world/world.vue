@@ -71,7 +71,8 @@ export default {
             smoothing: false, // pixel art ahoy
             autoSize: false,
             fps: 60,
-            onUpdate: this.updateGame.bind( this )
+            onUpdate: this.updateGame.bind( this ),
+            backgroundColor: "#262373" // should match $color-background (see _colors.scss)
         });
         await registerResources( zcanvas );
         this.setLastRender( window.performance.now() );

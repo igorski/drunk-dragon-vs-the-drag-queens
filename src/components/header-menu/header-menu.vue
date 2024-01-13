@@ -221,14 +221,14 @@ export default {
         left: 0;
         top: 0;
         z-index: $z-index-header;
-        background-color: $color-background;
+        background-color: $color-menu-background;
         width: 100%;
         padding: 0;
 
         @include mobile() {
             width: 100%;
             height: $menu-height-mobile;
-            background-color: $color-background;
+            background-color: $color-menu-background;
 
             &--expanded {
                 height: 100%;
@@ -290,7 +290,7 @@ export default {
                     background-color: transparent;
 
                     li button {
-                        background-color: $color-background;
+                        background-color: $color-menu-background;
                     }
                 }
             }
@@ -324,7 +324,7 @@ export default {
 
             @include large() {
                 ul {
-                    background-color: $color-background;
+                    background-color: $color-menu-background;
                     width: auto;
                     display: none;
                     position: absolute;
@@ -361,7 +361,7 @@ export default {
 
             .menu__items {
                 margin: $menu-height-mobile auto 0;
-                background-color: $color-background;
+                background-color: $color-menu-background;
                 height: calc(100% - #{$menu-height-mobile});
                 overflow: hidden;
                 overflow-y: auto;

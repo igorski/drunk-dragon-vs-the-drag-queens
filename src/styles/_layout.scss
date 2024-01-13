@@ -4,7 +4,7 @@
 
 @mixin window {
     @include boxSize();
-    background-color: $color-1;
+    background-color: $color-background;
     padding: $spacing-medium;
     vertical-align: top;
     color: #000;
