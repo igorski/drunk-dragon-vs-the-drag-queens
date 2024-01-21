@@ -17,8 +17,8 @@
 </template>
 
 <script>
-import Contributor from "./contributor";
-import Modal       from "@/components/modal/modal";
+import Contributor from "./contributor.vue";
+import Modal       from "@/components/modal/modal.vue";
 import messages    from "./messages.json";
 
 export default {

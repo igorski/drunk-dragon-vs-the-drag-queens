@@ -1,31 +1,42 @@
+import { describe, it, expect, vi } from "vitest";
 import store               from "@/store/modules/game-module";
 import CharacterFactory    from "@/model/factories/character-factory";
 import EffectFactory       from "@/model/factories/effect-factory";
 import { GAME_ACTIVE, GAME_PAUSED, GAME_OVER } from "@/definitions/game-states";
 import { SCREEN_FINALE } from "@/definitions/screens";
 import {
-    GAME_START_TIME_UNIX, GAME_TIME_RATIO, VALIDITY_CHECK_INTERVAL
+    GAME_START_TIME_UNIX, VALIDITY_CHECK_INTERVAL
 } from "@/definitions/constants";
 const TIME_PER_RENDER_SLICE = 1000 / 60;
 
 const { getters, mutations, actions } = store;
 
 let mockUpdateFn;
-jest.mock("@/model/actions/effect-actions", () => ({
-    update: (...args) => mockUpdateFn(...args),
+vi.mock("@/model/actions/effect-actions", () => ({
+    default: {
+        update: (...args) => mockUpdateFn(...args),
+    }
 }));
-jest.mock("@/model/factories/game-factory", () => ({
-    assemble: (...args) => mockUpdateFn("assemble", ...args),
-    disassemble: (...args) => mockUpdateFn("disassemble", ...args)
+vi.mock("@/model/factories/game-factory", () => ({
+    default: {
+        assemble: (...args) => mockUpdateFn("assemble", ...args),
+        disassemble: (...args) => mockUpdateFn("disassemble", ...args)
+    }
 }));
-jest.mock("@/model/factories/world-factory", () => ({
-    create: (...args) => mockUpdateFn("create", ...args),
-    populate: (...args) => mockUpdateFn("populate", ...args),
+vi.mock("@/model/factories/world-factory", () => ({
+    default: {
+        create: (...args) => mockUpdateFn("create", ...args),
+        populate: (...args) => mockUpdateFn("populate", ...args),
+    },
+    WORLD_TYPE: "Overground"
+
 }));
-jest.mock("store/dist/store.modern", () => ({
-    get: (...args) => mockUpdateFn("get", ...args),
-    set: (...args) => mockUpdateFn("set", ...args),
-    remove: (...args) => mockUpdateFn("remove", ...args),
+vi.mock("store/dist/store.modern", () => ({
+    default: {
+        get: (...args) => mockUpdateFn("get", ...args),
+        set: (...args) => mockUpdateFn("set", ...args),
+        remove: (...args) => mockUpdateFn("remove", ...args),
+    }
 }));
 
 describe( "Vuex game module", () => {
@@ -187,11 +198,11 @@ describe( "Vuex game module", () => {
         it( "should be able to create a new game", async () => {
             const character = CharacterFactory.create();
             const world     = { foo: "bar" };
-            const commit    = jest.fn();
-            const dispatch  = jest.fn();
-            mockUpdateFn    = jest.fn(() => world );
+            const commit    = vi.fn();
+            const dispatch  = vi.fn();
+            mockUpdateFn    = vi.fn(() => world );
 
-            await actions.createGame({ getters: { translate: jest.fn() }, commit, dispatch }, character );
+            await actions.createGame({ getters: { translate: vi.fn() }, commit, dispatch }, character );
 
             expect( commit ).toHaveBeenNthCalledWith( 1, "setGame", expect.any( Object ));
             expect( commit ).toHaveBeenNthCalledWith( 2, "setBuilding", null );
@@ -205,7 +216,7 @@ describe( "Vuex game module", () => {
 
         describe( "when storing the game", () => {
             it( "should be able to save the game state into local storage", () => {
-                mockUpdateFn = jest.fn(() => "mockReturn");
+                mockUpdateFn = vi.fn(() => "mockReturn");
                 const state  = { foo: "bar" };
                 const mockedGetters = { player: { baz: "qux" }, world: { quux: "quz" }, building: { corge: "grault" } };
                 actions.saveGame({ state, getters: mockedGetters });
@@ -217,10 +228,10 @@ describe( "Vuex game module", () => {
                 const game     = { hash: "foo" };
                 const world    = "bar";
                 const player   = { quz: "corge" };
-                mockUpdateFn   = jest.fn(() => ({ game, player, world, building: null }));
+                mockUpdateFn   = vi.fn(() => ({ game, player, world, building: null }));
                 const state    = {};
-                const commit   = jest.fn();
-                const dispatch = jest.fn();
+                const commit   = vi.fn();
+                const dispatch = vi.fn();
 
                 const success = await actions.loadGame({ state, commit, dispatch });
 
@@ -239,10 +250,10 @@ describe( "Vuex game module", () => {
                 const world    = "bar";
                 const building = { floor: 0, floors: [{ qux: "quux" }] };
                 const player   = { quz: "corge" };
-                mockUpdateFn   = jest.fn(() => ({ game, player, world, building }));
+                mockUpdateFn   = vi.fn(() => ({ game, player, world, building }));
                 const state    = {};
-                const commit   = jest.fn();
-                const dispatch = jest.fn();
+                const commit   = vi.fn();
+                const dispatch = vi.fn();
 
                 const success = await actions.loadGame({ state, commit, dispatch });
 
@@ -258,10 +269,10 @@ describe( "Vuex game module", () => {
 
             it( "should reset the game state if the save is corrupted", async () => {
                 const game     = { hash: "foo" };
-                mockUpdateFn   = jest.fn(() => game ); // fails as there is no player nor world
+                mockUpdateFn   = vi.fn(() => game ); // fails as there is no player nor world
                 const state    = {};
-                const commit   = jest.fn();
-                const dispatch = jest.fn();
+                const commit   = vi.fn();
+                const dispatch = vi.fn();
 
                 const success = await actions.loadGame({ state, commit, dispatch });
 
@@ -276,9 +287,9 @@ describe( "Vuex game module", () => {
                 const world    = "bar";
                 const building = { baz: "qux" };
                 const player   = { quux: {} };
-                mockUpdateFn   = jest.fn(() => ({ game, player, world, building }));
-                const commit   = jest.fn();
-                const dispatch = jest.fn();
+                mockUpdateFn   = vi.fn(() => ({ game, player, world, building }));
+                const commit   = vi.fn();
+                const dispatch = vi.fn();
 
                 await actions.importGame({ commit, dispatch }, encodedData );
 
@@ -292,8 +303,8 @@ describe( "Vuex game module", () => {
             });
 
             it( "should be able to reset an existing game and remove a saved game state from local storage", () => {
-                mockUpdateFn = jest.fn();
-                const commit = jest.fn();
+                mockUpdateFn = vi.fn();
+                const commit = vi.fn();
                 actions.resetGame({ commit });
                 expect( mockUpdateFn ).toHaveBeenCalledWith( "remove", "rpg" );
                 expect( commit ).toHaveBeenNthCalledWith( 1, "setGameState", GAME_PAUSED );
@@ -306,12 +317,12 @@ describe( "Vuex game module", () => {
             const gameTime      = GAME_START_TIME_UNIX;
             const mockedGetters = {
                 gameTime,
-                translate: jest.fn(),
+                translate: vi.fn(),
                 activeEnvironment: {}
             };
             const createMockTimeCommit = () => {
                 // when advanceGameTime is committed, we advance the mocked gameTime
-                return jest.fn(( mutation, value ) => {
+                return vi.fn(( mutation, value ) => {
                     if ( mutation === "advanceGameTime" ) {
                         mockedGetters.gameTime += value; // value is delta in ms to progress time by
                     }
@@ -320,8 +331,8 @@ describe( "Vuex game module", () => {
 
             it( "should not do anything when the game state is not active", () => {
                 const state = { gameState: GAME_OVER };
-                const commit = jest.fn();
-                const dispatch = jest.fn();
+                const commit = vi.fn();
+                const dispatch = vi.fn();
 
                 actions.updateGame({ commit, dispatch, getters: mockedGetters, state }, Date.now() );
                 expect( commit ).not.toHaveBeenCalled();
@@ -329,12 +340,12 @@ describe( "Vuex game module", () => {
             });
 
             it( "should be able to update the effects for an active game", () => {
-                const commit    = jest.fn();
-                const dispatch  = jest.fn();
+                const commit    = vi.fn();
+                const dispatch  = vi.fn();
                 const effect1 = EffectFactory.create( "mutation1" );
                 const effect2 = EffectFactory.create( "mutation2" );
 
-                mockUpdateFn = jest.fn(({ commit, dispatch }, effect ) => {
+                mockUpdateFn = vi.fn(({ commit, dispatch }, effect ) => {
                     // note that effect 2 we want to remove (by returning true)
                     if ( effect === effect2 ) return true;
                     return false;
@@ -360,7 +371,7 @@ describe( "Vuex game module", () => {
 
             it( "should be able to verify the game validity periodically", () => {
                 const commit    = createMockTimeCommit();
-                const dispatch  = jest.fn();
+                const dispatch  = vi.fn();
                 mockedGetters.isOutside = true;
                 mockedGetters.gameTime  = gameTime;
 
@@ -377,7 +388,7 @@ describe( "Vuex game module", () => {
 
             it( "should end the game when the player is caught outside at an invalid hour", () => {
                 let commit    = createMockTimeCommit();
-                let dispatch  = jest.fn();
+                let dispatch  = vi.fn();
                 mockedGetters.isOutside = true;
                 mockedGetters.gameTime  = gameTime + ( 7 * 60 * 60 * 1000 );
 
@@ -403,7 +414,7 @@ describe( "Vuex game module", () => {
 
             it( "should end the game when the player is inside a building after closing time", () => {
                 let commit = createMockTimeCommit();
-                let dispatch  = jest.fn();
+                let dispatch  = vi.fn();
                 mockedGetters.isOutside = false;
                 mockedGetters.gameTime  = gameTime + ( 6 * 60 * 60 * 1000 );
 
@@ -429,7 +440,7 @@ describe( "Vuex game module", () => {
         });
 
         it( "should show the finale when the player has won", () => {
-            const commit = jest.fn();
+            const commit = vi.fn();
             actions.showFinale({ commit });
             expect( commit ).toHaveBeenNthCalledWith( 1, "setGameState", GAME_PAUSED );
             expect( commit ).toHaveBeenNthCalledWith( 2, "setScreen", SCREEN_FINALE );

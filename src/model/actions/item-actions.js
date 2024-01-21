@@ -1,5 +1,5 @@
 import { HOUR, TWENTY_FOUR_HOURS } from "@/definitions/constants";
-import PriceTypes, { getItemEffectivityByPriceType } from "@/definitions/price-types";
+import { getItemEffectivityByPriceType } from "@/definitions/price-types";
 import ItemTypes from "@/definitions/item-types";
 import EffectFactory from "@/model/factories/effect-factory";
 

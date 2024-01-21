@@ -1,43 +1,52 @@
+import { describe, it, expect, vi } from "vitest";
 import store from "@/store/modules/environment-module";
 import { QUEEN, DRAB, DRAGON } from "@/definitions/character-types";
 import CharacterFactory from "@/model/factories/character-factory";
-import EffectFactory from "@/model/factories/effect-factory";
 import { WORLD_TYPE } from "@/model/factories/world-factory";
-import { GAME_ACTIVE, GAME_OVER } from "@/definitions/game-states";
 import {
     SCREEN_SHOP, SCREEN_HOTEL, SCREEN_GAME, SCREEN_CHARACTER_INTERACTION, SCREEN_BATTLE
 } from "@/definitions/screens";
-import { GAME_START_TIME, GAME_TIME_RATIO, VALIDITY_CHECK_INTERVAL } from "@/definitions/constants";
+import { GAME_TIME_RATIO } from "@/definitions/constants";
 
 const { getters, mutations, actions } = store;
 
 let mockUpdateFn;
 let mockValue;
 const mockFloorTypes = { BAR: 0, HOTEL: 1 };
-jest.mock("@/model/factories/building-factory", () => ({
-    generateFloors: (...args) => mockUpdateFn("generateFloors", ...args),
+vi.mock("@/model/factories/building-factory", () => ({
+    default: {
+        generateFloors: (...args) => mockUpdateFn("generateFloors", ...args),
+    },
     generateBarQueens: (...args) => mockUpdateFn("generateBarQueens", ...args),
     BUILDING_TILES: { GROUND: 0 },
-    FLOOR_TYPES: { BAR: 0, HOTEL: 1, CAVE: 2 }
+    FLOOR_TYPES: { BAR: 0, HOTEL: 1, CAVE: 2 },
 }));
-jest.mock("@/model/factories/intent-factory", () => ({
-    create: (...args) => mockUpdateFn("create", ...args),
-}));
-jest.mock("@/model/factories/shop-factory", () => ({
-    generateItems: (...args) => mockUpdateFn("generateItems", ...args),
-}));
-jest.mock("@/services/environment-bitmap-cacher", () => ({
-    renderEnvironment: async (...args) => {
-        return mockUpdateFn("renderEnvironment", ...args);
+vi.mock("@/model/factories/intent-factory", () => ({
+    default: {
+        create: (...args) => mockUpdateFn("create", ...args),
     }
 }));
-jest.mock("@/utils/terrain-util", () => ({
+vi.mock("@/model/factories/shop-factory", () => ({
+    default: {
+        generateItems: (...args) => mockUpdateFn("generateItems", ...args),
+    }
+}));
+vi.mock("@/services/environment-bitmap-cacher", () => ({
+    default: {},
+    renderEnvironment: async (...args) => {
+        return mockUpdateFn( "renderEnvironment", ...args );
+    }
+}));
+vi.mock("@/utils/terrain-util", () => ({
+    default: {},
     getFirstFreeTileOfTypeAroundPoint: () => ({ x: 0, y: 0 }),
     positionInReachableDistanceFromPoint: () => mockValue,
-    getRandomFreeTilePosition: () => mockValue
+    getRandomFreeTilePosition: () => mockValue,
 }));
-jest.mock("@/utils/sprite-cache", () => ({
-    ENV_BUILDING: { bitmap: {} },
+vi.mock("@/utils/sprite-cache", () => ({
+    default: {
+        ENV_BUILDING: { bitmap: {} },
+    },
     flushSpriteForCharacter: (...args) => mockUpdateFn("flushSpriteForCharacter", ...args),
     flushAllSprites: (...args) => mockUpdateFn("flushAllSprites", ...args),
 }));
@@ -135,7 +144,7 @@ describe( "Vuex environment module", () => {
             it( "should be able to set the active environment", () => {
                 const state = { activeEnvironment: null };
                 const env = { foo: "bar" };
-                mockUpdateFn = jest.fn();
+                mockUpdateFn = vi.fn();
                 mutations.setActiveEnvironment( state, env );
                 expect( mockUpdateFn ).toHaveBeenCalledWith( "flushAllSprites" );
                 expect( state.activeEnvironment ).toEqual( env );
@@ -257,7 +266,7 @@ describe( "Vuex environment module", () => {
                         characters: [ character1, character2 ]
                     }
                 };
-                mockUpdateFn = jest.fn();
+                mockUpdateFn = vi.fn();
                 mutations.removeCharacter( state, character2 );
 
                 expect( state.activeEnvironment.characters ).toEqual([ { id: 1, foo: "bar" }]);
@@ -333,9 +342,9 @@ describe( "Vuex environment module", () => {
                 it( "should be able to enter a shop, generating stock when it has no items upon entry", () => {
                     const shop = { foo: "bar", items: [] };
                     const state = { player: { baz: "qux" } };
-                    const commit = jest.fn();
+                    const commit = vi.fn();
                     const mockedGetters = { gameTime: 1000 };
-                    mockUpdateFn = jest.fn();
+                    mockUpdateFn = vi.fn();
                     actions.enterShop({ state, getters: mockedGetters, commit }, shop );
 
                     expect( mockUpdateFn ).toHaveBeenCalledWith( "generateItems", shop, expect.any( Number ));
@@ -351,9 +360,9 @@ describe( "Vuex environment module", () => {
                 it( "should be able to enter a shop, not generating new items when there are stil in stock", () => {
                     const shop          = { foo: "bar", items: [{ baz: "qux" }]};
                     const state         = { player: { baz: "qux" } };
-                    const commit        = jest.fn();
+                    const commit        = vi.fn();
                     const mockedGetters = { gameTime: 1000 };
-                    mockUpdateFn        = jest.fn();
+                    mockUpdateFn        = vi.fn();
                     actions.enterShop({ state, commit, getters: mockedGetters }, shop );
 
                     expect( mockUpdateFn ).not.toHaveBeenCalledWith( "generateItems", shop, expect.any( Number ));
@@ -363,15 +372,15 @@ describe( "Vuex environment module", () => {
                 });
 
                 it( "should be able to remove the pending callback effect when leaving the shop", () => {
-                    const commit = jest.fn();
+                    const commit = vi.fn();
                     actions.leaveShop({ commit });
                     expect( commit ).toHaveBeenCalledWith( "removeEffectsByCallback", [ "handleShopTimeout" ]);
                 });
 
                 it( "should be able to handle the timeout when staying in the shop for too long", () => {
-                    const commit        = jest.fn();
-                    const dispatch      = jest.fn();
-                    const mockedGetters = { translate: jest.fn() };
+                    const commit        = vi.fn();
+                    const dispatch      = vi.fn();
+                    const mockedGetters = { translate: vi.fn() };
 
                     actions.handleShopTimeout({ commit, dispatch, getters: mockedGetters });
 
@@ -382,7 +391,7 @@ describe( "Vuex environment module", () => {
             });
 
             it( "should be able to enter a hotel", () => {
-                const commit = jest.fn();
+                const commit = vi.fn();
                 const hotel  = { foo: "bar" };
                 actions.enterHotel({ commit }, hotel );
                 expect( commit ).toHaveBeenNthCalledWith( 1, "setHotel", hotel );
@@ -390,9 +399,9 @@ describe( "Vuex environment module", () => {
             });
 
             it( "should be able to collect an item from the environment", () => {
-                const commit = jest.fn();
+                const commit = vi.fn();
                 const item   = { foo: "bar" };
-                actions.collectItem({ commit, getters: { translate: jest.fn() } }, item );
+                actions.collectItem({ commit, getters: { translate: vi.fn() } }, item );
                 expect( commit ).toHaveBeenNthCalledWith( 1, "addItemToInventory", item );
                 expect( commit ).toHaveBeenNthCalledWith( 2, "removeItemFromEnvironment", item );
                 expect( commit ).toHaveBeenNthCalledWith( 3, "openDialog", expect.any( Object ));
@@ -400,10 +409,10 @@ describe( "Vuex environment module", () => {
 
             it( "should be able to enter a building", () => {
                 const building      = { baz: "qux" };
-                const commit        = jest.fn();
-                const dispatch      = jest.fn();
+                const commit        = vi.fn();
+                const dispatch      = vi.fn();
                 const mockedGetters = { player: { baz: "qux" } };
-                mockUpdateFn        = jest.fn();
+                mockUpdateFn        = vi.fn();
 
                 actions.enterBuilding({ getters: mockedGetters, commit, dispatch }, building );
 
@@ -414,10 +423,10 @@ describe( "Vuex environment module", () => {
 
             it( "should be able to enter the secret cave", () => {
                 const state = { world: { cave : { baz: "qux" } } };
-                const commit        = jest.fn();
-                const dispatch      = jest.fn();
+                const commit        = vi.fn();
+                const dispatch      = vi.fn();
                 const mockedGetters = { player: { baz: "qux" } };
-                mockUpdateFn        = jest.fn();
+                mockUpdateFn        = vi.fn();
 
                 actions.enterCave({ state, getters: mockedGetters, commit, dispatch });
 
@@ -430,10 +439,10 @@ describe( "Vuex environment module", () => {
 
             it( "should be able to change the currently active environment", async () => {
                 const state         = { activeEnvironment: { foo: "bar" } };
-                const commit        = jest.fn();
-                const dispatch      = jest.fn();
+                const commit        = vi.fn();
+                const dispatch      = vi.fn();
                 const mockedGetters = { player: { baz: "qux" }, dragon: { id: "dragonId" } };
-                mockUpdateFn        = jest.fn();
+                mockUpdateFn        = vi.fn();
 
                 const newEnvironment = { type: WORLD_TYPE, baz: "qux" };
                 await actions.changeActiveEnvironment({ state, getters: mockedGetters, commit, dispatch }, newEnvironment );
@@ -460,8 +469,8 @@ describe( "Vuex environment module", () => {
                 };
 
                 it( "should leave the building when going back up the first stairway", () => {
-                    const commit   = jest.fn();
-                    const dispatch = jest.fn();
+                    const commit   = vi.fn();
+                    const dispatch = vi.fn();
 
                     actions.changeFloor({ state, commit, dispatch }, -1 );
 
@@ -469,9 +478,9 @@ describe( "Vuex environment module", () => {
                 });
 
                 it( "should be able to change floors within a building", async () => {
-                    const commit   = jest.fn();
-                    const dispatch = jest.fn();
-                    mockUpdateFn   = jest.fn();
+                    const commit   = vi.fn();
+                    const dispatch = vi.fn();
+                    mockUpdateFn   = vi.fn();
 
                     await actions.changeFloor({ state, commit, dispatch }, 1 );
 
@@ -481,9 +490,9 @@ describe( "Vuex environment module", () => {
                 });
 
                 it( "should generate bar Queens when the floor is a bar without characters", async () => {
-                    const commit   = jest.fn();
-                    const dispatch = jest.fn();
-                    mockUpdateFn   = jest.fn();
+                    const commit   = vi.fn();
+                    const dispatch = vi.fn();
+                    mockUpdateFn   = vi.fn();
                     const mockedGetters = {
                         player: { id: "playerId" }
                     };
@@ -494,9 +503,9 @@ describe( "Vuex environment module", () => {
                 });
 
                 it( "should generate bar Queens when the floor is a bar", async () => {
-                    const commit   = jest.fn();
-                    const dispatch = jest.fn();
-                    mockUpdateFn   = jest.fn();
+                    const commit   = vi.fn();
+                    const dispatch = vi.fn();
+                    mockUpdateFn   = vi.fn();
                     const mockedGetters = {
                         player: { id: "playerId" }
                     };
@@ -510,8 +519,8 @@ describe( "Vuex environment module", () => {
 
             it( "should be able to leave a building", () => {
                 const state    = { game: { world: { foo: "bar" } } };
-                const commit   = jest.fn();
-                const dispatch = jest.fn();
+                const commit   = vi.fn();
+                const dispatch = vi.fn();
 
                 actions.leaveBuilding({ state, commit, dispatch });
 
@@ -521,9 +530,9 @@ describe( "Vuex environment module", () => {
 
             describe( "and interacting with a character", () => {
                 it( "should be able to interact with another Queen", () => {
-                    const commit    = jest.fn();
+                    const commit    = vi.fn();
                     const character = CharacterFactory.create({ type: QUEEN });
-                    mockUpdateFn    = jest.fn();
+                    mockUpdateFn    = vi.fn();
 
                     actions.interactWithCharacter({ commit }, character );
 
@@ -533,10 +542,10 @@ describe( "Vuex environment module", () => {
                 });
 
                 it( "should start a battle when interacting with a non-Queen character", () => {
-                    const commit    = jest.fn();
-                    const dispatch  = jest.fn();
+                    const commit    = vi.fn();
+                    const dispatch  = vi.fn();
                     const character = CharacterFactory.create({ type: DRAGON });
-                    mockUpdateFn    = jest.fn();
+                    mockUpdateFn    = vi.fn();
 
                     actions.interactWithCharacter({ commit, dispatch }, character );
 
@@ -546,10 +555,10 @@ describe( "Vuex environment module", () => {
                 });
 
                 it( "should start a battle when interacting with an aggressive Queen character", () => {
-                    const commit    = jest.fn();
-                    const dispatch  = jest.fn();
+                    const commit    = vi.fn();
+                    const dispatch  = vi.fn();
                     const character = CharacterFactory.create({ type: QUEEN }, {}, { intoxication: 1, boost: 1 });
-                    mockUpdateFn    = jest.fn();
+                    mockUpdateFn    = vi.fn();
 
                     actions.interactWithCharacter({ commit, dispatch }, character );
 
@@ -578,7 +587,7 @@ describe( "Vuex environment module", () => {
         it( "should be able to update a Characters position", () => {
             const character = CharacterFactory.create({ type: DRAGON });
             const mockedGetters = { world: { characters: [ character ]} };
-            const commit = jest.fn();
+            const commit = vi.fn();
 
             const x = 6;
             const y = 7;
@@ -595,7 +604,7 @@ describe( "Vuex environment module", () => {
                     characters: [{ id: 1 }, { id: 2 }]
                 }
             };
-            const commit = jest.fn();
+            const commit = vi.fn();
             actions.cancelCharacterMovements({ state, commit });
 
             expect( commit ).toHaveBeenNthCalledWith( 1, "removeEffectsByMutation", [ "setXPosition", "setYPosition" ]);

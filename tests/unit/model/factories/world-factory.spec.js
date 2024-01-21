@@ -1,12 +1,13 @@
-import MD5          from "MD5";
-import { DRAGON }   from "@/definitions/character-types";
+import { describe, it, expect, beforeAll, vi } from "vitest";
+import MD5 from "MD5";
+import { DRAGON } from "@/definitions/character-types";
 import WorldFactory from "@/model/factories/world-factory";
 
-jest.mock( "zcanvas", () => ({
+vi.mock( "zcanvas", () => ({
     Loader: {
-        onReady: new Promise(resolve => resolve())
+        onReady: new Promise( resolve => resolve())
     },
-    Sprite: jest.fn()
+    Sprite: vi.fn()
 }));
 
 describe("World factory", () => {

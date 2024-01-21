@@ -1,7 +1,8 @@
+import { describe, it, expect, beforeEach } from "vitest";
 import { prepareAttack, getDamageForAttack } from "@/model/factories/attack-factory";
 import CharacterFactory  from "@/model/factories/character-factory";
 import InventoryFactory  from "@/model/factories/inventory-factory";
-import AttackTypes, { ATTACK_PREPARED, ATTACK_MISSED, ATTACK_DODGED } from "@/definitions/attack-types";
+import AttackTypes, { ATTACK_PREPARED } from "@/definitions/attack-types";
 import { QUEEN, DRAGON } from "@/definitions/character-types";
 import { SHOE_HEELS }    from "@/definitions/item-types";
 

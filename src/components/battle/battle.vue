@@ -106,11 +106,11 @@ import AttackTypes, { ATTACK_DODGED } from "@/definitions/attack-types";
 import { QUEEN, DRAGON } from "@/definitions/character-types";
 import ItemTypes, { MAGIC_SWORD } from "@/definitions/item-types";
 import { SCREEN_GAME }  from "@/definitions/screens";
-import Modal            from "@/components/modal/modal";
-import Inventory        from "@/components/inventory/inventory";
+import Modal            from "@/components/modal/modal.vue";
+import Inventory        from "@/components/inventory/inventory.vue";
 import ActionsUI        from "@/mixins/actions-ui";
 import InventoryActions from "@/model/actions/inventory-actions";
-import CharacterStatus  from "./character-status/character-status";
+import CharacterStatus  from "./character-status/character-status.vue";
 import messages         from "./messages.json";
 
 export default {

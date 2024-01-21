@@ -1,3 +1,4 @@
+import { describe, it, expect } from "vitest";
 import ItemFactory from "@/model/factories/item-factory";
 import ItemTypes, {
     LIQUOR_TYPES, SHOE_HEELS, SHOE_SNEAKERS, SHOE_FLIPPERS,

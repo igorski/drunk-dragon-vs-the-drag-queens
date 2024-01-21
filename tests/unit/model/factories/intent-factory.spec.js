@@ -1,3 +1,4 @@
+import { describe, it, expect } from "vitest";
 import IntentFactory from "@/model/factories/intent-factory";
 
 describe( "Intent factory", () => {

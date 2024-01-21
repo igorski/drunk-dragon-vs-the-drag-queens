@@ -1,3 +1,4 @@
+import { describe, it, expect } from "vitest";
 import EnvironmentFactory from "@/model/factories/environment-factory";
 import ItemFactory from "@/model/factories/item-factory";
 

@@ -1,3 +1,4 @@
+import { describe, it, expect } from "vitest";
 import { validateProperties, validateInventory } from "@/model/validator";
 
 describe( "Validator", () => {

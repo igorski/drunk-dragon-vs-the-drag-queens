@@ -24,7 +24,7 @@
 <script>
 import { mapState, mapGetters, mapMutations, mapActions } from "vuex";
 import { ToggleButton } from "vue-js-toggle-button";
-import Modal    from "@/components/modal/modal";
+import Modal from "@/components/modal/modal.vue";
 import messages from "./messages.json";
 
 export default {

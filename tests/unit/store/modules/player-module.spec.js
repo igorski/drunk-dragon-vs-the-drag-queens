@@ -1,3 +1,4 @@
+import { describe, it, expect, vi } from "vitest";
 import store from "@/store/modules/player-module";
 import { QUEEN, DRAB } from "@/definitions/character-types";
 import { GAME_START_HOUR } from "@/definitions/constants";
@@ -9,11 +10,11 @@ import { WORLD_TYPE } from "@/model/factories/world-factory";
 
 const { getters, mutations, actions } = store;
 
-jest.mock( "zcanvas", () => ({
+vi.mock( "zcanvas", () => ({
     Loader: {
         onReady: new Promise(resolve => resolve())
     },
-    Sprite: jest.fn()
+    Sprite: vi.fn()
 }));
 
 describe( "Vuex player module", () => {
@@ -145,10 +146,10 @@ describe( "Vuex player module", () => {
                 player: CharacterFactory.create({ id: "foo", properties: { speed: 1, intoxication: 0, boost: 0 } }
             )};
             const mockedGetters = { activeEnvironment: EnvironmentFactory.create(), effects: [], gameTime: 0 };
-            const commit        = jest.fn();
-            const dispatch      = jest.fn();
+            const commit        = vi.fn();
+            const dispatch      = vi.fn();
 
-            const onProgress = jest.fn();
+            const onProgress = vi.fn();
 
             actions.moveToDestination({ state, getters: mockedGetters, commit, dispatch }, { x: 1, y: 1, onProgress });
 
@@ -160,7 +161,7 @@ describe( "Vuex player module", () => {
             it( "should deny the transaction when the player has insufficient funds", () => {
                 const state  = { player: { inventory: { cash: 5 } } };
                 const item   = { price: 10 };
-                const commit = jest.fn();
+                const commit = vi.fn();
                 expect( actions.buyItem({ state, commit }, item )).toBe( false );
                 expect( commit ).not.toHaveBeenCalled();
             });
@@ -168,7 +169,7 @@ describe( "Vuex player module", () => {
             it( "should buy the item when the player has sufficient funds and move it to the player inventory", () => {
                 const state  = { player: { inventory: { cash: 15 } } };
                 const item   = { price: 10 };
-                const commit = jest.fn();
+                const commit = vi.fn();
                 expect( actions.buyItem({ state, commit }, item )).toBe( true );
                 expect( commit ).toHaveBeenNthCalledWith( 1, "deductCash", item.price );
                 expect( commit ).toHaveBeenNthCalledWith( 2, "removeItemFromShop", item );
@@ -180,7 +181,7 @@ describe( "Vuex player module", () => {
             const orgPrice = 12;
             const item     = { price: orgPrice };
             const price    = 5;
-            const commit   = jest.fn();
+            const commit   = vi.fn();
 
             actions.sellItem({ commit }, { item, price });
 
@@ -198,7 +199,7 @@ describe( "Vuex player module", () => {
 
             if( "should not give the item when the type or name does not meet the Characters intent", () => {
                 const item = { type: 0, name: 0 };
-                const commit = jest.fn();
+                const commit = vi.fn();
 
                 expect( actions.giveItemToCharacter({ commit }, { item, character })).toBe( false );
                 item.type = 1; // type is now equal, but name isn't
@@ -208,7 +209,7 @@ describe( "Vuex player module", () => {
 
             it( "should give the item when its type and name meets the Characters intent", () => {
                 const item = { type: 1, name: 1 };
-                const commit = jest.fn();
+                const commit = vi.fn();
 
                 expect( actions.giveItemToCharacter({ commit }, { item, character })).toBe( true );
                 expect( commit ).toHaveBeenNthCalledWith( 1, "addItemToCharacterInventory", { item, character });
@@ -217,7 +218,7 @@ describe( "Vuex player module", () => {
         });
 
         it( "should be able to loan money from a shop", () => {
-            const commit = jest.fn();
+            const commit = vi.fn();
             const mockedGetters = { gameTime: 1000, shop: { id: "foo" } };
             const duration = 500;
             const amount = 5000;
@@ -240,7 +241,7 @@ describe( "Vuex player module", () => {
 
         it( "should be able to pay back the debt to a shop", () => {
             const mockedGetters = { shop: { id: "foo" } };
-            const commit = jest.fn();
+            const commit = vi.fn();
             const amount = 5000;
 
             actions.payBackLoan({ commit, getters: mockedGetters }, amount );
@@ -254,8 +255,8 @@ describe( "Vuex player module", () => {
             const hotel = { price: 10 };
 
             it( "should return without booking when the player has insufficient funds", async () => {
-                const commit   = jest.fn();
-                const dispatch = jest.fn();
+                const commit   = vi.fn();
+                const dispatch = vi.fn();
                 const state    = { player: { inventory: { cash: 5 } } };
 
                 const success = await actions.bookHotelRoom({ state, getters: {}, commit, dispatch }, hotel );
@@ -266,10 +267,10 @@ describe( "Vuex player module", () => {
             });
 
             it( "should complete the booking, restore health, deduct cash and leave the building when the player has sufficient funds", async () => {
-                const commit   = jest.fn();
-                const dispatch = jest.fn();
+                const commit   = vi.fn();
+                const dispatch = vi.fn();
                 const state    = { player: { hp: 1, maxHp: 10, inventory: { cash: 10 }, properties: { intoxication: 0 } } };
-                const mockedGetters = { gameTime: new Date( "1986-08-29T23:59:31.000Z" ), translate: jest.fn() };
+                const mockedGetters = { gameTime: new Date( "1986-08-29T23:59:31.000Z" ), translate: vi.fn() };
 
                 const success = await actions.bookHotelRoom({ state, getters: mockedGetters, commit, dispatch }, hotel );
 
@@ -286,51 +287,51 @@ describe( "Vuex player module", () => {
             });
 
             it( "should advance the clock to tomorrow when successfully booked before midnight", async () => {
-                const commit   = jest.fn();
-                const dispatch = jest.fn();
+                const commit   = vi.fn();
+                const dispatch = vi.fn();
                 const state    = { player: CharacterFactory.create({}, {}, {} , { cash: 10 }) };
-                const mockedGetters = { gameTime: new Date( "1986-08-29T23:59:31.000Z" ), translate: jest.fn() };
+                const mockedGetters = { gameTime: new Date( "1986-08-29T23:59:31.000Z" ), translate: vi.fn() };
 
                 await actions.bookHotelRoom({ state, getters: mockedGetters, commit, dispatch }, hotel );
                 expect( commit ).toHaveBeenCalledWith( "setGameTime", new Date( `1986-08-30T${GAME_START_HOUR}:00:00.000Z` ).getTime() );
             });
 
             it( "should advance the clock to the start hour on the same day when successfully booked after midnight", async () => {
-                const commit   = jest.fn();
-                const dispatch = jest.fn();
+                const commit   = vi.fn();
+                const dispatch = vi.fn();
                 const state    = { player: CharacterFactory.create({}, {}, {} , { cash: 10 }) };
-                const mockedGetters = { gameTime: new Date( "1986-08-30T01:59:31.000Z" ), translate: jest.fn() };
+                const mockedGetters = { gameTime: new Date( "1986-08-30T01:59:31.000Z" ), translate: vi.fn() };
 
                 await actions.bookHotelRoom({ state, getters: mockedGetters, commit, dispatch }, hotel );
                 expect( commit ).toHaveBeenCalledWith( "setGameTime", new Date( `1986-08-30T${GAME_START_HOUR}:00:00.000Z` ).getTime() );
             });
 
             it( "should sober up the player if the player was intoxicated", async () => {
-                const commit   = jest.fn();
-                const dispatch = jest.fn();
+                const commit   = vi.fn();
+                const dispatch = vi.fn();
                 const state    = { player: CharacterFactory.create({}, {}, { intoxication: 0.25 }, { cash: 10 }) };
 
-                await actions.bookHotelRoom({ state, getters: { translate: jest.fn() }, commit, dispatch }, hotel );
+                await actions.bookHotelRoom({ state, getters: { translate: vi.fn() }, commit, dispatch }, hotel );
 
                 expect( dispatch ).toHaveBeenCalledWith( "soberUp" );
             });
 
             it( "should clean up the player if the player was boosted", async () => {
-                const commit   = jest.fn();
-                const dispatch = jest.fn();
+                const commit   = vi.fn();
+                const dispatch = vi.fn();
                 const state    = { player: CharacterFactory.create({}, {}, { boost: 0.25 }, { cash: 10 }) };
 
-                await actions.bookHotelRoom({ state, getters: { translate: jest.fn() }, commit, dispatch }, hotel );
+                await actions.bookHotelRoom({ state, getters: { translate: vi.fn() }, commit, dispatch }, hotel );
 
                 expect( dispatch ).toHaveBeenCalledWith( "cleanUp" );
             });
         });
 
         it( "should be able to sober up an intoxicated player", async () => {
-            const commit = jest.fn()
+            const commit = vi.fn()
             const state  = { player: { id: "foo", properties: { intoxication: 1 } } };
 
-            await actions.soberUp({ state, commit, getters: { translate: jest.fn(() => "" ) } });
+            await actions.soberUp({ state, commit, getters: { translate: vi.fn(() => "" ) } });
 
             expect( commit ).toHaveBeenNthCalledWith( 1, "removeEffectsByTargetAndMutation", { target: "foo", types: [ "setIntoxication" ] });
             expect( commit ).toHaveBeenNthCalledWith( 2, "setIntoxication", { value: 0 });
@@ -338,10 +339,10 @@ describe( "Vuex player module", () => {
         });
 
         it( "should be able to clean up a boosted player", async () => {
-            const commit = jest.fn()
+            const commit = vi.fn()
             const state  = { player: { id: "foo", properties: { boost: 1 } } };
 
-            await actions.cleanUp({ state, commit, getters: { translate: jest.fn(() => "" ) } });
+            await actions.cleanUp({ state, commit, getters: { translate: vi.fn(() => "" ) } });
 
             expect( commit ).toHaveBeenNthCalledWith( 1, "removeEffectsByTargetAndMutation", { target: "foo", types: [ "setBoost" ] });
             expect( commit ).toHaveBeenNthCalledWith( 2, "setBoost", { value: 0 });
@@ -349,8 +350,8 @@ describe( "Vuex player module", () => {
         });
 
         it( "should end the game if a loan hasn't been paid in time", () => {
-            const commit = jest.fn();
-            actions.handleLoanTimeout({ commit, getters: { translate: jest.fn() } });
+            const commit = vi.fn();
+            actions.handleLoanTimeout({ commit, getters: { translate: vi.fn() } });
 
             expect( commit ).toHaveBeenNthCalledWith( 1, "updatePlayer", { hp: 0 });
             expect( commit ).toHaveBeenNthCalledWith( 2, "setGameState", GAME_OVER );

@@ -1,3 +1,4 @@
+import { describe, it, expect, vi } from "vitest";
 import store            from "@/store/modules/battle-module";
 import AttackTypes, { ATTACK_PREPARED, ATTACK_MISSED } from "@/definitions/attack-types";
 import { DRAGON }       from "@/definitions/character-types";
@@ -9,7 +10,7 @@ import CharacterFactory from "@/model/factories/character-factory";
 const { getters, mutations, actions } = store;
 
 let mockRandomValue;
-jest.mock( "@/utils/random-util", () => ({
+vi.mock( "@/utils/random-util", () => ({
     random: () => mockRandomValue,
     randomBool: () => mockRandomValue,
     randomFromList: list => list[0],
@@ -17,7 +18,7 @@ jest.mock( "@/utils/random-util", () => ({
 }));
 let mockDamageForAttack;
 let mockPrepareAttack;
-jest.mock( "@/model/factories/attack-factory", () => ({
+vi.mock( "@/model/factories/attack-factory", () => ({
     prepareAttack: () => mockPrepareAttack,
     getDamageForAttack: () => mockDamageForAttack,
 }));
@@ -116,7 +117,7 @@ describe( "Vuex battle module", () => {
             const mockedGetters = { player };
 
             it( "should be unsuccessful when the attack preparation failed", async () => {
-                const commit = jest.fn();
+                const commit = vi.fn();
                 mockPrepareAttack = ATTACK_MISSED;
                 const { success, prepareResult } = await actions.attackOpponent(
                     { state, getters: mockedGetters, commit }, { type: AttackTypes.SLAP }
@@ -127,20 +128,20 @@ describe( "Vuex battle module", () => {
             });
 
             it( "should always end the players current turn, regardless of outcome", async () => {
-                let commit = jest.fn();
+                let commit = vi.fn();
                 mockPrepareAttack = ATTACK_PREPARED;
                 await actions.attackOpponent({ state, getters: mockedGetters, commit }, { type: AttackTypes.SLAP });
                 expect( commit ).toHaveBeenNthCalledWith( 1, "setPlayerTurn", false );
 
                 mockPrepareAttack = ATTACK_MISSED;
-                commit = jest.fn();
+                commit = vi.fn();
                 await actions.attackOpponent({ state, getters: mockedGetters, commit }, { type: AttackTypes.SLAP });
                 expect( commit ).toHaveBeenNthCalledWith( 1, "setPlayerTurn", false );
             });
 
             it( "should update the opponent HP and return the damage for the given attack type when successful", async () => {
-                const commit = jest.fn();
-                const dispatch = jest.fn();
+                const commit = vi.fn();
+                const dispatch = vi.fn();
                 opponent.hp = 10;
                 mockDamageForAttack = 5;
                 mockPrepareAttack = ATTACK_PREPARED;
@@ -155,8 +156,8 @@ describe( "Vuex battle module", () => {
             });
 
             it( "should resolve the battle if the opponent has no HP left after attack", async () => {
-                const commit = jest.fn();
-                const dispatch = jest.fn();
+                const commit = vi.fn();
+                const dispatch = vi.fn();
                 opponent.hp = 1;
                 mockDamageForAttack = 1;
                 mockPrepareAttack = ATTACK_PREPARED;
@@ -173,14 +174,14 @@ describe( "Vuex battle module", () => {
             const mockedGetters = { player };
 
             it( "should always end the players current turn, regardless of outcome", async () => {
-                const commit = jest.fn();
-                await actions.runFromOpponent({ state, getters: mockedGetters, commit, dispatch: jest.fn() });
+                const commit = vi.fn();
+                await actions.runFromOpponent({ state, getters: mockedGetters, commit, dispatch: vi.fn() });
                 expect( commit ).toHaveBeenNthCalledWith( 1, "setPlayerTurn", false );
             });
 
             it( "should not allow intoxicated players to escape", async () => {
                 player.properties.intoxication = 0.8;
-                const commit = jest.fn();
+                const commit = vi.fn();
                 const escaped = await actions.runFromOpponent({ state, getters: mockedGetters, commit });
                 expect( escaped ).toBe( false );
                 expect( commit ).not.toHaveBeenNthCalledWith( 1, "setOpponent", null );
@@ -190,8 +191,8 @@ describe( "Vuex battle module", () => {
             it( "should always allow escape to level 1 players", async () => {
                 player.properties.intoxication = 0;
                 player.level = 1;
-                const commit   = jest.fn();
-                const dispatch = jest.fn();
+                const commit   = vi.fn();
+                const dispatch = vi.fn();
                 const escaped = await actions.runFromOpponent({ state, getters: mockedGetters, commit, dispatch });
                 expect( escaped ).toBe( true );
                 expect( dispatch ).toHaveBeenCalledWith( "positionCharacter", { id: opponent.id, distance: expect.any( Number ) });
@@ -204,13 +205,13 @@ describe( "Vuex battle module", () => {
                 mockRandomValue = .4;
 
                 let escaped = await actions.runFromOpponent({
-                    state, getters: mockedGetters, commit: jest.fn(), dispatch: jest.fn()
+                    state, getters: mockedGetters, commit: vi.fn(), dispatch: vi.fn()
                 });
                 expect( escaped ).toBe( false );
 
                 mockRandomValue = .6;
                 escaped = await actions.runFromOpponent({
-                    state, getters: mockedGetters, commit: jest.fn(), dispatch: jest.fn()
+                    state, getters: mockedGetters, commit: vi.fn(), dispatch: vi.fn()
                 });
                 expect( escaped ).toBe( true );
             });
@@ -221,7 +222,7 @@ describe( "Vuex battle module", () => {
                 mockRandomValue = .4;
 
                 const escaped = await actions.runFromOpponent({
-                    state, getters: mockedGetters, commit: jest.fn(), dispatch: jest.fn()
+                    state, getters: mockedGetters, commit: vi.fn(), dispatch: vi.fn()
                 });
                 expect( escaped ).toBe( true );
             });
@@ -234,7 +235,7 @@ describe( "Vuex battle module", () => {
             const mockedGetters = { player };
 
             it( "should be unsuccessful when the attack preparation failed", async () => {
-                const commit = jest.fn();
+                const commit = vi.fn();
                 mockPrepareAttack = ATTACK_MISSED;
                 const { success, prepareResult } = await actions.attackPlayer(
                     { state, getters: mockedGetters, commit }, { type: AttackTypes.SLAP }
@@ -246,8 +247,8 @@ describe( "Vuex battle module", () => {
             });
 
             it( "should activate the Players turn if the Player still has HP left after a successful attack", async () => {
-                const commit = jest.fn();
-                const dispatch = jest.fn();
+                const commit = vi.fn();
+                const dispatch = vi.fn();
                 player.hp = 10;
                 mockDamageForAttack = 1;
                 mockPrepareAttack = ATTACK_PREPARED;
@@ -257,8 +258,8 @@ describe( "Vuex battle module", () => {
             });
 
             it( "should not activate the Players turn if the Player has no HP left after a successful attack", async () => {
-                const commit = jest.fn();
-                const dispatch = jest.fn();
+                const commit = vi.fn();
+                const dispatch = vi.fn();
                 player.hp = 1;
                 mockDamageForAttack = 1;
                 mockPrepareAttack = ATTACK_PREPARED;
@@ -267,8 +268,8 @@ describe( "Vuex battle module", () => {
             });
 
             it( "should resolve the battle if the Player has no HP left after a successful attack", async () => {
-                const commit = jest.fn();
-                const dispatch = jest.fn();
+                const commit = vi.fn();
+                const dispatch = vi.fn();
                 player.hp = 1;
                 mockDamageForAttack = 1;
                 mockPrepareAttack = ATTACK_PREPARED;
@@ -277,7 +278,7 @@ describe( "Vuex battle module", () => {
             });
 
             it( "should update the opponent HP and return the damage for the given attack type after a successful attack", async () => {
-                const commit = jest.fn();
+                const commit = vi.fn();
                 player.hp = 10;
                 mockDamageForAttack = 5;
                 mockPrepareAttack = ATTACK_PREPARED;
@@ -296,8 +297,8 @@ describe( "Vuex battle module", () => {
             mockRandomValue     = true; // forces ambush when speed check passes
 
             it( "should be able to start a battle setting the appropriate values", async () => {
-                const commit   = jest.fn();
-                const dispatch = jest.fn();
+                const commit   = vi.fn();
+                const dispatch = vi.fn();
 
                 await actions.startBattle({ commit, getters: mockedGetters, dispatch }, opponent );
 
@@ -308,8 +309,8 @@ describe( "Vuex battle module", () => {
             });
 
             it( "should not ambush the player when the opponent is slower", async () => {
-                const commit   = jest.fn();
-                const dispatch = jest.fn();
+                const commit   = vi.fn();
+                const dispatch = vi.fn();
 
                 opponent.properties.speed = mockedGetters.player.properties.speed - 0.1;
 
@@ -319,8 +320,8 @@ describe( "Vuex battle module", () => {
             });
 
             it( "should ambush the player when the opponent is faster", async () => {
-                const commit   = jest.fn();
-                const dispatch = jest.fn();
+                const commit   = vi.fn();
+                const dispatch = vi.fn();
 
                 opponent.properties.speed = mockedGetters.player.properties.speed + 0.1;
 
@@ -333,7 +334,7 @@ describe( "Vuex battle module", () => {
         describe( "When resolving a battle", () => {
             let mockedGetters;
             const createMockAwardGetter = () => {
-                return jest.fn(( mutation, value ) => {
+                return vi.fn(( mutation, value ) => {
                     if ( mutation === "awardXP" ) {
                         mockedGetters.player.xp += value;
                     }
@@ -343,7 +344,7 @@ describe( "Vuex battle module", () => {
             it( "should set the game over state when the opponent has won", async () => {
                 const state = { opponent: { hp: 1 } };
                 mockedGetters = { player: { hp: 0 } };
-                const commit = jest.fn();
+                const commit = vi.fn();
                 await actions.resolveBattle({ state, commit, getters: mockedGetters });
                 expect( commit ).toHaveBeenCalledWith( "setGameState", GAME_OVER );
             });
@@ -351,8 +352,8 @@ describe( "Vuex battle module", () => {
             if( "should award XP, set the battle won status, clear the Opponent and start environment music when the Player has won", async () => {
                 const state = { opponent: CharacterFactory.create({ hp: 0 }), award: 10 };
                 mockedGetters = { player: { hp: 1 }, activeEnvironment: { foo: "bar" } };
-                const commit = jest.fn();
-                const dispatch = jest.fn();
+                const commit = vi.fn();
+                const dispatch = vi.fn();
 
                 await actions.resolveBattle({ state, commit, getters: mockedGetters, dispatch });
                 expect( commit ).toHaveBeenNthCalledWith( 1, "awardXP", state.award );
@@ -364,7 +365,7 @@ describe( "Vuex battle module", () => {
             if( "should steal the Opponents cash when the Player has won", async () => {
                 const state = { opponent: { hp: 0, inventory: { cash: 10 } }, award: 10 };
                 mockedGetters = { player: { hp: 1 } };
-                const commit = jest.fn();
+                const commit = vi.fn();
                 await actions.resolveBattle({ state, commit, getters: mockedGetters });
                 expect( commit ).toHaveBeenNthCalledWith( 4, "awardCash", state.opponent.inventory.cash );
             });
@@ -372,7 +373,7 @@ describe( "Vuex battle module", () => {
             it( "should increase the level when sufficient XP has been gathered", async () => {
                 const halfLevelXP = XP_PER_LEVEL / 2;
                 const state       = { opponent: CharacterFactory.create({ hp: 0 }), award: halfLevelXP };
-                const dispatch    = jest.fn();
+                const dispatch    = vi.fn();
                 mockedGetters     = { player: { xp: 0, level: 1, hp: 3, maxHp: 5 } };
 
                 let commit = createMockAwardGetter();
@@ -397,7 +398,7 @@ describe( "Vuex battle module", () => {
                 // level 4 at 70 XP, level 5 at 130 XP, etc.
                 const state    = { opponent: CharacterFactory.create({ hp: 0 }), award: XP_PER_LEVEL };
                 mockedGetters  = { player: { xp: XP_PER_LEVEL, level: 2 }};
-                const dispatch = jest.fn();
+                const dispatch = vi.fn();
                 let commit     = createMockAwardGetter();
 
                 await actions.resolveBattle({ state, getters: mockedGetters, commit, dispatch });
@@ -435,8 +436,8 @@ describe( "Vuex battle module", () => {
             it( "should remove it from the environment after winning", async () => {
                 const state   = { opponent: CharacterFactory.create({ id: "opponentId", hp: 0 }), award: XP_PER_LEVEL };
                 mockedGetters = { player: { xp: XP_PER_LEVEL, level: 2 }};
-                let dispatch  = jest.fn();
-                let commit    = jest.fn();
+                let dispatch  = vi.fn();
+                let commit    = vi.fn();
 
                 await actions.resolveBattle({ state, getters: mockedGetters, commit, dispatch });
                 expect( dispatch ).not.toHaveBeenCalledWith( "positionCharacter", expect.any( Object ));
@@ -446,8 +447,8 @@ describe( "Vuex battle module", () => {
             it( "should reposition and update the opponent if it was the Dragon as it can't be killed without a special weapon", async () => {
                 const state   = { opponent: CharacterFactory.create({ id: "opponentId", hp: 0, type: DRAGON }), award: XP_PER_LEVEL };
                 mockedGetters = { player: { xp: XP_PER_LEVEL, level: 2 }};
-                let dispatch  = jest.fn();
-                let commit    = jest.fn();
+                let dispatch  = vi.fn();
+                let commit    = vi.fn();
 
                 await actions.resolveBattle({ state, getters: mockedGetters, commit, dispatch });
                 expect( dispatch ).toHaveBeenCalledWith( "positionCharacter", { id: "opponentId", distance: expect.any( Number ) });
@@ -458,8 +459,8 @@ describe( "Vuex battle module", () => {
             it( "should end the game by requesting the finale if the opponent was the Dragon and the last attack was a Sword slash", async () => {
                 const state   = { opponent: CharacterFactory.create({ id: "opponentId", hp: 0, type: DRAGON }), award: XP_PER_LEVEL };
                 mockedGetters = { player: { xp: XP_PER_LEVEL, level: 2 }};
-                let dispatch  = jest.fn();
-                let commit    = jest.fn();
+                let dispatch  = vi.fn();
+                let commit    = vi.fn();
 
                 await actions.resolveBattle({ state, getters: mockedGetters, commit, dispatch }, AttackTypes.SWORD );
 
@@ -469,8 +470,8 @@ describe( "Vuex battle module", () => {
             it( "should NOT end the game if opponent was killed using a Sword slash, but wasn't the Dragon", async () => {
                 const state   = { opponent: CharacterFactory.create({ id: "opponentId", hp: 0 }), award: XP_PER_LEVEL };
                 mockedGetters = { player: { xp: XP_PER_LEVEL, level: 2 }};
-                let dispatch  = jest.fn();
-                let commit    = jest.fn();
+                let dispatch  = vi.fn();
+                let commit    = vi.fn();
 
                 await actions.resolveBattle({ state, getters: mockedGetters, commit, dispatch }, AttackTypes.SWORD );
 

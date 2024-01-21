@@ -1,3 +1,4 @@
+import { describe, it, expect, vi } from "vitest";
 import EffectActions from "@/model/actions/effect-actions";
 import EffectFactory from "@/model/factories/effect-factory";
 
@@ -10,8 +11,8 @@ describe("Effect actions", () => {
     const callback       = "bar";
 
     it( "Should not perform an action for an Effect that is scheduled in the future", () => {
-        const commit   = jest.fn();
-        const dispatch = jest.fn();
+        const commit   = vi.fn();
+        const dispatch = vi.fn();
         const effect   = EffectFactory.create( mutation, startTime, duration, startValue, endValue );
         const result   = EffectActions.update({ commit, dispatch }, effect, 0 );
 
@@ -23,8 +24,8 @@ describe("Effect actions", () => {
     });
 
     it( "Should perform an action for an Effect where its active lifetime overlaps the current time", () => {
-        const commit   = jest.fn();
-        const dispatch = jest.fn();
+        const commit   = vi.fn();
+        const dispatch = vi.fn();
         const effect   = EffectFactory.create( mutation, startTime, duration, startValue, endValue );
         const result   = EffectActions.update({ commit, dispatch }, effect, startTime + ( duration / 2 ) );
 
@@ -36,8 +37,8 @@ describe("Effect actions", () => {
     });
 
     it( "Should perform the final action for an Effect where the active lifetime ends at the current time", () => {
-        const commit   = jest.fn();
-        const dispatch = jest.fn();
+        const commit   = vi.fn();
+        const dispatch = vi.fn();
         const effect   = EffectFactory.create( mutation, startTime, duration, startValue, endValue );
         const result   = EffectActions.update({ commit, dispatch }, effect, startTime + duration );
 
@@ -49,8 +50,8 @@ describe("Effect actions", () => {
     });
 
     it( "Should perform the final action for an Effect where the active lifetime ended before the current time", () => {
-        const commit   = jest.fn();
-        const dispatch = jest.fn();
+        const commit   = vi.fn();
+        const dispatch = vi.fn();
         const effect   = EffectFactory.create( mutation, startTime, duration, startValue, endValue );
         const result   = EffectActions.update({ commit, dispatch }, effect, startTime + ( duration * 2 ));
 
@@ -62,8 +63,8 @@ describe("Effect actions", () => {
     });
 
     it( "Should dispatch the callback method when the effect completes", () => {
-        const commit   = jest.fn();
-        const dispatch = jest.fn();
+        const commit   = vi.fn();
+        const dispatch = vi.fn();
         const effect   = EffectFactory.create(
             mutation, startTime, duration, startValue, endValue, callback
         );
@@ -87,8 +88,8 @@ describe("Effect actions", () => {
 
     describe( "When the optional target property is defined", () => {
         it( "Should call the commit method with both value and target", () => {
-            const commit   = jest.fn();
-            const dispatch = jest.fn();
+            const commit   = vi.fn();
+            const dispatch = vi.fn();
             const target   = "fooBar";
             const effect   = EffectFactory.create( mutation, startTime, duration, startValue, endValue, null, target );
             const result   = EffectActions.update({ commit, dispatch }, effect, startTime + ( duration * 2 ));
@@ -101,8 +102,8 @@ describe("Effect actions", () => {
         });
 
         it( "Should dispatch the callback method supplying target when the effect completes", () => {
-            const commit   = jest.fn();
-            const dispatch = jest.fn();
+            const commit   = vi.fn();
+            const dispatch = vi.fn();
             const target   = { foo: "bar" };
             const effect   = EffectFactory.create(
                 mutation, startTime, duration, startValue, endValue, callback, target

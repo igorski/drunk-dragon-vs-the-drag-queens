@@ -43,9 +43,9 @@
 
 <script>
 import { mapGetters, mapMutations, mapActions } from "vuex";
-import Modal from "@/components/modal/modal";
-import PlayerStats from "@/components/player-stats/player-stats";
-import messages            from "./messages.json";
+import Modal from "@/components/modal/modal.vue";
+import PlayerStats from "@/components/player-stats/player-stats.vue";
+import messages from "./messages.json";
 
 export default {
     i18n: { messages },

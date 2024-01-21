@@ -67,10 +67,10 @@ import Vue from "vue";
 import VueI18n from "vue-i18n";
 import { preloadAssets } from "@/services/asset-preloader";
 import { INTRO_THEME }   from "@/definitions/audio-tracks";
-import DialogWindow      from "@/components/dialog-window/dialog-window";
-import HeaderMenu        from "@/components/header-menu/header-menu";
-import Notifications     from "@/components/notifications/notifications";
-import World             from "@/components/world/world";
+import DialogWindow      from "@/components/dialog-window/dialog-window.vue";
+import HeaderMenu        from "@/components/header-menu/header-menu.vue";
+import Notifications     from "@/components/notifications/notifications.vue";
+import World             from "@/components/world/world.vue";
 import messages          from "./messages.json";
 
 import { GAME_OVER } from "@/definitions/game-states";
@@ -109,27 +109,27 @@ export default {
                 default:
                     return null;
                 case SCREEN_TITLE:
-                    return () => import( "./components/title-screen/title-screen" );
+                    return () => import( "./components/title-screen/title-screen.vue" );
                 case SCREEN_CHARACTER_CREATE:
-                    return () => import( "./components/character-creator/character-creator" );
+                    return () => import( "./components/character-creator/character-creator.vue" );
                 case SCREEN_CHARACTER_INTERACTION:
-                    return () => import( "./components/character-interaction/character-interaction" );
+                    return () => import( "./components/character-interaction/character-interaction.vue" );
                 case SCREEN_BATTLE:
-                    return () => import( "./components/battle/battle" );
+                    return () => import( "./components/battle/battle.vue" );
                 case SCREEN_OPTIONS:
-                    return () => import( "./components/options/options" );
+                    return () => import( "./components/options/options.vue" );
                 case SCREEN_STATUS:
-                    return () => import( "./components/status/status" );
+                    return () => import( "./components/status/status.vue" );
                 case SCREEN_SHOP:
-                    return () => import( "./components/shop/shop" );
+                    return () => import( "./components/shop/shop.vue" );
                 case SCREEN_HOTEL:
-                    return () => import( "./components/hotel/hotel" );
+                    return () => import( "./components/hotel/hotel.vue" );
                 case SCREEN_CREDITS:
-                    return () => import( "./components/credits/credits" );
+                    return () => import( "./components/credits/credits.vue" );
                 case SCREEN_GAME_OVER:
-                    return () => import( "./components/game-over/game-over" );
+                    return () => import( "./components/game-over/game-over.vue" );
                 case SCREEN_FINALE:
-                    return () => import( "./components/finale/finale" );
+                    return () => import( "./components/finale/finale.vue" );
             }
         },
         isTitleScreen() {

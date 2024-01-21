@@ -67,9 +67,9 @@
 
 <script>
 import { mapGetters, mapMutations, mapActions } from "vuex";
-import sortBy           from "lodash/sortBy";
-import Modal            from "@/components/modal/modal";
-import InventoryList    from "@/components/shared/inventory-list/inventory-list";
+import sortBy from "lodash/sortBy";
+import Modal from "@/components/modal/modal.vue";
+import InventoryList from "@/components/shared/inventory-list/inventory-list.vue";
 import { TWENTY_FOUR_HOURS } from "@/definitions/constants";
 import ItemTypes, {
     SHOE_TYPES, SHOE_HEELS, SHOE_SNEAKERS, SHOE_FLIPPERS,

@@ -1,4 +1,5 @@
-import { QUEEN, DRAGON } from "@/definitions/character-types";
+import { describe, it, expect } from "vitest";
+import { DRAGON } from "@/definitions/character-types";
 import CharacterFactory  from "@/model/factories/character-factory";
 import IntentFactory     from "@/model/factories/intent-factory";
 import InventoryFactory  from "@/model/factories/inventory-factory";

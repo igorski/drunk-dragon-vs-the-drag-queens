@@ -21,7 +21,7 @@
 
 <script>
 import { mapGetters, mapMutations, mapActions } from "vuex";
-import Modal from "@/components/modal/modal";
+import Modal from "@/components/modal/modal.vue";
 import messages from "./messages.json";
 
 export default {

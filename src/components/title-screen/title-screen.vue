@@ -26,7 +26,7 @@
 <script>
 import { mapMutations } from "vuex";
 import { SCREEN_CHARACTER_CREATE } from "@/definitions/screens";
-import AnimatedTextWindow from "@/components/animated-text-window/animated-text-window";
+import AnimatedTextWindow from "@/components/animated-text-window/animated-text-window.vue";
 import messages from "./messages.json";
 
 export default {

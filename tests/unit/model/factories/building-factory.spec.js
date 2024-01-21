@@ -1,11 +1,12 @@
+import { describe, it, expect, vi } from "vitest";
 import BuildingFactory  from "@/model/factories/building-factory";
 import CharacterFactory from "@/model/factories/character-factory";
 
-jest.mock( "zcanvas", () => ({
+vi.mock( "zcanvas", () => ({
     Loader: {
-        onReady: new Promise(resolve => resolve())
+        onReady: Promise.resolve,
     },
-    Sprite: jest.fn()
+    Sprite: vi.fn()
 }));
 
 describe("Building factory", () => {

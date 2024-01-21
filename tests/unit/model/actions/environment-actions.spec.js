@@ -1,3 +1,4 @@
+import { describe, it, expect, vi } from "vitest";
 import EnvironmentActions from "@/model/actions/environment-actions";
 import { BUILDING_TYPE }  from "@/model/factories/building-factory";
 import CharacterFactory   from "@/model/factories/character-factory";
@@ -8,18 +9,18 @@ import { indexToCoordinate } from "@/utils/terrain-util";
 // mock pathfinder implementation
 const mockPath = [{ x: 1, y: 2 }, { x: 2, y: 2 }];
 let mockPathArgs;
-jest.mock( "@/utils/path-finder", () => ({
+vi.mock( "@/utils/path-finder", () => ({
     findPath: (...args) => {
         mockPathArgs = args;
         return mockPath;
     },
 }));
 
-jest.mock( "zcanvas", () => ({
+vi.mock( "zcanvas", () => ({
     Loader: {
         onReady: new Promise(resolve => resolve())
     },
-    Sprite: jest.fn()
+    Sprite: vi.fn()
 }));
 
 describe( "Environment actions", () => {
@@ -39,7 +40,7 @@ describe( "Environment actions", () => {
         };
 
         it( "should always cancel the pending movements for the requested character", () => {
-            const commit = jest.fn();
+            const commit = vi.fn();
             EnvironmentActions.moveCharacter({ commit, getters }, character, environment, 0, 0 );
             expect( commit ).toHaveBeenNthCalledWith(
                 1, "removeEffectsByTargetAndMutation",
@@ -48,7 +49,7 @@ describe( "Environment actions", () => {
         });
 
         it( "should enqueue waypoints calculated on-the-fly from the source and target coordinates", () => {
-            const commit = jest.fn();
+            const commit = vi.fn();
             const targetX = 3;
             const targetY = 2;
 
@@ -70,7 +71,7 @@ describe( "Environment actions", () => {
         });
 
         it( "should use default mutations during movement update", () => {
-            const commit = jest.fn();
+            const commit = vi.fn();
             EnvironmentActions.moveCharacter({ commit, getters }, character, environment, 5, 7 );
             // first is a Y translation
             expect( commit ).toHaveBeenNthCalledWith( 2, "addEffect", {
@@ -83,7 +84,7 @@ describe( "Environment actions", () => {
         });
 
         it( "should use custom mutations during movement update, when provided", () => {
-            const commit = jest.fn();
+            const commit = vi.fn();
             EnvironmentActions.moveCharacter({ commit, getters }, character, environment, 5, 7, [], "xMut", "yMut", "upMut" );
             // first is a Y translation
             expect( commit ).toHaveBeenNthCalledWith( 2, "addEffect", {
@@ -96,7 +97,7 @@ describe( "Environment actions", () => {
         });
 
         it( "should keep the first two existing movement Effects when requesting a new navigation before the previous completed", () => {
-            const commit = jest.fn();
+            const commit = vi.fn();
             const targetX = 3;
             const targetY = 3;
             const existing = [{ id: "effect1", endValue: 2 }, { id: "effect2", endValue: 2 }, { id: "effect3", endValue: 2 }];
@@ -118,8 +119,8 @@ describe( "Environment actions", () => {
 
     describe( "When hit testing the players location with an Object", () => {
         it( "should not take any action when the player is not touching any Object", () => {
-            const dispatch    = jest.fn();
-            const commit      = jest.fn();
+            const dispatch    = vi.fn();
+            const commit      = vi.fn();
             const getters     = {};
             const environment = {
                 x: 10,
@@ -137,8 +138,8 @@ describe( "Environment actions", () => {
         });
 
         it( "should interact with a character when the player collides with said character", () => {
-            const dispatch    = jest.fn();
-            const commit      = jest.fn();
+            const dispatch    = vi.fn();
+            const commit      = vi.fn();
             const getters     = {};
             const environment = {
                 x: 10,
@@ -155,8 +156,8 @@ describe( "Environment actions", () => {
         });
 
         it( "should enter a shop when the player collides with said shop", () => {
-            const dispatch    = jest.fn();
-            const commit      = jest.fn();
+            const dispatch    = vi.fn();
+            const commit      = vi.fn();
             const getters     = {};
             const environment = {
                 x: 10,
@@ -173,8 +174,8 @@ describe( "Environment actions", () => {
         });
 
         it( "should enter a building when the player collides with said building", () => {
-            const dispatch    = jest.fn();
-            const commit      = jest.fn();
+            const dispatch    = vi.fn();
+            const commit      = vi.fn();
             const getters     = {};
             const environment = {
                 x: 10,
@@ -191,8 +192,8 @@ describe( "Environment actions", () => {
         });
 
         it( "should move to a lower floor when the player collides with the first exit inside a building", () => {
-            const dispatch    = jest.fn();
-            const commit      = jest.fn();
+            const dispatch    = vi.fn();
+            const commit      = vi.fn();
             const getters     = { floor : 1 };
             const environment = {
                 x: 10,
@@ -209,8 +210,8 @@ describe( "Environment actions", () => {
         });
 
         it( "should move to a higher floor when the player collides with the last exit inside a building", () => {
-            const dispatch    = jest.fn();
-            const commit      = jest.fn();
+            const dispatch    = vi.fn();
+            const commit      = vi.fn();
             const getters     = { floor : 1 };
             const environment = {
                 x: 10,
@@ -227,8 +228,8 @@ describe( "Environment actions", () => {
         });
 
         it ( "should enter the hotel when the player collides with a hotel counter", () => {
-            const commit   = jest.fn();
-            const dispatch = jest.fn();
+            const commit   = vi.fn();
+            const dispatch = vi.fn();
             const getters  = { floor : 1 };
             const environment = {
                 x: 10,
@@ -246,8 +247,8 @@ describe( "Environment actions", () => {
         });
 
         it( "should collect an item when the player collides with it", () => {
-            const commit   = jest.fn();
-            const dispatch = jest.fn();
+            const commit   = vi.fn();
+            const dispatch = vi.fn();
             const getters  = { floor : 1 };
             const environment = {
                 x: 5,
@@ -264,8 +265,8 @@ describe( "Environment actions", () => {
         });
 
         it( "should enter the secret cave when the player reaches its entrance", () => {
-            const commit   = jest.fn();
-            const dispatch = jest.fn();
+            const commit   = vi.fn();
+            const dispatch = vi.fn();
             const terrain = new Array( 16 ).fill( WORLD_TILES.GROUND );
             terrain[ 8 ] = WORLD_TILES.CAVE;
             const environment = {

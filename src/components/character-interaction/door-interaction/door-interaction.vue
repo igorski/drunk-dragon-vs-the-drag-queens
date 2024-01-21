@@ -80,9 +80,9 @@
 <script>
 import { mapGetters, mapMutations, mapActions } from "vuex";
 import ItemTypes from "@/definitions/item-types";
-import Inventory from "@/components/inventory/inventory";
+import Inventory from "@/components/inventory/inventory.vue";
 import ActionsUI from "@/mixins/actions-ui";
-import { randomBool, randomFromList, randomInRangeFloat } from "@/utils/random-util";
+import { randomFromList } from "@/utils/random-util";
 
 import messages from "./messages.json";
 

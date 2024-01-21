@@ -1,18 +1,21 @@
+import { describe, it, expect, vi } from "vitest";
 import store from "@/store";
 const { mutations, actions } = store;
 
-jest.useFakeTimers();
-jest.mock( "promised-script-loader", () => ({}));
-let mockStorage = jest.fn();
-jest.mock( "store/dist/store.modern", () => ({
-    get : () => mockStorage,
-    set : (...args) => mockStorage(...args)
+vi.useFakeTimers();
+vi.mock( "promised-script-loader", () => ({}));
+let mockStorage = vi.fn();
+vi.mock( "store/dist/store.modern", () => ({
+    default: {
+        get : () => mockStorage,
+        set : (...args) => mockStorage(...args)
+    }
 }));
-jest.mock( "zcanvas", () => ({
+vi.mock( "zcanvas", () => ({
     Loader: {
         onReady: new Promise(resolve => resolve())
     },
-    Sprite: jest.fn()
+    Sprite: vi.fn()
 }));
 
 describe( "Vuex store", () => {
@@ -61,8 +64,8 @@ describe( "Vuex store", () => {
                 const state = { dialog: null };
                 const type = "error";
                 const title = "bar";
-                const confirm = jest.fn();
-                const cancel = jest.fn();
+                const confirm = vi.fn();
+                const cancel = vi.fn();
 
                 mutations.openDialog( state, { type, message, title, confirm, cancel });
                 expect( state.dialog ).toEqual({ type, message, title, confirm, cancel });
@@ -104,21 +107,21 @@ describe( "Vuex store", () => {
 
     describe( "actions", () => {
         it( "should be able to toggle the auto save state", () => {
-            const commit = jest.fn();
-            const dispatch = jest.fn();
+            const commit = vi.fn();
+            const dispatch = vi.fn();
 
             actions.enableAutoSave({ commit, dispatch }, true );
             expect( commit ).toHaveBeenCalledWith( "setAutoSave", true );
             expect( dispatch ).not.toHaveBeenCalled();
 
-            jest.advanceTimersByTime( 180000 );
+            vi.advanceTimersByTime( 180000 );
             expect( dispatch ).toHaveBeenNthCalledWith( 1, "saveGame" );
         });
 
         it( "should be able to store the user preferences", () => {
             const state   = { autoSave: true };
             const getters = { muted: true };
-            mockStorage   = jest.fn();
+            mockStorage   = vi.fn();
 
             actions.saveOptions({ state, getters });
 
@@ -130,8 +133,8 @@ describe( "Vuex store", () => {
                 autoSave : true,
                 muted    : true,
             };
-            const commit   = jest.fn();
-            const dispatch = jest.fn();
+            const commit   = vi.fn();
+            const dispatch = vi.fn();
 
             actions.loadOptions({ commit, dispatch });
 

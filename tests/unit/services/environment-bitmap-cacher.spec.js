@@ -1,6 +1,6 @@
+import { describe, it, expect, vi } from "vitest";
 import {
     getTileDescription,
-    FULL_SIZE,
     BOTTOM_RIGHT,
     BOTTOM_LEFT,
     TOP_RIGHT,
@@ -17,11 +17,11 @@ import {
 import BuildingFactory, { BUILDING_TYPE, BUILDING_TILES } from "@/model/factories/building-factory";
 import { coordinateToIndex } from "@/utils/terrain-util";
 
-jest.mock( "zcanvas", () => ({
+vi.mock( "zcanvas", () => ({
     Loader: {
         onReady: new Promise(resolve => resolve())
     },
-    Sprite: jest.fn()
+    Sprite: vi.fn()
 }));
 
 describe("Environment bitmap cacher", () => {

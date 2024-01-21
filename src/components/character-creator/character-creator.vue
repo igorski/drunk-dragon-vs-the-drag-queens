@@ -109,7 +109,7 @@ import { mapState } from "vuex";
 import PriceTypes from "@/definitions/price-types";
 import CharacterFactory, { QUEEN_APPEARANCE, QUEEN_SKIN_COLORS } from "@/model/factories/character-factory";
 import InventoryFactory from "@/model/factories/inventory-factory";
-import Character from "@/renderers/character-queen";
+import Character from "@/renderers/character-queen.vue";
 import { isMobile } from "@/utils/browser-util";
 import { generateDragQueenName } from "@/utils/name-generator";
 import messages from "./messages.json";

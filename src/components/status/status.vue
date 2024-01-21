@@ -56,8 +56,8 @@
 
 <script>
 import { mapState, mapGetters } from "vuex";
-import Modal from "@/components/modal/modal";
-import Inventory from "@/components/inventory/inventory";
+import Modal from "@/components/modal/modal.vue";
+import Inventory from "@/components/inventory/inventory.vue";
 import { xpNeededForLevel } from "@/definitions/constants";
 import { BUILDING_TYPE } from "@/model/factories/building-factory";
 import { timestampToFormattedDate, timestampToTimeString } from "@/utils/time-util";
@@ -86,7 +86,7 @@ export default {
             "player",
         ]),
         characterComponent() {
-            return () => import("@/renderers/character-queen");
+            return () => import( "@/renderers/character-queen.vue" );
         },
         characterWidth() {
             const ideal = 300; /* see _variables@mobile-width */

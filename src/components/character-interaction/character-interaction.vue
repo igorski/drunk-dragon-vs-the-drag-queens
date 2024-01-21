@@ -33,7 +33,7 @@
 
 <script>
 import { mapState, mapGetters } from "vuex";
-import Modal from "@/components/modal/modal";
+import Modal from "@/components/modal/modal.vue";
 import ItemTypes from "@/definitions/item-types";
 import { FLOOR_TYPES } from "@/model/factories/building-factory";
 import { randomInRangeFloat } from "@/utils/random-util";
@@ -58,7 +58,7 @@ export default {
         ]),
         characterComponent() {
             // TODO: currently we only interact with queens?
-            return () => import("@/renderers/character-queen");
+            return () => import( "@/renderers/character-queen.vue" );
         },
         characterWidth() {
             const ideal = 300; /* see _variables@mobile-width */
@@ -74,9 +74,9 @@ export default {
         interactionComponent() {
             // Queens only appear in front of building doors or in bar type floors (for now)
             if ( this.isBarInteraction ) {
-                return () => import( "./bar-interaction/bar-interaction" );
+                return () => import( "./bar-interaction/bar-interaction.vue" );
             } else {
-                return () => import( "./door-interaction/door-interaction" );
+                return () => import( "./door-interaction/door-interaction.vue" );
             }
         }
     },

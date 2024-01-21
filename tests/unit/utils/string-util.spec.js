@@ -1,3 +1,4 @@
+import { describe, it, expect } from "vitest";
 import { slurWords } from "@/utils/string-util";
 
 describe( "String utility", () => {

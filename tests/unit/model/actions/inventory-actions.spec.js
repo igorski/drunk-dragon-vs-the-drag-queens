@@ -1,3 +1,4 @@
+import { describe, it, expect } from "vitest";
 import InventoryActions from "@/model/actions/inventory-actions";
 import InventoryFactory from "@/model/factories/inventory-factory";
 import ItemTypes from "@/definitions/item-types";

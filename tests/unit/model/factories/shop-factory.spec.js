@@ -1,5 +1,5 @@
+import { describe, it, expect } from "vitest";
 import ShopFactory, { SHOP_TYPES } from "@/model/factories/shop-factory";
-import ItemTypes from "@/definitions/item-types";
 
 describe( "Shop factory", () => {
     it( "should be able to assemble and disassemble a serialized shop without loss of data", () => {

@@ -1,3 +1,4 @@
+import { describe, it, expect } from "vitest";
 import EffectFactory from "@/model/factories/effect-factory";
 import { GAME_TIME_RATIO } from "@/definitions/constants";
 

@@ -1,3 +1,4 @@
+import { describe, it, expect } from "vitest";
 import CharacterActions from "@/model/actions/character-actions";
 import CharacterFactory from "@/model/factories/character-factory";
 import { SHOE_HEELS, SHOE_SNEAKERS } from "@/definitions/item-types";

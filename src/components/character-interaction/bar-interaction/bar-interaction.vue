@@ -111,7 +111,7 @@
 import { mapGetters, mapMutations, mapActions } from "vuex";
 import { SCREEN_BATTLE } from "@/definitions/screens";
 import CharacterActions from "@/model/actions/character-actions";
-import Inventory from "@/components/inventory/inventory";
+import Inventory from "@/components/inventory/inventory.vue";
 import { WORLD_TILES } from "@/model/factories/world-factory";
 import ActionsUI from "@/mixins/actions-ui";
 import { randomFromList } from "@/utils/random-util";

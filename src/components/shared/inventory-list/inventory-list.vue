@@ -10,7 +10,7 @@
 
 <script>
 import { mapGetters }  from "vuex";
-import SelectList      from "@/components/shared/select-list/select-list";
+import SelectList      from "@/components/shared/select-list/select-list.vue";
 import sharedMessages  from "@/i18n/items.json";
 import messages        from "./messages.json";
 
