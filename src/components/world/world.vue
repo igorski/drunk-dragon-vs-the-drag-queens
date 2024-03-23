@@ -94,6 +94,7 @@ export default {
     },
     mounted() {
         zcanvas.insertInPage( this.$refs.canvasContainer );
+        requestAnimationFrame(() => this.handleResize()); // first forced calculation to overcome Safari issue 
     },
     destroyed() {
         this.handlers.forEach(({ event, callback }) => {

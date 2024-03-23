@@ -195,35 +195,35 @@ export default {
                 default:
                     return null;
                 case FOOD_HAMBURGER:
-                    return require( "@/assets/illustrations/item_hamburger.png" );
+                    return new URL( "@/assets/illustrations/item_hamburger.png", import.meta.url );
                 case FOOD_PIZZA:
-                    return require( "@/assets/illustrations/item_pizza.png" );
+                    return new URL( "@/assets/illustrations/item_pizza.png", import.meta.url );
                 case SHOE_HEELS:
-                    return require( "@/assets/illustrations/item_heels.png" );
+                    return new URL( "@/assets/illustrations/item_heels.png", import.meta.url );
                 case SHOE_SNEAKERS:
-                    return require( "@/assets/illustrations/item_sneakers.png" );
+                    return new URL( "@/assets/illustrations/item_sneakers.png", import.meta.url );
                 case SHOE_FLIPPERS:
-                    return require( "@/assets/illustrations/item_flippers.png" );
+                    return new URL( "@/assets/illustrations/item_flippers.png", import.meta.url );
                 case LIQUOR_WINE:
-                    return require( "@/assets/illustrations/item_wine.png" );
+                    return new URL( "@/assets/illustrations/item_wine.png", import.meta.url );
                 case LIQUOR_GIN:
-                    return require( "@/assets/illustrations/item_gin.png" );
+                    return new URL( "@/assets/illustrations/item_gin.png", import.meta.url );
                 case LIQUOR_COGNAC:
-                    return require( "@/assets/illustrations/item_cognac.png" );
+                    return new URL( "@/assets/illustrations/item_cognac.png", import.meta.url );
                 case HEALTHCARE_ASPIRIN:
-                    return require( "@/assets/illustrations/item_aspirin.png" );
+                    return new URL( "@/assets/illustrations/item_aspirin.png", import.meta.url );
                 case HEALTHCARE_BANDAID:
-                    return require( "@/assets/illustrations/item_bandaid.png" );
+                    return new URL( "@/assets/illustrations/item_bandaid.png", import.meta.url );
                 case JEWELRY_NECKLACE:
-                    return require( "@/assets/illustrations/item_necklace.png" );
+                    return new URL( "@/assets/illustrations/item_necklace.png", import.meta.url );
                 case JEWELRY_BRACELET:
-                    return require( "@/assets/illustrations/item_bracelet.png" );
+                    return new URL( "@/assets/illustrations/item_bracelet.png", import.meta.url );
                 case JEWELRY_EARRINGS:
-                    return require( "@/assets/illustrations/item_earrings.png" );
+                    return new URL( "@/assets/illustrations/item_earrings.png", import.meta.url );
                 case DRUG_STIMULANT_A:
-                    return require( "@/assets/illustrations/item_stimulant_a.png" );
+                    return new URL( "@/assets/illustrations/item_stimulant_a.png", import.meta.url );
                 case DRUG_NOSE_CANDY:
-                    return require( "@/assets/illustrations/item_nose_candy.png" );
+                    return new URL( "@/assets/illustrations/item_nose_candy.png", import.meta.url );
             }
         },
         canBuy( item ) {
