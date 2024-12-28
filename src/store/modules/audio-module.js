@@ -1,6 +1,5 @@
 import axios from "axios";
 import bowser from "bowser";
-import scriptLoader from "promised-script-loader";
 import { TRACK_TYPES, OVERGROUND_THEMES, BUILDING_THEMES, BATTLE_THEMES } from "@/definitions/audio-tracks";
 import { WORLD_TYPE } from "@/model/factories/world-factory";
 import { BUILDING_TYPE } from "@/model/factories/building-factory";
@@ -8,6 +7,8 @@ import { randomFromList } from "@/utils/random-util";
 
 const parsedBrowser = bowser.getParser( window.navigator.userAgent );
 const isIOS = parsedBrowser?.os?.name === "iOS" || parsedBrowser?.browser?.name === "Safari" // iOS 13 reports as MacOS...
+
+const MUSIC_SOURCE = "local";// "soundcloud";
 
 // automatic audio playback is blocked until a user interaction
 const prepare = ({ state, commit }, optCallback ) => {
@@ -86,25 +87,32 @@ export default {
                 trackId = trackTypeIdOrTrackId;
             }
 
-            // a valid SoundCloud access token should be managed by the containing page.
-            // see https://developers.soundcloud.com/docs/api/explorer/open-api on how
-            // to register an application and retrieve a valid token
-            const token = window.soundCloudAccessToken || localStorage?.getItem( "soundCloudAccessToken" );
-            if ( !token ) {
-                return;
-            }
-            const requestData = {
-                headers: {
-                    "Content-Type"  : "application/json; charset=utf-8",
-                    "Authorization" : `OAuth ${token}`
+            let sourcePath = "";
+            if ( MUSIC_SOURCE === "soundcloud" ) {
+                // a valid SoundCloud access token should be managed by the containing page.
+                // see https://developers.soundcloud.com/docs/api/explorer/open-api on how
+                // to register an application and retrieve a valid token
+                const token = window.soundCloudAccessToken || localStorage?.getItem( "soundCloudAccessToken" );
+                if ( !token ) {
+                    return;
                 }
-            };
-            let { data } = await axios.get( `https://api.soundcloud.com/tracks/${trackId}`, requestData );
-            if ( data?.access === "playable" && data.stream_url ) {
-                // data.stream_url should be the way to go but this leads to CORS errors when following
-                // a redirect... for now use the /streams endpoint
-               ({ data } = await axios.get( `https://api.soundcloud.com/tracks/${trackId}/streams`, requestData ));
+                const requestData = {
+                    headers: {
+                        "Content-Type"  : "application/json; charset=utf-8",
+                        "Authorization" : `OAuth ${token}`
+                    }
+                };
+                let { data } = await axios.get( `https://api.soundcloud.com/tracks/${trackId}`, requestData );
+                if ( data?.access === "playable" && data.stream_url ) {
+                    // data.stream_url should be the way to go but this leads to CORS errors when following
+                    // a redirect... for now use the /streams endpoint
+                    ({ data } = await axios.get( `https://api.soundcloud.com/tracks/${trackId}/streams`, requestData ));
+                    sourcePath = data?.http_mp3_128_url;
+                }
+            } else {
+                sourcePath = `./music/music-${trackId}.mp3`;
             }
+
             const start = async () => {
                 if ( state.lastTrackId === trackId && state.playing ) {
                     return;  // already playing this tune!
@@ -112,14 +120,14 @@ export default {
                 dispatch( "stopSound" ); // stop playing the current track (TODO : fade out?)
                 commit( "setLastTrackId", trackId );
 
-                if ( data?.http_mp3_128_url ) {
-                    const sound = createAudioElement( data.http_mp3_128_url, true );
+                if ( sourcePath ) {
+                    const sound = createAudioElement( sourcePath, true );
                     commit( "setSound", sound );
                     sound.play();
                 }
                 commit( "setPlaying", true );
             };
-            console.warn( "is IOS > " + isIOS);
+            
             // on iOS, each subsequent track needs click handler
             if ( !state.prepared || isIOS ) {
                 prepare({ state, commit }, start );
