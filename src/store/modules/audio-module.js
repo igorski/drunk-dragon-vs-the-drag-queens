@@ -1,4 +1,3 @@
-import axios from "axios";
 import bowser from "bowser";
 import { TRACK_TYPES, OVERGROUND_THEMES, BUILDING_THEMES, BATTLE_THEMES } from "@/definitions/audio-tracks";
 import { WORLD_TYPE } from "@/model/factories/world-factory";
@@ -97,16 +96,19 @@ export default {
                     return;
                 }
                 const requestData = {
+                    method: "GET",
                     headers: {
                         "Content-Type"  : "application/json; charset=utf-8",
                         "Authorization" : `OAuth ${token}`
                     }
                 };
-                let { data } = await axios.get( `https://api.soundcloud.com/tracks/${trackId}`, requestData );
+                let response = await fetch( `https://api.soundcloud.com/tracks/${trackId}`, requestData );
+                let data = await response.json();
                 if ( data?.access === "playable" && data.stream_url ) {
                     // data.stream_url should be the way to go but this leads to CORS errors when following
                     // a redirect... for now use the /streams endpoint
-                    ({ data } = await axios.get( `https://api.soundcloud.com/tracks/${trackId}/streams`, requestData ));
+                    response = await fetch( `https://api.soundcloud.com/tracks/${trackId}/streams`, requestData );
+                    data = await response.json();
                     sourcePath = data?.http_mp3_128_url;
                 }
             } else {
